@@ -72,7 +72,7 @@ EM.PF.wrapper<-function(all.out, iterations=10, save.Res=T, cpus=24, nParticles=
 	cat("+----------------------------------+\n")
 	cat("|     new Log Likelihood is",  LL, "\n")
 	cat("+----------------------------------+\n")
-save(LL, file=paste(LL, "time", format(Sys.time(), "%Y-%m-%dT%H:%m"), ".RData", sep="."))
+    save(LL, file=paste(LL, "time", format(Sys.time(), "%H-%m"), ".RData"))
     # Part 2b comparing the likelihood with previous estimate
     # now we need to save it..
     if (length(all.out$LL)==0 ) {
