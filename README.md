@@ -7,6 +7,7 @@ the package is far from the release...
 
 
 to install the package try:
+    
     require("devtools")
     install_github("fLightR", "eldarrak")
 	library(fLightR)
