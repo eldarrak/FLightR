@@ -1,4 +1,4 @@
-fLightR
+FLightR
 =======
 
 here there will be a source code for R package fLightR
@@ -9,6 +9,6 @@ the package is far from the release...
 to install the package try:
     
     require("devtools")
-    install_github("fLightR", "eldarrak")
-	library(fLightR)
+    install_github("FLightR", "eldarrak")
+	library(FLightR)
 
