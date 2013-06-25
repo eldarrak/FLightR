@@ -49,36 +49,42 @@ split.screen(c(1,3), screen = 2)
 
 			cat("producing image #", i, "\n")
 		screen(7)
-
-			Image<-as.image(Dawn.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
+			if (length(unique(Dawn.Column[Index]))>2) {
+			Image<-try(as.image(Dawn.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50))
 			image(Image , main="Dawn", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
 			abline(v=Start[1], col=grey(0.5), lwd=2, lty=2)
 			abline(h=Start[2], col=grey(0.5), lwd=2, lty=2)
 			image.plot(Image, col=my.golden.colors(64), add=T,  legend.mar=3.1, legend.only=T)
+			} 
+			
 			###########################
 			## Multiplication graph
 			#par( my.par)
 		screen(8)
+			if (length(unique(Dawn.Column[Index]))>2 & length(unique(Dusk.Column[Index]))>2) {
+
 			Image<-as.image(Dusk.Column[Index]*Dawn.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
 			image(Image, main="Multiplication", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
 			abline(v=Start[1], col=grey(0.5), lwd=2, lty=2)
 			abline(h=Start[2], col=grey(0.5), lwd=2, lty=2)
-			image.plot(Image, col=my.golden.colors(64), add=T,  legend.mar=3.1, legend.only=T)
-			###########################
-			## Dusk graph			
-			#par( my.par)
+			try(image.plot(Image, col=my.golden.colors(64), add=T,  legend.mar=3.1, legend.only=T))
+			}
+
 		screen(9)
+			if (length(unique(Dusk.Column[Index]))>2) {
 			Image<-as.image(Dusk.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
 			image(Image, main="Dusk", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
 			abline(v=Start[1], col=grey(0.5), lwd=2, lty=2)
 			abline(h=Start[2], col=grey(0.5), lwd=2, lty=2)
-			image.plot(Image, col=my.golden.colors(64), add=T,  legend.mar=3.1, legend.only=T)					##########################################
+			image.plot(Image, col=my.golden.colors(64), add=T,  legend.mar=3.1, legend.only=T)			
+			}
+			##########################################
 			### new set
 			#########################################
 		screen(5)
