@@ -25,7 +25,7 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 					plot(1~Mean, ylim=c(0,1), xlim=c(a,b), xlab="Distance", ylab="PDF", pch=16, cex=2)
 				}
 				else {
-					plot(dtruncnorm(x=as.real(c(a:b)), a=a, b=b, mean = Mean , sd = M.sd), xlim=c(a,b), xlab="Distance", ylab="PDF", type="l", lwd=2, main=paste("accepted distances for flight to", all.out$Matrix.Index.Table$Real.time[i]))
+					try(plot(dtruncnorm(x=as.double(c(a:b)), a=a, b=b, mean = Mean , sd = M.sd), xlim=c(a,b), xlab="Distance", ylab="PDF", type="l", lwd=2, main=paste("accepted distances for flight to", all.out$Matrix.Index.Table$Real.time[i])))
 				}
 			} else { plot.new()}
 
