@@ -1,10 +1,11 @@
 make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, sea.value=0, a=0, b=500) {
 	require(animation)
 	require(maptools)
+	require(maps)
 	require(circular)
 	require(fields)
 	require(truncnorm)
-	if (add.boundaries) data(wrld_simpl)
+	#if (add.boundaries) data(wrld_simpl)
 	Points.Land<-all.out$Points.Land
 	my.golden.colors <- colorRampPalette(
 					c("white","#FF7100"),
@@ -60,14 +61,19 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			Points2plot[all.out$Points.rle[[i+1]][[2]]]<-all.out$Points.rle[[i+1]][[1]]/1e6
 			
 			image.plot(as.image(Points2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("points distribution at",  all.out$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
-			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
-			abline(v=Start[1], col="grey")
+			if (add.boundaries) {
+			        map('state',add=TRUE, lwd=1,  col=grey(0.5))
+			        map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+			        }			abline(v=Start[1], col="grey")
 			abline(h=Start[2], col="grey")
 			# now I want to add existing track
 			lines(CENTRE.y~CENTRE.x, data=all.out$Final.Means[1:i+1,], col="red", lwd=2)
 			points(CENTRE.y~CENTRE.x, data=all.out$Final.Means[1:i+1,], col="red", lwd=2, pch=16)
 			points(CENTRE.y~CENTRE.x, data=all.out$Final.Means[i+1,], col="black", lwd=2, pch=3, cex=2)
-			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
+			if (add.boundaries) {
+			        map('state',add=TRUE, lwd=1,  col=grey(0.5))
+			        map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+			        }
 		}
 	}, video.name = video.name, other.opts = "-b 300k", ffmpeg="C:/Program Files/ffmpeg/bin/ffmpeg.exe", outdir = getwd(), imgdir=getwd(), ani.width=1200, ani.height=800, clean = TRUE)
 }
