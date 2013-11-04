@@ -64,7 +64,8 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			if (add.boundaries) {
 			        map('state',add=TRUE, lwd=1,  col=grey(0.5))
 			        map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
-			        }			abline(v=Start[1], col="grey")
+			        }
+			abline(v=Start[1], col="grey")
 			abline(h=Start[2], col="grey")
 			# now I want to add existing track
 			lines(CENTRE.y~CENTRE.x, data=all.out$Final.Means[1:i+1,], col="red", lwd=2)
