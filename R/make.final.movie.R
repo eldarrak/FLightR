@@ -46,7 +46,10 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			Matrix2plot<-all.out$Phys.Mat[,i]
 			Matrix2plot[all.out$Geogr.proposal==0]<-sea.value
 			image.plot(as.image(Matrix2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("likelihood surface at",  all.out$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
-			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
+			if (add.boundaries) {
+			        map('state',add=TRUE, lwd=1,  col=grey(0.5))
+			        map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+			        }
 			abline(v=Start[1], col="grey")
 			abline(h=Start[2], col="grey")
 			# now I want to add existing track
