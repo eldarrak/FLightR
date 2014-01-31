@@ -22,7 +22,7 @@ Start=in.Data$Points.Land[in.Data$start[1],1:2]
 		#Dawn.matrix=Dawn.matrix[Index,]
 		#Dusk.matrix=Dusk.matrix[Index,]
 		}
-		
+print(max(Index))		
 	# adding rows ID
 	Index.Dawn<-which(in.Data$Matrix.Index.Table$Dusk==F)
 	
@@ -50,7 +50,7 @@ split.screen(c(1,3), screen = 2)
 			cat("producing image #", i, "\n")
 		screen(7)
 			if (length(unique(Dawn.Column[Index]))>2) {
-			Image<-try(as.image(Dawn.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50))
+			Image<-try(as.image(Dawn.Column[Index], x= in.Data$Points.Land, nrow=30, ncol=30, na.rm=T))
 			image(Image , main="Dawn", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -65,7 +65,7 @@ split.screen(c(1,3), screen = 2)
 		screen(8)
 			if (length(unique(Dawn.Column[Index]))>2 & length(unique(Dusk.Column[Index]))>2) {
 
-			Image<-as.image(Dusk.Column[Index]*Dawn.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
+			Image<-as.image(Dusk.Column[Index]*Dawn.Column[Index], x= in.Data$Points.Land, nrow=30, ncol=30)
 			image(Image, main="Multiplication", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -76,7 +76,7 @@ split.screen(c(1,3), screen = 2)
 
 		screen(9)
 			if (length(unique(Dusk.Column[Index]))>2) {
-			Image<-as.image(Dusk.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
+			Image<-as.image(Dusk.Column[Index], x= in.Data$Points.Land, nrow=30, ncol=30)
 			image(Image, main="Dusk", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
