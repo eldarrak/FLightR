@@ -44,7 +44,7 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			# now we want to plot the matrix!
 			par(mar=(c(3, 3, 3, 4) + 0.1))
 			Matrix2plot<-all.out$Phys.Mat[,i]
-			Matrix2plot[all.out$Geogr.proposal==0]<-sea.value
+			Matrix2plot[all.out$Geogr.proposal==0]<-Matrix2plot[all.out$Geogr.proposal==0]*sea.value
 			image.plot(as.image(Matrix2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("likelihood surface at",  all.out$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
 			if (add.boundaries) {
 			map('state',add=TRUE, lwd=1,  col=grey(0.5))
