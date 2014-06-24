@@ -8,11 +8,12 @@ the package is far from the release...
 =======
 NB: Current version represents old code and is out of date. The new shading free version is being tested now and will be available shortly (~ August 2014).
 
+---------------	
 to install the package try:
     
     require("devtools")
     install_github("FLightR", "eldarrak")
 	library(FLightR)
-	
+
 the description of the package is still to come :(
 
