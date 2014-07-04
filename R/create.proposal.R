@@ -1,5 +1,5 @@
- 
-create.proposal<-function(Result, start=c(-98.7, 34.7), end=NA) {
+# this create proposal is corrected for the missing loess
+create.proposal<-function(Result, start=c(-98.7, 34.7), end=NA, Points.Land=Points.Land) {
 	if (is.na(end)) end=start
 All.Days<-seq(min(min(Result$Final.dusk$Data$gmt), min(Result$Final.dawn$Data$gmt)),max(max(Result$Final.dusk$Data$gmt), max(Result$Final.dawn$Data$gmt)), by="days")
 
@@ -27,8 +27,8 @@ if (First.twilight=="dusk") {
 Index.tab$Curr.mat<-NA # this will be NA if no data and row number if there are..
 Index.tab$Real.time<-as.POSIXct(NA, tz="GMT")
 Index.tab$time<-as.POSIXct(NA, tz="GMT")
-Index.tab$Loess.se.fit<-NA
-Index.tab$Loess.n<-NA
+#Index.tab$Loess.se.fit<-NA
+#Index.tab$Loess.n<-NA
 
 ######################################
 # !!!! this will not work if bird will move for over 12 time zones!!!
@@ -37,8 +37,8 @@ for (i in 1:length(Result$Final.dusk$Data$gmt)) {
 	Row2write<-which.min(abs(difftime(Result$Final.dusk$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==T], units="mins")))
 	Index.tab$time[Index.tab$Dusk==T][Row2write]<-Result$Final.dusk$Data$gmt[i]
 	Index.tab$Real.time[Index.tab$Dusk==T][Row2write]<-Result$Final.dusk$Data$gmt.adj[i]
-	Index.tab$Loess.se.fit[Index.tab$Dusk==T][Row2write]<-Result$Final.dusk$Loess.predict$se.fit[i]
-	Index.tab$Loess.n[Index.tab$Dusk==T][Row2write]<-Result$Final.dusk$Loess.predict$n[i]
+	#Index.tab$Loess.se.fit[Index.tab$Dusk==T][Row2write]<-Result$Final.dusk$Loess.predict$se.fit[i]
+	#Index.tab$Loess.n[Index.tab$Dusk==T][Row2write]<-Result$Final.dusk$Loess.predict$n[i]
 	Index.tab$Curr.mat[Index.tab$Dusk==T][Row2write]<-i
 }
 
@@ -47,8 +47,8 @@ for (i in 1:length(Result$Final.dawn$Data$gmt)) {
 	Row2write<-which.min(abs(difftime(Result$Final.dawn$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==F], units="mins")))
 	Index.tab$time[Index.tab$Dusk==F][Row2write]<-Result$Final.dawn$Data$gmt[i]
 	Index.tab$Real.time[Index.tab$Dusk==F][Row2write]<-Result$Final.dawn$Data$gmt.adj[i]
-	Index.tab$Loess.se.fit[Index.tab$Dusk==F][Row2write]<-Result$Final.dawn$Loess.predict$se.fit[i]
-	Index.tab$Loess.n[Index.tab$Dusk==F][Row2write]<-Result$Final.dawn$Loess.predict$n[i]
+	#Index.tab$Loess.se.fit[Index.tab$Dusk==F][Row2write]<-Result$Final.dawn$Loess.predict$se.fit[i]
+	#Index.tab$Loess.n[Index.tab$Dusk==F][Row2write]<-Result$Final.dawn$Loess.predict$n[i]
 	Index.tab$Curr.mat[Index.tab$Dusk==F][Row2write]<-i
 }
 # cutting empty ends..
