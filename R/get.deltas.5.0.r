@@ -61,7 +61,6 @@ return(Res)
 }
 
 get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), interval=600, short.run=T, LogSlope=c(0.68, 0.4), threads=2, log.irrad.borders=c(-50, 50), Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=1, random.delta=T, wd="D://Geologgers") {
-get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), interval=600, short.run=T, LogSlope=c(0.68, 0.4), threads=2, log.irrad.borders=c(-50, 50), Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=1, random.delta=T, wd="D://Geologgers") {
 
 # points means number of latitudes that should be used for the run..
 require(parallel)
