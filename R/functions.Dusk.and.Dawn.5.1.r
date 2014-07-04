@@ -641,9 +641,9 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 
 		time_correction=time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
 		if (return.slopes) {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, calibration=Calibration.pre, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, interval=interval, time_correction=time_correction)	
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, interval=interval, time_correction=time_correction)	
 			} else {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, calibration=Calibration.pre,   Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, interval=interval, time_correction=time_correction)
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, interval=interval, time_correction=time_correction)
 		}
 		return(Current.probs)
 	}
