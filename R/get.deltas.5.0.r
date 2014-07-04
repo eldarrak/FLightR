@@ -36,7 +36,7 @@ if (return.all.out) {return(all.out)
 get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, interval=600, short.run=T, Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=3, random.delta=T, fast=F) {
 	if (random.delta) {
 		if (fast) {
-			Deltas<-rep(5, deltalim[1], deltalim[2]), repeats)
+			Deltas<-rep(runif(5, deltalim[1], deltalim[2]), repeats)
 		} else {
 			Deltas<-rep(runif(ceiling((deltalim[2]-deltalim[1])/0.02), deltalim[1], deltalim[2]), repeats)
 		}
