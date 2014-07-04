@@ -322,14 +322,14 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 			if (!exists("time_correction_fun")) { 
 			if (interval==600) {
 				if (is.null(correction.dir)) { 
-					data("time_correction_fun_600.RData", package="FLightR")
+					data("time_correction_fun_600", package="FLightR")
 					} else {
 				 load(file.path(correction.dir, "time_correction_fun_600.RData"))
 				}
 			}
 			if (interval==120) 	{			
 				if (is.null(correction.dir)) { 
-					data("time_correction_fun_120.RData", package="FLightR")
+					data("time_correction_fun_120", package="FLightR")
 					} else {
 				 load(file.path(correction.dir, "time_correction_fun_120.RData"))
 				}
@@ -347,14 +347,14 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 		if (!exists("lat_correction_fun")) { 
 			if (interval==600) {
 				if (is.null(correction.dir)) { 
-					data("lat_correction_fun_600.RData", package="FLightR")
+					data("lat_correction_fun_600", package="FLightR")
 					} else {
 				 load(file.path(correction.dir, "lat_correction_fun_600.RData"))
 				}
 			}
 			if (interval==120) 	{			
 				if (is.null(correction.dir)) { 
-					data("lat_correction_fun_120.RData", package="FLightR")
+					data("lat_correction_fun_120", package="FLightR")
 					} else {
 				 load(file.path(correction.dir, "lat_correction_fun_120.RData"))
 				}
@@ -625,14 +625,14 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 			cat ("loading time_correcton function\n")
 			if (interval==600) {
 				if (is.null(correction.dir)) { 
-					data("time_correction_fun_600.RData", package="FLightR")
+					data("time_correction_fun_600", package="FLightR")
 					} else {
 				 load(file.path(correction.dir, "time_correction_fun_600.RData"))
 				}
 			}
 			if (interval==120) 	{			
 				if (is.null(correction.dir)) { 
-					data("time_correction_fun_120.RData", package="FLightR")
+					data("time_correction_fun_120", package="FLightR")
 					} else {
 				 load(file.path(correction.dir, "time_correction_fun_120.RData"))
 				}
