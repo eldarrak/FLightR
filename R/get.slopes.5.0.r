@@ -267,7 +267,7 @@ S<-solar(Time)
 Track.row<-1:dim(Track)[1]
 cat("Angles...")
 Angles<-sapply(Track.row,  FUN=function(x) { elevation(Track[x,1], Track[x, 2], lapply(S, "[", i=x))})
-cat("Irradiance")
+cat("Irradiance\n")
 # Irradiance
 Irradiance<-sapply(Angles, FUN=function(x) get.Irradiance(x*pi/180))
 # ok, now I want to use the output from model as it has everything we need...
