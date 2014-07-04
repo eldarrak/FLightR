@@ -60,6 +60,7 @@ save(Res, file=paste("Res", start[2],"tmp.RData", sep="."))
 return(Res)
 }
 
+
 get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), interval=600, short.run=T, LogSlope=c(0.68, 0.4), threads=2, log.irrad.borders=c(-50, 50), Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=1, random.delta=T, wd="D://Geologgers") {
 
 # points means number of latitudes that should be used for the run..
@@ -73,6 +74,7 @@ Coords<-cbind(0, Lats)
     tmp<-parallel:::clusterExport(mycl, c("Parameters", "log.irrad.borders", "log.light.borders"))
     tmp<-parallel:::clusterEvalQ(mycl, library("FLightR"))
     tmp<-parallel:::clusterEvalQ(mycl, library("GeoLight")) 
+    tmp<-parallel:::clusterEvalQ(mycl, library("maptools")) 
     #tmp<-parallel:::clusterEvalQ(mycl, source(file.path(wd, "FLightR_functions_source\\run.segmented.lnorm.loess.R")))
     #tmp<-parallel:::clusterEvalQ(mycl, source(file.path(wd, "FLightR_functions_source\\create.proposal.R")))
     #tmp<-parallel:::clusterEvalQ(mycl, source(file.path(wd, "\\LightR_development_code\\functions.Dusk.and.Dawn.5.1.r")))
