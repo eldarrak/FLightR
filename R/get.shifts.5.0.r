@@ -8,7 +8,7 @@ get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irra
 #========================================
 if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
-Lnorm.param<-Parameters$LogSlope
+Lnorm.param<-Parameters$LogSlope_1_minute
 
 
 
