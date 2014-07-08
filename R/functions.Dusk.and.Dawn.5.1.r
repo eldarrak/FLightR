@@ -117,16 +117,24 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn])
-		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3]))		
-		}
+		if (length(Data)==0) {
+		cat ("dawn", dawn, "was excluded from the calibration\n")
+		} else {
+		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3]))	
+		}		
+	}
 	Calib.data.dawn$type<-"Dawn"
 
 	Calib.data.dusk<-data.frame()
 	for (dusk in 1:dim(Twilight.time.mat.Calib.dusk)[2]) {
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=T,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk])
-#print(str(Data)	)	
+#print(str(Data)	)
+		if (length(Data)==0) {
+		cat ("dusk", dusk, "was excluded from the calibration\n")
+		} else {
 		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3]))
+		}
 	}
 	Calib.data.dusk$type<-"Dusk"
 #print(str(Calib.data.dawn))
