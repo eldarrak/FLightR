@@ -166,8 +166,8 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	
 	Calib.data.all$fDay<-as.factor(Calib.data.all$Day)
 
-	m2<-lmer(LogLight~LogIrrad+LogIrrad:as.factor(type)+fDay-1+(0+LogIrrad|fDay),data=Calib.data.all) 
-	Significance.of.dusk.dawn.diff<-rev(summary(m2)@coefs[,2])[1]
+	#m2<-lmer(LogLight~LogIrrad+LogIrrad:as.factor(type)+fDay-1+(0+LogIrrad|fDay),data=Calib.data.all) 
+	#Significance.of.dusk.dawn.diff<-rev(summary(m2)@coefs[,2])[1]
 		
 	#==================
 	# here is the part for ver. 4.0
