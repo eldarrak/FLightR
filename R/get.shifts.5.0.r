@@ -4,7 +4,7 @@
 # ver 0.2 point correction possibility
 # ver 0.1 13.02.2014
 
-get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), Points.Land, start, ask=F, slopes.only=F, delta=NULL, short.run=F, saving.period=600, Time.seq=NULL, Time.seq.saving=NULL) {
+get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), Points.Land, start, ask=F, slopes.only=F, delta=NULL, short.run=F, saving.period=600, Time.seq=NULL, Time.seq.saving=NULL, correction.dir=NULL) {
 #========================================
 if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
@@ -253,11 +253,11 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twi
 		cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
  
-		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, interval=saving.period, log.light.borders=log.light.borders)
+		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, interval=saving.period, log.light.borders=log.light.borders, wcorrection.dird=correction.dir)
 		 #All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=cbind(0,38), return.slopes=T)
 	
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, interval=saving.period, log.light.borders=log.light.borders)
+		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, interval=saving.period, log.light.borders=log.light.borders, correction.dir=correction.dir)
 		#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land)
 # ok, what should we do now?
 # first I'd found a maximum of the probabilities for each day and comapre it with the means 

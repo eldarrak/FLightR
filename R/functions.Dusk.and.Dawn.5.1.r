@@ -327,7 +327,7 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 		# we will measure not Calib.param, but 
 		# f(Calib.param[1], Lat, time)
 		if (is.null(time_correction)) {
-			if (!exists("time_correction_fun")) { 
+			#if (!exists("time_correction_fun")) { 
 			if (interval==600) {
 				if (is.null(correction.dir)) { 
 					data("time_correction_fun_600", package="FLightR")
@@ -342,7 +342,7 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 				 load(file.path(correction.dir, "time_correction_fun_120.RData"))
 				}
 			}
-		}
+		#}
 		
 		time_correction=time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
 			}
@@ -352,7 +352,7 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 		Expected.mean<-time_correction
 		
 		if (is.null(delta)) {
-		if (!exists("lat_correction_fun")) { 
+		#if (!exists("lat_correction_fun")) { 
 			if (interval==600) {
 				if (is.null(correction.dir)) { 
 					data("lat_correction_fun_600", package="FLightR")
@@ -367,7 +367,7 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 				 load(file.path(correction.dir, "lat_correction_fun_120.RData"))
 				}
 			}
-		}
+		#}
 		lat_correction=lat_correction_fun(x[2])
 			delta=lat_correction
 		}
@@ -629,7 +629,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
 		
-	 if (!exists("time_correction_fun")) { 
+	 #if (!exists("time_correction_fun")) { 
 			cat ("loading time_correcton function\n")
 			if (interval==600) {
 				if (is.null(correction.dir)) { 
@@ -645,7 +645,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 				 load(file.path(correction.dir, "time_correction_fun_120.RData"))
 				}
 			}
-		}
+		#}
 
 		time_correction=time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
 		if (return.slopes) {
@@ -676,7 +676,6 @@ Diag.slopes<-Diag[which(sapply(strsplit(names(Diag), ":"), length)==2)]
 cur.slope$sd[!is.na(cur.slope[,2])]<-sqrt(Diag.slopes)
 cur.slope$type<-aggregate(cur.data[,"type"],by=list(Day=cur.data$fTwilight),FUN=function(x) unique(x))[,2]
 cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
-cur.slope$Source<-aggregate(cur.data[,"Source"],by=list(Day=cur.data$fTwilight),FUN=function(x) unique(x))[,2]
 
 cur.slope$Duration<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) max(x)-min(x))[,2]
 names(cur.slope)[2]<-"slope"
