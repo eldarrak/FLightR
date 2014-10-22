@@ -12,7 +12,7 @@ NB: Current version represents old code and is out of date. The new shading free
 to install the package try:
     
     require("devtools")
-    install_github("FLightR", "eldarrak")
+    install_github("eldarrak/FLightR")
 	library(FLightR)
 
 the description of the package is still to come :(
