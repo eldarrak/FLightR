@@ -15,13 +15,16 @@ create.credible.intervals.array<-function(in.Data, intervals=c(0.8, 0.6, 0.4, 0.
   cat("estimating rle..")
   for (Iteration in 1:length(in.Data$Points.rle)) {
     #cat("Iteration", Iteration, "\n")
-    points2read<-inverse.rle(in.Data$Points.rle[[Iteration]])
-    Density<-cumsum(sort.int(table(points2read), decreasing=T))/nParticles
-    for (int in 1:length(Seq)) {
+    #points2read<-inverse.rle(in.Data$Points.rle[[Iteration]])
+    #Density<-cumsum(sort.int(table(points2read), decreasing=T))/nParticles
+	Sorted<-sort.int(in.Data$Points.rle[[Iteration]]$length,  index.return=T, decreasing=T)
+    Density<-cumsum(Sorted$x)/nParticles
+	names(Density)<-in.Data$Points.rle[[Iteration]]$values[Sorted$ix]
+	for (int in 1:length(Seq)) {
       Pointstopoly<-as.integer(names(Density)[Density<=Seq[int]])
       if (length(Pointstopoly)==0) {
         Pointstopoly<-as.integer(names(Density)[1])}
-      Pol<-Polygons(list(Polygon(in.Data$Points.Land[c(Pointstopoly, Pointstopoly[1]), ])), ID=Iteration)
+      Pol<-Polygons(list(Polygon(in.Data$Points.Land[c(Pointstopoly, Pointstopoly[1]), 1:2])), ID=Iteration)
       Polygons[[int]][[Iteration]]<-Pol
     }
   }

@@ -629,7 +629,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
 		
-	 #if (!exists("time_correction_fun")) { 
+	 if (!exists("time_correction_fun")) { 
 			cat ("loading time_correcton function\n")
 			if (interval==600) {
 				if (is.null(correction.dir)) { 
@@ -645,7 +645,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 				 load(file.path(correction.dir, "time_correction_fun_120.RData"))
 				}
 			}
-		#}
+		}
 
 		time_correction=time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
 		if (return.slopes) {

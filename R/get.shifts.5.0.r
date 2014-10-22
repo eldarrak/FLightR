@@ -19,7 +19,7 @@ require(FLightR)
 
 # for this we will have to create a To.run.object...
 To.run<-expand.grid(Slope.ideal=Lnorm.param[1], SD.ideal=Lnorm.param[2], Latitude=unique(Track[,2])) #
-
+print(str(To.run))
 Track.initial<-Track
 Track<-simulate.track(saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, log.light.borders=log.light.borders)
 #==================================

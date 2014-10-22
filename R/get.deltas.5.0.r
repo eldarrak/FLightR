@@ -6,7 +6,7 @@
 # we just make a general wrapper that runs the whole thing at each latitude and then combines results...
 
 
-get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=F, interval=600, short.run=T, Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), correction.dir=NULL) {
+get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=F, interval=600, short.run=T, Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), correction.dir=NULL, log.irrad.borders) {
 # so this function will have to return 1 0 or -1
 
 Points.Land<-as.matrix(expand.grid(start[1], seq(start[2]-8, start[2]+8, 0.5)))
@@ -33,7 +33,7 @@ if (return.all.out) {return(all.out)
 } else {return(Res)}
 }
 
-get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, interval=600, short.run=T, Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=3, random.delta=T, fast=F, correction.dir=NULL) {
+get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, interval=600, short.run=T, Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=3, random.delta=T, fast=F, correction.dir=NULL, log.irrad.borders) {
 	if (random.delta) {
 		if (fast) {
 			Deltas<-rep(runif(5, deltalim[1], deltalim[2]), repeats)
@@ -45,27 +45,29 @@ get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5
 	}
 Res<-c()
 for (i in Deltas) {
-Res<-rbind(Res, get.deltas.one.basic(delta=i, start=start, Sigma=Sigma, interval=interval,short.run=short.run, Parameters=Parameters, correction.dir=correction.dir))
+Res<-rbind(Res, get.deltas.one.basic(delta=i, start=start, Sigma=Sigma, interval=interval,short.run=short.run, Parameters=Parameters, correction.dir=correction.dir, log.irrad.borders=log.irrad.borders))
 try(print(tail(Res, 20)))
 }
 return(Res)
 }
 
 # and now the next on that will iterate Sigma
-get.deltas.main<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigmas=seq(0, 0.8, 0.1), interval=600, short.run=T, Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=3, random.delta=T, fast=F, correction.dir=NULL) {
+get.deltas.main<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigmas=seq(0, 0.8, 0.1), interval=600, short.run=T, Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=3, random.delta=T, fast=F, correction.dir=NULL, log.irrad.borders=c(-50, 50)) {
 
 Res<-c()
 for (i in Sigmas) {
 cat(Sigmas, "\n")
-Res<-rbind(Res,cbind(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, interval=interval, short.run=short.run, Parameters=Parameters, repeats=repeats, random.delta=random.delta, fast=fast, correction.dir=correction.dir), i))
+Res<-rbind(Res,cbind(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, interval=interval, short.run=short.run, Parameters=Parameters, repeats=repeats, random.delta=random.delta, fast=fast, correction.dir=correction.dir, log.irrad.borders=log.irrad.borders), i))
 print(Res)
-save(Res, file=paste("Res", start[2],"tmp.RData", sep="."))
+#save(Res, file=paste("Res", start[2],"tmp.RData", sep="."))
 }
 return(Res)
 }
 
 
 get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), interval=600, short.run=T, threads=2, log.irrad.borders=c(-50, 50), Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)), repeats=1, random.delta=T, correction.dir=NULL, fast=F) {
+interval=get("interval")
+Sigmas=get("Sigmas")
 
 # points means number of latitudes that should be used for the run..
 require(parallel)
