@@ -1,3 +1,9 @@
+# ver 5.2 now I want to provide lat and time correction functions for every run and not to use the directory with saved files..
+# so the calibration object now should have 
+#	$time_correction_fun
+#	$lat_correction_fun
+
+
 # ver 5.1 will work with a new formalized calibration..
 # there will be two functions one for time correction and one for Lat correction.
 # time_correction_fun, file="time_correction_fun_600.RData")
@@ -115,6 +121,8 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	# let's try to create Calib.data.all first!!
 	Calib.data.dawn<-data.frame()
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
+
+#cat("checking dawn", dawn, "\n" )
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn])
 		if (length(Data)==0) {
@@ -275,7 +283,7 @@ get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light
 	}
 	
 # this will use the old idea about slopes..
-get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL, var.fast=0.02,  Calib.param, delta=0, interval=600, time_correction=NULL, correction.dir=NULL) {
+get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  Calib.param, delta=0, interval=600, time_correction=NULL) {
 	if (is.null(time_correction) & is.null(Twilight.solar.vector)) stop ("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 	Probability=0
 	Data<-check.boundaries(x, Twilight.solar.vector=Twilight.solar.vector,  Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector)
@@ -294,25 +302,27 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 # the new function for 3.3		
 		# check for the intercept
 		sum=0
-					
+			
 		require(mvtnorm)
 		coef.coef<-coef(Model)
 		coef.vcov<-vcov(Model)
 		
 		#if (coef(Model)[1] < calibration$calibration.bayesian.model$Intercept.boundary[1]) { 
 		#if (is.na(coef.vcov[1])) coef.vcov[is.na(coef.vcov)]<-calibration$calibration.bayesian.model$Slope.integration$fast.tw.vcov # adding errors from MCMC
-		if (is.na(coef.vcov[1])) coef.vcov[is.na(coef.vcov)]<-c(1.35, 0.04, 0.04, var.fast) # adding errors from MCMC
+		if (is.na(coef.vcov[1])) coef.vcov[is.na(coef.vcov)]<-c(NA, NA, NA, 0) # adding errors from MCMC
 		#if (length(resid(Model))== 3) coef.vcov<-coef.vcov*15
 		# coef.vcov<-coef.vcov*100/(length(resid(Model))^2) # adding errors from MCMC
 		if (use.intercept) {
-			tmp.coef<-try(rmvnorm(1000,coef.coef,coef.vcov) )
-			if (class(tmp.coef)!="try-error") {
-				sum<-sum(interp.surface(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities, tmp.coef), na.rm=T)/1000
-				}
+		stop("use of intercept is not implemented!!!")
 		} else { 
 
 		
+		#test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
+		if (coef.vcov[4]==0) {
+		test.Slope=coef.coef[2]
+		} else {
 		test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
+		}
 				#lnorm.Slopes.fun<-function(x, Calib.param) {
 				#	x=x[x>0]
 					#return(dnorm(log(x), 0.2, 0.415))
@@ -326,49 +336,19 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 		# addition of the GAM correction..
 		# we will measure not Calib.param, but 
 		# f(Calib.param[1], Lat, time)
-		if (is.null(time_correction)) {
-			#if (!exists("time_correction_fun")) { 
-			if (interval==600) {
-				if (is.null(correction.dir)) { 
-					data("time_correction_fun_600", package="FLightR")
-					} else {
-				 load(file.path(correction.dir, "time_correction_fun_600.RData"))
-				}
+		if (is.null(time_correction)) {	
+			if (is.null(calibration)) {
+			time_correction=Calib.param[1]
+			} else {
+		time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
 			}
-			if (interval==120) 	{			
-				if (is.null(correction.dir)) { 
-					data("time_correction_fun_120", package="FLightR")
-					} else {
-				 load(file.path(correction.dir, "time_correction_fun_120.RData"))
-				}
-			}
-		#}
-		
-		time_correction=time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
-			}
-			
-
+		}
 
 		Expected.mean<-time_correction
 		
 		if (is.null(delta)) {
-		#if (!exists("lat_correction_fun")) { 
-			if (interval==600) {
-				if (is.null(correction.dir)) { 
-					data("lat_correction_fun_600", package="FLightR")
-					} else {
-				 load(file.path(correction.dir, "lat_correction_fun_600.RData"))
-				}
-			}
-			if (interval==120) 	{			
-				if (is.null(correction.dir)) { 
-					data("lat_correction_fun_120", package="FLightR")
-					} else {
-				 load(file.path(correction.dir, "lat_correction_fun_120.RData"))
-				}
-			}
-		#}
-		lat_correction=lat_correction_fun(x[2])
+
+		lat_correction=calibration$lat_correction_fun(x[2])
 			delta=lat_correction
 		}
 		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
@@ -381,13 +361,13 @@ get.current.slope.prob<-function(x, calibration, Twilight.solar.vector=NULL, Twi
 				#-----------------------
 		
 				}
-		if (plot) {
-		my.golden.colors <- colorRampPalette(
-		c("white","#FF7100"))
-		image(list(x=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x, y=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y,
-		z=matrix(dmvnorm(expand.grid(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x, calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y), coef.coef, coef.vcov), nrow = length(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x), ncol = length(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y))), col=my.golden.colors(10))
-		contour(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities, add=T)
-		}
+		#if (plot) {
+		#my.golden.colors <- colorRampPalette(
+		#c("white","#FF7100"))
+		#image(list(x=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x, y=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y,
+		#z=matrix(dmvnorm(expand.grid(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x, calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y), coef.coef, coef.vcov), nrow = length(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x), ncol = length(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y))), col=my.golden.colors(10))
+		#contour(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities, add=T)
+		#}
 		#}
 		return(sum)
 		}
@@ -612,7 +592,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		#print(Coef)
 		plot(LogLight~LogIrrad, main=Coef)
 		points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
-		if (Coef[1]<(-6)) stop()
+		if (Coef[1]<(-6)) warning("check twilight at around ", as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), " it had strange shading\n")
 		
 	}
 	return(Res)
@@ -621,7 +601,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 
 check.boundaries<-cmpfun(check.boundaries)
 
-get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, interval=600, log.light.borders=log(c(2,64)), correction.dir=NULL) {
+get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, interval=NULL, log.light.borders=log(c(2,64)), calibration=NULL) {
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
@@ -629,25 +609,12 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
 		
-	 if (!exists("time_correction_fun")) { 
-			cat ("loading time_correcton function\n")
-			if (interval==600) {
-				if (is.null(correction.dir)) { 
-					data("time_correction_fun_600", package="FLightR")
-					} else {
-				 load(file.path(correction.dir, "time_correction_fun_600.RData"))
-				}
+		if (!is.null(calibration)) {
+			time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+			} else {
+			time_correction=Calib.param[1]
 			}
-			if (interval==120) 	{			
-				if (is.null(correction.dir)) { 
-					data("time_correction_fun_120", package="FLightR")
-					} else {
-				 load(file.path(correction.dir, "time_correction_fun_120.RData"))
-				}
-			}
-		}
-
-		time_correction=time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+		
 		if (return.slopes) {
 		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, interval=interval, time_correction=time_correction)	
 			} else {

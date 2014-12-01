@@ -1,5 +1,5 @@
 
-get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64))) {
+get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, saving.period=NULL, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64))) {
 To.run.initial<-To.run
 Lat.initial<-Lat
 All.slope.runs<-c()
@@ -10,7 +10,7 @@ if (is.null(Lat.initial)) {
 	if (ncol(To.run.initial)==2) { 
 		To.run$Latitude<-round(runif(nrow(To.run), -55, 55))
 		} else {
-		cat("latitudea were prvided with To.run object \n")
+		cat("latitudes were provided with To.run object \n")
 		}
 	} else {
 	To.run$Latitude<-Lat.initial
@@ -146,7 +146,7 @@ for (Twilight.ID in Twilight.vector) {
 	Lat<-Track$Lat[Row[Filtered_tw$type==1][Twilight.ID]]
 	#print(Points.Land)
 	Points.Land<-cbind(Lon, Lat)
-	All.probs.dawn<-cbind(All.probs.dawn, get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=c(-100, 100), Calib.param=c(0.21, 0.4), Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	All.probs.dawn<-cbind(All.probs.dawn, get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=c(-100, 100), Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
 	}
 	#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, cor.model=Gam2, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, correct.points=correct.points, return.slopes=T, log.irrad.borders=c(-100, 100))
 #cat("minimum dawn duration:", min(All.probs.dawn[4,]), "\n" )

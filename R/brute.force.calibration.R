@@ -2,7 +2,7 @@
 # ver 0.1 from 21.10.2014
 
 
-get.1.minute.parameters<-function(parameters, saving.period, position, start.time, end.time, log.light.borders=c(log(2,64))) {
+get.1.minute.parameters<-function(parameters, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64))) {
 # this stupid brute force function will just etimate what should be the parameter values on a 1 minute scale..
 
 #========================================
@@ -34,23 +34,23 @@ Time.seq.saving<-seq(from=start.time-7200
 
 To.run<-expand.grid(Slope.ideal= runif(1000,   parameters$LogSlope[1]-0.1,   parameters$LogSlope[1]+0.4), SD.ideal=runif(1000,  exp(log( parameters$LogSlope[2])-0.2),  exp(log( parameters$LogSlope[2])+0.2))) #
 Res<-c()
-for (i in 1:50) {
+for (i in 1:25) {
 To.run.cur<-To.run[sample( 1:nrow(To.run), 1),]
 All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders)
 Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$ SD.ideal[1]))
+names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
 print(Res)
 }
 
 #Parameters=All.slopes$Parameters
 
 Res<-as.data.frame(Res)
-names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
 
 plot(Res$SD~Res$Slope.ideal) # no relationship
 plot(Res$SD~Res$Slope) # no relationship
 # ok, this means that slope and SD are independent. GOOD.
 plot(Res$Slope~Res$Slope.ideal)
-summary(lm(Res$Slope~Res$Slope.ideal))
+#summary(lm(Res$Slope~Res$Slope.ideal))
 #=ok I do see now absolute linear relationship
 # with the same degree for slope and for SD
 # interesting, but I would not pay too much attention to that
@@ -72,12 +72,12 @@ Slope.ideal<-(parameters$LogSlope[1]-coef(Lm.slope)[1])/coef(Lm.slope)[2] #
 To.run<-expand.grid(Slope.ideal=runif(1000, Slope.ideal-0.3, Slope.ideal+0.3), SD.ideal=Slope.sd.ideal) #
 
 All.slope.runs1=get.slopes(Repeats=25, To.run=To.run, Parameters=parameters, Lat=position[2], saving.period=600, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders)
-mean(All.slope.runs1$Slope) # works
-sd(All.slope.runs1$Slope)
+#mean(All.slope.runs1$Slope) # works
+#sd(All.slope.runs1$Slope)
 
 # and now let's repeat the same story with Lm...
 Lm1<-lm(Slope~Slope.ideal, data=All.slope.runs1)
-summary(Lm1)
+#summary(Lm1)
 
 # this is stupid as what we do want to see are correction lms if they are independent then we should just use them to predict what is the 1 minute distribution..
 
@@ -91,11 +91,11 @@ return(RES)
 }
 
 #
-get.time.correction.function<-function(Slope.1.minute, SD.slope.1.minute, parameters, saving.period, position, log.light.borders=log(c(2,64))) {
+get.time.correction.function<-function(parameters, saving.period=NULL, position, log.light.borders=log(c(2,64)), Repeats=2) {
 # as far as we do not provide time the slope function will runf for the whole year.
 
-To.run<-expand.grid(Slope.ideal=(Slope.1.minute), SD.ideal=SD.slope.1.minute) #
-All.slope.runs=get.slopes(Repeats=10, To.run=To.run, Parameters=parameters, Lat=position[2], saving.period=600, short.run=F, Lon=position[1], log.light.borders=log.light.borders)
+To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2]) #
+All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], saving.period=saving.period, short.run=F, Lon=position[1], log.light.borders=log.light.borders)
 
 Solar<-solar(as.POSIXct(All.slope.runs$gmt, tz="UTC", origin="1970-01-01"))
 All.slope.runs$cosSolarDec<-Solar$cosSolarDec
@@ -105,26 +105,26 @@ All.slope.runs$cosSolarDec<-Solar$cosSolarDec
 # so let's make it linear
 plot(Slope~cosSolarDec, data=All.slope.runs)
 Lm2<-lm(Slope~cosSolarDec, data=All.slope.runs)
-summary(Lm2)
+#summary(Lm2)
 # ok, so this will be used as a time related pattern
 # I think we should make a function of that and add it to the next step...
 
 time_correction_fun<-approxfun(x=c(0.9, 1), y=predict(Lm2, newdata=data.frame(cosSolarDec=c(0.9, 1))))
 
-Res<-list(time_correction_fun=time_correction_fun, coef=coef(Lm2))
+Res<-list(time_correction_fun=time_correction_fun, coef=coef(Lm2), results=All.slope.runs)
 return(Res)
 }
 #
 
-get.lat.correction.function<-function(deltalim, saving.period=600, threads=2, trial=T, Sigmas, LogSlope, Parameters, log.irrad.borders=c(-50, 50), correction.dir=NULL) {
+get.lat.correction.function<-function(deltalim, saving.period=NULL, threads=2, trial=T, Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
 require(parallel)
 
 if (trial) {
 cat("deltalim set to ", deltalim, "\n")
-Res<-get.deltas.parallel(deltalim=c(0.15, 0.16), limits=c(-65,65), points=2, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), Parameters=Parameters, random.delta=T, correction.dir=correction.dir)
+Res<-get.deltas.parallel(deltalim=c(0.15, 0.16), limits=c(-65,65), points=2, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50),  random.delta=T, calibration=calibration)
 } else {
 # real run
-Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), Parameters=Parameters, random.delta=T, correction.dir=correction.dir)
+Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
 }
 #=======
 # !!! idealy there should be a check that will make sure that active variation occured at the deltalim specified
