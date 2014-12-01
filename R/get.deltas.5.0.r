@@ -71,6 +71,7 @@ get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20
 if (is.character(interval)) interval=get("interval")
 if (is.character(Sigmas)) Sigmas=get("Sigmas")
 if (is.character(calibration)) calibration=get("calibration")
+if (is.character(deltalim)) deltalim=get("deltalim")
 #Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)),
 
 
@@ -83,7 +84,7 @@ Lats<-runif(points, min(limits), max(limits))
 Coords<-cbind(0, Lats)
     tmp<-parallel:::clusterSetRNGStream(mycl)
     ### we don' need to send all parameters to node. so keep it easy..
-    tmp<-parallel:::clusterExport(mycl, c("calibration","log.irrad.borders", "log.light.borders"), envir=environment())
+    tmp<-parallel:::clusterExport(mycl, c("calibration","log.irrad.borders", "log.light.borders", "deltalim"), envir=environment())
     tmp<-parallel:::clusterEvalQ(mycl, library("FLightR"))
     tmp<-parallel:::clusterEvalQ(mycl, library("GeoLight")) 
     tmp<-parallel:::clusterEvalQ(mycl, library("maptools")) 

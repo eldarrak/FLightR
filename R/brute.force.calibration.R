@@ -116,12 +116,13 @@ return(Res)
 }
 #
 
-get.lat.correction.function<-function(deltalim, saving.period=NULL, threads=2, trial=T, Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
+get.lat.correction.function<-function(deltalim, saving.period=NULL, threads=2, trial=F, Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
 require(parallel)
 
 if (trial) {
+deltalim=c(0.15, 0.16)
 cat("deltalim set to ", deltalim, "\n")
-Res<-get.deltas.parallel(deltalim=c(0.15, 0.16), limits=c(-65,65), points=2, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50),  random.delta=T, calibration=calibration)
+Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50),  random.delta=T, calibration=calibration)
 } else {
 # real run
 Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
