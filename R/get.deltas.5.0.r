@@ -62,7 +62,7 @@ Res_local<-try(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, 
 if (class(Res_local) == "try-error") {
 		save(list = ls(all = TRUE), file=paste("Res", start[2],"tmp.RData", sep="."), envir=environment())
 		
-Res<-rbind(Res,cbind(NA, i))
+Res<-rbind(Res,cbind(rep(NA, 6), i))
 
 } else {
 Res<-rbind(Res,cbind(Res_local, i))
