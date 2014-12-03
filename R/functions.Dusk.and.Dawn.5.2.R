@@ -321,7 +321,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		if (slope.sd==0) {
 		test.Slope=coef.coef[2]
 		} else {
-		test.Slope<-rnorm(1000, coef.coef[2], slope.sd))
+		test.Slope<-rnorm(1000, coef.coef[2], slope.sd)
 		}
 				#lnorm.Slopes.fun<-function(x, Calib.param) {
 				#	x=x[x>0]
