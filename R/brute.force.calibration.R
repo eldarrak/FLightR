@@ -173,6 +173,7 @@ return(RES)
 
 
 	Points<-ifelse(threads<7, 7, threads) # how many repeats to run..
+
 	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
 	Res_min_lat<-as.data.frame(Res_min_lat)
 	names(Res_min_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
@@ -180,7 +181,6 @@ return(RES)
 # we do not need model here as the situation is very simples
 	
 
-	Model.all=try(gam(Delta~te(Diff, cosLat),  data=Res)) # this look the best
 	plot(Delta~Diff, data=Res_min_lat)
 
 	Lm_min<-lm(Delta~Diff, data=Res_min_lat)
@@ -188,10 +188,18 @@ return(RES)
 	
 	
 	cat("    Done!")	
-	
-	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=1, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
 
- 
+ cat("...estimating compensation at latitude 65")
+	
+	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+
+	cat("    Done!")	
+
+ 	plot(Delta~Diff, data=Res_min_lat)
+
+	Lm_min<-lm(Delta~Diff, data=Res_min_lat)
+	predict(Lm_min, se.fit=T, newdata=data.frame(Diff=0))
+	
  }
 
 }

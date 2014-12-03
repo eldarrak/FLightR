@@ -58,10 +58,16 @@ get.deltas.main<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigmas=seq(0, 0.8
 Res<-c()
 for (i in Sigmas) {
 cat(Sigmas, "\n")
-Res<-rbind(Res,cbind(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, interval=interval, short.run=short.run, repeats=repeats, random.delta=random.delta, fast=fast, calibration=calibration, log.irrad.borders=log.irrad.borders), i))
-print(Res)
+Res_local<-try(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, interval=interval, short.run=short.run, repeats=repeats, random.delta=random.delta, fast=fast, calibration=calibration, log.irrad.borders=log.irrad.borders))
+if (class(Res_local) == "try-error") {
+		save.image(file=paste("Res", start[2],"tmp.RData", sep="."), envir=environment())
+} else {
+Res<-rbind(Res,cbind(Res_local, i))
+}
+#print(Res)
 #save(Res, file=paste("Res", start[2],"tmp.RData", sep="."))
 }
+
 return(Res)
 }
 
