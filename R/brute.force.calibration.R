@@ -211,8 +211,7 @@ return(RES)
 	
 	# ok and now we want at least  to take a diap from min to max and focus there..
 	
-	deltalim_corrected<-c(Predict_min$fit-3*Predict_min$se.fit
-	Predict_max$fit+3*Predict_max$se.fit)
+	deltalim_corrected<-c(Predict_min$fit-3*Predict_min$se.fit, 	Predict_max$fit+3*Predict_max$se.fit)
 	
 	
 	
