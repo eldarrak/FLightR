@@ -61,6 +61,9 @@ cat(Sigmas, "\n")
 Res_local<-try(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, interval=interval, short.run=short.run, repeats=repeats, random.delta=random.delta, fast=fast, calibration=calibration, log.irrad.borders=log.irrad.borders))
 if (class(Res_local) == "try-error") {
 		save(list = ls(all = TRUE), file=paste("Res", start[2],"tmp.RData", sep="."), envir=environment())
+		
+Res<-rbind(Res,cbind(NA, i))
+
 } else {
 Res<-rbind(Res,cbind(Res_local, i))
 }

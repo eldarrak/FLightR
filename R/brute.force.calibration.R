@@ -116,7 +116,7 @@ return(Res)
 }
 #
 
-get.lat.correction.function<-function(deltalim, saving.period=NULL, threads=2, mode="smart", Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
+get.lat.correction.function<-function(deltalim=c(-0.05, 0.35), saving.period=NULL, threads=2, mode="smart", Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
 
 cat("function will work in ", mode, "mode\n")
 
@@ -178,27 +178,43 @@ return(RES)
 	Res_min_lat<-as.data.frame(Res_min_lat)
 	names(Res_min_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res_min_lat$cosLat<-cos(Res_min_lat$Lat/180*pi)
-# we do not need model here as the situation is very simples
+	# we do not need model here as the situation is very simples
 	
 
 	plot(Delta~Diff, data=Res_min_lat)
 
 	Lm_min<-lm(Delta~Diff, data=Res_min_lat)
-	predict(Lm_min, se.fit=T, newdata=data.frame(Diff=0))
+	Predict_min<-predict(Lm_min, se.fit=T, newdata=data.frame(Diff=0))
 	
 	
 	cat("    Done!")	
 
+	cat("estimated delta for 0 degrees is" , round(Predict_min$fit,3),  "+-"  , round(Predict_min$se.fit,3), "\n")
+	if ((Predict_min$fit-3*Predict_min$se.fit) < deltalim_initial[1]) stop ("try to correct lower deltalim boundary to a smaller value\n")
+
+	
  cat("...estimating compensation at latitude 65")
-	
 	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
-
+	Res_max_lat<-as.data.frame(Res_max_lat)
+	names(Res_max_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
+	Res_max_lat$cosLat<-cos(Res_max_lat$Lat/180*pi)
 	cat("    Done!")	
 
- 	plot(Delta~Diff, data=Res_min_lat)
-
-	Lm_min<-lm(Delta~Diff, data=Res_min_lat)
-	predict(Lm_min, se.fit=T, newdata=data.frame(Diff=0))
+	
+	cat("estimated delta for 65 degrees N is" , round(Predict_max$fit,3),  "+-"  , round(Predict_max$se.fit,3), "\n")
+	if ((Predict_max$fit+3*Predict_max$se.fit) > deltalim_initial[2]) stop ("try to correct lower deltalim boundary to a smaller value\n")
+	
+ 	plot(Delta~Diff, data=Res_max_lat)
+	points(Delta~Diff, data=Res_min_lat, col="red")
+	Lm_max<-lm(Delta~Diff, data=Res_max_lat)
+	Predict_max<-predict(Lm_max, se.fit=T, newdata=data.frame(Diff=0))
+	
+	# ok and now we want at least  to take a diap from min to max and focus there..
+	
+	deltalim_corrected<-c(Predict_min$fit-3*Predict_min$se.fit
+	Predict_max$fit+3*Predict_max$se.fit)
+	
+	
 	
  }
 
