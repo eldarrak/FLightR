@@ -180,6 +180,7 @@ return(RES)
 	Res_min_lat$cosLat<-cos(Res_min_lat$Lat/180*pi)
 	# we do not need model here as the situation is very simples
 	
+	Res_min_lat<-Res_min_lat[Res_min_lat$Diff>-8 & Res_min_lat$Diff<8,]
 
 	plot(Delta~Diff, data=Res_min_lat)
 
@@ -197,6 +198,8 @@ return(RES)
 	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
 	Res_max_lat<-as.data.frame(Res_max_lat)
 	names(Res_max_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
+	Res_max_lat<-Res_max_lat[Res_max_lat$Diff>-8 & Res_max_lat$Diff<8,]
+	
 	Res_max_lat$cosLat<-cos(Res_max_lat$Lat/180*pi)
 	cat("    Done!")	
 
