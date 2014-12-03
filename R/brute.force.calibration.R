@@ -2,7 +2,7 @@
 # ver 0.1 from 21.10.2014
 
 
-get.1.minute.parameters<-function(parameters, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64))) {
+get.1.minute.parameters<-function(parameters, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64)), repeats=50) {
 # this stupid brute force function will just etimate what should be the parameter values on a 1 minute scale..
 
 #========================================
@@ -34,7 +34,8 @@ Time.seq.saving<-seq(from=start.time-7200
 
 To.run<-expand.grid(Slope.ideal= runif(1000,   parameters$LogSlope[1]-0.1,   parameters$LogSlope[1]+0.4), SD.ideal=runif(1000,  exp(log( parameters$LogSlope[2])-0.2),  exp(log( parameters$LogSlope[2])+0.2))) #
 Res<-c()
-for (i in 1:25) {
+Res<-as.data.frame(Res)
+for (i in 1:repeats) {
 To.run.cur<-To.run[sample( 1:nrow(To.run), 1),]
 All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders)
 Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$ SD.ideal[1]))
@@ -44,7 +45,6 @@ print(Res)
 
 #Parameters=All.slopes$Parameters
 
-Res<-as.data.frame(Res)
 
 plot(Res$SD~Res$Slope.ideal) # no relationship
 plot(Res$SD~Res$Slope) # no relationship
@@ -116,24 +116,30 @@ return(Res)
 }
 #
 
-get.lat.correction.function<-function(deltalim, saving.period=NULL, threads=2, trial=F, Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
+get.lat.correction.function<-function(deltalim, saving.period=NULL, threads=2, mode="smart", Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
+
+cat("function will work in ", mode, "mode\n")
+
+if (!mode %in% c("trial", "brute", "smart")) stop ("mode could be one of - trial, brute, smart")
 require(parallel)
 
-if (trial) {
-deltalim=c(0.15, 0.16)
-cat("deltalim set to ", deltalim, "\n")
-Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50),  random.delta=T, calibration=calibration)
-} else {
+if (mode=="rial") {
+	deltalim=c(0.15, 0.16)
+	cat("deltalim set to ", deltalim, "\n")
+	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50),  random.delta=T, calibration=calibration)
+	Res<-as.data.frame(Res)
+	names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
+	Res$cosLat<-cos(Res$Lat/180*pi)
+	return(list(simulations=Res))
+}
+if ("brute") {
 # real run
 Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
-}
 #=======
 # !!! idealy there should be a check that will make sure that active variation occured at the deltalim specified
 #=======
-
 Res<-as.data.frame(Res)
 names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
-
 Res$cosLat<-cos(Res$Lat/180*pi)
 require(mgcv)
 Model.all=try(gam(Delta~te(Diff, cosLat),  data=Res)) # this look the best
@@ -156,6 +162,38 @@ lat_correction_fun<-approxfun(y=predict(Model.all, newdata=data.frame(cosLat=cos
 RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
 }
 return(RES)
+}
+ if (mode=="smart") {
+ # in this mode we will try to make several attempts
+ # so the first one is to make a very imprecise approximation
+ # and it is better to make it at the maximum and minimum latitudes...
+ # so we need to try at abs(min) and abs(max)
+ deltalim_initial<-deltalim
+ cat("...estimating compensation at latitude 0")
+
+
+	Points<-ifelse(threads<7, 7, threads) # how many repeats to run..
+	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+	Res_min_lat<-as.data.frame(Res_min_lat)
+	names(Res_min_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
+	Res_min_lat$cosLat<-cos(Res_min_lat$Lat/180*pi)
+# we do not need model here as the situation is very simples
+	
+
+	Model.all=try(gam(Delta~te(Diff, cosLat),  data=Res)) # this look the best
+	plot(Delta~Diff, data=Res_min_lat)
+
+	Lm_min<-lm(Delta~Diff, data=Res_min_lat)
+	predict(Lm_min, se.fit=T, newdata=data.frame(Diff=0))
+	
+	
+	cat("    Done!")	
+	
+	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=1, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+
+ 
+ }
+
 }
 
 # ok this is it so far
