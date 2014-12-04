@@ -203,6 +203,9 @@ if (mode=="smart") {
 	Res_max_lat$cosLat<-cos(Res_max_lat$Lat/180*pi)
 	cat("    Done!")	
 
+	Gam_max<-gam(Delta~s(Diff, k=3), data=Res_max_lat)
+	Predict_max<-predict(Gam_max, se.fit=T, newdata=data.frame(Diff=0))
+
 	
 	cat("estimated delta for 65 degrees N is" , round(Predict_max$fit,3),  "+-"  , round(Predict_max$se.fit,3), "\n")
 	if ((Predict_max$fit+3*Predict_max$se.fit) > deltalim_initial[2]) stop ("try to correct lower deltalim boundary to a smaller value\n")
