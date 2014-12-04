@@ -191,7 +191,7 @@ if (mode=="smart") {
 	cat("    Done!")	
 
 	cat("estimated delta for 0 degrees is" , round(Predict_min$fit,3),  "+-"  , round(Predict_min$se.fit,3), "\n")
-	points(Delta~Diff, data=Res_min_lat, col="red")
+	plot(Delta~Diff, data=Res_min_lat, col="red")
 	abline(v=0, col="red")
 	if ((Predict_min$fit-3*Predict_min$se.fit) < deltalim_initial[1]) stop ("try to correct lower deltalim boundary to a smaller value\n")
 
