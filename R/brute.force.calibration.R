@@ -132,7 +132,7 @@ if (mode=="rial") {
 	Res$cosLat<-cos(Res$Lat/180*pi)
 	return(list(simulations=Res))
 }
-if ("brute") {
+if (mode=="brute") {
 # real run
 Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
 #=======
@@ -163,7 +163,7 @@ RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
 }
 return(RES)
 }
- if (mode=="smart") {
+if (mode=="smart") {
  # in this mode we will try to make several attempts
  # so the first one is to make a very imprecise approximation
  # and it is better to make it at the maximum and minimum latitudes...
@@ -182,10 +182,10 @@ return(RES)
 	
 	Res_min_lat<-Res_min_lat[Res_min_lat$Diff>-8 & Res_min_lat$Diff<8,]
 
-	plot(Delta~Diff, data=Res_min_lat)
-
-	Lm_min<-lm(Delta~Diff, data=Res_min_lat)
-	Predict_min<-predict(Lm_min, se.fit=T, newdata=data.frame(Diff=0))
+	#plot(Delta~Diff, data=Res_min_lat)
+	require(mgcv)
+	Gam_min<-gam(Delta~s(Diff, k=3), data=Res_min_lat)
+	Predict_min<-predict(Gam_min, se.fit=T, newdata=data.frame(Diff=0))
 	
 	
 	cat("    Done!")	
@@ -209,21 +209,50 @@ return(RES)
 	
  	plot(Delta~Diff, data=Res_max_lat)
 	points(Delta~Diff, data=Res_min_lat, col="red")
-	Lm_max<-lm(Delta~Diff, data=Res_max_lat)
-	Predict_max<-predict(Lm_max, se.fit=T, newdata=data.frame(Diff=0))
+	Gam_max<-gam(Delta~s(Diff, k=3), data=Res_max_lat)
+	Predict_max<-predict(Gam_max, se.fit=T, newdata=data.frame(Diff=0))
 	
 	# ok and now we want at least  to take a diap from min to max and focus there..
 	
-	deltalim_corrected<-c(Predict_min$fit-3*Predict_min$se.fit, 	Predict_max$fit+3*Predict_max$se.fit)
+	deltalim_corrected<-c(Predict_min$fit-0.1, 	Predict_max$fit+0.1)
 	
 	
+	##################
+	# checking for -65
+	#Res_minus_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(-65,-65), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
 	
+	# ok now we have to go for the full run in a new boundaries...
+	
+	cat("doing the full run \n")
+	
+	Points<-(50%/%threads)*threads # how many repeats to run..
+	
+	Res<-get.deltas.parallel(deltalim=deltalim_corrected, limits=c(-65,65), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+
+	cat(" ... done!")
+	Res<-as.data.frame(Res)
+	names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
+	
+	Res<-Res[Res$Diff>-8 & Res$Diff<8,]
+
+	
+	Res$cosLat<-cos(Res$Lat/180*pi)
+	
+	#=== 
+	# now we have to combine the three
+	
+	Res.all<-rbind(Res_min_lat,Res_max_lat, Res)
+	
+	require(mgcv)
+	Model.all=try(gam(Delta~te(Diff, cosLat),  data=Res.all)) # this look the best
+	if (class(Model.all)=="try-error") {
+	RES<-list(simulations=Res)	
+	} else {
+	print(summary(Model.all))
  }
 
 }
 
 # ok this is it so far
 
-
-
-
+}
