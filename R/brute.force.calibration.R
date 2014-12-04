@@ -249,10 +249,11 @@ if (mode=="smart") {
 	RES<-list(simulations=Res)	
 	} else {
 	print(summary(Model.all))
+	lat_correction_fun<-approxfun(y=predict(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
+
+	RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
  }
 
 }
-
 # ok this is it so far
-
 }
