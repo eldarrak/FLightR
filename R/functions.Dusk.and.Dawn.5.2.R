@@ -316,7 +316,6 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		stop("use of intercept is not implemented!!!")
 		} else { 
 
-cat("a\n")		
 		#test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
 		if (slope.sd==0) {
 		test.Slope=coef.coef[2]
@@ -337,12 +336,10 @@ cat("a\n")
 		# we will measure not Calib.param, but 
 		# f(Calib.param[1], Lat, time)
 		if (is.null(time_correction)) {	
-cat("b_1\n")		
 
 			if (is.null(calibration)) {
 			time_correction=Calib.param[1]
 			} else {
-cat("b\n")		
 
 			time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
 			}
@@ -351,15 +348,11 @@ cat("b\n")
 		Expected.mean<-time_correction
 		
 		if (is.null(delta)) {
-cat("c\n")		
-print(str(calibration))
 		lat_correction=calibration$lat_correction_fun(x[2])
-cat("d\n")		
 
 			delta=lat_correction
 		}
 		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
-cat("e\n")		
 
 		#-----------------------
 				# correct for cos Lat
