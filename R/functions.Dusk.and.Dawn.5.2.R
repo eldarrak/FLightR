@@ -707,7 +707,12 @@ if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("
 if (is.character(interval)) interval=get("interval")
 if (is.character(calibration)) calibration=get("calibration")
 
+print(ls())
+print(str(Twilight.time.mat.dusk))
+
 Points.Land<-all.out$Points.Land
+
+print(str(Points.Land))
 Calib.param<-calibration$Parameters$LogSlope
 cat("making cluster\n")
 require(parallel)
@@ -720,7 +725,7 @@ mycl <- parallel:::makeCluster(Threads)
     tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
     #tmp<-parallel:::clusterEvalQ(mycl, source("D:\\Geologgers\\LightR_development_code\\functions.Dusk.and.Dawn.5.1.r")) 
 
-
+#====================
 cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
