@@ -337,6 +337,8 @@ cat("a\n")
 		# we will measure not Calib.param, but 
 		# f(Calib.param[1], Lat, time)
 		if (is.null(time_correction)) {	
+cat("b_1\n")		
+
 			if (is.null(calibration)) {
 			time_correction=Calib.param[1]
 			} else {
@@ -352,9 +354,12 @@ cat("b\n")
 cat("c\n")		
 
 		lat_correction=calibration$lat_correction_fun(x[2])
+cat("d\n")		
+
 			delta=lat_correction
 		}
 		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
+cat("e\n")		
 
 		#-----------------------
 				# correct for cos Lat
