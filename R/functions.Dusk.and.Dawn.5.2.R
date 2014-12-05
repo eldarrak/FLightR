@@ -352,7 +352,7 @@ cat("b\n")
 		
 		if (is.null(delta)) {
 cat("c\n")		
-
+print(str(calibration))
 		lat_correction=calibration$lat_correction_fun(x[2])
 cat("d\n")		
 
