@@ -130,7 +130,7 @@ if (mode=="rial") {
 	Res<-as.data.frame(Res)
 	names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res$cosLat<-cos(Res$Lat/180*pi)
-	return(list(simulations=Res))
+	RES<-list(simulations=Res)
 }
 if (mode=="brute") {
 # real run
@@ -161,7 +161,6 @@ lat_correction_fun<-approxfun(y=predict(Model.all, newdata=data.frame(cosLat=cos
 
 RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
 }
-return(RES)
 }
 if (mode=="smart") {
  # in this mode we will try to make several attempts
@@ -262,8 +261,10 @@ if (mode=="smart") {
 	lat_correction_fun<-approxfun(y=predict(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
 
 	RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
+	
  }
 
 }
 # ok this is it so far
+return(RES)
 }
