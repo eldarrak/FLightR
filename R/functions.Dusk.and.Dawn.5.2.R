@@ -297,7 +297,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Model<- lm(LogLight~LogIrrad)
 		if (verbose) print(summary(Model))
 
-		get.probs<-function(Model, plot=F, interval=600, calibration=NULL, time_correction=NULL) {
+	get.probs<-function(Model, plot=F, interval=600, calibration=NULL, time_correction=NULL) {
 		require(fields)
 # the new function for 3.3		
 		# check for the intercept
@@ -316,7 +316,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		stop("use of intercept is not implemented!!!")
 		} else { 
 
-		
+cat("a\n")		
 		#test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
 		if (slope.sd==0) {
 		test.Slope=coef.coef[2]
@@ -340,13 +340,16 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 			if (is.null(calibration)) {
 			time_correction=Calib.param[1]
 			} else {
-		time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+cat("b\n")		
+
+			time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
 			}
 		}
 
 		Expected.mean<-time_correction
 		
 		if (is.null(delta)) {
+cat("c\n")		
 
 		lat_correction=calibration$lat_correction_fun(x[2])
 			delta=lat_correction
