@@ -696,7 +696,7 @@ return(Res) #0.40)
 }
 
 
-get.Phys.Mat.parallel<-function(Twilight.time.mat.dusk, Twilight.log.light.mat.dusk, Twilight.time.mat.dawn, Twilight.log.light.mat.dawn,  threads=2, interval=NULL, calibration=NULL, Points.Land) {
+get.Phys.Mat.parallel<-function(all.out, Twilight.time.mat.dusk, Twilight.log.light.mat.dusk, Twilight.time.mat.dawn, Twilight.log.light.mat.dawn,  threads=2, interval=NULL, calibration=NULL, Points.Land) {
 
 
 if (is.character(Points.Land)) interval=get("Points.Land")
@@ -704,7 +704,7 @@ if (is.character(interval)) interval=get("interval")
 if (is.character(calibration)) calibration=get("calibration")
 
 Calib.param<-calibration$Parameters$LogSlope
-
+cat("making cluster\n")
 require(parallel)
 mycl <- parallel:::makeCluster(Threads)
     tmp<-parallel:::clusterSetRNGStream(mycl)
@@ -715,16 +715,20 @@ mycl <- parallel:::makeCluster(Threads)
     tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
     #tmp<-parallel:::clusterEvalQ(mycl, source("D:\\Geologgers\\LightR_development_code\\functions.Dusk.and.Dawn.5.1.r")) 
 
-	
+
+cat("estimating dusks\n")
+
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
 	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, interval=interval, calibration=calibration)
 		 	
-		 
+cat("estimating dawns\n")
+	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
 		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, interval=interval, calibration=calibration)
 stopCluster(mycl)
 
+cat("processing results\n")
 
 All.probs.dusk.tmp<-All.probs.dusk
 All.probs.dawn.tmp<-All.probs.dawn
