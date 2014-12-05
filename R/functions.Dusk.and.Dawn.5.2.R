@@ -297,7 +297,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Model<- lm(LogLight~LogIrrad)
 		if (verbose) print(summary(Model))
 
-		get.probs<-function(Model, plot=F, interval=600, calibation=NULL, time_correction=NULL) {
+		get.probs<-function(Model, plot=F, interval=600, calibration=NULL, time_correction=NULL) {
 		require(fields)
 # the new function for 3.3		
 		# check for the intercept
