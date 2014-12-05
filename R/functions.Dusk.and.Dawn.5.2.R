@@ -696,10 +696,14 @@ return(Res) #0.40)
 }
 
 
-get.Phys.Mat.parallel<-function(all.out, Twilight.time.mat.dusk, Twilight.log.light.mat.dusk, Twilight.time.mat.dawn, Twilight.log.light.mat.dawn,  threads=2, interval=NULL, calibration=NULL) {
+get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2, interval=NULL, calibration=NULL) {
 
 
-if (is.character(all.out)) interval=get("all.out")
+if (is.character(all.out)) all.out=get("all.out")
+if (is.character(Twilight.time.mat.dusk)) Twilight.time.mat.dusk=get("Twilight.time.mat.dusk")
+if (is.character(Twilight.time.mat.dawn)) Twilight.time.mat.dawn=get("Twilight.time.mat.dawn")
+if (is.character(Twilight.log.light.mat.dusk)) Twilight.log.light.mat.dusk=get("Twilight.log.light.mat.dusk")
+if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("Twilight.log.light.mat.dawn")
 if (is.character(interval)) interval=get("interval")
 if (is.character(calibration)) calibration=get("calibration")
 
