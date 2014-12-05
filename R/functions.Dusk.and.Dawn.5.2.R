@@ -696,13 +696,14 @@ return(Res) #0.40)
 }
 
 
-get.Phys.Mat.parallel<-function(all.out, Twilight.time.mat.dusk, Twilight.log.light.mat.dusk, Twilight.time.mat.dawn, Twilight.log.light.mat.dawn,  threads=2, interval=NULL, calibration=NULL, Points.Land) {
+get.Phys.Mat.parallel<-function(all.out, Twilight.time.mat.dusk, Twilight.log.light.mat.dusk, Twilight.time.mat.dawn, Twilight.log.light.mat.dawn,  threads=2, interval=NULL, calibration=NULL) {
 
 
-if (is.character(Points.Land)) interval=get("Points.Land")
+if (is.character(all.out)) interval=get("all.out")
 if (is.character(interval)) interval=get("interval")
 if (is.character(calibration)) calibration=get("calibration")
 
+Points.Land<-all.out$Points.Land
 Calib.param<-calibration$Parameters$LogSlope
 cat("making cluster\n")
 require(parallel)
