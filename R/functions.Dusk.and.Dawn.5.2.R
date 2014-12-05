@@ -297,7 +297,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Model<- lm(LogLight~LogIrrad)
 		if (verbose) print(summary(Model))
 
-		get.probs<-function(Model, plot=F, interval=600) {
+		get.probs<-function(Model, plot=F, interval=600, calibation=NULL, time_correction=NULL) {
 		require(fields)
 # the new function for 3.3		
 		# check for the intercept
@@ -372,7 +372,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		return(sum)
 		}
 		
-		Probability<-get.probs(Model, plot=plot, interval=interval)
+		Probability<-get.probs(Model, plot=plot, interval=interval, calibration=calibration, time_correction=time_correction)
 
 		if (!is.finite(Probability)) Probability<-0
 		if (return.slopes) 	Probability<-c(Probability, coef(Model)[2], sqrt(vcov(Model)[4]))
@@ -694,4 +694,49 @@ Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=c
 return(Res) #0.40)
 }
 
+
+get.Phys.Mat.parallel<-function(Twilight.time.mat.dusk, Twilight.log.light.mat.dusk, Twilight.time.mat.dawn, Twilight.log.light.mat.dawn,  threads=2, interval=NULL, calibration=NULL, Points.Land) {
+
+
+if (is.character(Points.Land)) interval=get("Points.Land")
+if (is.character(interval)) interval=get("interval")
+if (is.character(calibration)) calibration=get("calibration")
+
+Calib.param<-calibration$Parameters$LogSlope
+
+require(parallel)
+mycl <- parallel:::makeCluster(Threads)
+    tmp<-parallel:::clusterSetRNGStream(mycl)
+    tmp<-parallel:::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Points.Land", "log.light.borders", "log.irrad.borders", "Calib.param", "calibration", "interval"), envir=environment())
+    tmp<-parallel:::clusterEvalQ(mycl, library("circular")) 
+    tmp<-parallel:::clusterEvalQ(mycl, library("truncnorm")) 
+    tmp<-parallel:::clusterEvalQ(mycl, library("GeoLight")) 
+    tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
+    #tmp<-parallel:::clusterEvalQ(mycl, source("D:\\Geologgers\\LightR_development_code\\functions.Dusk.and.Dawn.5.1.r")) 
+
+	
+	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
+	
+	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, interval=interval, calibration=calibration)
+		 	
+		 
+	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
+		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, interval=interval, calibration=calibration)
+stopCluster(mycl)
+
+
+All.probs.dusk.tmp<-All.probs.dusk
+All.probs.dawn.tmp<-All.probs.dawn
+	Phys.Mat<-c()
+for (i in 1:nrow(all.out$Matrix.Index.Table)) {
+	if (all.out$Matrix.Index.Table$Dusk[i]) {
+		Phys.Mat<-cbind(Phys.Mat, All.probs.dusk.tmp[,1])
+		All.probs.dusk.tmp<-as.matrix(All.probs.dusk.tmp[,-1])
+		} else {
+		Phys.Mat<-cbind(Phys.Mat, All.probs.dawn.tmp[,1])
+		All.probs.dawn.tmp<-as.matrix(All.probs.dawn.tmp[,-1])
+		}
+}
+return(Phys.Mat)
+}
 
