@@ -4,7 +4,7 @@
 # ver 0.2 point correction possibility
 # ver 0.1 13.02.2014
 
-get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), Points.Land, start, ask=F, slopes.only=F, delta=NULL, short.run=F, saving.period=600, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL) {
+get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), Points.Land, start, ask=F, slopes.only=F, delta=NULL, short.run=F, measurement.period=60, saving.period=NULL, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL) {
 #========================================
 if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
@@ -20,7 +20,7 @@ require(FLightR)
 # for this we will have to create a To.run.object...
 To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2], Latitude=unique(Track[,2])) #
 Track.initial<-Track
-Track<-simulate.track(saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, log.light.borders=log.light.borders)
+Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, log.light.borders=log.light.borders)
 #==================================
 # saving and reading track file
 cat("   saving file\n")
@@ -195,7 +195,7 @@ Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function
 #Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) All.p$light[x])
 Twilight.log.light.mat.dawn<-apply(Twilight.log.light.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
 
-Twilight.time.mat.dusk<-Twilight.time.mat.dusk-(saving.period-60)
+Twilight.time.mat.dusk<-Twilight.time.mat.dusk-(saving.period-measurement.period)
 
 # now we need to load the calibration that we already have...
 #load("Calibration.3.3.RData")

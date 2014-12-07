@@ -14,7 +14,7 @@
 
 
 
-# 5.0 is based on the 4.0.d version. the addition is correction for time and latitude with GAM - I will first try to add gam without hte interval and will jsut assume that interval is 600..
+# 5.0 is based on the 4.0.d version. the addition is correction for time and latitude with GAM - I will first try to add gam without hte saving.period and will jsut assume that saving.period is 600..
 # Also the parameters for the input should be changed to 0.67 and 0.4 (from 0.21 and 0.4)
  
 # new 4.0.d will get cos(Lat) and then I'll go for a new gam - lat estimation
@@ -283,7 +283,7 @@ get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light
 	}
 	
 # this will use the old idea about slopes..
-get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  Calib.param, delta=0, interval=600, time_correction=NULL) {
+get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  Calib.param, delta=0, saving.period=600, time_correction=NULL) {
 	if (is.null(time_correction) & is.null(Twilight.solar.vector)) stop ("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 	Probability=0
 	Data<-check.boundaries(x, Twilight.solar.vector=Twilight.solar.vector,  Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector)
@@ -297,7 +297,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Model<- lm(LogLight~LogIrrad)
 		if (verbose) print(summary(Model))
 
-	get.probs<-function(Model, plot=F, interval=600, calibration=NULL, time_correction=NULL) {
+	get.probs<-function(Model, plot=F, saving.period=600, calibration=NULL, time_correction=NULL) {
 		require(fields)
 # the new function for 3.3		
 		# check for the intercept
@@ -373,7 +373,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		return(sum)
 		}
 		
-		Probability<-get.probs(Model, plot=plot, interval=interval, calibration=calibration, time_correction=time_correction)
+		Probability<-get.probs(Model, plot=plot, saving.period=saving.period, calibration=calibration, time_correction=time_correction)
 
 		if (!is.finite(Probability)) Probability<-0
 		if (return.slopes) 	Probability<-c(Probability, coef(Model)[2], sqrt(vcov(Model)[4]))
@@ -602,7 +602,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 
 check.boundaries<-cmpfun(check.boundaries)
 
-get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, interval=NULL, log.light.borders=log(c(2,64)), calibration=NULL) {
+get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, saving.period=NULL, log.light.borders=log(c(2,64)), calibration=NULL) {
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
@@ -617,9 +617,9 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 			}
 		
 		if (return.slopes) {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, interval=interval, time_correction=time_correction, calibration=calibration)	
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, saving.period=saving.period, time_correction=time_correction, calibration=calibration)	
 			} else {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, interval=interval, time_correction=time_correction, calibration=calibration)
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, saving.period=saving.period, time_correction=time_correction, calibration=calibration)
 		}
 		return(Current.probs)
 	}
@@ -696,7 +696,7 @@ return(Res) #0.40)
 }
 
 
-get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2, interval=NULL, calibration=NULL) {
+get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2, saving.period=NULL, calibration=NULL) {
 
 
 if (is.character(all.out)) all.out=get("all.out")
@@ -704,7 +704,7 @@ if (is.character(Twilight.time.mat.dusk)) Twilight.time.mat.dusk=get("Twilight.t
 if (is.character(Twilight.time.mat.dawn)) Twilight.time.mat.dawn=get("Twilight.time.mat.dawn")
 if (is.character(Twilight.log.light.mat.dusk)) Twilight.log.light.mat.dusk=get("Twilight.log.light.mat.dusk")
 if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("Twilight.log.light.mat.dawn")
-if (is.character(interval)) interval=get("interval")
+if (is.character(saving.period)) saving.period=get("saving.period")
 if (is.character(calibration)) calibration=get("calibration")
 
 #print(ls())
@@ -717,7 +717,7 @@ cat("making cluster\n")
 require(parallel)
 mycl <- parallel:::makeCluster(Threads)
     tmp<-parallel:::clusterSetRNGStream(mycl)
-    tmp<-parallel:::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Points.Land", "log.light.borders", "log.irrad.borders", "Calib.param", "calibration", "interval"), envir=environment())
+    tmp<-parallel:::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Points.Land", "log.light.borders", "log.irrad.borders", "Calib.param", "calibration", "saving.period"), envir=environment())
     tmp<-parallel:::clusterEvalQ(mycl, library("circular")) 
     tmp<-parallel:::clusterEvalQ(mycl, library("truncnorm")) 
     tmp<-parallel:::clusterEvalQ(mycl, library("GeoLight")) 
@@ -729,12 +729,12 @@ cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, interval=interval, calibration=calibration)
+	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
 		 	
 cat("estimating dawns\n")
 	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, interval=interval, calibration=calibration)
+		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
 stopCluster(mycl)
 
 cat("processing results\n")

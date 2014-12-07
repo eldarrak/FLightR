@@ -1,5 +1,5 @@
 
-get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, saving.period=NULL, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64))) {
+get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64))) {
 To.run.initial<-To.run
 Lat.initial<-Lat
 All.slope.runs<-c()
@@ -16,7 +16,7 @@ if (is.null(Lat.initial)) {
 	To.run$Latitude<-Lat.initial
 	}
 
-Track<-simulate.track(saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=Lon, log.light.borders=log.light.borders)
+Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=Lon, log.light.borders=log.light.borders)
 	
 #===========
 # input
@@ -110,7 +110,7 @@ Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function
 Twilight.log.light.mat.dawn<-apply(Twilight.log.light.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
 
 ###############
-Twilight.time.mat.dusk<-Twilight.time.mat.dusk-(saving.period-60)
+Twilight.time.mat.dusk<-Twilight.time.mat.dusk-(saving.period-measurement.period)
 
 #  
 
@@ -209,15 +209,16 @@ return(All.slope.runs)
 # and now we want to save that... 
 
 
-simulate.track<-function(saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, log.light.borders=log(c(2, 64))) {
+simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, log.light.borders=log(c(2, 64))) {
+if (saving.period%%measurement.period !=0) stop("saving period / measurement.period has to be integer!")
 time.shift<-sample(1:saving.period, 1)
 if (is.null(Time.seq) | is.null(Time.seq.saving)) {
 	if (!short.run) {
-	Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=60)+time.shift
+	Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=measurement.period)+time.shift
 
 	Time.seq.saving<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=saving.period)+time.shift
 	} else {
-	Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=60)+time.shift
+	Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=measurement.period)+time.shift
 
 	Time.seq.saving<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=saving.period)+time.shift
 	}
@@ -308,12 +309,15 @@ Track$light<-exp(Track$LogLight)
  
  # now we need to get the estimates without saving file I'd say 
 Track.new<-Track[Track$Time.seq %in% Time.seq.saving,] # creating new track
-
+if (saving.period!=measurement.period) {
 Track.new<-Track.new[-1,]
 New.light<-Track.new$light
-for (i in 2:(saving.period/60)) {
+for (i in 2:(saving.period/measurement.period)) {
 	#New.light<-pmax(New.light, Track$light[Track$Time.seq %in% (Time.seq.saving-(60*(i-1)))] )
-	New.light<-pmax(New.light, Track$light[Track$Time.seq %in% ((Time.seq.saving[-1])-(60*(i-1)))] )
+	New.light<-pmax(New.light, Track$light[Track$Time.seq %in% ((Time.seq.saving[-1])-(measurement.period*(i-1)))] )
+}
+} else  {
+New.light<-Track.new$light
 }
 Track.new$light<-New.light
 # ok this worked..

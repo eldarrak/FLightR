@@ -6,17 +6,17 @@
 # we just make a general wrapper that runs the whole thing at each latitude and then combines results...
 
 
-get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=F, interval=600, short.run=T, calibration=NULL, log.irrad.borders) {
+get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=F, measurement.period=60, saving.period=600, short.run=T, calibration=NULL, log.irrad.borders) {
 # so this function will have to return 1 0 or -1
 
 Points.Land<-as.matrix(expand.grid(start[1], seq(start[2]-8, start[2]+8, 0.5)))
 Points.Land<-cbind(Points.Land, 1)
-Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=interval)
+Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=saving.period)
 Track<-cbind(start[1], start[2], Time.seq)
 
 Parameters=calibration$Parameters
 Parameters$LogSigma=c(log(Sigma), 0.0)
-all.out<-get.shifts(Track=Track, Points.Land=Points.Land, start=start, Parameters=Parameters, log.irrad.borders=log.irrad.borders, slopes.only=F, delta=delta, short.run=short.run, saving.period=interval, calibration=calibration)
+all.out<-get.shifts(Track=Track, Points.Land=Points.Land, start=start, Parameters=Parameters, log.irrad.borders=log.irrad.borders, slopes.only=F, delta=delta, short.run=short.run, measurement.period=measurement.period, saving.period=saving.period, calibration=calibration)
 Real.Sigma<-mean(all.out$Slopes[,2], na.rm=T)
 # and now we need to get resulting value
 
@@ -34,7 +34,7 @@ if (return.all.out) {return(all.out)
 } else {return(Res)}
 }
 
-get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, interval=600, short.run=T, repeats=3, random.delta=T, fast=F, calibration=NULL, log.irrad.borders) {
+get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, measurement.period=60, saving.period=600, short.run=T, repeats=3, random.delta=T, fast=F, calibration=NULL, log.irrad.borders) {
 	if (random.delta) {
 		if (fast) {
 			Deltas<-rep(runif(5, deltalim[1], deltalim[2]), repeats)
@@ -46,19 +46,19 @@ get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5
 	}
 Res<-c()
 for (i in Deltas) {
-Res<-rbind(Res, get.deltas.one.basic(delta=i, start=start, Sigma=Sigma, interval=interval,short.run=short.run, calibration=calibration, log.irrad.borders=log.irrad.borders))
+Res<-rbind(Res, get.deltas.one.basic(delta=i, start=start, Sigma=Sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=short.run, calibration=calibration, log.irrad.borders=log.irrad.borders))
 try(print(tail(Res, 20)))
 }
 return(Res)
 }
 
 # and now the next on that will iterate Sigma
-get.deltas.main<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigmas=seq(0, 0.8, 0.1), interval=600, short.run=T, repeats=3, random.delta=T, fast=F, calibration=NULL, log.irrad.borders=c(-50, 50)) {
+get.deltas.main<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigmas=seq(0, 0.8, 0.1), measurement.period=60, saving.period=600, short.run=T, repeats=3, random.delta=T, fast=F, calibration=NULL, log.irrad.borders=c(-50, 50)) {
 
 Res<-c()
 for (i in Sigmas) {
 cat(Sigmas, "\n")
-Res_local<-try(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, interval=interval, short.run=short.run, repeats=repeats, random.delta=random.delta, fast=fast, calibration=calibration, log.irrad.borders=log.irrad.borders))
+Res_local<-try(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, measurement.period=measurement.period, saving.period=saving.period, short.run=short.run, repeats=repeats, random.delta=random.delta, fast=fast, calibration=calibration, log.irrad.borders=log.irrad.borders))
 if (class(Res_local) == "try-error") {
 		save(list = ls(all = TRUE), file=paste("Res", start[2],"tmp.RData", sep="."), envir=environment())
 		
@@ -75,15 +75,14 @@ return(Res)
 }
 
 
-get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), interval=NULL, short.run=T, threads=2, log.irrad.borders=c(-50, 50), repeats=1, random.delta=T, calibration=NULL, fast=F) {
+get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), measurement.period=60, saving.period=600, short.run=T, threads=2, log.irrad.borders=c(-50, 50), repeats=1, random.delta=T, calibration=NULL, fast=F) {
 
-if (is.character(interval)) interval=get("interval")
+if (is.character(measurement.period)) measurement.period=get("measurement.period")
+if (is.character(saving.period)) saving.period=get("saving.period")
 if (is.character(Sigmas)) Sigmas=get("Sigmas")
 if (is.character(calibration)) calibration=get("calibration")
 if (is.character(deltalim)) deltalim=get("deltalim")
 #Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)),
-
-
 
 # points means number of latitudes that should be used for the run..
 require(parallel)
@@ -104,7 +103,7 @@ Coords<-cbind(0, Lats)
     #tmp<-parallel:::clusterEvalQ(mycl, source(file.path(wd, "LightR_development_code\\get.slopes.5.0.r")))
     #tmp<-parallel:::clusterEvalQ(mycl, source(file.path(wd, "Geologgers\\LightR_development_code\\get.deltas.5.0.r")))
 	#Coords<-as.data.frame(Coords)
-	Res<-parApply(mycl, Coords, 1, FUN=function(x) as.data.frame(get.deltas.main(start=x,  deltalim=deltalim, Sigmas=Sigmas, interval=interval, short.run=short.run, repeats=1, random.delta=random.delta, fast=fast, calibration=calibration)))
+	Res<-parApply(mycl, Coords, 1, FUN=function(x) as.data.frame(get.deltas.main(start=x,  deltalim=deltalim, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=short.run, repeats=1, random.delta=random.delta, fast=fast, calibration=calibration)))
 	#Res1<-apply(Coords, 1, FUN=function(x) as.data.frame(get.deltas.main(start=x,  deltalim=deltalim, Sigmas=Sigmas, interval=interval, short.run=short.run, LogSlope=LogSlope, Parameters=Parameters, repeats=1, random.delta=random.delta)))
 	stopCluster(cl = mycl)
 	Res<-do.call(rbind.data.frame, Res)
