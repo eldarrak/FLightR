@@ -75,7 +75,7 @@ return(Res)
 }
 
 
-get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), measurement.period=60, measurement.period=measurement.period, saving.period=600, short.run=T, threads=2, log.irrad.borders=c(-50, 50), repeats=1, random.delta=T, calibration=NULL, fast=F) {
+get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), measurement.period=60, saving.period=600, short.run=T, threads=2, log.irrad.borders=c(-50, 50), repeats=1, random.delta=T, calibration=NULL, fast=F) {
 
 if (is.character(measurement.period)) measurement.period=get("measurement.period")
 if (is.character(saving.period)) saving.period=get("saving.period")
