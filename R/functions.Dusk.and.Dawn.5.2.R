@@ -677,23 +677,17 @@ cur.slope$Sigma<-Sigma
 cur.slope$sd<-Slopes.sd
 
 names(cur.slope)[2]<-"slope"
-# ??? ????????? ???????
-#aggregate(cur.slope$slope,by=list(type=cur.slope$type),FUN=function(x) mean(log(x)))
-#aggregate(cur.slope$slope,by=list(type=cur.slope$type),FUN=function(x) sd(log(x)))
-
-#  ??????? ????????? (??, ??? ?? ???????????? ?? ????????? ??????)
-#aggregate(cur.slope$slope,by=list(type=cur.slope$type),FUN=function(x) mean(log(x)))
-#aggregate(cur.slope$slope,by=list(type=cur.slope$type),FUN=function(x) sd(log(x)))
 #=====================
 if (plot) hist(log(cur.slope$slope))
 
-Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))))
+Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope$sd, na.rm=T))
 
 cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 
-Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=cur.slope$time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma))
+Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=cur.slope$time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd))
 return(Res) #0.40)
 }
+
 
 
 get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2, saving.period=NULL, calibration=NULL) {
