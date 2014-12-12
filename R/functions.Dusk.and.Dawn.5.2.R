@@ -312,7 +312,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		if (is.na(slope.sd)) {
 			if (is.null(calibration)) {
 			slope.sd=0 
-			} else slope.sd<- 3*calibration$Parameters$mean.of.individual.slope.sigma
+			} else slope.sd<- calibration$Parameters$mean.of.individual.slope.sigma
 		}
 		#if (length(resid(Model))== 3) coef.vcov<-coef.vcov*15
 		# coef.vcov<-coef.vcov*100/(length(resid(Model))^2) # adding errors from MCMC
