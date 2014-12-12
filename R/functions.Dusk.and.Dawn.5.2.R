@@ -309,7 +309,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		
 		#if (coef(Model)[1] < calibration$calibration.bayesian.model$Intercept.boundary[1]) { 
 		#if (is.na(coef.vcov[1])) coef.vcov[is.na(coef.vcov)]<-calibration$calibration.bayesian.model$Slope.integration$fast.tw.vcov # adding errors from MCMC
-		if (is.na(slope.sd)) slope.sd<-0 
+		if (is.na(slope.sd)) slope.sd<- 3*calibration$Parameters$mean.of.individual.slope.sigma
 		#if (length(resid(Model))== 3) coef.vcov<-coef.vcov*15
 		# coef.vcov<-coef.vcov*100/(length(resid(Model))^2) # adding errors from MCMC
 		if (use.intercept) {
