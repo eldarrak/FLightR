@@ -47,7 +47,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
       #if (all.out$EMIter>1 & !is.null(all.out$Final.Means)) {
       #  points(CENTRE.y~CENTRE.x, type="p", data=all.out.old$Final.Means, pch=3, col="red")
       #  lines(CENTRE.y~CENTRE.x, data=all.out.old$Final.Means, col="red")
-      }
+      #}
       points(CENTRE.y~CENTRE.x, type="p", data=all.out$Final.Means, pch=3, col="blue")
       lines(CENTRE.y~CENTRE.x, data=all.out$Final.Means, col="blue")
       data("wrld_simpl", package="maptools")
