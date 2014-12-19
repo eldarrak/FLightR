@@ -42,7 +42,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     rm(Res)
     rm(All.results.mat)
     # plotting resuls
-    if (plot.each) {
+    if (plot) {
       plot(CENTRE.y~CENTRE.x, type="p", data=all.out$Final.Means, pch=3, col="blue", main="mean poistions")
       #if (all.out$EMIter>1 & !is.null(all.out$Final.Means)) {
       #  points(CENTRE.y~CENTRE.x, type="p", data=all.out.old$Final.Means, pch=3, col="red")
