@@ -694,7 +694,7 @@ return(Res) #0.40)
 
 
 
-get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2, saving.period=NULL, calibration=NULL) {
+get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2, saving.period=NULL, calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL ) {
 
 
 if (is.character(all.out)) all.out=get("all.out")
@@ -704,6 +704,8 @@ if (is.character(Twilight.log.light.mat.dusk)) Twilight.log.light.mat.dusk=get("
 if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("Twilight.log.light.mat.dawn")
 if (is.character(saving.period)) saving.period=get("saving.period")
 if (is.character(calibration)) calibration=get("calibration")
+if (is.character(log.irrad.borders)) log.irrad.borders=get("log.irrad.borders")
+if (is.character(log.light.borders)) log.light.borders=get("log.light.borders")
 
 #print(ls())
 #print(str(Twilight.time.mat.dusk))
