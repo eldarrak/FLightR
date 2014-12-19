@@ -704,8 +704,8 @@ if (is.character(Twilight.log.light.mat.dusk)) Twilight.log.light.mat.dusk=get("
 if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("Twilight.log.light.mat.dawn")
 if (is.character(saving.period)) saving.period=get("saving.period")
 if (is.character(calibration)) calibration=get("calibration")
-if (is.character(log.irrad.borders)) log.irrad.borders=get("log.irrad.borders")
-if (is.character(log.light.borders)) log.light.borders=get("log.light.borders")
+#if (is.character(log.irrad.borders)) log.irrad.borders=get("log.irrad.borders")
+#if (is.character(log.light.borders)) log.light.borders=get("log.light.borders")
 
 #print(ls())
 #print(str(Twilight.time.mat.dusk))
@@ -729,12 +729,12 @@ cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
+	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.light.borders=log.light.borders,, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
 		 	
 cat("estimating dawns\n")
 	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
+		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.light.borders=log.light.borders,log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
 stopCluster(mycl)
 
 cat("processing results\n")
