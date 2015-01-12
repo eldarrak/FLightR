@@ -724,7 +724,7 @@ mu.sigma.truncnorm<-function(x, a=45, b=500) {
 mu.sigma.truncnorm<-cmpfun(mu.sigma.truncnorm)
 
 
-update.proposal.PF<-function(output.matrix, Trans, in.Data, save.transitions=F, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL) {
+update.proposal.PF<-function(output.matrix, Trans, in.Data, save.transitions=F, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F) {
   mycl=existing.cluster
   # main function for proposal update
   # from the version 1.5 this function will do estimation of distance and it's SD..
@@ -772,45 +772,7 @@ update.proposal.PF<-function(output.matrix, Trans, in.Data, save.transitions=F, 
   # now we want to get mean ditance
   cat("   estimating mean dists\n")
   #
-  # this takes all the RAM.. something should be changed in the parallel version..
-  #if (parallel) {
-  #Mean.and.Sigma<-parLapply(cl = mycl, Distances, fun=function(x) mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
-  #} else {
-  Mean.and.Sigma<-lapply(Distances, FUN=function(x) mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
-  #}
-  Mean.Dists<-sapply(Mean.and.Sigma, "[[", i=1)
-  cat("   estimating dists SD\n")
-  Mean.SD<-sapply(Mean.and.Sigma, "[[", i=2)
-  #for (i in 1:length(Trans)) {
-  #============================================================
-  #  Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
-  # prepare data for new mu.sigma.truncnorm
-  # points.current, dists, azimuths, phys.proposal, Points.Land, point_ID, a=45, b=500, Current.mean, Current.sd
-  #points.current<-output.matrix[,i+1]
-  # now I need to get closest point
-  #=====================================================
-  # here is the place to change in v 1.8 we need to go for Trans as it will be created outside...
-  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  #dists.real<-inverse.rle(Distances[[i]])
-  #nonZero.Points<-which(dists.real !=0)
-  #point_ID<-which.min(spDistsN1(in.Data$Points.Land, cbind(in.Data$Final.Means[i,"CENTRE.x"], in.Data$Final.Means[i,"CENTRE.y"]),longlat=T))
-  #dists<-in.Data$distance[point_ID,] # these are distances from central point
-  #azimuths<-in.Data$Azimuths[point_ID,]
-  #phys.proposal<-in.Data$Phys.Mat[,i]
-  #Points.Land<-in.Data$Points.Land
-  #Current.mean<-in.Data$Matrix.Index.Table$M.mean[i]
-  #Current.sd<-in.Data$Matrix.Index.Table$M.sd[i]
-  #Mean.and.Sigma<-rbind(Mean.and.Sigma, mu.sigma.truncnorm(points.current, dists, dists.real ,azimuths, phys.proposal, Points.Land, point_ID, a=45, b=500, Current.mean, Current.sd, nonZero.Points))
-  #Mean.and.Sigma<-rbind(Mean.and.Sigma, mu.sigma.truncnorm(points.current, dists, dists.real ,azimuths, phys.proposal, Points.Land, point_ID, a=45, b=500, Current.mean, Current.sd, nonZero.Points))
-  #}
-  
-  #Mean.Dists<-Mean.and.Sigma[,1]
-  
-  #cat("   estimating SD dists SD\n")
-  #Mean.SD<-Mean.and.Sigma[,2]
-  
   #cat("   estimating mean and SD to report dists SD\n")
-  #This is temporal change!!!
   # attempt to go just for simple distance estimation...
   Mean2report<-unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   SD2report<-unlist(lapply(Distances, FUN=function(x) sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
@@ -820,13 +782,28 @@ update.proposal.PF<-function(output.matrix, Trans, in.Data, save.transitions=F, 
   Probability.of.migration<-unlist(lapply(Distances, FUN=function(x) sum(x$lengths[x$values!=0])))/(dim(output.matrix)[1])
   
   ## 
-  
+    if (estimatetruncnorm) {
+  Mean.and.Sigma<-lapply(Distances, FUN=function(x) mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
+  #}
+  Mean.Dists<-sapply(Mean.and.Sigma, "[[", i=1)
+  cat("   estimating dists SD\n")
+  Mean.SD<-sapply(Mean.and.Sigma, "[[", i=2)
+  } else {
+  Mean2report<-Mean.Dists
+  SD2report<-Mean.SD
+  }
+
   #unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   #plot(Mean.Dists)
   cat("   estimating median dists\n")
   Median.Dists<-unlist(lapply(Distances, FUN=function(x) median(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
+
   #unlist(lapply(Distances, FUN=function(x) sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   #plot(Kappas)
+  
+  
+  
+  
   cat("   creating output")
   ################
   # create new proposal from the posteriors
@@ -890,6 +867,29 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
     #plot_box(plotnew=F, plotpoints=F)
   }
   in.Data$Final.Means<-Means
+  
+  #############
+  # new part for medians
+	Quantiles<-c()
+	for (i in 1:length(Points)) {
+	Quantiles<-rbind(Quantiles, c(summary(all.out$Points.Land[inverse.rle(Points[[i]]),2]), Mode=all.out$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(all.out$Points.Land[inverse.rle(Points[[i]]),1]), Mode=all.out$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
+	}
+	Quantiles<-as.data.frame(Quantiles)
+	names(Quantiles)[1:6]<-paste(names(Quantiles)[1:6], "lat", sep="")
+	names(Quantiles)[8:13]<-paste(names(Quantiles)[8:13], "lon", sep="")
+
+	###########
+	# doing jitter first
+	Quantiles$MedianlonJ<-jitter(Quantiles$Medianlon)
+	Quantiles$MedianlatJ<-jitter(Quantiles$Medianlat)
+
+	names(Quantiles)<-gsub("\\s","", names(Quantiles))
+	names(Quantiles)<-gsub("1","F", names(Quantiles))
+	names(Quantiles)<-gsub("3","T", names(Quantiles))
+	  
+	in.Data$Quantiles<-Quantiles
+  
+  
   return(in.Data)
 }
 get.coordinates.PF<-cmpfun(get.coordinates.PF)
@@ -1177,7 +1177,7 @@ EM.PF.wrapper<-function(all.out, iterations=10, save.Res=T, cpus=24, nParticles=
       cat("updating proposal after iteration", all.out$EMIter, "\n")
       all.out.old<-all.out
       all.out<-get.coordinates.PF(All.results.mat, all.out, save.points.distribution=save.points.distribution)
-      all.out<-update.proposal.PF(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl, save.transitions=save.transitions)
+      all.out<-update.proposal.PF(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl, save.transitions=save.transitions, estimatetruncnorm=T)
       if (update.angle.drift) {  
         cat("\n   estimating measured twilight angle drift\n")
         save(all.out, file="all.out.tmp.beofre.angle.RData")
@@ -1246,6 +1246,8 @@ EM.PF.wrapper<-cmpfun(EM.PF.wrapper)
 ####################################################################
 # to prevent memory leak I decide to create a new wrapper around previous one.
 # the idea is that it will restart main R node after every iteration.
+# decided to change the name
+
 EM.PF.safe.ram.wrapper<-function(all.out, iterations=10, save.Res=T, cpus=40, nParticles=1e6, known.last=T, precision.sd=25, sea.value=0.00, save.memory=T, k=NA, parallel=T, plot.each.iter=T, prefix="EMPF", max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, start.new.optimization.SD=T, save.points.distribution=T, save.transitions=T, max.attempts=3, fixed.parameters=NA, cluster.type="SOCK", sink2file=T, L=25,update.angle.drift=T, adaptive.resampling=0.5, plot2pdf=F, RStudio=F, a=45, b=500, check.outliers=F) {
   all.out$Call<-match.call()
   # fixed.parameters could be list(Kappa=1, M.sd=250)
@@ -1267,12 +1269,13 @@ EM.PF.safe.ram.wrapper<-function(all.out, iterations=10, save.Res=T, cpus=40, nP
     Curr.prefix<-paste(prefix, "iteration", all.out$EMIter, sep=".")
     maincl <- parallel:::makeCluster(1, type="SOCK")
     ### we don' need to send all parameters to node. so keep it easy..
-    parallel:::clusterExport(maincl,c("generate.points.dirs", "pf.par.internal", "my.dvonmises", "pf.final.smoothing", "plot.optimisation.results", "pf.run.parallel.SO.resample", "return.matrix.from.char", "get.transition.rle", "update.proposal.PF", "get.coordinates.PF", "EM.PF.wrapper", "get.optimization.SD", "get.LL.PF", "mu.sigma.truncnorm", "get.angle.drift", "create.spatial.sun.matrices", "sun.matrix.internal", "node.run" ,"solar", "elevation"))
+    #parallel:::clusterExport(maincl,c("generate.points.dirs", "pf.par.internal", "my.dvonmises", "pf.final.smoothing", "plot.optimisation.results", "pf.run.parallel.SO.resample", "return.matrix.from.char", "get.transition.rle", "update.proposal.PF", "get.coordinates.PF", "EM.PF.wrapper", "get.optimization.SD", "get.LL.PF", "mu.sigma.truncnorm", "get.angle.drift", "create.spatial.sun.matrices", "sun.matrix.internal", "node.run" ,"solar", "elevation"))
     parallel:::clusterExport(maincl, "WD", envir=environment())
     parallel:::clusterEvalQ(maincl, setwd(WD)) 
     parallel:::clusterEvalQ(maincl, library("circular")) 
     parallel:::clusterEvalQ(maincl, library("truncnorm")) 
     parallel:::clusterEvalQ(maincl, library("parallel")) 
+    parallel:::clusterEvalQ(maincl, library("FLightR")) 
     
     # now I want to run wrapper on cluster
     
