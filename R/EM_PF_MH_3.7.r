@@ -789,8 +789,8 @@ update.proposal.PF<-function(output.matrix, Trans, in.Data, save.transitions=F, 
   cat("   estimating dists SD\n")
   Mean.SD<-sapply(Mean.and.Sigma, "[[", i=2)
   } else {
-  Mean2report<-Mean.Dists
-  SD2report<-Mean.SD
+  Mean.Dists<-Mean2report
+  Mean.SD<-SD2report
   }
 
   #unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
@@ -870,6 +870,7 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
   
   #############
   # new part for medians
+  cat("estimating quantiles for positions\n")
 	Quantiles<-c()
 	for (i in 1:length(Points)) {
 	Quantiles<-rbind(Quantiles, c(summary(all.out$Points.Land[inverse.rle(Points[[i]]),2]), Mode=all.out$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(all.out$Points.Land[inverse.rle(Points[[i]]),1]), Mode=all.out$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
