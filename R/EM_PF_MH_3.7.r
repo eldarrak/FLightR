@@ -861,7 +861,7 @@ coords.aeqd.jitter <- function(coords, r, n)
                     p@coords[[2]], p@coords[[1]])
     projected <- spTransform(p, CRS(aeqd))
     buffered <- gBuffer(projected, width=r, byid=TRUE)
-    lambert <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+    lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
                     p@coords[[2]], p@coords[[1]])
 	buffered_eqarea <- spTransform(buffered, CRS(lambert))
 	random_points<-spsample(buffered_eqarea,n=n,type="random")
