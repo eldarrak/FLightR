@@ -844,6 +844,34 @@ update.proposal.PF<-function(output.matrix, Trans, in.Data, save.transitions=F, 
 
 update.proposal.PF<-cmpfun(update.proposal.PF)
 
+require(sp)
+require(rgeos)
+require(rgdal)
+
+coords.aeqd.jitter <- function(coords, r, n)
+{
+# coords is a vector of leghth 2 c(lon, lat)
+# r should be in meters
+# made on te basis of this:
+#"http://gis.stackexchange.com/questions/121489/1km-circles-around-lat-long-points-in-many-places-in-world"
+ stopifnot(length(coords) == 2)
+
+	p = SpatialPoints(matrix(coords, ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
+    aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+                    p@coords[[2]], p@coords[[1]])
+    projected <- spTransform(p, CRS(aeqd))
+    buffered <- gBuffer(projected, width=r, byid=TRUE)
+    lambert <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+                    p@coords[[2]], p@coords[[1]])
+	buffered_eqarea <- spTransform(buffered, CRS(lambert))
+	random_points<-spsample(buffered_eqarea,n=n,type="random")
+	if (is.null(random_points)) random_points<-spsample(buffered_eqarea,n=n,type="random", iter=40) 
+	if (is.null(random_points)) random_points<-p
+    spTransform(random_points, p@proj4string)
+}
+
+
+
 get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F) {
   library("aspace")
   # this function will extract point coordinates from the output matrix.. 
@@ -881,8 +909,15 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 
 	###########
 	# doing jitter first
-	Quantiles$MedianlonJ<-jitter(Quantiles$Medianlon)
-	Quantiles$MedianlatJ<-jitter(Quantiles$Medianlat)
+	cat("adding jitter to medians\n")
+	JitRadius<-min(all.out$distance[all.out$distance>0])/2*1000 # in meters
+	#now I want to generate random poitns in the radius of this
+	coords=cbind(Quantiles$Medianlon, Quantiles$Medianlat)
+	tmp<-apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 )
+	jitter_coords<-t(sapply(tmp, coordinates))
+
+	Quantiles$MedianlonJ<-jitter_coords[1,]
+	Quantiles$MedianlatJ<-jitter_coords[2,]
 
 	names(Quantiles)<-gsub("\\s","", names(Quantiles))
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
