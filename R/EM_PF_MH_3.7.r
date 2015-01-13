@@ -916,8 +916,8 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	tmp<-apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 )
 	jitter_coords<-t(sapply(tmp, coordinates))
 
-	Quantiles$MedianlonJ<-jitter_coords[1,]
-	Quantiles$MedianlatJ<-jitter_coords[2,]
+	Quantiles$MedianlonJ<-jitter_coords[,1]
+	Quantiles$MedianlatJ<-jitter_coords[,2]
 
 	names(Quantiles)<-gsub("\\s","", names(Quantiles))
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
