@@ -171,15 +171,15 @@ all.out<-geologger.sampler.create.arrays(Index.tab, Points.Land, start=start)
 Proc.data<-process.twilights(All.p, Filtered_tw, measurement.period=measurement.period, saving.period=saving.period)
 
 ## Dusk
-Twilight.time.mat.Calib.dusk<-Proc.data$Twilight.time.mat.dusk
+Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk
 
-Twilight.log.light.mat.Calib.dusk<-Proc.data$Twilight.log.light.mat.dusk
+Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk
 
 ## Dawn
 
-Twilight.time.mat.Calib.dawn<-Proc.data$Twilight.time.mat.dawn
+Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn
 
-Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn
+Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 
 ###############

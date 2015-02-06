@@ -79,15 +79,15 @@ rownames(All.p)<-1:nrow(All.p)
 Proc.data<-process.twilights(All.p, Filtered_tw, measurement.period=measurement.period, saving.period=saving.period)
 
 ## Dusk
-Twilight.time.mat.Calib.dusk<-Proc.data$Twilight.time.mat.dusk
+Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk
 
-Twilight.log.light.mat.Calib.dusk<-Proc.data$Twilight.log.light.mat.dusk
+Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk
 
 ## Dawn
 
-Twilight.time.mat.Calib.dawn<-Proc.data$Twilight.time.mat.dawn
+Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn
 
-Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn
+Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 #log.light.borders<-log(c(2,64))
 
