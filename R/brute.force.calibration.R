@@ -128,6 +128,7 @@ if (mode=="trial") {
 	cat("deltalim set to ", deltalim, "\n")
 	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,  random.delta=T, calibration=calibration, min.max.values=min.max.values)
 	Res<-as.data.frame(Res)
+	print(str(Res))
 	names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res$cosLat<-cos(Res$Lat/180*pi)
 	RES<-list(simulations=Res)
