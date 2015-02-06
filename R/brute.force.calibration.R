@@ -2,7 +2,7 @@
 # ver 0.1 from 21.10.2014
 
 
-get.1.minute.parameters<-function(parameters, measurement.period=60, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64)), repeats=50) {
+get.1.minute.parameters<-function(parameters, measurement.period=60, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64)), repeats=50, min.max.values=c(0,64)) {
 # this stupid brute force function will just etimate what should be the parameter values on a 1 minute scale..
 
 #========================================
@@ -37,8 +37,8 @@ Res<-c()
 Res<-as.data.frame(Res)
 for (i in 1:repeats) {
 To.run.cur<-To.run[sample( 1:nrow(To.run), 1),]
-All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders)
-Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$ SD.ideal[1]))
+All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
+Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$SD.ideal[1]))
 names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
 print(Res)
 }
@@ -71,7 +71,7 @@ Slope.ideal<-(parameters$LogSlope[1]-coef(Lm.slope)[1])/coef(Lm.slope)[2] #
 
 To.run<-expand.grid(Slope.ideal=runif(1000, Slope.ideal-0.3, Slope.ideal+0.3), SD.ideal=Slope.sd.ideal) #
 
-All.slope.runs1=get.slopes(Repeats=25, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders)
+All.slope.runs1=get.slopes(Repeats=25, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
 #mean(All.slope.runs1$Slope) # works
 #sd(All.slope.runs1$Slope)
 
@@ -91,11 +91,11 @@ return(RES)
 }
 
 #
-get.time.correction.function<-function(parameters, measurement.period=60, saving.period=NULL, position, log.light.borders=log(c(2,64)), Repeats=2) {
+get.time.correction.function<-function(parameters, measurement.period=60, saving.period=NULL, position, log.light.borders=log(c(2,64)), Repeats=2, min.max.values=c(0,64)) {
 # as far as we do not provide time the slope function will runf for the whole year.
 
 To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2]) #
-All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, short.run=F, Lon=position[1], log.light.borders=log.light.borders)
+All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, short.run=F, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
 
 Solar<-solar(as.POSIXct(All.slope.runs$gmt, tz="UTC", origin="1970-01-01"))
 All.slope.runs$cosSolarDec<-Solar$cosSolarDec
@@ -116,7 +116,7 @@ return(Res)
 }
 #
 
-get.lat.correction.function<-function(deltalim=c(-0.05, 0.35), measurement.period=60, saving.period=NULL, threads=2, mode="smart", Sigmas, LogSlope,  log.irrad.borders=c(-50, 50), calibration=NULL) {
+get.lat.correction.function<-function(deltalim=c(-0.05, 0.35), measurement.period=60, saving.period=NULL, threads=2, mode="smart", Sigmas, LogSlope,  log.light.borders=log(c(2, 64)),log.irrad.borders=c(-50, 50), calibration=NULL, min.max.values=c(0,64)) {
 
 cat("function will work in ", mode, "mode\n")
 
@@ -126,7 +126,7 @@ require(parallel)
 if (mode=="trial") {
 	deltalim=c(0.15, 0.16)
 	cat("deltalim set to ", deltalim, "\n")
-	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50),  random.delta=T, calibration=calibration)
+	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,  random.delta=T, calibration=calibration, min.max.values=min.max.values)
 	Res<-as.data.frame(Res)
 	names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res$cosLat<-cos(Res$Lat/180*pi)
@@ -134,7 +134,7 @@ if (mode=="trial") {
 }
 if (mode=="brute") {
 # real run
-Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
 #=======
 # !!! idealy there should be a check that will make sure that active variation occured at the deltalim specified
 #=======
@@ -173,7 +173,7 @@ if (mode=="smart") {
 
 	Points<-ifelse(threads<7, 7, threads) # how many repeats to run..
 
-	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
 	Res_min_lat<-as.data.frame(Res_min_lat)
 	names(Res_min_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res_min_lat$cosLat<-cos(Res_min_lat$Lat/180*pi)
@@ -196,7 +196,7 @@ if (mode=="smart") {
 
 	
  cat("...estimating compensation at latitude 65")
-	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
 	Res_max_lat<-as.data.frame(Res_max_lat)
 	names(Res_max_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res_max_lat<-Res_max_lat[Res_max_lat$Diff>-8 & Res_max_lat$Diff<8,]
@@ -236,7 +236,7 @@ if (mode=="smart") {
 	
 	Points<-(50%/%threads)*threads # how many repeats to run..
 	
-	Res<-get.deltas.parallel(deltalim=deltalim_corrected, limits=c(-65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
+	Res<-get.deltas.parallel(deltalim=deltalim_corrected, limits=c(-65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
 
 	cat(" ... done!")
 	Res<-as.data.frame(Res)

@@ -283,7 +283,7 @@ get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light
 	}
 	
 # this will use the old idea about slopes..
-get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  Calib.param, delta=0, saving.period=600, time_correction=NULL) {
+get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  delta=0, time_correction=NULL, Calib.param=NULL) {
 	if (is.null(time_correction) & is.null(Twilight.solar.vector)) stop ("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 	Probability=0
 	Data<-check.boundaries(x, Twilight.solar.vector=Twilight.solar.vector,  Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector)
@@ -297,7 +297,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Model<- lm(LogLight~LogIrrad)
 		if (verbose) print(summary(Model))
 
-	get.probs<-function(Model, plot=F, saving.period=600, calibration=NULL, time_correction=NULL) {
+	get.probs<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL) {
 		require(fields)
 # the new function for 3.3		
 		# check for the intercept
@@ -342,7 +342,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		if (is.null(time_correction)) {	
 
 			if (is.null(calibration)) {
-			time_correction=Calib.param[1]
+			time_correction=Calib.param[1] # this is the only place where I use calib.param...
 			} else {
 
 			time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
@@ -377,7 +377,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		return(sum)
 		}
 		
-		Probability<-get.probs(Model, plot=plot, saving.period=saving.period, calibration=calibration, time_correction=time_correction)
+		Probability<-get.probs(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param)
 
 		if (!is.finite(Probability)) Probability<-0
 		if (return.slopes) 	Probability<-c(Probability, coef(Model)[2], sqrt(vcov(Model)[4]))
