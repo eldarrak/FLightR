@@ -901,7 +901,7 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
   cat("estimating quantiles for positions\n")
 	Quantiles<-c()
 	for (i in 1:length(Points)) {
-	Quantiles<-rbind(Quantiles, c(summary(all.out$Points.Land[inverse.rle(Points[[i]]),2]), Mode=all.out$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(all.out$Points.Land[inverse.rle(Points[[i]]),1]), Mode=all.out$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
+	Quantiles<-rbind(Quantiles, c(summary(in.Data$Points.Land[inverse.rle(Points[[i]]),2]), Mode=in.Data$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(in.Data$Points.Land[inverse.rle(Points[[i]]),1]), Mode=in.Data$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
 	}
 	Quantiles<-as.data.frame(Quantiles)
 	names(Quantiles)[1:6]<-paste(names(Quantiles)[1:6], "lat", sep="")
@@ -910,7 +910,7 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	###########
 	# doing jitter first
 	cat("adding jitter to medians\n")
-	JitRadius<-min(all.out$distance[all.out$distance>0])/2*1000 # in meters
+	JitRadius<-min(in.Data$distance[in.Data$distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(Quantiles$Medianlon, Quantiles$Medianlat)
 	tmp<-apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 )
