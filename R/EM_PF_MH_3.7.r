@@ -851,6 +851,7 @@ require(rgdal)
 coords.aeqd.jitter <- function(coords, r, n)
 {
 require('rgdal')
+require('rgeos')
 # coords is a vector of leghth 2 c(lon, lat)
 # r should be in meters
 # made on te basis of this:
