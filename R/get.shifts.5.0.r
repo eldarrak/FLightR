@@ -20,7 +20,7 @@ require(FLightR)
 # for this we will have to create a To.run.object...
 To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2], Latitude=unique(Track[,2])) #
 Track.initial<-Track
-Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, )
+Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving)
 #==================================
 # saving and reading track file
 cat("   saving file\n")
