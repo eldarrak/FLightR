@@ -11,7 +11,7 @@ get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=
 
 Points.Land<-as.matrix(expand.grid(start[1], seq(start[2]-8, start[2]+8, 0.5)))
 Points.Land<-cbind(Points.Land, 1)
-Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=saving.period)
+Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-22 23:59:59", tz="UTC")), by=saving.period)
 Track<-cbind(start[1], start[2], Time.seq)
 
 Parameters=calibration$Parameters
@@ -47,7 +47,7 @@ get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5
 Res<-c()
 for (i in Deltas) {
 Res<-rbind(Res, get.deltas.one.basic(delta=i, start=start, Sigma=Sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=short.run, calibration=calibration, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, min.max.values=min.max.values))
-try(print(tail(Res, 20)))
+#try(print(tail(Res, 20)))
 }
 return(Res)
 }

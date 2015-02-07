@@ -232,11 +232,11 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twi
 		cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
  
-		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, saving.period=saving.period, log.light.borders=log.light.borders, calibration=calibration)
+		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land,log.light.borders=log.light.borders, calibration=calibration)
 		 #All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=cbind(0,38), return.slopes=T)
 	
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Parameters$LogSlope,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, saving.period=saving.period, log.light.borders=log.light.borders, calibration=calibration)
+		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Parameters$LogSlope,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land,  log.light.borders=log.light.borders, calibration=calibration)
 		#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land)
 # ok, what should we do now?
 # first I'd found a maximum of the probabilities for each day and comapre it with the means 
