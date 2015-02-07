@@ -694,7 +694,7 @@ return(Res) #0.40)
 
 
 
-get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2, saving.period=NULL, calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL ) {
+get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL ) {
 
 
 if (is.character(all.out)) all.out=get("all.out")
@@ -702,7 +702,6 @@ if (is.character(Twilight.time.mat.dusk)) Twilight.time.mat.dusk=get("Twilight.t
 if (is.character(Twilight.time.mat.dawn)) Twilight.time.mat.dawn=get("Twilight.time.mat.dawn")
 if (is.character(Twilight.log.light.mat.dusk)) Twilight.log.light.mat.dusk=get("Twilight.log.light.mat.dusk")
 if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("Twilight.log.light.mat.dawn")
-if (is.character(saving.period)) saving.period=get("saving.period")
 if (is.character(calibration)) calibration=get("calibration")
 #if (is.character(log.irrad.borders)) log.irrad.borders=get("log.irrad.borders")
 #if (is.character(log.light.borders)) log.light.borders=get("log.light.borders")
@@ -729,12 +728,12 @@ cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
+	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Calib.param, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, calibration=calibration)
 		 	
 cat("estimating dawns\n")
 	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, saving.period=saving.period, calibration=calibration)
+		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Calib.param, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, delta=NULL, Points.Land=Points.Land, calibration=calibration)
 stopCluster(mycl)
 
 cat("processing results\n")
