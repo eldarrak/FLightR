@@ -546,16 +546,16 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		if (1 %in% Imputing) {
 			Left.LogLight<-max(log.light.borders)
 			#Left.LogIrrad<-mean(First.LogIrrad)
-			#Left.LogIrrad<-log(mean(exp(First.LogIrrad)))
-			Left.LogIrrad<-max(First.LogIrrad)
+			Left.LogIrrad<-log(mean(exp(First.LogIrrad)))
+			#Left.LogIrrad<-max(First.LogIrrad)
 			#if (!is.null(Twilight.time.vector)) Left.Time<-mean(First.Time)
 			if (!is.null(Twilight.time.vector)) Left.Time<-min(First.Time)
 		}
 		if (2 %in% Imputing) {
 			Right.LogLight<-min(log.light.borders)
 			#Right.LogIrrad<-mean(Last.LogIrrad)
-			#Right.LogIrrad<-log(mean(exp(Last.LogIrrad)))
-			Right.LogIrrad<-min(Last.LogIrrad)
+			Right.LogIrrad<-log(mean(exp(Last.LogIrrad)))
+			#Right.LogIrrad<-min(Last.LogIrrad)
 			#if (!is.null(Twilight.time.vector)) Right.Time<-mean(Last.Time)
 			if (!is.null(Twilight.time.vector)) Right.Time<-max(Last.Time)
 
@@ -564,8 +564,8 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		if (1 %in% Imputing) {
 			Left.LogLight<-min(log.light.borders)
 			#Left.LogIrrad<-mean(First.LogIrrad)
-			#Left.LogIrrad<-log(mean(exp(First.LogIrrad)))
-			Left.LogIrrad<-min(First.LogIrrad)
+			Left.LogIrrad<-log(mean(exp(First.LogIrrad)))
+			#Left.LogIrrad<-min(First.LogIrrad)
 			#if (!is.null(Twilight.time.vector)) Left.Time<-mean(First.Time)
 			if (!is.null(Twilight.time.vector)) Left.Time<-min(First.Time)
 
@@ -574,8 +574,8 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		if (2 %in% Imputing) {
 			Right.LogLight<-max(log.light.borders)
 			#Right.LogIrrad<-mean(Last.LogIrrad)
-			#Right.LogIrrad<-log(mean(exp(Last.LogIrrad)))
-			Right.LogIrrad<-max(Last.LogIrrad)
+			Right.LogIrrad<-log(mean(exp(Last.LogIrrad)))
+			#Right.LogIrrad<-max(Last.LogIrrad)
 			#if (!is.null(Twilight.time.vector)) Right.Time<-mean(Last.Time)
 			if (!is.null(Twilight.time.vector)) Right.Time<-max(Last.Time)
 
