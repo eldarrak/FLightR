@@ -352,9 +352,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Expected.mean<-time_correction
 		
 		if (is.null(delta)) {
-		lat_correction=calibration$lat_correction_fun(x[2])
-
-			delta=lat_correction
+		delta=calibration$lat_correction_fun(x[2])
 		}
 		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
 

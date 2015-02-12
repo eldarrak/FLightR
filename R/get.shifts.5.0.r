@@ -228,8 +228,8 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twi
 		cat("\n detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 
 	if (!slopes.only) {
-		cat("detected dusk", dim(Twilight.time.mat.dusk)[2], "\n")
-		cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
+		#cat("detected dusk", dim(Twilight.time.mat.dusk)[2], "\n")
+		#cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
  
 		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land,log.light.borders=log.light.borders, calibration=calibration)
