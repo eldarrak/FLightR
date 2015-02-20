@@ -32,7 +32,7 @@ Time.seq.saving<-seq(from=start.time-7200
 ## how could we solve that?
 ## ok, let's for now leave it as -0.1 +0.4
 
-To.run<-expand.grid(Slope.ideal= runif(1000,   parameters$LogSlope[1]-0.1,   parameters$LogSlope[1]+0.4), SD.ideal=runif(1000,  exp(log( parameters$LogSlope[2])-0.2),  exp(log( parameters$LogSlope[2])+0.2))) #
+To.run<-expand.grid(Slope.ideal= runif(1000,   parameters$LogSlope[1]-0.2,   parameters$LogSlope[1]+0.4), SD.ideal=runif(1000,  exp(log( parameters$LogSlope[2])-0.2),  exp(log( parameters$LogSlope[2])+0.2))) #
 Res<-c()
 Res<-as.data.frame(Res)
 for (i in 1:repeats) {
@@ -46,16 +46,15 @@ print(Res)
 #Parameters=All.slopes$Parameters
 
 
-plot(Res$SD~Res$Slope.ideal) # no relationship
-plot(Res$SD~Res$Slope) # no relationship
+#plot(Res$SD~Res$Slope.ideal) # no relationship
+#plot(Res$SD~Res$Slope) # no relationship
 # ok, this means that slope and SD are independent. GOOD.
-plot(Res$Slope~Res$Slope.ideal)
 #summary(lm(Res$Slope~Res$Slope.ideal))
 #=ok I do see now absolute linear relationship
 # with the same degree for slope and for SD
 # interesting, but I would not pay too much attention to that
 
-plot(Res$SD~Res$SD.ideal)
+#plot(Res$SD~Res$SD.ideal)
 Lm.sd<-lm(Res$SD~Res$SD.ideal)
 summary(Lm.sd)
 Slope.sd.ideal<-(parameters$LogSlope[2]-coef(Lm.sd)[1])/coef(Lm.sd)[2] #0.42 comparing to 0.4 from original calibration
@@ -71,12 +70,12 @@ Slope.ideal<-(parameters$LogSlope[1]-coef(Lm.slope)[1])/coef(Lm.slope)[2] #
 
 To.run<-expand.grid(Slope.ideal=runif(1000, Slope.ideal-0.3, Slope.ideal+0.3), SD.ideal=Slope.sd.ideal) #
 
-All.slope.runs1=get.slopes(Repeats=25, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
+All.slope.runs1=get.slopes(Repeats=repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
 #mean(All.slope.runs1$Slope) # works
 #sd(All.slope.runs1$Slope)
 
 # and now let's repeat the same story with Lm...
-Lm1<-lm(Slope~Slope.ideal, data=All.slope.runs1)
+Lm1<-lm(Slope~Slope.ideal, data=All.slope.runs1, na.rm=T)
 #summary(Lm1)
 
 # this is stupid as what we do want to see are correction lms if they are independent then we should just use them to predict what is the 1 minute distribution..

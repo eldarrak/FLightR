@@ -172,7 +172,7 @@ plot(All.slopes$Slope~All.slopes$Slope.ideal)
 #lm(All.slopes$Slope.SD~All.slopes$SD.ideal)
 
 All.slope.runs<-rbind(All.slope.runs, All.slopes)
-save(All.slope.runs, file=paste(file.head, "All.slope.runs.RData", sep="."))
+#save(All.slope.runs, file=paste(file.head, "All.slope.runs.RData", sep="."))
 par(mfrow=c(1,2))
 plot((All.slope.runs$Slope)~All.slope.runs$Slope.ideal)
 mean((All.slope.runs$Slope), na.rm=T)

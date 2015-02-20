@@ -125,6 +125,76 @@ elevation<-function (lon, lat, sun) {
 }
 elevation<-cmpfun(elevation)
 
+
+#====================
+# these are a bit different solar functions based on the GeoLight's formulas
+
+solar.FLightR<-function(gmt) {
+    n <- gmt - as.POSIXct(strptime("2000-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"), 
+        "UTC")
+    L <- 280.46 + 0.9856474 * n
+    L <- as.numeric(L)
+    g <- 357.528 + 0.9856003 * n
+    g <- as.numeric(g)
+    t.v <- floor(g/360)
+    g <- g - 360 * t.v
+    g.rad <- g * pi/180
+    t.l <- floor(L/360)
+    L <- L - 360 * t.l
+    L.rad <- L * pi/180
+    LAMBDA <- L + 1.915 * sin(g.rad) + 0.02 * sin(2 * g.rad)
+    LAMBDA.rad <- LAMBDA * pi/180
+    epsilon <- 23.439 - 4e-07 * n
+    epsilon.rad <- as.numeric(epsilon) * pi/180
+    alpha.rad <- atan(cos(epsilon.rad) * sin(LAMBDA.rad)/cos(LAMBDA.rad))
+    alpha.rad <- ifelse(cos(LAMBDA.rad) < 0, alpha.rad + pi, 
+        alpha.rad)
+    alpha <- alpha.rad * 180/pi
+    deklination.rad <- asin(sin(epsilon.rad) * sin(LAMBDA.rad))
+    deklination <- deklination.rad * 180/pi
+    tag <- paste(format(Date, format="%Y"), "-", format(Date, format="%m"), "-", format(Date, format="%d"), " 00:00:00", sep = "")
+    JD0 <- as.POSIXct(strptime(tag, "%Y-%m-%d %H:%M:%S"), "UTC")
+    JD0 <- JD0 - as.POSIXct(strptime("2000-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"), 
+        "UTC")
+    T0 <- JD0/36525
+    Time <- as.numeric(format(Date, format="%H")) + as.numeric(format(Date, format="%M"))/60 + as.numeric(format(Date, format="%S"))/60/100
+    theta.Gh <- 6.697376 + 2400.05134 * T0 + 1.002738 * Time
+    theta.Gh <- as.numeric(theta.Gh)
+    t.d <- floor(theta.Gh/24)
+    theta.Gh <- theta.Gh - t.d * 24
+    theta.G <- theta.Gh * 15
+	Res<-list(
+		theta.G = theta.G,
+		alpha=alpha,
+		sinSolarDec = sin(deklination.rad),
+		cosSolarDec = cos(deklination.rad)
+		)
+	return(Res)	
+	}
+
+solar<-solar.FLightR
+solar<-cmpfun(solar)
+
+
+elevation.FLightR<-function(lon, lat, solarFLightR) {
+    theta <- solarFLightR$theta.G + lon
+    tau <- theta - solarFLightR$alpha
+    tau.rad <- tau/180 * pi
+    h <- asin(solarFLightR$cosSolarDec * cos(tau.rad) * cos(lat/180 * 
+        pi) + solarFLightR$sinSolarDec * sin(lat/180 * pi))
+    h.grad <- h/pi * 180
+    R <- 1.02/(tan((h.grad + 10.3/(h.grad + 5.11))/180 * pi))
+    hR.grad <- h.grad + R/60
+    return(hR.grad)
+}
+
+elevation<-elevation.FLightR
+elevation<-cmpfun(elevation)
+
+# end of new functions..
+#=========================
+
+
 generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   # this function is needed to generate new points - it works as from input point Index and biological proposal
   ################
