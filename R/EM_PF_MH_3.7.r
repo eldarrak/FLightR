@@ -129,6 +129,7 @@ elevation<-cmpfun(elevation)
 #====================
 # these are a bit different solar functions based on the GeoLight's formulas
 
+
 solar.FLightR<-function(gmt) {
     n <- gmt - as.POSIXct(strptime("2000-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"), 
         "UTC")
@@ -152,12 +153,13 @@ solar.FLightR<-function(gmt) {
     alpha <- alpha.rad * 180/pi
     deklination.rad <- asin(sin(epsilon.rad) * sin(LAMBDA.rad))
     deklination <- deklination.rad * 180/pi
-    tag <- paste(format(Date, format="%Y"), "-", format(Date, format="%m"), "-", format(Date, format="%d"), " 00:00:00", sep = "")
+    tag <- paste(format(gmt, format="%Y"), "-", format(gmt, format="%m"), "-", format(gmt, format="%d"), " 00:00:00", sep = "")
     JD0 <- as.POSIXct(strptime(tag, "%Y-%m-%d %H:%M:%S"), "UTC")
     JD0 <- JD0 - as.POSIXct(strptime("2000-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"), 
         "UTC")
     T0 <- JD0/36525
-    Time <- as.numeric(format(Date, format="%H")) + as.numeric(format(Date, format="%M"))/60 + as.numeric(format(Date, format="%S"))/60/100
+	
+    Time <- as.numeric(format(gmt, format="%H")) + as.numeric(format(gmt, format="%M"))/60 + as.numeric(format(gmt, format="%S"))/60/100
     theta.Gh <- 6.697376 + 2400.05134 * T0 + 1.002738 * Time
     theta.Gh <- as.numeric(theta.Gh)
     t.d <- floor(theta.Gh/24)
