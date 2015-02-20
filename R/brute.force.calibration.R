@@ -75,7 +75,9 @@ All.slope.runs1=get.slopes(Repeats=repeats, To.run=To.run, Parameters=parameters
 #sd(All.slope.runs1$Slope)
 
 # and now let's repeat the same story with Lm...
-Lm1<-lm(Slope~Slope.ideal, data=All.slope.runs1, na.rm=T)
+print(All.slope.runs1)
+All.slope.runs1<-na.omit(All.slope.runs1)
+Lm1<-lm(Slope~Slope.ideal, data=All.slope.runs1)
 #summary(Lm1)
 
 # this is stupid as what we do want to see are correction lms if they are independent then we should just use them to predict what is the 1 minute distribution..
