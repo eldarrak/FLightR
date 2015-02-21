@@ -65,7 +65,9 @@ All.slope.runs1=get.slopes(Repeats=repeats, To.run=To.run, Parameters=parameters
 #sd(All.slope.runs1$Slope)
 
 # and now let's repeat the same story with Lm...
-print(All.slope.runs1)
+#print(All.slope.runs1)
+All.slope.runs1<-All.slope.runs1[is.finite(All.slope.runs1[,1]),]
+
 All.slope.runs1<-na.omit(All.slope.runs1)
 Lm1<-lm(Slope~Slope.ideal, data=All.slope.runs1)
 #summary(Lm1)
