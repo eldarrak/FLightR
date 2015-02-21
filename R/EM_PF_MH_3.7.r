@@ -70,7 +70,7 @@
 require(compiler)
 enableJIT(3)
 
-solar<-function (day) {
+solar.tripEstimation<-function (day) {
   tm <- as.POSIXlt(day, tz = "GMT")
   hh <- tm$hour
   mm <- tm$min
@@ -113,9 +113,9 @@ solar<-function (day) {
   solarTime <- (hh * 60 + mm + ss/60 + eqtime)/4
   list(solarTime = solarTime, sinSolarDec = sinSolarDec, cosSolarDec = cosSolarDec)
 }
-solar<-cmpfun(solar)
+solar.tripEstimation<-cmpfun(solar.tripEstimation)
 
-elevation<-function (lon, lat, sun) {
+elevation.tripEstimation<-function (lon, lat, sun) {
   hourAngle <- sun$solarTime + lon - 180
   cosZenith <- (sin(pi/180 * lat) * sun$sinSolarDec + cos(pi/180 * 
     lat) * sun$cosSolarDec * cos(pi/180 * hourAngle))
@@ -123,14 +123,14 @@ elevation<-function (lon, lat, sun) {
   cosZenith[cosZenith < -1] <- -1
   90 - 180/pi * acos(cosZenith)
 }
-elevation<-cmpfun(elevation)
+elevation.tripEstimation<-cmpfun(elevation.tripEstimation)
 
 
 #====================
 # these are a bit different solar functions based on the GeoLight's formulas
 
 
-solar.FLightR<-function(gmt) {
+solar.GeoLight<-function(gmt) {
     n <- gmt - as.POSIXct(strptime("2000-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"), 
         "UTC")
     L <- 280.46 + 0.9856474 * n
@@ -174,11 +174,9 @@ solar.FLightR<-function(gmt) {
 	return(Res)	
 	}
 
-solar<-solar.FLightR
-solar<-cmpfun(solar)
+solar.GeoLight<-cmpfun(solar.GeoLight)
 
-
-elevation.FLightR<-function(lon, lat, solarFLightR) {
+elevation.GeoLight<-function(lon, lat, solarFLightR) {
     theta <- solarFLightR$theta.G + lon
     tau <- theta - solarFLightR$alpha
     tau.rad <- tau/180 * pi
@@ -190,8 +188,24 @@ elevation.FLightR<-function(lon, lat, solarFLightR) {
     return(hR.grad)
 }
 
-elevation<-elevation.FLightR
-elevation<-cmpfun(elevation)
+elevation.GeoLight<-cmpfun(elevation.GeoLight)
+
+
+solar<-function(gmt, mode=c("tripEstimation", "GeoLight")) {
+if (mode[1]=="tripEstimation") {
+	solar.tripEstimation(gmt)
+	} else {
+	solar.GeoLight(gmt)
+	}
+}
+
+elevation<-function(lon, lat, sun, mode=c("tripEstimation", "GeoLight")) {
+if (mode[1]=="tripEstimation") {
+	elevation.tripEstimation(lon, lat, sun)
+	} else {
+	elevation.GeoLight(lon, lat, sun)
+	}
+}
 
 # end of new functions..
 #=========================
