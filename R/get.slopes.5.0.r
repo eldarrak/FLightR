@@ -1,5 +1,5 @@
 
-get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), min.max.values=c(0, 64)) {
+get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50)) {
 To.run.initial<-To.run
 Lat.initial<-Lat
 All.slope.runs<-c()
@@ -106,8 +106,10 @@ for (Twilight.ID in Twilight.vector) {
 	Lon<-Track$Lon[Row[Filtered_tw$type==2][Twilight.ID]]
 	Lat<-Track$Lat[Row[Filtered_tw$type==2][Twilight.ID]]
 	Points.Land<-cbind(Lon, Lat)
-
-	All.probs.dusk<-cbind(All.probs.dusk, get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	print(str(Prob.surf))
+	All.probs.dusk<-cbind(All.probs.dusk, Prob.surf)
  }
 
 	#	 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, cor.model=Gam2, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, correct.points=correct.points, return.slopes=T, log.irrad.borders=c(-100, 100))
@@ -121,7 +123,9 @@ for (Twilight.ID in Twilight.vector) {
 	Lat<-Track$Lat[Row[Filtered_tw$type==1][Twilight.ID]]
 	#print(Points.Land)
 	Points.Land<-cbind(Lon, Lat)
-	All.probs.dawn<-cbind(All.probs.dawn, get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	print(str(Prob.surf))
+	All.probs.dawn<-cbind(All.probs.dawn, Prob.surf)
 	}
 	#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, cor.model=Gam2, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, correct.points=correct.points, return.slopes=T, log.irrad.borders=c(-100, 100))
 #cat("minimum dawn duration:", min(All.probs.dawn[4,]), "\n" )

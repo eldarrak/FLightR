@@ -2,7 +2,7 @@
 # ver 0.1 from 21.10.2014
 
 
-get.1.minute.parameters<-function(parameters, measurement.period=60, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64)), repeats=50, min.max.values=c(0,64)) {
+get.1.minute.parameters<-function(parameters, measurement.period=60, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64)), repeats=50, min.max.values=c(0,64), log.irrad.borders=c(-15,50)) {
 # this stupid brute force function will just etimate what should be the parameter values on a 1 minute scale..
 
 #========================================
@@ -37,7 +37,7 @@ Res<-c()
 Res<-as.data.frame(Res)
 for (i in 1:repeats) {
 To.run.cur<-To.run[sample( 1:nrow(To.run), 1),]
-All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
+All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
 Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$SD.ideal[1]))
 names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
 #print(Res)
@@ -60,7 +60,7 @@ Slope.ideal<-(parameters$LogSlope[1]-coef(Lm.slope)[1])/coef(Lm.slope)[2] #
 
 To.run<-expand.grid(Slope.ideal=runif(1000, Slope.ideal-0.3, Slope.ideal+0.3), SD.ideal=Slope.sd.ideal) #
 
-All.slope.runs1=get.slopes(Repeats=repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
+All.slope.runs1=get.slopes(Repeats=repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
 #mean(All.slope.runs1$Slope) # works
 #sd(All.slope.runs1$Slope)
 
