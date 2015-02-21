@@ -97,6 +97,7 @@ All.slope.runs$cosSolarDec<-Solar$cosSolarDec
 # ok cos is linarly related!!!
 # so let's make it linear
 plot(Slope~cosSolarDec, data=All.slope.runs)
+All.slope.runs<-All.slope.runs[is.finite(All.slope.runs$Slope)]
 Lm2<-lm(Slope~cosSolarDec, data=All.slope.runs)
 #summary(Lm2)
 # ok, so this will be used as a time related pattern
