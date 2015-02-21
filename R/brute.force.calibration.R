@@ -40,12 +40,10 @@ To.run.cur<-To.run[sample( 1:nrow(To.run), 1),]
 All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values)
 Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$SD.ideal[1]))
 names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
-print(Res)
+#print(Res)
 }
 Res<-na.omit(Res)
-
-
-
+Res<-Res[is.finite(Res[,1]),]
 #plot(Res$SD~Res$SD.ideal)
 Lm.sd<-lm(Res$SD~Res$SD.ideal)
 summary(Lm.sd)
