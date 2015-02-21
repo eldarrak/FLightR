@@ -41,6 +41,7 @@ All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position
 Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$SD.ideal[1]))
 names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
 #print(Res)
+plot(Res$Slope~Res$Slope.ideal)
 }
 Res<-na.omit(Res)
 Res<-Res[is.finite(Res[,1]),]
@@ -50,7 +51,6 @@ summary(Lm.sd)
 Slope.sd.ideal<-(parameters$LogSlope[2]-coef(Lm.sd)[1])/coef(Lm.sd)[2] #0.42 comparing to 0.4 from original calibration
 
 
-plot(Res$Slope~Res$Slope.ideal)
 Lm.slope<-lm(Res$Slope~Res$Slope.ideal)
 summary(Lm.slope)
 Slope.ideal<-(parameters$LogSlope[1]-coef(Lm.slope)[1])/coef(Lm.slope)[2] # 
