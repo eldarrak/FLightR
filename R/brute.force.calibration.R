@@ -42,17 +42,9 @@ Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.idea
 names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
 print(Res)
 }
+Res<-na.omit(Res)
 
-#Parameters=All.slopes$Parameters
 
-
-#plot(Res$SD~Res$Slope.ideal) # no relationship
-#plot(Res$SD~Res$Slope) # no relationship
-# ok, this means that slope and SD are independent. GOOD.
-#summary(lm(Res$Slope~Res$Slope.ideal))
-#=ok I do see now absolute linear relationship
-# with the same degree for slope and for SD
-# interesting, but I would not pay too much attention to that
 
 #plot(Res$SD~Res$SD.ideal)
 Lm.sd<-lm(Res$SD~Res$SD.ideal)
