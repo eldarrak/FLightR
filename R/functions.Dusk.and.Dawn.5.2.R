@@ -593,7 +593,8 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	# and now we want to return 
 	if (plot) {
 		Coef<-coef(lm(Res[,1]~Res[,2]))
-		#print(Coef)
+		print(Coef)
+		par(ask=T)
 		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]))
 		points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
 		if (Coef[1]<(-6)) warning("check twilight at around ", as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), " it had strange shading\n")
