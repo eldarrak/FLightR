@@ -120,6 +120,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	Twilight.log.light.mat.Calib.dusk<-Twilight.log.light.mat.Calib.dusk[-25,]
 	# let's try to create Calib.data.all first!!
 	Calib.data.dawn<-data.frame()
+	if (plot) par(ask=F)
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
 cat("checking dawn", dawn, "\n" )
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
@@ -594,7 +595,6 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (plot) {
 		Coef<-coef(lm(Res[,1]~Res[,2]))
 		print(Coef)
-		par(ask=F)
 		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]))
 		points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
 		if (Coef[1]<(-6)) warning("check twilight at around ", as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), " it had strange shading\n")
