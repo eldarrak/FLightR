@@ -197,7 +197,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 }
 
 # ok now we need template.calibration.function..
-logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-8, 1.75), adjust.variance=T) {
+logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F) {
 	
 	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance)
 	
@@ -216,7 +216,7 @@ logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log
 
 logger.template.calibration<-cmpfun(logger.template.calibration)
 	
-get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders=NA, diap=c(-600, 600), plot=T,  log.irrad.borders=c(-8, 1.5), verbose=F) {
+get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders=NA, diap=c(-600, 600), plot=T,  log.irrad.borders=c(-15, 50), verbose=F) {
 
 	# this version will try to make slope difference insignificant..
 	# will try to make this criteria as the main.
@@ -403,7 +403,7 @@ get.current.slope.prob<-cmpfun(get.current.slope.prob)
 
 # the new idea of the 12 version is to add imputed points from the boundary..
 
-check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-8, 1.5), dusk=T, impute.on.boundaries=T, Twilight.time.vector=NULL) {
+check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=T, Twilight.time.vector=NULL) {
 # this function...
 	if (is.null(Twilight.solar.vector))  {
 	Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
@@ -593,7 +593,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (plot) {
 		Coef<-coef(lm(Res[,1]~Res[,2]))
 		#print(Coef)
-		plot(LogLight~LogIrrad, main=Coef)
+		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]))
 		points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
 		if (Coef[1]<(-6)) warning("check twilight at around ", as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), " it had strange shading\n")
 		
