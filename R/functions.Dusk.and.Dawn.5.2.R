@@ -600,7 +600,6 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		par(ask = T)
 		dev.off()
 		if (Coef[1]<(-6)) warning("check twilight at around ", as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), " it had strange shading\n")
-		dev.off()
 
 	}
 	return(Res)
