@@ -121,8 +121,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	# let's try to create Calib.data.all first!!
 	Calib.data.dawn<-data.frame()
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
-
-#cat("checking dawn", dawn, "\n" )
+cat("checking dawn", dawn, "\n" )
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn])
 		if (length(Data)==0) {
@@ -135,6 +134,8 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 
 	Calib.data.dusk<-data.frame()
 	for (dusk in 1:dim(Twilight.time.mat.Calib.dusk)[2]) {
+cat("checking dusk", dusk, "\n" )
+
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=T,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk])
 #print(str(Data)	)
