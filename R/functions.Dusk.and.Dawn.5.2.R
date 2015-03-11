@@ -701,8 +701,6 @@ get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twili
 
 # let's say we have to submit all boundaries inside tha calibration object..
 
-Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL 
-
 if (is.character(all.out)) all.out=get("all.out")
 if (is.character(Twilight.time.mat.dusk)) Twilight.time.mat.dusk=get("Twilight.time.mat.dusk")
 if (is.character(Twilight.time.mat.dawn)) Twilight.time.mat.dawn=get("Twilight.time.mat.dawn")
