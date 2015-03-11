@@ -740,7 +740,6 @@ cat("estimating dawns\n")
 stopCluster(mycl)
 
 cat("processing results\n")
-
 All.probs.dusk.tmp<-All.probs.dusk
 All.probs.dawn.tmp<-All.probs.dawn
 	Phys.Mat<-c()
