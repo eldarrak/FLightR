@@ -269,12 +269,12 @@ return(RES)
 # they are not wrapped yet though..
 
 
-simulate.and.prepare.track<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=T, min.max.values=c(0, 64),log.light.borders=log(c(2,64)),Lat, first.date="2010-01-01 00:00:00") {
+simulate.and.prepare.track<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=T, min.max.values=c(0, 64),log.light.borders=log(c(2,64)),Lat, first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59") {
 
 # for this we will have to create a To.run.object...
 To.run<-data.frame(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2], Latitude=Lat) #
 
-Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, first.date=first.date)
+Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, first.date=first.date, last.date=last.date)
 # ok, now we need to process it..
 # to prepare for the run..
 
@@ -371,21 +371,21 @@ Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 }
 
 
-get.grid.of.tracks<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=T, min.max.values=c(0, 64), log.light.borders=log(c(2,64)),   Lats, cluster=NULL, first.date="2010-01-01 00:00:00") {
+get.grid.of.tracks<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=T, min.max.values=c(0, 64), log.light.borders=log(c(2,64)),   Lats, cluster=NULL, first.date="2010-01-01 00:00:00",last.date="2010-03-20 23:59:59") {
 if (!is.null(cluster)) {
 	require(parallel)
 	#if (threads==-1) threads= detectCores()-1 # selecting all -1 available cores...
 	#cluster<-makeCluster(threads)
 		tmp<-parallel:::clusterSetRNGStream(cluster)
 		### we don' need to send all parameters to node. so keep it easy..
-		tmp<-parallel:::clusterExport(cluster, c( "simulate.and.prepare.track", "Parameters", "measurement.period","saving.period", "short.run", "min.max.values", "log.light.borders", "first.date", "simulate.track"),  envir=environment())
+		tmp<-parallel:::clusterExport(cluster, c( "simulate.and.prepare.track", "Parameters", "measurement.period","saving.period", "short.run", "min.max.values", "log.light.borders", "first.date", "simulate.track", "last.date"),  envir=environment())
 		tmp<-parallel:::clusterEvalQ(cluster, library("FLightR"))
 		tmp<-parallel:::clusterEvalQ(cluster, library("GeoLight")) 
 		tmp<-parallel:::clusterEvalQ(cluster, library("maptools")) 
-		Tracks<-parLapply(cluster, Lats,fun=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date))
+		Tracks<-parLapply(cluster, Lats,fun=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date))
 	#stopCluster(mycl)
 } else {
-Tracks<-lapply(Lats,FUN=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date))
+Tracks<-lapply(Lats,FUN=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date))
 }
 return(Tracks)
 }

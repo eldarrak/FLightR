@@ -188,7 +188,7 @@ return(All.slope.runs)
 # and now we want to save that... 
 
 
-simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00") {
+simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59") {
 # important here is that min and max values may be different from light.borders.
 # and it is actually better to make them different if there is enough point to make an estimation...
 
@@ -200,9 +200,9 @@ if (is.null(Time.seq) | is.null(Time.seq.saving)) {
 
 	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=saving.period)+time.shift
 	} else {
-	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct("2010-03-20 23:59:59", tz="UTC")), by=measurement.period)+time.shift
+	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct(last.date, tz="UTC")), by=measurement.period)+time.shift
 
-	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct("2010-03-20 23:59:59", tz="UTC")), by=saving.period)+time.shift
+	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct(last.date, tz="UTC")), by=saving.period)+time.shift
 	}
 }
 
