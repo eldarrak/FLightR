@@ -480,6 +480,31 @@ cat("LL:", Res, "\n")
 return(Res)
 }
 
+test.deltas3<-function(params, Tracks, Spline, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
+# this function should send a spline as a calibration function..
+# params are parameters for delta...
+print(params)
+#deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.
+
+lat_correction_fun<-approxfun(y= bs((-85:85), knots=c(-42, -21, 0, 21, 42), degree=3, Boundary.knots=c(-85,85), intercept=T)%*%params, x=-85:85)
+#lat_correction_fun<-approxfun(y= cbind(1, c(-85:85)^2,c (-85:85)^4)%*%params, x=-85:85)
+#lat_correction_fun<-approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/180*pi),cos(3*c(-85:85)/180*pi))%*%params, x=-85:85)
+
+# trying to add knots..
+calibration$lat_correction_fun=lat_correction_fun
+
+Diffs<-get.all.diffs(Tracks, calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, cluster=cluster)
+par(mfrow=c(1,2))
+plot(lat_correction_fun(-85:85)~ c(-85:85))
+
+plot(Diffs~sapply(Tracks, "[[", i=3))
+Res<-diffs.ll(Diffs, log=F)
+cat("LL:", Res, "\n")
+return(Res)
+}
+
+
+
 
 
 
