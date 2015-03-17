@@ -480,13 +480,14 @@ cat("LL:", Res, "\n")
 return(Res)
 }
 
-test.deltas3<-function(params, Tracks, Spline, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
+test.deltas3<-function(params, Tracks, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
 # this function should send a spline as a calibration function..
 # params are parameters for delta...
 print(params)
 #deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.
 
-lat_correction_fun<-approxfun(y= bs((-85:85), knots=c(-42, -21, 0, 21, 42), degree=3, Boundary.knots=c(-85,85), intercept=T)%*%params, x=-85:85)
+#lat_correction_fun<-approxfun(y= bs((-85:85), knots=c(-42, -21, 0, 21, 42), degree=3, Boundary.knots=c(-85,85), intercept=T)%*%params, x=-85:85)
+lat_correction_fun<-approxfun(y= bs((-85:85), degree=5, Boundary.knots=c(-85,85), intercept=T)%*%params, x=-85:85)
 #lat_correction_fun<-approxfun(y= cbind(1, c(-85:85)^2,c (-85:85)^4)%*%params, x=-85:85)
 #lat_correction_fun<-approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/180*pi),cos(3*c(-85:85)/180*pi))%*%params, x=-85:85)
 
@@ -494,15 +495,33 @@ lat_correction_fun<-approxfun(y= bs((-85:85), knots=c(-42, -21, 0, 21, 42), degr
 calibration$lat_correction_fun=lat_correction_fun
 
 Diffs<-get.all.diffs(Tracks, calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, cluster=cluster)
+
+Diff_index<-which(abs(mean(Diffs)-Diffs)<(5*sd(Diffs))) # exclude outliers
+Diffs_cor<-Diffs[Diff_index]
+
 par(mfrow=c(1,2))
 plot(lat_correction_fun(-85:85)~ c(-85:85))
-
 plot(Diffs~sapply(Tracks, "[[", i=3))
-Res<-diffs.ll(Diffs, log=F)
+points(Diffs_cor~sapply(Tracks, "[[", i=3)[Diff_index], col="red", pch="+")
+Res<-diffs.ll(Diffs_cor, log=F)
 cat("LL:", Res, "\n")
 return(Res)
 }
 
+
+
+get.declination<-function(Dates) {
+
+if (as.numeric(Dates[1])) Dates<-as.POSIXct(Dates, tz="UTC", origin="1970-01-01")
+
+n=as.numeric(Dates-c(as.POSIXct("2000-01-01 12:00:00", tz="UTC")))
+L=280.460+0.9856474*n
+g=357.528+0.9856003*n
+Lambda=(L+1.915*sin(g/180*pi)+0.020*sin(2*g/180*pi))%%360
+epsilon = 23.439 - 0.0000004* n 
+Dec = asin(sin(epsilon/180*pi)*sin(Lambda/180*pi))*180/pi
+return(Dec)
+}
 
 
 

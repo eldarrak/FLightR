@@ -354,7 +354,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Expected.mean<-time_correction
 		
 		if (is.null(delta)) {
-		delta=calibration$lat_correction_fun(x[2])
+		delta=calibration$lat_correction_fun(x[2], Twilight.time.vector[1]) # have to check whether we always have time specified...
 		}
 		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
 
@@ -639,7 +639,6 @@ Calib.data.all$fTwilight<-Calib.data.all$fDay
 # Calib.data.all<-Calib.data.all[-which(Calib.data.all$fTwilight%in% c( 222)),]
 #============================
 # we should do some outlier tests...
-
 
 cur.data<-Calib.data.all
 p.lm1<-lm(LogLight~fTwilight/LogIrrad,data=cur.data)
