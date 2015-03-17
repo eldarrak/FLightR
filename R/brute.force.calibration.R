@@ -512,7 +512,7 @@ return(Res)
 
 get.declination<-function(Dates) {
 
-if (as.numeric(Dates[1])) Dates<-as.POSIXct(Dates, tz="UTC", origin="1970-01-01")
+if (is.numeric(Dates[1])) Dates<-as.POSIXct(Dates, tz="UTC", origin="1970-01-01")
 
 n=as.numeric(Dates-c(as.POSIXct("2000-01-01 12:00:00", tz="UTC")))
 L=280.460+0.9856474*n
