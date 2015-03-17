@@ -26,66 +26,11 @@ end.date<-"2012-05-12" # the last meaningful measurements
   # read script lines from website
   text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/towards_0.4/examples/749.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
   lig.raw<-read.csv(text=text, stringsAsFactors =F)
-	#lig.raw<-read.csv("749.csv", stringsAsFactors =F)
-	lig.raw$datetime<-as.POSIXct(lig.raw$datetime, tz="UTC", format="%Y-%m-%dT%T")
 
-	###
-	### I also want to exclude the last days...
-	lig.raw<-lig.raw[as.numeric(lig.raw$datetime) < as.numeric(as.POSIXct(end.date , tz="UTC")),]
+  #lig.raw<-read.csv("749.csv", stringsAsFactors =F)
+	FLightR.data<-read.tags.light.twilight(lig.raw)
 
-	## and also I want to exclude the interpolated and excluded afterwards points
-		
-	lig<-lig.raw[-which(lig.raw$interp==T),]
-
-##########################################################################
-##Convert the datetime/light fields into the format that FLightR works on##
-##########################################################################
-
-	lig.new<-data.frame(
-	format(lig$datetime, "%d/%m/%Y"),
-	format(lig$datetime, "%H:%M:%S"),
- 	lig$light)
-
-########################################################
-##Save that date/light file so it can be read in later##
-########################################################
-
-	write.table(lig.new, file="749.FLightR.csv", sep="," , row.names = F, col.names = F,  quote = F)
-	Data<-geologger.read.data(file="749.FLightR.csv")
-
-#########################################################
-##Use TAGS output to define twilight periods################
-#########################################################
-# 
-
-Filtered_tw <- lig.raw[(lig.raw$twilight)>0 & !lig.raw$excluded, c("datetime", "twilight", "light")]
-names(Filtered_tw)[2]="type"
-Filtered_tw <- Filtered_tw[!duplicated(Filtered_tw$datetime),]
-Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
-
-
-# now I want to pair data and twilights..		  
-Filtered_tw$id<-0
-Data$d$type<-0
-Data$d<-rbind(Data$d, data.frame(id=Filtered_tw$id, gmt= Filtered_tw$datetime, light=Filtered_tw$light, type=Filtered_tw$type))
-
-All.p<-Data$d[order(Data$d$gmt),]
-rownames(All.p)<-1:nrow(All.p)
-
-#############################################################
-
-# now I want to pair data and twilights..		  
-Filtered_tw$light<-approx(x=Data$d$gmt, y=Data$d$light, xout=Filtered_tw$datetime)$y
-Filtered_tw$id<-0
-Data$d$type<-0
-Data$d<-rbind(Data$d, data.frame(id=Filtered_tw$id, gmt= Filtered_tw$datetime, light=Filtered_tw$light, type=Filtered_tw$type))
-
-All.p<-Data$d[order(Data$d$gmt),]
-
-#All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
-rownames(All.p)<-1:nrow(All.p)
-
-Proc.data<-process.twilights(All.p, Filtered_tw, measurement.period=60, saving.period=120)
+	Proc.data<-process.twilights(FLightR.data, Filtered_tw, measurement.period=60, saving.period=120)
 
 str(Proc.data)
 
