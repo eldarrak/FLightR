@@ -12,12 +12,6 @@ install_github("eldarrak/FLightR@towards_0.4") # this should be changed to the m
 library(FLightR)
 library(GeoLight)
 
-
-start=c(-80.46,	42.62) # where the bird was captured...
-
-end.date<-"2012-05-12" # the last meaningful measurements
-
-
 #===================================================
 # for no I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there...
 
@@ -28,20 +22,24 @@ end.date<-"2012-05-12" # the last meaningful measurements
   lig.raw<-read.csv(text=text, stringsAsFactors =F)
 
   #lig.raw<-read.csv("749.csv", stringsAsFactors =F)
-	FLightR.data<-read.tags.light.twilight(lig.raw)
+	
+	FLightR.data<-read.tags.light.twilight(lig.raw, end.date="2012-05-12")
 
 	Proc.data<-process.twilights(FLightR.data, Filtered_tw, measurement.period=60, saving.period=120)
 
 str(Proc.data)
 
 
+start=c(-80.46,	42.62) # where the bird was captured...
+
 # calibration
 ## PART 2 NEW Calibration
 
 #####################
 ## first we need to select days in the beginning or in the end of the calibration..
-## looks like the end works better but let's first estimates slopes for the whole year assuming 
+## let's first estimates slopes for the whole year assuming 
 ## that tag was in the starting point and look at the graph
+
 
 ## Dusk
 Twilight.time.mat.Calib.dusk<-Proc.data$Twilight.time.mat.dusk
@@ -55,7 +53,13 @@ Twilight.time.mat.Calib.dawn<-Proc.data$Twilight.time.mat.dawn
 Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 
-Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=start, log.light.borders=log(c(2, 64)),  log.irrad.borders=c(-50, 50)) 
+#####################################
+# in the next screens you will see twilights..
+# it is very important to go through them and check on whther there are some weird ones that should be excluded..
+# weird in this case means seriously nonlinear - such that linear regression over them will be seriously biased...
+# in the scrip window you will number of dawn or dusk..
+# write down numbers that you want to exclude and add them at the next step..
+Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=start, log.light.borders=log(c(2, 64)),  log.irrad.borders=c(-100, 1000)) 
 
 
 Calib.data.all<-Calib.data.all[[1]]
@@ -117,7 +121,6 @@ plot(log(All.slopes$Slopes$Slope)~All.slopes$Slopes$Time)
 # step 2
 #=======================================================
 Parameters<-All.slopes$Parameters
-
 Parameters$measurement.period<-Proc.data$measurement.period 
 Parameters$saving.period<-Proc.data$saving.period 
 Parameters$log.light.borders<-log(c(2, 64))
