@@ -59,7 +59,7 @@ Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn
 # weird in this case means seriously nonlinear - such that linear regression over them will be seriously biased...
 # in the scrip window you will number of dawn or dusk..
 # write down numbers that you want to exclude and add them at the next step..
-Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=start, log.light.borders=log(c(2, 64)),  log.irrad.borders=c(-100, 1000)) 
+Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=start, log.light.borders=log(c(2, 64)),  log.irrad.borders=c(-100, 1000), plot=T) 
 
 
 Calib.data.all<-Calib.data.all[[1]]
@@ -71,9 +71,25 @@ plot(log(All.slopes$Slopes$Slope)~All.slopes$Slopes$Time)
 points(log(All.slopes$Slopes$Slope)~All.slopes$Slopes$Time)
 abline(v=All.slopes$Slopes$Time[27])
 as.POSIXct(All.slopes$Slopes$Time[27], tx="UTC", origin="1970-01-01")
-# we had to exclude dawns
-# 6, 7, 70, 11, 12, 298, 322,329, 330, 331
-# and dusk 1, 72
+
+# we want  to exclude following twilights
+
+
+
+Dusk_to_exclude<-c(1, 72, 122, 267)
+Dawn_to_exclude<-c(6, 7,8, 10, 11, 12, 298, 301, 322,329, 330, 331
+Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-Dusk_to_exclude]
+Proc.data$Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk[,-Dusk_to_exclude]
+Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn[,-Dawn_to_exclude]
+Proc.data$Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn[,-Dawn_to_exclude]
+
+
+Joint_ind<-sort(c(which(Filtered_tw$type==1)[-Dawn_to_exclude], which(Filtered_tw$type==2)[-Dusk_to_exclude]))
+Filtered_tw<-Filtered_tw[Joint_ind,]
+
+
+
+
 Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-c(1, 72, 122, 267)]
 Proc.data$Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk[,-c(1, 72, 122, 267)]
 Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn[,-c(6, 7,8, 10, 11, 12, 298, 301, 322,329, 330, 331)]

@@ -57,5 +57,6 @@ All.p<-Data$d[order(Data$d$gmt),]
 
 #All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
 rownames(All.p)<-1:nrow(All.p)
-return(All.p)
+Res<-list(Data=All.p, twilights=Filtered_tw)
+return(Res)
 }
