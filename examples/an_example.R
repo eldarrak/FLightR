@@ -19,9 +19,13 @@ end.date<-"2012-05-12" # the last meaningful measurements
 
 
 #===================================================
-# for no I will assume that one use the TAGS service and saved light twilight data from there...
+# for no I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there...
 
-	
+ require(RCurl)
+
+  # read script lines from website
+  text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/towards_0.4/examples/749.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
+  lig.raw<-read.csv(text=text, stringsAsFactors =F)
 	#lig.raw<-read.csv("749.csv", stringsAsFactors =F)
 	lig.raw$datetime<-as.POSIXct(lig.raw$datetime, tz="UTC", format="%Y-%m-%dT%T")
 
@@ -32,6 +36,7 @@ end.date<-"2012-05-12" # the last meaningful measurements
 	## and also I want to exclude the interpolated and excluded afterwards points
 		
 	lig<-lig.raw[-which(lig.raw$interp==T),]
+
 ##########################################################################
 ##Convert the datetime/light fields into the format that FLightR works on##
 ##########################################################################
@@ -80,7 +85,7 @@ All.p<-Data$d[order(Data$d$gmt),]
 #All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
 rownames(All.p)<-1:nrow(All.p)
 
-Proc.data<-process.twilights(All.p, Filtered_tw, 60, 120)
+Proc.data<-process.twilights(All.p, Filtered_tw, measurement.period=60, saving.period=120)
 
 str(Proc.data)
 
