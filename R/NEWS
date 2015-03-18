@@ -3,3 +3,4 @@
 # ver 0.1.3 June 7 get.irradiance added
 # ver 0.1.4 June 25 correct.hours corrected for summer time.., also added some stability to the movies
 # towards_0.3 ver 0.1.5 - functions 5.0 added
+# towards_0.4 ver 0.1.6 - brute force calibration and the whole bunch of small changes

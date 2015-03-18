@@ -1,5 +1,5 @@
 
-get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64))) {
+get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50)) {
 To.run.initial<-To.run
 Lat.initial<-Lat
 All.slope.runs<-c()
@@ -10,13 +10,13 @@ if (is.null(Lat.initial)) {
 	if (ncol(To.run.initial)==2) { 
 		To.run$Latitude<-round(runif(nrow(To.run), -55, 55))
 		} else {
-		cat("latitudea were prvided with To.run object \n")
+		cat("latitudes were provided with To.run object \n")
 		}
 	} else {
 	To.run$Latitude<-Lat.initial
 	}
 
-Track<-simulate.track(saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=Lon, log.light.borders=log.light.borders)
+Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=Lon,  min.max.values= min.max.values)
 	
 #===========
 # input
@@ -76,43 +76,18 @@ All.p<-Track.new[order(Track.new$gmt),]
 #All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
 rownames(All.p)<-1:nrow(All.p)
 
-#########
+Proc.data<-process.twilights(All.p, Filtered_tw, measurement.period=measurement.period, saving.period=saving.period)
+
 ## Dusk
-# processing Dusk
+Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk
 
-Dusk.all<-Filtered_tw$datetime[Filtered_tw$type==2]
-Twilight.index.mat.dusk<-sapply(which(All.p$gmt %in% Dusk.all & All.p$type==2), FUN=function(x) ((x-24):(x+24)))
-Twilight.index.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) ifelse (x>0, x, NA))
-Max.Index<-nrow(All.p)
-Twilight.index.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) ifelse (x>Max.Index, NA, x))
+Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk
 
-Twilight.time.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) as.numeric(All.p$gmt[x]))
-Twilight.time.mat.dusk<-apply(Twilight.time.mat.dusk, c(1,2), FUN=function(x) ifelse(is.finite(x), x, 0))
-Twilight.log.light.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) log(round(All.p$light[x])))
-#Twilight.log.light.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) All.p$light[x])
-Twilight.log.light.mat.dusk<-apply(Twilight.log.light.mat.dusk, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
+## Dawn
 
+Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn
 
-# processing Dawn
-Dawn.all<-Filtered_tw$datetime[Filtered_tw$type==1]
-
-Twilight.index.mat.dawn<-sapply(which(All.p$gmt %in% Dawn.all & All.p$type==1), FUN=function(x) (x-24):(x+24))
-
-Twilight.index.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) ifelse (x>0, x, NA))
-Max.Index<-nrow(All.p)
-Twilight.index.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) ifelse (x>Max.Index, NA, x))
-
-Twilight.time.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) as.numeric(All.p$gmt[x]))
-
-Twilight.time.mat.dawn<-apply(Twilight.time.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, 0))
-Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) log(round(All.p$light[x])))
-#Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) All.p$light[x])
-Twilight.log.light.mat.dawn<-apply(Twilight.log.light.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
-
-###############
-Twilight.time.mat.dusk<-Twilight.time.mat.dusk-(saving.period-60)
-
-#  
+Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 #log.light.borders<-log(c(2,64))
 
@@ -131,8 +106,10 @@ for (Twilight.ID in Twilight.vector) {
 	Lon<-Track$Lon[Row[Filtered_tw$type==2][Twilight.ID]]
 	Lat<-Track$Lat[Row[Filtered_tw$type==2][Twilight.ID]]
 	Points.Land<-cbind(Lon, Lat)
-
-	All.probs.dusk<-cbind(All.probs.dusk, get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, return.slopes=T, log.irrad.borders=c(-100, 100), Calib.param=c(0.21, 0.4), Points.Land=Points.Land, delta=0))
+	
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	#print(str(Prob.surf))
+	All.probs.dusk<-cbind(All.probs.dusk, Prob.surf)
  }
 
 	#	 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, cor.model=Gam2, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, correct.points=correct.points, return.slopes=T, log.irrad.borders=c(-100, 100))
@@ -146,7 +123,9 @@ for (Twilight.ID in Twilight.vector) {
 	Lat<-Track$Lat[Row[Filtered_tw$type==1][Twilight.ID]]
 	#print(Points.Land)
 	Points.Land<-cbind(Lon, Lat)
-	All.probs.dawn<-cbind(All.probs.dawn, get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=c(-100, 100), Calib.param=c(0.21, 0.4), Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	#print(str(Prob.surf))
+	All.probs.dawn<-cbind(All.probs.dawn, Prob.surf)
 	}
 	#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, cor.model=Gam2, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, correct.points=correct.points, return.slopes=T, log.irrad.borders=c(-100, 100))
 #cat("minimum dawn duration:", min(All.probs.dawn[4,]), "\n" )
@@ -197,7 +176,7 @@ plot(All.slopes$Slope~All.slopes$Slope.ideal)
 #lm(All.slopes$Slope.SD~All.slopes$SD.ideal)
 
 All.slope.runs<-rbind(All.slope.runs, All.slopes)
-save(All.slope.runs, file=paste(file.head, "All.slope.runs.RData", sep="."))
+#save(All.slope.runs, file=paste(file.head, "All.slope.runs.RData", sep="."))
 par(mfrow=c(1,2))
 plot((All.slope.runs$Slope)~All.slope.runs$Slope.ideal)
 mean((All.slope.runs$Slope), na.rm=T)
@@ -209,17 +188,21 @@ return(All.slope.runs)
 # and now we want to save that... 
 
 
-simulate.track<-function(saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, log.light.borders=log(c(2, 64))) {
+simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59") {
+# important here is that min and max values may be different from light.borders.
+# and it is actually better to make them different if there is enough point to make an estimation...
+
+if (saving.period%%measurement.period !=0) stop("saving period / measurement.period has to be integer!")
 time.shift<-sample(1:saving.period, 1)
 if (is.null(Time.seq) | is.null(Time.seq.saving)) {
 	if (!short.run) {
-	Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=60)+time.shift
+	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=measurement.period)+time.shift
 
-	Time.seq.saving<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=saving.period)+time.shift
+	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=saving.period)+time.shift
 	} else {
-	Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=60)+time.shift
+	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct(last.date, tz="UTC")), by=measurement.period)+time.shift
 
-	Time.seq.saving<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-31 23:59:59", tz="UTC")), by=saving.period)+time.shift
+	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct(last.date, tz="UTC")), by=saving.period)+time.shift
 	}
 }
 
@@ -295,10 +278,14 @@ Track$LogLight<-NA
 #======================================
 # now we just want to estimate values for each line in Track
 
-Track$LogLight[Track$LogLight>log.light.borders[2]] <- log.light.borders[2]
+
+Track$LogLight[Track$LogLight>log(min.max.values[2])] <-log(min.max.values[2])
+
+Track$LogLight[Track$LogLight<max(log(min.max.values[1]), -1)] <-max(log(min.max.values[1]), -1)
 
 Track$light<-exp(Track$LogLight)
 
+Track$light[Track$light<min.max.values[1]] <-min.max.values[1]
 
 
  if (!short.run) plot(Track$light[5000:6000], type="b", pch=".")
@@ -308,12 +295,15 @@ Track$light<-exp(Track$LogLight)
  
  # now we need to get the estimates without saving file I'd say 
 Track.new<-Track[Track$Time.seq %in% Time.seq.saving,] # creating new track
-
+if (saving.period!=measurement.period) {
 Track.new<-Track.new[-1,]
 New.light<-Track.new$light
-for (i in 2:(saving.period/60)) {
+for (i in 2:(saving.period/measurement.period)) {
 	#New.light<-pmax(New.light, Track$light[Track$Time.seq %in% (Time.seq.saving-(60*(i-1)))] )
-	New.light<-pmax(New.light, Track$light[Track$Time.seq %in% ((Time.seq.saving[-1])-(60*(i-1)))] )
+	New.light<-pmax(New.light, Track$light[Track$Time.seq %in% ((Time.seq.saving[-1])-(measurement.period*(i-1)))] )
+}
+} else  {
+New.light<-Track.new$light
 }
 Track.new$light<-New.light
 # ok this worked..

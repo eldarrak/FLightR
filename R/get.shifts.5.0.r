@@ -4,11 +4,11 @@
 # ver 0.2 point correction possibility
 # ver 0.1 13.02.2014
 
-get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), Points.Land, start, ask=F, slopes.only=F, delta=NULL, short.run=F, saving.period=600, Time.seq=NULL, Time.seq.saving=NULL, correction.dir=NULL) {
+get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), min.max.values=c(0,64), Points.Land, start, ask=F, slopes.only=F, delta=NULL, short.run=F, measurement.period=60, saving.period=NULL, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL, GeoLight=F) {
 #========================================
 if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
-Lnorm.param<-Parameters$LogSlope_1_minute
+#Lnorm.param<-Parameters$LogSlope_1_minute
 
 
 
@@ -18,10 +18,9 @@ require(FLightR)
 #data(file.path(wd, "LightR_development_code\\get.slopes.5.0.r"))
 
 # for this we will have to create a To.run.object...
-To.run<-expand.grid(Slope.ideal=Lnorm.param[1], SD.ideal=Lnorm.param[2], Latitude=unique(Track[,2])) #
-print(str(To.run))
+To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2], Latitude=unique(Track[,2])) #
 Track.initial<-Track
-Track<-simulate.track(saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, log.light.borders=log.light.borders)
+Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving)
 #==================================
 # saving and reading track file
 cat("   saving file\n")
@@ -82,13 +81,15 @@ GLtab[Index[Index%%2==0],3]<-round(mean(GLtab[Index[Index%%2==0],3]))
 }
 #==============================================================
 # here is a brunch for geolight
-Elevation<-getElevation(GLtab$tFirst, GLtab$tSecond, GLtab$type, known.coord=start, plot=F)
-positionsGeoLight <- coord(GLtab$tFirst, GLtab$tSecond, GLtab$type, degElevation=Elevation)
+if(GeoLight) {
+GLtab_shifted <- twilightCalc(Track$gmt, Track$light, allTwilights=T, ask=F, LightThreshold=3, maxLight=saving.period/60)[[2]]
+Elevation<-getElevation(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, known.coord=start, plot=F)
+positionsGeoLight <- coord(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, degElevation=Elevation)
 positionsGeoLight<-as.data.frame(positionsGeoLight)
-positionsGeoLight$tFirst<-GLtab$tFirst
+positionsGeoLight$tFirst<-GLtab_shifted$tFirst
 #tripMap(positionsGeoLight)
 # ok, good here are geolight positions.
-
+}
 #=================================================================
 #filter <- loessFilter(GLtab[,1],GLtab[,2],GLtab[,3],k=10)
 
@@ -119,6 +120,7 @@ All.p<-Track.new[order(Track.new$gmt),]
 
 #All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
 rownames(All.p)<-1:nrow(All.p)
+
 
 #=============================================================================
 #================= START =====================================================
@@ -165,41 +167,19 @@ all.out<-geologger.sampler.create.arrays(Index.tab, Points.Land, start=start)
 #================= END== =====================================================
 
 #=============================================================================
-#########
+
+Proc.data<-process.twilights(All.p, Filtered_tw, measurement.period=measurement.period, saving.period=saving.period)
+
 ## Dusk
-# processing Dusk
+Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk
 
-Dusk.all<-Filtered_tw$datetime[Filtered_tw$type==2]
-Twilight.index.mat.dusk<-sapply(which(All.p$gmt %in% Dusk.all & All.p$type==2), FUN=function(x) (x-24):(x+24))
-Twilight.index.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) ifelse (x>0, x, NA))
-Max.Index<-nrow(All.p)
-Twilight.index.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) ifelse (x>Max.Index, NA, x))
+Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk
 
-Twilight.time.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) as.numeric(All.p$gmt[x]))
-Twilight.time.mat.dusk<-apply(Twilight.time.mat.dusk, c(1,2), FUN=function(x) ifelse(is.finite(x), x, 0))
-Twilight.log.light.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) log(All.p$light[x]))
-#Twilight.log.light.mat.dusk<-apply(Twilight.index.mat.dusk, c(1,2), FUN=function(x) All.p$light[x])
-Twilight.log.light.mat.dusk<-apply(Twilight.log.light.mat.dusk, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
+## Dawn
 
+Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn
 
-# processing Dawn
-Dawn.all<-Filtered_tw$datetime[Filtered_tw$type==1]
-
-Twilight.index.mat.dawn<-sapply(which(All.p$gmt %in% Dawn.all & All.p$type==1), FUN=function(x) (x-24):(x+24))
-Twilight.index.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) ifelse (x>0, x, NA))
-Max.Index<-nrow(All.p)
-Twilight.index.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) ifelse (x>Max.Index, NA, x))
-
-Twilight.time.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) as.numeric(All.p$gmt[x]))
-Twilight.time.mat.dawn<-apply(Twilight.time.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, 0))
-Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) log(All.p$light[x]))
-#Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) All.p$light[x])
-Twilight.log.light.mat.dawn<-apply(Twilight.log.light.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
-
-Twilight.time.mat.dusk<-Twilight.time.mat.dusk-(saving.period-60)
-
-# now we need to load the calibration that we already have...
-#load("Calibration.3.3.RData")
+Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 
 ###############
@@ -211,8 +191,7 @@ Twilight.time.mat.dusk<-Twilight.time.mat.dusk-(saving.period-60)
 # before going gor the simulation I would probably like to go for a simple estimation in just one point as this could help us a lot!
 do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders, verbose=F, log.light.borders=log(c(2,64))) {
 #=========================================================================
-		#cat("doing", Twilight.ID, "\n")	
-		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
 		Data<-check.boundaries(start, Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector)
@@ -249,15 +228,15 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twi
 		cat("\n detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 
 	if (!slopes.only) {
-		cat("detected dusk", dim(Twilight.time.mat.dusk)[2], "\n")
-		cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
+		#cat("detected dusk", dim(Twilight.time.mat.dusk)[2], "\n")
+		#cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
  
-		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, interval=saving.period, log.light.borders=log.light.borders, correction.dir=correction.dir)
+		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land,log.light.borders=log.light.borders, calibration=calibration)
 		 #All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=cbind(0,38), return.slopes=T)
 	
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land, interval=saving.period, log.light.borders=log.light.borders, correction.dir=correction.dir)
+		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Parameters$LogSlope,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land,  log.light.borders=log.light.borders, calibration=calibration)
 		#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land)
 # ok, what should we do now?
 # first I'd found a maximum of the probabilities for each day and comapre it with the means 
@@ -287,7 +266,7 @@ for (i in 1:nrow(Filtered_tw)) {
 all.out$Phys.Mat<-Phys.Mat
 all.out$Phys.Mat.time.label<-Filtered_tw$datetime
 all.out$Slopes<-Slopes
-all.out$positionsGeoLight<-positionsGeoLight
+if (GeoLight) all.out$positionsGeoLight<-positionsGeoLight
 		if (!slopes.only) {
 		return(all.out)
 		} else {
