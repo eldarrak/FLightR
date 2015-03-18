@@ -354,7 +354,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		Expected.mean<-time_correction
 		
 		if (is.null(delta)) {
-		if (length(args(calibration$lat_correction_fun)==1)) {
+		if (length(formals(calibration$lat_correction_fun))==1) {
 		delta=calibration$lat_correction_fun(x[2])} else {
 		delta=calibration$lat_correction_fun(x[2], Twilight.time.vector[1], calibration$Gamlatcalib) # have to check whether we always have time specified...
 		}
