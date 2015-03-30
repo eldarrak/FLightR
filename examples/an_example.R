@@ -165,7 +165,7 @@ load(file="XXX.RData")
 Calibration$lat_correction_fun<-lat_correction_fun
 Calibration$Gamlatcalib<-Gamlatcalib
 
-Calibration$lat_correction_fun(75, "2010-03-20", Calibration$Gamlatcalib)
+#Calibration$lat_correction_fun(75, "2010-03-20", Calibration$Gamlatcalib)
 
 
 #
@@ -238,14 +238,14 @@ abline(h=start[2])
 ################################
 ## ok now we want to make the rest but for this I feel I should better do on the other machine.
  
-raw.Y.dusk<-correct.hours(Filtered_tw$datetime[Filtered_tw$type==2])
-raw.X.dusk<-as.numeric(Filtered_tw$datetime[Filtered_tw$type==2])
+raw.Y.dusk<-correct.hours(FLightR.data$twilights$datetime[FLightR.data$twilights$type==2])
+raw.X.dusk<-as.numeric(FLightR.data$twilights$datetime[FLightR.data$twilights$type==2])
+Data_tmp<-list(d=FLightR.data$Data)
+Result.Dusk<-make.result.list(Data_tmp, raw.X.dusk, raw.Y.dusk)
 
-Result.Dusk<-make.result.list(Data, raw.X.dusk, raw.Y.dusk)
-
-raw.Y.dawn<-correct.hours(Filtered_tw$datetime[Filtered_tw$type==1])
-raw.X.dawn<-as.numeric(Filtered_tw$datetime[Filtered_tw$type==1])
-Result.Dawn<-make.result.list(Data, raw.X.dawn, raw.Y.dawn)
+raw.Y.dawn<-correct.hours(FLightR.data$twilights$datetime[FLightR.data$twilights$type==1])
+raw.X.dawn<-as.numeric(FLightR.data$twilights$datetime[FLightR.data$twilights$type==1])
+Result.Dawn<-make.result.list(Data_tmp, raw.X.dawn, raw.Y.dawn)
 Result.all<-list(Final.dusk=Result.Dusk, Final.dawn=Result.Dawn)
 ####
 library(maptools)
@@ -262,7 +262,7 @@ all.in<-geologger.sampler.create.arrays(Index.tab, Points.Land, start=start)
 
 #===========================================
 # and now we want to add Phys.Mat
-
+Phys.Mat.old<-Phys.Mat
 #===============================
 library(parallel)
 Threads= detectCores()-1
@@ -298,6 +298,65 @@ image(as.image(all.in$Phys.Mat[,i], x=all.in$Points.Land[,1:2], nrow=30, ncol=30
 }
 
 # if there were any outliers it will be better to exclude them now setting all their values to 0
+
+#all.in$Phys.Mat[,c(8, 9)]<-1
+
+save(all.in, file="all.in.TRES.749.FLightR.0.3.18.march.RData")
+
+all.in$Phys.Mat<-apply(all.in$Phys.Mat, 2, FUN=function(x) {x[x<=1e-70]=1e-70; return(x)})
+all.in$Points.Land[,3]<-1
+all.in$Matrix.Index.Table$Decision<-0.1
+all.in$M.mean<-300
+
+
+####################
+# and now we finaly run the filter..
+Result.new<-run.particle.filter(all.in, save.Res=F, cpus=10, nParticles=1e6, known.last=T,
+ precision.sd=25, sea.value=1, save.memory=T, k=NA, parallel=T, 
+ plot=T, prefix="pf", extend.prefix=T, max.kappa=100, 
+ min.SD=25, min.Prob=0.01, max.Prob=0.99, 
+ fixed.parameters=list(M.mean=300, M.sd=500, Kappa=0), 
+ cluster.type="SOCK", a=45, b=1000, L=90, update.angle.drift=F, adaptive.resampling=0.99, save.transitions=T, check.outliers=F)
+gc()
+
+##########################
+# let's explore the results now...
+
+# 1. basic plotting could be done as follows:
+
+
+# 2. lat graph
+
+
+# 3. lon graph
+
+
+# prob of migration.
+
+
+# migratory ditance..
+
+
+#####################################
+# there coud be much more done with these results 
+# and I'll try explain that in a package description..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
