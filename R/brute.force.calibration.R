@@ -41,7 +41,7 @@ All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position
 Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$SD.ideal[1]))
 names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
 #print(Res)
-plot(Res$Slope~Res$Slope.ideal)
+plot(Res$SD~Res$SD.ideal)
 }
 Res<-na.omit(Res)
 Res<-Res[is.finite(Res[,1]),]
