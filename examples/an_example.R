@@ -14,7 +14,7 @@ install_github("eldarrak/FLightR@towards_0.4") # this should be changed to the m
 
 library(FLightR)
 library(GeoLight)
-
+library(maptools)
 # for now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there...
 
 require(RCurl)
@@ -100,8 +100,8 @@ Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn[,-Dawn_to_exc
 Proc.data$Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn[,-Dawn_to_exclude]
 
 Joint_ind<-sort(c(which(FLightR.data$twilights$type==1)[-Dawn_to_exclude], which(FLightR.data$twilights$type==2)[-Dusk_to_exclude]))
-FLightR.data$twilights$excluded=0
-FLightR.data$twilights$excluded[Joint_ind]<-1
+FLightR.data$twilights$excluded=1
+FLightR.data$twilights$excluded[Joint_ind]<-0
 
 
 ##----------------------------------------------
@@ -176,7 +176,7 @@ All.slopes<-get.calib.param(Calib.data.all, plot=T)
 plot(log(All.slopes$Slopes$Slope)~All.slopes$Slopes$Time)
 
 # Now we create 'parameters' object that will have all the details about the calibration
-Parameters<-All.slopes$Parameters # LogSlope 0.24 0.17
+Parameters<-All.slopes$Parameters # LogSlope 0.23 0.16
 Parameters$measurement.period<-Proc.data$measurement.period 
 Parameters$saving.period<-Proc.data$saving.period 
 Parameters$log.light.borders<-log(c(2, 64)) # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
@@ -280,7 +280,7 @@ all.in$Phys.Mat<-Phys.Mat
 
 par(mfrow=c(3,3))
 par(ask=T)
-for (i in 500:dim(all.in$Phys.Mat)[2]) {
+for (i in 1:dim(all.in$Phys.Mat)[2]) {
 image(as.image(all.in$Phys.Mat[,i], x=all.in$Points.Land[,1:2], nrow=30, ncol=30), col=my.golden.colors(64), main=paste( ifelse((all.in$Matrix.Index.Table$Dusk[i]), "Dusk","Dawn"), all.in$Matrix.Index.Table$Real.time[i], "i=", i))
 	map('state',add=TRUE, lwd=1,  col=grey(0.5))
 	map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
@@ -298,7 +298,7 @@ save(all.in, file="TRES.all.in.RData")
 ## Part 5. Main estimation
 ###############################################
 
-Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,10), nParticles=1e6, known.last=T,
+Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,10), nParticles=1e4, known.last=T,
  precision.sd=25, sea.value=1, save.memory=T, k=NA, parallel=T, 
  plot=T, prefix="pf", extend.prefix=T, max.kappa=100, 
  min.SD=25, min.Prob=0.01, max.Prob=0.99, 
