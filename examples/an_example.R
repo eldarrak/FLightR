@@ -155,7 +155,7 @@ Calibration$lat_correction_fun<-lat_correction_fun
 #----------------------------------------------------------
 Proc.data<-detect.tsoutliers(Calibration, Proc.data, plot=T)
 
-FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,  Proc.data$Twilight.time.mat.dawn[25,]) )]<-2
+FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,  Proc.data$Twilight.time.mat.dawn[25,]) & FLightR.data$twilights$excluded!=1 )]<-2
 
 #--------------------------------------------------------
 # recalibration with outliers excluded..
@@ -276,7 +276,7 @@ Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk, Proc.d
 all.in$Phys.Mat<-Phys.Mat
 
 #---------------------------
-# we can also check the preestimated matrices:
+# we can also check the pre-estimated matrices:
 
 par(mfrow=c(3,3))
 par(ask=T)
