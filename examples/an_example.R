@@ -153,13 +153,7 @@ Calibration$lat_correction_fun<-lat_correction_fun
 #----------------------------------------------------------
 # automated outlier detection:
 #----------------------------------------------------------
-Proc.data.short<-list(Twilight.time.mat.dusk=Proc.data$Twilight.time.mat.dusk[,1:10],
-						Twilight.log.light.mat.dusk=Proc.data$Twilight.log.light.mat.dusk[,1:10],
-						Twilight.time.mat.dawn=Proc.data$Twilight.time.mat.dawn[,1:10],
-						Twilight.log.light.mat.dawn=Proc.data$Twilight.log.light.mat.dawn[,1:10],
-						measurement.period=Proc.data$measurement.period ,
-						saving.period=Proc.data$saving.period)
-Proc.data<-detect.tsoutliers(Calibration, Proc.data.short, plot=F)
+Proc.data<-detect.tsoutliers(Calibration, Proc.data, plot=T)
 
 FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,  Proc.data$Twilight.time.mat.dawn[25,]) )]<-2
 
@@ -304,7 +298,7 @@ save(all.in, file="TRES.all.in.RData")
 ## Part 5. Main estimation
 ###############################################
 
-Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads10, nParticles=1e6, known.last=T,
+Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,10), nParticles=1e6, known.last=T,
  precision.sd=25, sea.value=1, save.memory=T, k=NA, parallel=T, 
  plot=T, prefix="pf", extend.prefix=T, max.kappa=100, 
  min.SD=25, min.Prob=0.01, max.Prob=0.99, 
