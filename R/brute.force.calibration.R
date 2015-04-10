@@ -1,87 +1,29 @@
 # brute.force.calibration.R
-# ver 0.1 from 21.10.2014
+# ver 0.3 from 04.08.2015
 
 
-get.1.minute.parameters<-function(parameters, measurement.period=60, saving.period=NULL, position, start.time, end.time, log.light.borders=c(log(2,64)), repeats=50, min.max.values=c(0,64), log.irrad.borders=c(-15,50)) {
+get.1.minute.parameters<-function(initial=NULL, parameters, position, start.time, end.time, print=T) {
 # this stupid brute force function will just etimate what should be the parameter values on a 1 minute scale..
+if (is.null(initial))initial=parameters$LogSlope
+if (print) print(initial)
 
-#========================================
-# parameters used so far
-# saving.period
-# start
-# min(Time)
-# max(Time)
-#log.light.borders
-#========================================
 Time.seq<-seq(from=start.time-7200
-, to=end.time+7200, by=measurement.period)
+, to=end.time+7200, by=parameters$measurement.period)
 
 # here the fixing period should be used.
 #saving.period=600
 Time.seq.saving<-seq(from=start.time-7200
-, to=end.time+7200, by=saving.period)
-# the complication here is that it looks like variance is changing now while switch time resolution..
-# But Formally I would do this in two independent tasks..
-# first I would optimize variance..
+, to=end.time+7200, by=parameters$saving.period)
+To.run.cur=data.frame(Slope.ideal=initial[1],SD.ideal=initial[2])
+All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=parameters$measurement.period, saving.period=parameters$saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=parameters$log.light.borders, min.max.values=parameters$min.max.values, log.irrad.borders=parameters$log.irrad.borders, plot=F)
 
-##===============================
-## so here I simulate and solve the equations regarding SD
-## this is not very much needed but we should probably go for that..
-## the only problem I see here is that we will change the LogSlope, so the sd of
-## the logSlope will also change
-## how could we solve that?
-## ok, let's for now leave it as -0.1 +0.4
-
-To.run<-expand.grid(Slope.ideal= runif(1000,   parameters$LogSlope[1]-0.2,   parameters$LogSlope[1]+0.4), SD.ideal=runif(1000,  exp(log( parameters$LogSlope[2])-0.2),  exp(log( parameters$LogSlope[2])+0.2))) #
-Res<-c()
-Res<-as.data.frame(Res)
-for (i in 1:repeats) {
-To.run.cur<-To.run[sample( 1:nrow(To.run), 1),]
-All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
-Res<-rbind(Res, c(mean(All.slope.runs$Slope, na.rm=T), All.slope.runs$Slope.ideal[1], sd(All.slope.runs$Slope, na.rm=T), All.slope.runs$SD.ideal[1]))
-names(Res)<-c("Slope", "Slope.ideal", "SD", "SD.ideal")
-#print(Res)
-plot(Res$SD~Res$SD.ideal)
+#########
+# LL
+LL=log((mean(All.slope.runs$Slope, na.rm=T)-parameters$LogSlope[1])^2+(sd(All.slope.runs$Slope, na.rm=T)-parameters$LogSlope[2])^2)
+cat("\n\n   ############## LL:", LL, "\n\n")
+return(LL)
 }
-Res<-na.omit(Res)
-Res<-Res[is.finite(Res[,1]),]
-#plot(Res$SD~Res$SD.ideal)
-Lm.sd<-lm(Res$SD~Res$SD.ideal)
-summary(Lm.sd)
-Slope.sd.ideal<-(parameters$LogSlope[2]-coef(Lm.sd)[1])/coef(Lm.sd)[2] #0.42 comparing to 0.4 from original calibration
 
-
-Lm.slope<-lm(Res$Slope~Res$Slope.ideal)
-summary(Lm.slope)
-Slope.ideal<-(parameters$LogSlope[1]-coef(Lm.slope)[1])/coef(Lm.slope)[2] # 
-
-# ok, now we have approximated slope also...
-# but let's repeat that in a more detailed way
-
-To.run<-expand.grid(Slope.ideal=runif(1000, Slope.ideal-0.3, Slope.ideal+0.3), SD.ideal=Slope.sd.ideal) #
-
-All.slope.runs1=get.slopes(Repeats=repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
-#mean(All.slope.runs1$Slope) # works
-#sd(All.slope.runs1$Slope)
-
-# and now let's repeat the same story with Lm...
-#print(All.slope.runs1)
-All.slope.runs1<-All.slope.runs1[is.finite(All.slope.runs1[,1]),]
-
-All.slope.runs1<-na.omit(All.slope.runs1)
-Lm1<-lm(Slope~Slope.ideal, data=All.slope.runs1)
-#summary(Lm1)
-
-# this is stupid as what we do want to see are correction lms if they are independent then we should just use them to predict what is the 1 minute distribution..
-
-Slope.parameter.final=(parameters$LogSlope[1]-coef(Lm1)[1])/coef(Lm1)[2] # 0.80 #
-
-# Just realized that what we need to send our are the regression coeddicients.
-RES<-rbind(coef(Lm1), coef(Lm.sd))
-colnames(RES)<-c("a", "b")
-rownames(RES)<-c("mu.slope.1.minute", "SD.slope.1.minute")
-return(RES)
-}
 
 #
 get.time.correction.function<-function(parameters, measurement.period=60, saving.period=NULL, position, log.light.borders=log(c(2,64)), Repeats=2, min.max.values=c(0,64), log.irrad.borders=c(-15, 50)) {

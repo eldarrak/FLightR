@@ -756,6 +756,9 @@ for (i in 1:nrow(all.out$Matrix.Index.Table)) {
 		All.probs.dawn.tmp<-as.matrix(All.probs.dawn.tmp[,-1])
 		}
 }
+
+Phys.Mat<-apply(Phys.Mat, 2, FUN=function(x) {x[x<=1e-70]=1e-70; return(x)})
+
 return(Phys.Mat)
 }
 
