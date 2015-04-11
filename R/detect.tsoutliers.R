@@ -37,13 +37,15 @@ resid <- residuals(fit)
 pars <- coefs2poly(fit)
 otypes <- c("AO", "TC", "LS")
 mo2 <- locate.outliers.oloop(Lons.ts, fit, types = otypes, maxit =10)
+Outliers1=remove.outliers(mo2, Lons.ts, method = "en-masse",  tsmethod.call = fit$call)$outliers
+Outliers1_c<-Outliers1$ind[Outliers1$type %in% c("AO", "TC")]
 if (plot) {
 plot(Lons.ts)
-abline(v=mo2$outliers$ind, col="black")
-abline(v=mo2$outliers$ind[mo2$outliers$type=="AO"], col="blue")
-abline(v=mo2$outliers$ind[mo2$outliers$type=="TC"], col="brown")
+abline(v=Outliers1$ind, col="black")
+abline(v=Outliers1$ind[Outliers1$type=="AO"], col="blue")
+abline(v=Outliers1$ind[Outliers1$type=="TC"], col="brown")
 }
-return(mo2$outliers$ind[mo2$outliers$type %in% c("AO", "TC")])
+return(Outliers1_c)
 }
 
 
@@ -119,5 +121,5 @@ Proc.data$Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk[,-D
 Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn[,-Dawn.outliers]
 Proc.data$Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn[,-Dawn.outliers]
 Res<-list(Proc.data=Proc.data, Lons.dusk=Lons.dusk, Lons.dawn=Lons.dawn)
-return(Proc.data)
+return(Res)
 }
