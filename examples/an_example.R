@@ -10,8 +10,7 @@
 ############################################
 
 library(devtools)
-install_github("eldarrak/FLightR@towards_0.4") # this should be changed to the master at some point
-install_github("eldarrak/FLightR") # this should be changed to the master at some point
+install_github("eldarrak/FLightR") #
 
 library(FLightR)
 library(GeoLight)
@@ -154,7 +153,10 @@ Calibration$lat_correction_fun<-lat_correction_fun
 #----------------------------------------------------------
 # automated outlier detection:
 #----------------------------------------------------------
-Proc.data<-detect.tsoutliers(Calibration, Proc.data, plot=T)
+require(parallel)
+Threads=detectCores()-1
+Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T, Threads=Threads)
+Proc.data<-Outliers$Proc.data
 
 FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,  Proc.data$Twilight.time.mat.dawn[25,]) & FLightR.data$twilights$excluded!=1 )]<-2
 

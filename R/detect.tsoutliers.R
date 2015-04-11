@@ -32,10 +32,11 @@ return(Final.max)
 detect.outliers<-function(Lons, plot=T) {
 require('tsoutliers')
 Lons.ts<-ts(Lons)
-fit <- arima(Lons.ts, order = c(1, 1, 0))
-resid <- residuals(fit)
-pars <- coefs2poly(fit)
+fit <- auto.arima(Lons.ts, max.p=1, max.d=1, max.q=0)
+#fit <- arima(Lons.ts, order(1,1,0))
+
 otypes <- c("AO", "TC", "LS")
+
 mo2 <- locate.outliers.oloop(Lons.ts, fit, types = otypes, maxit =10)
 Outliers1=remove.outliers(mo2, Lons.ts, method = "en-masse",  tsmethod.call = fit$call)$outliers
 Outliers1_c<-Outliers1$ind[Outliers1$type %in% c("AO", "TC")]
@@ -55,7 +56,6 @@ if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 
 calibration$Parameters$log.irrad.borders<-c(-1000, 1000)
-
 
 if (!is.null(Threads)) {
 	cat("making cluster\n")
@@ -107,8 +107,8 @@ cat("detecting outliers\n")
 #par(mfrow=c(2,1))
 #plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,])
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
-Dusk.outliers=detect.outliers(Lons.dusk, plot=F)
-Dawn.outliers=detect.outliers(Lons.dawn, plot=F)
+Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F)
+Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F)
 if (plot) {
 par(mfrow=c(2,1))
 plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,], main="Dusk")
