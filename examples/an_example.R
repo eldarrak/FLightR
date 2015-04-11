@@ -11,6 +11,7 @@
 
 library(devtools)
 install_github("eldarrak/FLightR@towards_0.4") # this should be changed to the master at some point
+install_github("eldarrak/FLightR") # this should be changed to the master at some point
 
 library(FLightR)
 library(GeoLight)

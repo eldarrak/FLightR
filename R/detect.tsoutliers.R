@@ -72,8 +72,8 @@ if (!is.null(Threads)) {
 	
 	cat("estimating dawn errors projection on equator\n")
 	
-	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
-	Lons.dawn<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x))
+	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dawn)[2])
+	Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x))
 	stopCluster(mycl)
 
 } else {
