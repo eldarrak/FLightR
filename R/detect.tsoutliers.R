@@ -31,14 +31,18 @@ return(Final.max)
 
 detect.outliers<-function(Lons, plot=T) {
 require('tsoutliers')
-Lons.ts<-ts(Lons)
-fit <- auto.arima(Lons.ts, max.p=1, max.d=1, max.q=0)
-#fit <- arima(Lons.ts, order(1,1,0))
+
+.Lons.ts<-ts(Lons)
+.Lons.ts<<-.Lons.ts
+#fit <- auto.arima(Lons.ts, max.p=1, max.d=1, max.q=0)
+fit <- arima(.Lons.ts, order=c(1,1,0))
 
 otypes <- c("AO", "TC", "LS")
 
-mo2 <- locate.outliers.oloop(Lons.ts, fit, types = otypes, maxit =10)
-Outliers1=remove.outliers(mo2, Lons.ts, method = "en-masse",  tsmethod.call = fit$call)$outliers
+mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes)
+Outliers1=remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call)$outliers
+rm(".Lons.ts", envir=globalenv())
+
 Outliers1_c<-Outliers1$ind[Outliers1$type %in% c("AO", "TC")]
 if (plot) {
 plot(Lons.ts)
@@ -109,6 +113,7 @@ cat("detecting outliers\n")
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
 Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F)
 Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F)
+
 if (plot) {
 par(mfrow=c(2,1))
 plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,], main="Dusk")
