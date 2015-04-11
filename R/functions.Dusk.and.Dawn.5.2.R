@@ -663,6 +663,7 @@ Slopes<-c()
 Slopes.sd<-c()
 Intercept=c()
 Sigma=c()
+Type=c()
 for (i in (unique(cur.data$fTwilight))) {
 # lm
 #plot(LogLight~LogIrrad, data=cur.data[cur.data$fTwilight==i,])
@@ -673,6 +674,7 @@ Slopes<-c(Slopes, coef(Lm)[2])
 Slopes.sd<-c(Slopes.sd, sqrt(vcov(Lm)[4]))
 Intercept=c(Intercept, coef(Lm)[1])
 Sigma<-c(Sigma, summary(Lm)$sigma)
+Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
 }
 #plot(cur.slope$slope~Slopes)
 #plot(cur.slope$sd~Slopes.sd)
@@ -693,8 +695,8 @@ Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$In
 
 cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 
-Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=cur.slope$time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd))
-return(Res) #0.40)
+Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=cur.slope$time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type))
+return(Res) 
 }
 
 
@@ -754,6 +756,9 @@ for (i in 1:nrow(all.out$Matrix.Index.Table)) {
 		All.probs.dawn.tmp<-as.matrix(All.probs.dawn.tmp[,-1])
 		}
 }
+
+Phys.Mat<-apply(Phys.Mat, 2, FUN=function(x) {x[x<=1e-70]=1e-70; return(x)})
+
 return(Phys.Mat)
 }
 

@@ -1,5 +1,5 @@
 
-get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50)) {
+get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50) , plot=T) {
 To.run.initial<-To.run
 Lat.initial<-Lat
 All.slope.runs<-c()
@@ -16,7 +16,7 @@ if (is.null(Lat.initial)) {
 	To.run$Latitude<-Lat.initial
 	}
 
-Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=Lon,  min.max.values= min.max.values)
+Track<-simulate.track(measurement.period=measurement.period, saving.period=saving.period, To.run=To.run, Parameters=Parameters, short.run=short.run, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=Lon,  min.max.values= min.max.values, plot=plot)
 	
 #===========
 # input
@@ -159,7 +159,7 @@ All.slopes<-cbind(All.slopes, Track[Row, c("Slope.ideal", "SD.ideal", "Lat")])
 #All.slopes<-All.slopes[-which(All.slopes$Duration<saving.period),]
 #plot(All.slopes$Slope~All.slopes$Duration)
 All.slopes$Slope<- log(All.slopes$Slope)
-plot(All.slopes$Slope~All.slopes$Slope.ideal)
+if (plot) plot(All.slopes$Slope~All.slopes$Slope.ideal)
 #lm(All.slopes$Slope~All.slopes$Slope.ideal)
 #Gam1<-gam(Slope.ideal~s(Slope, Slope.sd), data=All.slopes)
 
@@ -177,18 +177,20 @@ plot(All.slopes$Slope~All.slopes$Slope.ideal)
 
 All.slope.runs<-rbind(All.slope.runs, All.slopes)
 #save(All.slope.runs, file=paste(file.head, "All.slope.runs.RData", sep="."))
+if (plot)  {
 par(mfrow=c(1,2))
 plot((All.slope.runs$Slope)~All.slope.runs$Slope.ideal)
 mean((All.slope.runs$Slope), na.rm=T)
 
 plot(Slope~Lat, data=All.slope.runs)
 }
+}
 return(All.slope.runs)
 }
 # and now we want to save that... 
 
 
-simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59") {
+simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59", plot=T) {
 # important here is that min and max values may be different from light.borders.
 # and it is actually better to make them different if there is enough point to make an estimation...
 
@@ -220,6 +222,7 @@ Track$Day<-inverse.rle(Rle)
 #=============================
 # ok now we have everything we need to add corrdinates, slopes and sd
 #=============================
+print(To.run)
 Index<-sample.int(nrow(To.run), max(Track$Day), replace=T)
 
 
@@ -278,7 +281,6 @@ Track$LogLight<-NA
 #======================================
 # now we just want to estimate values for each line in Track
 
-
 Track$LogLight[Track$LogLight>log(min.max.values[2])] <-log(min.max.values[2])
 
 Track$LogLight[Track$LogLight<max(log(min.max.values[1]), -1)] <-max(log(min.max.values[1]), -1)
@@ -288,13 +290,13 @@ Track$light<-exp(Track$LogLight)
 Track$light[Track$light<min.max.values[1]] <-min.max.values[1]
 
 
- if (!short.run) plot(Track$light[5000:6000], type="b", pch=".")
+ if (!short.run & plot) plot(Track$light[5000:6000], type="b", pch=".")
 
  Track$gmt<-as.POSIXct(Track$Time.seq, tz="gmt", origin="1970-01-01")
 
- 
  # now we need to get the estimates without saving file I'd say 
 Track.new<-Track[Track$Time.seq %in% Time.seq.saving,] # creating new track
+
 if (saving.period!=measurement.period) {
 Track.new<-Track.new[-1,]
 New.light<-Track.new$light
