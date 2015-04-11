@@ -16,13 +16,13 @@ Twilight.time.vector=Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.I
 
 Points.Land<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
 
-Current.probs1<-	apply(Points.Land, 1, get.current.slope.prob, calibration=Calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=Calibration$Parameters$log.light.borders, log.irrad.borders=Calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=Calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
+Current.probs1<-	apply(Points.Land, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
 
 Points.Land<-cbind(seq(Points.Land[which.max(Current.probs1),1]
 -5, Points.Land[which.max(Current.probs1),1]
 +5, length.out=100), 0, 1)
 
-Current.probs1<-	apply(Points.Land, 1, get.current.slope.prob, calibration=Calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=Calibration$Parameters$log.light.borders, log.irrad.borders=Calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=Calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
+Current.probs1<-	apply(Points.Land, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
 
 Final.max=Points.Land[which.max(Current.probs1),1]
 return(Final.max)
@@ -47,29 +47,58 @@ return(mo2$outliers$ind[mo2$outliers$type %in% c("AO", "TC")])
 }
 
 
-detect.tsoutliers<-function(Calibration, Proc.data, plot=T) {
+detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL) {
 
-Calibration$Parameters$log.irrad.borders<-c(-1000, 1000)
-###########
-cat("estimating dusk errors projection on equator\n")
-Lons=c()
-for (i in 1:(dim(Proc.data$Twilight.time.mat.dusk)[2])) {
-cat(i, "\n")
-Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=T, i))
-plot(Lons)
+if (is.character(Proc.data)) Proc.data=get("Proc.data")
+if (is.character(calibration)) calibration=get("calibration")
+
+calibration$Parameters$log.irrad.borders<-c(-1000, 1000)
+
+
+if (!is.null(Threads)) {
+	cat("making cluster\n")
+	require(parallel)
+	mycl <- parallel:::makeCluster(Threads)
+	tmp<-parallel:::clusterSetRNGStream(mycl)
+    tmp<-parallel:::clusterExport(mycl,c("calibration", "Proc.data"), envir=environment())
+    #tmp<-parallel:::clusterEvalQ(mycl, library("circular")) 
+    #tmp<-parallel:::clusterEvalQ(mycl, library("truncnorm")) 
+    tmp<-parallel:::clusterEvalQ(mycl, library("GeoLight")) 
+    tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
+	cat("estimating dusk errors projection on equator\n")
+	
+	Dusks<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
+	Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x))
+	
+	cat("estimating dawn errors projection on equator\n")
+	
+	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
+	Lons.dawn<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x))
+	stopCluster(mycl)
+
+} else {
+	###########
+	cat("estimating dusk errors projection on equator\n")
+	Lons=c()
+	for (i in 1:(dim(Proc.data$Twilight.time.mat.dusk)[2])) {
+	cat(i, "\n")
+	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=T, i))
+	plot(Lons)
+	}
+
+	Lons.dusk<-Lons
+
+	cat("estimating dawn errors projection on equator\n")
+
+	Lons=c()
+	for (i in 1:(dim(Proc.data$Twilight.time.mat.dawn)[2])) {
+	cat(i, "\n")
+	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=F, i))
+	plot(Lons)
+	}
+	Lons.dawn<-Lons
 }
 
-Lons.dusk<-Lons
-
-cat("estimating dawn errors projection on equator\n")
-
-Lons=c()
-for (i in 1:(dim(Proc.data$Twilight.time.mat.dawn)[2])) {
-cat(i, "\n")
-Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=F, i))
-plot(Lons)
-}
-Lons.dawn<-Lons
 
 cat("detecting outliers\n")
 
@@ -89,5 +118,6 @@ Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-Dusk.outlie
 Proc.data$Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk[,-Dusk.outliers]
 Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn[,-Dawn.outliers]
 Proc.data$Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn[,-Dawn.outliers]
+Res<-list(Proc.data=Proc.data, Lons.dusk=Lons.dusk, Lons.dawn=Lons.dawn)
 return(Proc.data)
 }
