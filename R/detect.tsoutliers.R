@@ -44,10 +44,22 @@ otypes <- c("AO", "TC", "LS")
 mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=10)
 
 # if 
+
+
+ if (nrow(mo2$outliers)<length(Lons)*0.05) {
+ cat("adjusting cval\n")
+ Cval=3.5
+ while(nrow(mo2$outliers)<length(Lons)*0.05) {
+ Cval=Cval*0.95
+ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=10, cval=Cval)
+ } 
+ cat("cval adjusted to", Cval, "\n")
+ }
+ 
  if (nrow(mo2$outliers)>length(Lons)*0.075) {
  cat("adjusting cval\n")
  Cval=3.5
- while(nrow(mo2$outliers)>length(Lons)*0.1) {
+ while(nrow(mo2$outliers)>length(Lons)*0.075) {
  Cval=Cval*1.05
  mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=10, cval=Cval)
  } 
@@ -128,7 +140,7 @@ cat("detecting outliers\n")
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
 Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F)
 Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F)
-
+cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 par(mfrow=c(2,1))
 plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,], main="Dusk")
