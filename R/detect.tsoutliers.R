@@ -54,7 +54,7 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=10)
  cat("cval adjusted to", Cval, "\n")
  }
 
-Outliers1=remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call)$outliers
+Outliers1=remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call, cval=1)$outliers
 #Outliers2=remove.outliers(mo2, .Lons.ts, method = "bottom-up",  tsmethod.call = fit$call, cval=1)$outliers
 rm(".Lons.ts", envir=globalenv())
 
