@@ -321,7 +321,9 @@ save(all.in, file="TRES.all.in.RData")
 
 # 1e6 particles take a while to run, so we highly recommend to run it first with 1e3 particles.. the result will be bad but it will check whether the PF works on yuor workstation.
 
-Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,10), nParticles=1e6, known.last=T,
+# do not forget about RAM - each node will eat 2 - 2.5 Gb of it!!!
+
+Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6), nParticles=1e6, known.last=T,
  precision.sd=25, sea.value=1, save.memory=T, k=NA, parallel=T, 
  plot=T, prefix="pf", extend.prefix=T, max.kappa=100, 
  min.SD=25, min.Prob=0.01, max.Prob=0.99, 
@@ -337,24 +339,70 @@ save(Result, file="result.TRES.RData")
 ###############################################
 
 # 1. basic plotting could be done as follows:
-plot(Result$Quantiles$Medianlat~Result$Quantiles$Medianlon, type="l")
-map('world', add=T)
-points(Result$Quantiles$Medianlat~Result$Quantiles$Medianlon, pch="+")
 
-plot(Result$Quantiles$Meanlat~Result$Quantiles$Meanlon, type="l")
-map('world', add=T)
-points(Result$Quantiles$Meanlat~Result$Quantiles$Meanlon, pch="+")
+pdf("FLightR_map.pdf",width=5,height=5)
+par(mfrow=c(1,1))
+par(mar=c(4,4,3,1),las=1,mgp=c(2.25,1,0))
 
-# 2. lat graph
-plot(Result$Quantiles$Medianlat[-nrow(Result$Quantiles)]~Result$Matrix.Index.Table$time, pch=".", cex=3)
-abline(v=)
-# 3. lon graph
+#--------------------------------------------------------
+# we could plot either mean or median.
 
-plot(Result$Quantiles$Medianlon[-nrow(Result$Quantiles)]~Result$Matrix.Index.Table$time, pch=".", cex=3)
-# prob of migration.
+#Mean_coords<-cbind(Result$Quantiles$Meanlon, Result$Quantiles$Meanlat)
+Median_coords<-cbind(Result$Quantiles$MedianlonJ, Result$Quantiles$MedianlatJ)
+plot(Median_coords, type = "n",ylab="Latitude",xlab="Longitude")
+data(wrld_simpl)
+plot(wrld_simpl, add = T, col = "grey95", border="grey70")
+lines(Median_coords, col = "darkgray", cex = 0.1)
+points(Median_coords, pch = 16, cex = 0.75, col = "darkgray")
+#lines(Mean_coords, col = "blue", cex = 0.1)
+#points(Mean_coords, pch = 16, cex = 0.75, col = "blue")
+title("FLightR analysis", line = 0.3)
+box("plot")
+dev.off()
+
+#######################################
+##Plot FLgihtR and known path by lat and long##
+#######################################
+Quantiles<-Result$Quantiles[1:length(Result$Matrix.Index.Table$Real.time),]
+Quantiles$Time<-Result$Matrix.Index.Table$Real.time
+
+pdf("FLightR_lat_lon.pdf",width=5,height=5)
+
+par(mfrow=c(2,1))
+par(mar=c(2,4,3,1),cex=1)
+ Sys.setlocale("LC_ALL", "English")  
+
+ #Longitude
+plot(Quantiles$Medianlon~Quantiles$Time, las=1,col=grey(0.1),pch=16,ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon, Quantiles$UCI.lon )), type="n")
 
 
-# migratory ditance..
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)), col=grey(0.9), border=grey(0.5))
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)), col=grey(0.7), border=grey(0.5))
+
+lines(Quantiles$Medianlon~Quantiles$Time, col=grey(0.1),lwd=2)
+
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col="red", lwd=1)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col="red", lwd=1)
+title("FLightR analysis", line = 0.3)
+
+#Latitude
+par(mar=c(3,4,1,1))
+
+plot(Quantiles$Medianlat~Quantiles$Time, las=1,col=grey(0.1),pch=16,ylab="Latitude",xlab="",lwd=2, ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)), col=grey(0.9), border=grey(0.5))
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)), col=grey(0.7), border=grey(0.5))
+
+lines(Quantiles$Medianlat~Quantiles$Time, col=grey(0.1),lwd=2)
+
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col="red", lwd=1)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col="red", lwd=1)
+
+dev.off()
+
+# there is also possibility to plot prob of migration and  migratory ditance..
 
 #####################################
 
