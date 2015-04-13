@@ -37,11 +37,14 @@ require(FLightR)
 
 ## CURRENTLY ONE CAN DOWNLOAD DATA AND SCRIPT FROM MY GITHUB ACCOUNT
 ## we can change it later to some ither place
-githubURL=""
 
-# 1. download data file
-download.file(githubURL,"myfile")
+# download data file
 
+require(RCurl)
+
+# read script lines from website
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/example_for_NCEAS_paper/SIM_PABU_DATA_SHDERR_A.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
+lig.raw<-read.csv(text=text, stringsAsFactors =F)
 
 
 #Read the csv file for the raw light data and format dates
@@ -431,3 +434,15 @@ abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col="red", lwd=1)
 legend("bottomright",legend = c("FLightR estimate", "known track"), col = c(grey(0.1), "red"), pch = c(NA,NA),lty=c(1,1),lwd=c(2,2),bg="white",cex=0.7)
 
 dev.off()
+
+#------------------
+# here I will shorten the Result file to make loadeable on github..
+
+format(object.size(Result), "Mb")
+Result$distance<-NULL
+Result$Azimuths<-NULL
+Result$Phys.Mat<-NULL
+
+save(Result, file="Result.short.RData")
+
+

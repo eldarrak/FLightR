@@ -35,7 +35,7 @@ require(FLightR)
 require(RCurl)
 
 # read script lines from website
-text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/towards_0.4/examples/749.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/MEE_manuscript_example/749.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
 lig.raw<-read.csv(text=text, stringsAsFactors =F)
 	
 FLightR.data<-read.tags.light.twilight(lig.raw, end.date="2012-05-12")
