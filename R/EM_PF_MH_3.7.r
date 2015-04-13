@@ -1004,7 +1004,7 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(Quantiles$Medianlon, Quantiles$Medianlat)
 	tmp<-try(apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 ))
-	if (class(tmp!="try-error")) {
+	if (class(tmp)!="try-error") {
 	jitter_coords<-t(sapply(tmp, coordinates))
 	Quantiles$MedianlonJ<-jitter_coords[,1]
 	Quantiles$MedianlatJ<-jitter_coords[,2]
