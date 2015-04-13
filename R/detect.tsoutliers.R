@@ -86,7 +86,7 @@ detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL) {
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 
-calibration$Parameters$log.irrad.borders<-c(-1000, 1000)
+calibration$Parameters$log.irrad.borders<-c(-15, 50)
 
 if (!is.null(Threads)) {
 	cat("making cluster\n")
@@ -131,15 +131,26 @@ if (!is.null(Threads)) {
 	}
 	Lons.dawn<-Lons
 }
+# now I have to optimize Lons in order to find the best cut point
+ll.cut.point<-function(delta, Lons) {
+Res<-log(sd((Lons+delta)%%360))
+return(Res)
+}
 
+Deltas<--180:180
+Delta_cur<-Deltas[which.min(sapply(Deltas, ll.cut.point, Lons=Lons.dusk))]
+Lons.dusk_cor<-Lons.dusk+Delta_cur
+
+Delta_cur<-Deltas[which.min(sapply(Deltas, ll.cut.point, Lons=Lons.dawn))]
+Lons.dawn_cor<-Lons.dawn+Delta_cur
 
 cat("detecting outliers\n")
 
 #par(mfrow=c(2,1))
 #plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,])
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
-Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F)
-Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F)
+Dusk.outliers=detect.outliers(Lons=Lons.dusk_cor, plot=F)
+Dawn.outliers=detect.outliers(Lons=Lons.dawn_cor, plot=F)
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 par(mfrow=c(2,1))
