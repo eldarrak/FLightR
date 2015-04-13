@@ -13,7 +13,6 @@ Twilight.time.vector=Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.I
 }
 
 #ok let's now create a line at equator
-
 Points.Land<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
 
 Current.probs1<-	apply(Points.Land, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
@@ -86,7 +85,7 @@ detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL) {
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 
-calibration$Parameters$log.irrad.borders<-c(-15, 50)
+calibration$Parameters$log.irrad.borders<-c(-15, 1)
 
 if (!is.null(Threads)) {
 	cat("making cluster\n")
@@ -139,18 +138,18 @@ return(Res)
 
 Deltas<--180:180
 Delta_cur<-Deltas[which.min(sapply(Deltas, ll.cut.point, Lons=Lons.dusk))]
-Lons.dusk_cor<-Lons.dusk+Delta_cur
+Lons.dusk<-((Lons.dusk+Delta_cur)%%360)-Delta_cur
 
 Delta_cur<-Deltas[which.min(sapply(Deltas, ll.cut.point, Lons=Lons.dawn))]
-Lons.dawn_cor<-Lons.dawn+Delta_cur
+Lons.dawn<-Lons.dawn+((Lons.dusk+Delta_cur)%%360)-Delta_cur
 
 cat("detecting outliers\n")
 
 #par(mfrow=c(2,1))
 #plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,])
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
-Dusk.outliers=detect.outliers(Lons=Lons.dusk_cor, plot=F)
-Dawn.outliers=detect.outliers(Lons=Lons.dawn_cor, plot=F)
+Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F)
+Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F)
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 par(mfrow=c(2,1))
