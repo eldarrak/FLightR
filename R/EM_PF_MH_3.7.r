@@ -1014,15 +1014,13 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	names(Quantiles)<-gsub("3","T", names(Quantiles))
 	
 	cat("adding 95% credibility intervals to medians\n")
-	Quantiles$LCI.lon<-CIntervals[,1]
-	Quantiles$UCI.lon<-CIntervals[,2]
-	Quantiles$LCI.lat<-CIntervals[,3]
-	Quantiles$UCI.lat<-CIntervals[,4]
+	Quantiles$LCI.lat<-CIntervals[,1]
+	Quantiles$UCI.lat<-CIntervals[,2]
+	Quantiles$LCI.lon<-CIntervals[,3]
+	Quantiles$UCI.lon<-CIntervals[,4]
 	  
 	in.Data$Quantiles<-Quantiles
-  
-  
-  return(in.Data)
+   return(in.Data)
 }
 get.coordinates.PF<-cmpfun(get.coordinates.PF)
 
