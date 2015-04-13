@@ -44,11 +44,12 @@ require(RCurl)
 
 # read script lines from website
 text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/example_for_NCEAS_paper/SIM_PABU_DATA_SHDERR_A.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
-lig.raw<-read.csv(text=text, stringsAsFactors =F)
+d<-read.csv(text=text, stringsAsFactors =F)
 
 
 #Read the csv file for the raw light data and format dates
-d <- read.csv("SIM_PABU_DATA_SHDERR_A.csv")
+#d <- read.csv("SIM_PABU_DATA_SHDERR_A.csv")
+
 d$datetime <- strptime(d$datetime, "%Y-%m-%d %H:%M:%S", "GMT")
 
 #Define twighlight events with the threshold
@@ -352,13 +353,35 @@ gc()
 
 save(Result, file="result.no.mask.RData")
 
+
+#------------------
+# here I will shorten the Result file to make loadeable on github..
+
+format(object.size(Result), "Mb")
+Result$distance<-NULL
+Result$Azimuths<-NULL
+Result$Phys.Mat<-NULL
+
+save(Result, file="Result.short.RData")
+
+#-------------------------
+# If you did not make a full run you might want to download result from github:
+
+Bin <- getBinaryURL ("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/example_for_NCEAS_paper/Result.short.RData", ssl.verifypeer = FALSE, followlocation = TRUE)
+writeBin(Bin, "Result.short.RData")
+load("Result.short.RData")
+
 #########################################################
 # Part 3. Plotting results
 #########################################################
 # map
 
 #Read in the simulated track
-simTrack<-read.csv("SIM_PABU_TRACK_10min.csv")
+
+# read script lines from website
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/example_for_NCEAS_paper/SIM_PABU_TRACK_10min.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
+
+simTrack<-read.csv(text=text, stringsAsFactors =F)
 simTrack$datetime <- strptime(simTrack$datetime, "%Y-%m-%d %H:%M:%S", "GMT")
 base_track <- subset(simTrack, format(datetime,'%H') %in% c('12') & format(datetime,'%M') %in% c('00'))
 summary(base_track)
@@ -388,7 +411,7 @@ box("plot")
 dev.off()
 
 #######################################
-##Plot FLgithR and known path by lat and long##
+##Plot FLgihtR and known path by lat and long##
 #######################################
 Quantiles<-Result$Quantiles[1:length(Result$Matrix.Index.Table$Real.time),]
 Quantiles$Time<-Result$Matrix.Index.Table$Real.time
@@ -435,14 +458,5 @@ legend("bottomright",legend = c("FLightR estimate", "known track"), col = c(grey
 
 dev.off()
 
-#------------------
-# here I will shorten the Result file to make loadeable on github..
-
-format(object.size(Result), "Mb")
-Result$distance<-NULL
-Result$Azimuths<-NULL
-Result$Phys.Mat<-NULL
-
-save(Result, file="Result.short.RData")
 
 
