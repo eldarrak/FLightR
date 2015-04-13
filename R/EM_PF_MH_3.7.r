@@ -1003,12 +1003,12 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	JitRadius<-min(in.Data$distance[in.Data$distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(Quantiles$Medianlon, Quantiles$Medianlat)
-	tmp<-apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 )
+	tmp<-try(apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 ))
+	if (class(tmp!="try-eeror")) {
 	jitter_coords<-t(sapply(tmp, coordinates))
-
 	Quantiles$MedianlonJ<-jitter_coords[,1]
 	Quantiles$MedianlatJ<-jitter_coords[,2]
-
+	}
 	names(Quantiles)<-gsub("\\s","", names(Quantiles))
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
 	names(Quantiles)<-gsub("3","T", names(Quantiles))
