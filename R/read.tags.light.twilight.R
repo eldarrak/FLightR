@@ -53,6 +53,8 @@ Filtered_tw$id<-0
 Data$d$type<-0
 Data$d<-rbind(Data$d, data.frame(id=Filtered_tw$id, gmt= Filtered_tw$datetime, light=Filtered_tw$light, type=Filtered_tw$type))
 
+Filtered_tw$excluded=0
+
 All.p<-Data$d[order(Data$d$gmt),]
 
 #All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]

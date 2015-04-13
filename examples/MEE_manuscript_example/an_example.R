@@ -40,12 +40,10 @@ lig.raw<-read.csv(text=text, stringsAsFactors =F)
 	
 FLightR.data<-read.tags.light.twilight(lig.raw, end.date="2012-05-12")
 
-
 Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights, measurement.period=60, saving.period=120)
 
 # tag measures data every minute (measurement.period=60)
 # and saves maximum over 2 minutes (saving.period=120)
-
 
 start=c(-80.46,	42.62) # where the bird was captured...
 
@@ -171,6 +169,7 @@ Calibration$lat_correction_fun<-lat_correction_fun
 require(parallel)
 Threads=detectCores()-1
 Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T, Threads=Threads)
+
 Proc.data<-Outliers$Proc.data
 
 FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,  Proc.data$Twilight.time.mat.dawn[25,]) & FLightR.data$twilights$excluded!=1 )]<-2
