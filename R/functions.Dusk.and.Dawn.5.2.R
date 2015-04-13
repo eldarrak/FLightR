@@ -103,7 +103,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	# now I'll try to do them both..
 	#require(nlme)
 	if (!is.list(positions)) {
-		if (length (positions) !=2) stop("the positions should be a list with $dawn  and $dusk dataframes pairs of coordiantes OR just one pair\n")
+		if (length (positions) !=2) stop("the positions should be a list with $dawn  and $dusk dataframes with pairs of coordiantes OR just one pair\n")
 		dawn=matrix(ncol=2, nrow=dim(Twilight.time.mat.Calib.dawn)[2])
 		dawn[,1]<-positions[1]
 		dawn[,2]<-positions[2]
@@ -301,7 +301,6 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 
 	get.probs<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL) {
 		require(fields)
-# the new function for 3.3		
 		# check for the intercept
 		sum=0
 			
@@ -325,9 +324,19 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		#test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
 		if (slope.sd==0) {
 		test.Slope=coef.coef[2]
+		
 		} else {
+		
+	
 		test.Slope<-rnorm(1000, coef.coef[2], slope.sd)
 		}
+		#-----------
+		# here is an experimental correction to integrate out 
+		# influence of the intercept
+		test.Slope=test.Slope+0.6749891-coef.coef[1]*0.1194982
+		# this should always work is spectrum opacity of the tag does not change
+		# end of experimental correction
+		#-----------
 				#lnorm.Slopes.fun<-function(x, Calib.param) {
 				#	x=x[x>0]
 					#return(dnorm(log(x), 0.2, 0.415))
