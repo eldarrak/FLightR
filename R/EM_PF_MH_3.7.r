@@ -988,8 +988,10 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
   # new part for medians
   cat("estimating quantiles for positions\n")
 	Quantiles<-c()
+	CIntervals<-c()
 	for (i in 1:length(Points)) {
 	Quantiles<-rbind(Quantiles, c(summary(in.Data$Points.Land[inverse.rle(Points[[i]]),2]), Mode=in.Data$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(in.Data$Points.Land[inverse.rle(Points[[i]]),1]), Mode=in.Data$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
+	CIntervals<-rbind(CIntervals, c(quantile(in.Data$Points.Land[inverse.rle(Points[[i]]),2], probs = c(0.025, 0.975)), quantile(in.Data$Points.Land[inverse.rle(Points[[i]]),1], probs = c(0.025, 0.975))))
 	}
 	Quantiles<-as.data.frame(Quantiles)
 	names(Quantiles)[1:6]<-paste(names(Quantiles)[1:6], "lat", sep="")
@@ -1010,6 +1012,12 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	names(Quantiles)<-gsub("\\s","", names(Quantiles))
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
 	names(Quantiles)<-gsub("3","T", names(Quantiles))
+	
+	cat("adding 95% credibility intervals to medians\n")
+	Quantiles$LCI.lon<-CIntervals[,1]
+	Quantiles$UCI.lon<-CIntervals[,2]
+	Quantiles$LCI.lat<-CIntervals[,3]
+	Quantiles$UCI.lat<-CIntervals[,4]
 	  
 	in.Data$Quantiles<-Quantiles
   
