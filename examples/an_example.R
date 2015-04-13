@@ -8,13 +8,28 @@
 ############################################
 ## PART 1. install.package and get the data#
 ############################################
+##Load the necessary packages##
+require(GeoLight)
+require(maptools)
+require(rgeos)
+require(geosphere)
+require(raster)
 
-library(devtools)
-install_github("eldarrak/FLightR") #
+require(tsoutliers)
+require(forecast)
 
-library(FLightR)
-library(GeoLight)
-library(maptools)
+require(circular)
+require(truncnorm)
+require(parallel)
+require(bit)
+require(aspace)
+require(rgdal)
+require(CircStats)
+
+require(devtools)
+install_github("eldarrak/FLightR")
+require(FLightR)
+
 # for now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there...
 
 require(RCurl)
