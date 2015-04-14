@@ -22,7 +22,7 @@ Points.Land<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
 	+5, length.out=100), 0, 1)
 	Points.Land[,1]<-Points.Land[,1]%%360
 	} else {
-	Points.Land<-cbind(seq(center-45, center+45, by=0.1), 0, 1)
+	Points.Land<-cbind(seq(center-30, center+30, by=0.1), 0, 1)
 	Points.Land[,1]<-Points.Land[,1]%%360
 	}
 Current.probs1<-	apply(Points.Land, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
@@ -89,7 +89,7 @@ detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL) {
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 
-calibration$Parameters$log.irrad.borders<-c(-15, 1)
+calibration$Parameters$log.irrad.borders<-c(-15, 5)
 
 if (!is.null(Threads)) {
 	cat("making cluster\n")
@@ -181,8 +181,8 @@ if (!is.null(Threads)) {
 	
 	if (length(Problematic.Dusks$outliers) >0) {
 	cat("reestimating dusk errors projection on equator\n")
-	Dusks<-cbind(Problematic.Dusks$outliers, Problematic.Dusks$center)
-	Lons.dusk_short<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
+	Dusks<-cbind(Problematic.Dusks$outliers, Problematic.Dusks$centerDelta_cur_dusk)
+	Lons.dusk_short<-parApply(mycl, Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
 	Lons.dusk_short<-((Lons.dusk_short+Delta_cur_dusk)%%360)-Delta_cur_dusk
 	Lons.dusk[Problematic.Dusks$outliers]<-Lons.dusk_short
 
@@ -190,8 +190,8 @@ if (!is.null(Threads)) {
 	
 	if (length(Problematic.Dawns$outliers) >0) {
 	cat("reestimating dawn errors projection on equator\n")
-	Dawns<-cbind(Problematic.Dawns$outliers, Problematic.Dawns$center)
-	Lons.dawn_short<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
+	Dawns<-cbind(Problematic.Dawns$outliers, Problematic.Dawns$center-Delta_cur_dawn)
+	Lons.dawn_short<-parApply(mycl, Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
 	Lons.dawn[Problematic.Dawns$outliers]<-Lons.dawn_short
 
@@ -200,17 +200,16 @@ if (!is.null(Threads)) {
 } else {
 	if (length(Problematic.Dusks$outliers) >0) {
 	cat("reestimating dusk errors projection on equator\n")
-	Dusks<-cbind(Problematic.Dusks$outliers, Problematic.Dusks$center)
-	Lons.dusk_short<-sapply(Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
+	Dusks<-cbind(Problematic.Dusks$outliers, Problematic.Dusks$center-Delta_cur_dusk)
+	Lons.dusk_short<-apply(Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
 	Lons.dusk_short<-((Lons.dusk_short+Delta_cur_dusk)%%360)-Delta_cur_dusk
 	Lons.dusk[Problematic.Dusks$outliers]<-Lons.dusk_short
-
 	}
 	
 	if (length(Problematic.Dawns$outliers) >0) {
 	cat("reestimating dawn errors projection on equator\n")
-	Dawns<-cbind(Problematic.Dawns$outliers, Problematic.Dawns$center)
-	Lons.dawn_short<-sapply(Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
+	Dawns<-cbind(Problematic.Dawns$outliers, Problematic.Dawns$center-Delta_cur_dawn)
+	Lons.dawn_short<-apply(Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
 	}
 }
