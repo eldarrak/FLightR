@@ -373,7 +373,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		#-----------------------
 				# correct for cos Lat
 				# looks like cos is too much... should look at sqrt(cos)
-				sum=sum*cos(x[2]/180*pi)
+				sum=sum*(cos(x[2]/180*pi)^2)
 				#sum=sum*sqrt(cos(x[2]/180*pi))
 				#-----------------------
 		
