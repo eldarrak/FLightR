@@ -142,10 +142,13 @@ return(Res)
 
 Deltas<--180:180
 Delta_cur_dusk<-Deltas[which.min(sapply(Deltas, ll.cut.point, Lons=Lons.dusk))]
+Lons.dusk.orig<-Lons.dusk
 Lons.dusk<-((Lons.dusk+Delta_cur_dusk)%%360)-Delta_cur_dusk
 
 Delta_cur_dawn<-Deltas[which.min(sapply(Deltas, ll.cut.point, Lons=Lons.dawn))]
-Lons.dawn<-Lons.dawn+((Lons.dawn+Delta_cur_dawn)%%360)-Delta_cur_dawn
+Lons.dawn.orig<-Lons.dawn
+
+Lons.dawn<-((Lons.dawn+Delta_cur_dawn)%%360)-Delta_cur_dawn
 
 #-------------------------------------------------
 # now we need to speciall focus on the outliers - maybe they were just estimated at the wrong maximum..
@@ -181,7 +184,7 @@ if (!is.null(Threads)) {
 	
 	if (length(Problematic.Dusks$outliers) >0) {
 	cat("reestimating dusk errors projection on equator\n")
-	Dusks<-cbind(Problematic.Dusks$outliers, Problematic.Dusks$centerDelta_cur_dusk)
+	Dusks<-cbind(Problematic.Dusks$outliers,  ((Problematic.Dusks$center+Delta_cur_dusk)%%360)-Delta_cur_dusk)
 	Lons.dusk_short<-parApply(mycl, Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
 	Lons.dusk_short<-((Lons.dusk_short+Delta_cur_dusk)%%360)-Delta_cur_dusk
 	Lons.dusk[Problematic.Dusks$outliers]<-Lons.dusk_short
@@ -200,7 +203,7 @@ if (!is.null(Threads)) {
 } else {
 	if (length(Problematic.Dusks$outliers) >0) {
 	cat("reestimating dusk errors projection on equator\n")
-	Dusks<-cbind(Problematic.Dusks$outliers, Problematic.Dusks$center-Delta_cur_dusk)
+	Dusks<-cbind(Problematic.Dusks$outliers,  ((Problematic.Dusks$center+Delta_cur_dusk)%%360)-Delta_cur_dusk)
 	Lons.dusk_short<-apply(Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
 	Lons.dusk_short<-((Lons.dusk_short+Delta_cur_dusk)%%360)-Delta_cur_dusk
 	Lons.dusk[Problematic.Dusks$outliers]<-Lons.dusk_short
