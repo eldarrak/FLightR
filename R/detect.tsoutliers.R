@@ -59,10 +59,10 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15)
  cat("cval adjusted to", Cval, "\n")
  }
  
- if (nrow(mo2$outliers)>length(Lons)*0.1) {
+ if (nrow(mo2$outliers)>length(Lons)*0.15) {
  cat("adjusting cval up\n")
  Cval=3.5
- while(nrow(mo2$outliers)>length(Lons)*0.1) {
+ while(nrow(mo2$outliers)>length(Lons)*0.15) {
  Cval=Cval*1.05
  mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15, cval=Cval)
  } 
@@ -193,7 +193,7 @@ if (!is.null(Threads)) {
 	
 	if (length(Problematic.Dawns$outliers) >0) {
 	cat("reestimating dawn errors projection on equator\n")
-	Dawns<-cbind(Problematic.Dawns$outliers, Problematic.Dawns$center-Delta_cur_dawn)
+	Dawns<-cbind(Problematic.Dawns$outliers, ((Problematic.Dawns$center+Delta_cur_dawn)%%360)-Delta_cur_dawn)
 	Lons.dawn_short<-parApply(mycl, Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
 	Lons.dawn[Problematic.Dawns$outliers]<-Lons.dawn_short
@@ -211,7 +211,7 @@ if (!is.null(Threads)) {
 	
 	if (length(Problematic.Dawns$outliers) >0) {
 	cat("reestimating dawn errors projection on equator\n")
-	Dawns<-cbind(Problematic.Dawns$outliers, Problematic.Dawns$center-Delta_cur_dawn)
+	Dawns<-cbind(Problematic.Dawns$outliers, ((Problematic.Dawns$center+Delta_cur_dawn)%%360)-Delta_cur_dawn)
 	Lons.dawn_short<-apply(Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
 	}
