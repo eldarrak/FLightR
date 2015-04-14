@@ -214,6 +214,7 @@ if (!is.null(Threads)) {
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
 	}
 }
+}
 cat("detecting outliers\n")
 
 #par(mfrow=c(2,1))
