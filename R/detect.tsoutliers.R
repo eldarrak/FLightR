@@ -32,7 +32,7 @@ return(Final.max)
 }
 
 
-detect.outliers<-function(Lons, plot=T) {
+detect.outliers<-function(Lons, plot=T, max.outlier.proportion=0.2) {
 require('tsoutliers')
 
 .Lons.ts<-ts(Lons)
@@ -59,10 +59,10 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15)
  cat("cval adjusted to", Cval, "\n")
  }
  
- if (nrow(mo2$outliers)>length(Lons)*0.15) {
+ if (nrow(mo2$outliers)>length(Lons)*0.2) {
  cat("adjusting cval up\n")
  Cval=3.5
- while(nrow(mo2$outliers)>length(Lons)*0.15) {
+ while(nrow(mo2$outliers)>length(Lons)*0.2) {
  Cval=Cval*1.05
  mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15, cval=Cval)
  } 
@@ -87,7 +87,7 @@ return(Outliers1_c)
 }
 
 
-detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL) {
+detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.outlier.proportion=0.2) {
 
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
@@ -227,8 +227,8 @@ cat("detecting outliers\n")
 #par(mfrow=c(2,1))
 #plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,])
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
-Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F)
-Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F)
+Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F, max.outlier.proportion=max.outlier.proportion)
+Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F, max.outlier.proportion=max.outlier.proportion)
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 par(mfrow=c(2,1))

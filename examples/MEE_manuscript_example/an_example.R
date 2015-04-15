@@ -14,6 +14,7 @@ require(maptools)
 require(rgeos)
 require(geosphere)
 require(raster)
+require(fields)
 
 require(tsoutliers)
 require(forecast)

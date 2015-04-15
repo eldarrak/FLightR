@@ -17,6 +17,7 @@ require(maptools)
 require(rgeos)
 require(geosphere)
 require(raster)
+require(fields)
 
 require(tsoutliers)
 require(forecast)
@@ -164,7 +165,9 @@ Parameters$LogSlope_1_minute<-Parameters$LogSlope
 time_correction_fun= eval(parse(text=paste("function (x) return(", Parameters$LogSlope[1], ")")))
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun)
 
-lat_correction_fun<-function(x, y, z) return(0)
+#lat_correction_fun<-function(x, y, z) return(0)
+lat_correction_fun<-eval(parse(text=paste("function (x,y,z) return(", Parameters$LogSlope[2]^2/2, ")")))
+
 Calibration$lat_correction_fun<-lat_correction_fun
 
 #---------------------------------------------------------
@@ -207,7 +210,7 @@ All.slopes<-get.calib.param(Calib.data.all, plot=T)
 plot(log(All.slopes$Slopes$Slope)~All.slopes$Slopes$Time)
 
 # Now we create 'parameters' object that will have all the details about the calibration
-Parameters<-All.slopes$Parameters # LogSlope 0.23 0.16
+Parameters<-All.slopes$Parameters # LogSlope -0.15 0.5
 Parameters$measurement.period<-Proc.data$measurement.period 
 Parameters$saving.period<-Proc.data$saving.period 
 Parameters$log.light.borders<-log(c(2, 64)) # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
@@ -234,7 +237,9 @@ Parameters$LogSlope_1_minute<-Parameters$LogSlope
 time_correction_fun= eval(parse(text=paste("function (x) return(", Parameters$LogSlope[1], ")")))
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun)
 
-lat_correction_fun<-function(x, y, z) return(0)
+#lat_correction_fun<-function(x, y, z) return(0)
+lat_correction_fun<-eval(parse(text=paste("function (x,y,z) return(", Parameters$LogSlope[2]^2/2, ")")))
+
 Calibration$lat_correction_fun<-lat_correction_fun
 
 #==============================================
@@ -303,7 +308,7 @@ all.in$Matrix.Index.Table$Decision<-0.1
 all.in$M.mean<-300
 
 # we also want to restrict irradiance values to c(-12, 5)
-Calibration$Parameters$log.irrad.borders<-c(-12, 5)
+#Calibration$Parameters$log.irrad.borders<-c(-12, 5)
 
 # the next step might have some time
 # with the current example it takes about 5 min at 24 core workstation
