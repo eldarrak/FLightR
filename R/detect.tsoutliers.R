@@ -69,8 +69,11 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15)
  cat("cval adjusted to", Cval, "\n")
  }
 
-Outliers1=remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call, cval=1)$outliers
-#Outliers2=remove.outliers(mo2, .Lons.ts, method = "bottom-up",  tsmethod.call = fit$call, cval=1)$outliers
+Outliers1=try(remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call, cval=1)$outliers)
+if (class(Outliers1)=="try-error") {
+cat("error detected, switching detection method to bottom-up")
+Outliers1=remove.outliers(mo2, .Lons.ts, method = "bottom-up",  tsmethod.call = fit$call, cval=1)$outliers
+}
 rm(".Lons.ts", envir=globalenv())
 
 Outliers1_c<-Outliers1$ind[Outliers1$type %in% c("AO", "TC")]
@@ -214,6 +217,8 @@ if (!is.null(Threads)) {
 	Dawns<-cbind(Problematic.Dawns$outliers, ((Problematic.Dawns$center+Delta_cur_dawn)%%360)-Delta_cur_dawn)
 	Lons.dawn_short<-apply(Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
+	Lons.dawn[Problematic.Dawns$outliers]<-Lons.dawn_short
+
 	}
 }
 }
