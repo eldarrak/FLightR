@@ -116,7 +116,7 @@ return(Outliers1_c)
 }
 
 
-detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.outlier.proportion=0.2) {
+detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.outlier.proportion=0.2, simple.version=F) {
 
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
@@ -182,8 +182,9 @@ Lons.dawn.orig<-Lons.dawn
 
 Lons.dawn<-((Lons.dawn+Delta_cur_dawn)%%360)-Delta_cur_dawn
 
+if (!simple.version) {
 #-------------------------------------------------
-# now we need to speciall focus on the outliers - maybe they were just estimated at the wrong maximum..
+# now we need to specially focus on the outliers - maybe they were just estimated at the wrong maximum..
 loess.filter<-function(x, y, k=3, exclude=NULL) {
 if (is.null(exclude)) {
 Loess<-loess(y~x)
@@ -266,6 +267,7 @@ if (!is.null(Threads)) {
 	Lons.dawn[Problematic.Dawns$outliers]<-Lons.dawn_short
 
 	}
+}
 }
 }
 cat("detecting outliers\n")
