@@ -32,6 +32,35 @@ return(Final.max)
 }
 
 
+tsoutliers.test <- function(x,plot=FALSE)
+{
+# this function is taken from here:
+# http://stats.stackexchange.com/questions/1142/simple-algorithm-for-online-outlier-detection-of-a-generic-time-series
+    x <- as.ts(x)
+    if(frequency(x)>1)
+        resid <- stl(x,s.window="periodic",robust=TRUE)$time.series[,3]
+    else
+    {
+        tt <- 1:length(x)
+        resid <- residuals(loess(x ~ tt))
+    }
+    resid.q <- quantile(resid,prob=c(0.25,0.75))
+    iqr <- diff(resid.q)
+    limits <- resid.q + 1.5*iqr*c(-1,1)
+    score <- abs(pmin((resid-limits[1])/iqr,0) + pmax((resid - limits[2])/iqr,0))
+    if(plot)
+    {
+        plot(x)
+        x2 <- ts(rep(NA,length(x)))
+        x2[score>0] <- x[score>0]
+        tsp(x2) <- tsp(x)
+        points(x2,pch=19,col="red")
+        return(invisible(score))
+    }
+    else
+        return(score)
+}
+
 detect.outliers<-function(Lons, plot=T, max.outlier.proportion=0.2) {
 require('tsoutliers')
 
@@ -155,18 +184,35 @@ Lons.dawn<-((Lons.dawn+Delta_cur_dawn)%%360)-Delta_cur_dawn
 
 #-------------------------------------------------
 # now we need to speciall focus on the outliers - maybe they were just estimated at the wrong maximum..
-loess.filter<-function(x, y, k=3) {
+loess.filter<-function(x, y, k=3, exclude=NULL) {
+if (is.null(exclude)) {
 Loess<-loess(y~x)
+} else {
+y_new<-y
+y_new[exclude]<-NA
+x_new<-x
+x_new[exclude]<-NA
+Loess<-loess(y_new~x_new)
+}
+Predict<-predict(Loess)
+Predict<-approx(y=Predict[!is.na(x)], x=x[!is.na(x)], xout=x, rule=2)$y
+#Resid<-y-Predict
 Resid<-residuals(Loess)
-outliers<-which(abs(Resid)>(sd(Resid)*k))
-Res=list(outliers=outliers, center=predict(Loess)[outliers])
+outliers<-sort(c(as.numeric(names(Resid))[(which(abs(Resid)>(sd(Resid)*k)))], exclude))
+Res=list(outliers=outliers, center=Predict[outliers])
 return(Res)
 }
 
-Problematic.Dusks<-loess.filter(x=Proc.data$Twilight.time.mat.dusk[25,], y=Lons.dusk, k=3)
-Problematic.Dawns<-loess.filter(x=Proc.data$Twilight.time.mat.dawn[25,], y=Lons.dawn, k=3)
+# first we want to eclude obvious outliers 
+# wwe will do less then
 
-par(mfrow=c(1,2))
+Dusk.obvious.outliers<-which(tsoutliers.test(Lons.dusk)>1.5)
+Problematic.Dusks<-loess.filter(x=Proc.data$Twilight.time.mat.dusk[25,], y=Lons.dusk, k=3, exclude=Dusk.obvious.outliers)
+
+Dawn.obvious.outliers<-which(tsoutliers.test(Lons.dawn)>1.5)
+Problematic.Dawns<-loess.filter(x=Proc.data$Twilight.time.mat.dawn[25,], y=Lons.dawn, k=3, exclude=Dawn.obvious.outliers)
+
+par(mfrow=c(2,1))
 plot(x=Proc.data$Twilight.time.mat.dusk[25,], y=Lons.dusk, pch="+")
 if (length(Problematic.Dusks$outliers) >0) abline(v=Proc.data$Twilight.time.mat.dusk[25,Problematic.Dusks$outliers])
 plot(x=Proc.data$Twilight.time.mat.dawn[25,], y=Lons.dawn, pch="+")

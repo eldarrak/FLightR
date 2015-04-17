@@ -333,7 +333,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		#-----------
 		# here is an experimental correction to integrate out 
 		# influence of the intercept
-		test.Slope=test.Slope+1.230660 -coef.coef[1]*0.405351 + coef.coef[1]^2*0.032388
+		#test.Slope=test.Slope+1.230660 -coef.coef[1]*0.405351 + coef.coef[1]^2*0.032388
 		# this should always work is spectrum opacity of the tag does not change
 		# end of experimental correction
 		#-----------
