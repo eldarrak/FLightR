@@ -165,8 +165,8 @@ Parameters$LogSlope_1_minute<-Parameters$LogSlope
 time_correction_fun= eval(parse(text=paste("function (x) return(", Parameters$LogSlope[1], ")")))
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun)
 
-#lat_correction_fun<-function(x, y, z) return(0)
-lat_correction_fun<-eval(parse(text=paste("function (x,y,z) return(", Parameters$LogSlope[2]^2/2, ")")))
+lat_correction_fun<-function(x, y, z) return(0)
+#lat_correction_fun<-eval(parse(text=paste("function (x,y,z) return(", Parameters$LogSlope[2]^2/2, ")")))
 
 Calibration$lat_correction_fun<-lat_correction_fun
 
@@ -184,7 +184,10 @@ Calibration$lat_correction_fun<-lat_correction_fun
 
 Threads=detectCores()-1
 
-Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T, Threads=Threads)
+Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T, Threads=Threads, max.outlier.proportion=0.2, simple.version=T)
+
+# there shgoud not be obvious outliers left!!
+
 Proc.data.full<-Proc.data
 Proc.data<-Outliers$Proc.data
 
@@ -209,8 +212,20 @@ All.slopes<-get.calib.param(Calib.data.all, plot=T)
 
 plot(log(All.slopes$Slopes$Slope)~All.slopes$Slopes$Time)
 
+# there is one very strong outlier!
+which(abs(log(All.slopes$Slopes$Slope)-mean(log(All.slopes$Slopes$Slope), na.rm=T))>5*sd(log(All.slopes$Slopes$Slope), na.rm=T))
+
+Calib.data.all<-Calib.data.all[!Calib.data.all$Day%in% which(abs(log(All.slopes$Slopes$Slope)-mean(log(All.slopes$Slopes$Slope), na.rm=T))>5*sd(log(All.slopes$Slopes$Slope), na.rm=T)),]
+
+All.slopes<-get.calib.param(Calib.data.all, plot=T)
+
+plot(log(All.slopes$Slopes$Slope)~All.slopes$Slopes$Time)
+
+
+
+##########
 # Now we create 'parameters' object that will have all the details about the calibration
-Parameters<-All.slopes$Parameters # LogSlope -0.15 0.5
+Parameters<-All.slopes$Parameters # LogSlope -0.31 0.29
 Parameters$measurement.period<-Proc.data$measurement.period 
 Parameters$saving.period<-Proc.data$saving.period 
 Parameters$log.light.borders<-log(c(2, 64)) # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
@@ -237,8 +252,8 @@ Parameters$LogSlope_1_minute<-Parameters$LogSlope
 time_correction_fun= eval(parse(text=paste("function (x) return(", Parameters$LogSlope[1], ")")))
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun)
 
-#lat_correction_fun<-function(x, y, z) return(0)
-lat_correction_fun<-eval(parse(text=paste("function (x,y,z) return(", Parameters$LogSlope[2]^2/2, ")")))
+lat_correction_fun<-function(x, y, z) return(0)
+#lat_correction_fun<-eval(parse(text=paste("function (x,y,z) return(", Parameters$LogSlope[2]^2/2, ")")))
 
 Calibration$lat_correction_fun<-lat_correction_fun
 
@@ -308,7 +323,7 @@ all.in$Matrix.Index.Table$Decision<-0.1
 all.in$M.mean<-300
 
 # we also want to restrict irradiance values to c(-12, 5)
-#Calibration$Parameters$log.irrad.borders<-c(-12, 5)
+Calibration$Parameters$log.irrad.borders<-c(-12, 5)
 
 # the next step might have some time
 # with the current example it takes about 5 min at 24 core workstation
