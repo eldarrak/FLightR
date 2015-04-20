@@ -358,7 +358,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 			#------------------------------
 			# here is a change to sun declination from cosSolarDec..
 			#time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
-			time_correction=calibration$time_correction_fun(Twilight.time.vector[24], dusk)
+			time_correction=calibration$time_correction_fun(Twilight.time.vector[24], as.numeric(dusk))
 			}
 		}
 
