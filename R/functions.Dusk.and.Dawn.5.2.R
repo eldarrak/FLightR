@@ -631,10 +631,13 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
 		
-		if (!is.null(calibration)) {
-			time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+			if (is.null(calibration)) {
+			time_correction=Calib.param[1] # this is the only place where I use calib.param...
 			} else {
-			time_correction=Calib.param[1]
+			#------------------------------
+			# here is a change to sun declination from cosSolarDec..
+			#time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+			time_correction=calibration$time_correction_fun(Twilight.time.vector[24], as.numeric(dusk))
 			}
 		
 		if (return.slopes) {
