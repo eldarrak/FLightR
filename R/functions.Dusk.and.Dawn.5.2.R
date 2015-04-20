@@ -355,8 +355,10 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 			if (is.null(calibration)) {
 			time_correction=Calib.param[1] # this is the only place where I use calib.param...
 			} else {
-
-			time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+			#------------------------------
+			# here is a change to sun declination from cosSolarDec..
+			#time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+			time_correction=calibration$time_correction_fun(Twilight.time.vector[1])
 			}
 		}
 
@@ -771,3 +773,16 @@ Phys.Mat<-apply(Phys.Mat, 2, FUN=function(x) {x[x<=1e-70]=1e-70; return(x)})
 return(Phys.Mat)
 }
 
+
+get.declination<-function(Dates) {
+
+if (is.numeric(Dates[1])) Dates<-as.POSIXct(Dates, tz="UTC", origin="1970-01-01")
+
+n=as.numeric(Dates-c(as.POSIXct("2000-01-01 12:00:00", tz="UTC")))
+L=280.460+0.9856474*n
+g=357.528+0.9856003*n
+Lambda=(L+1.915*sin(g/180*pi)+0.020*sin(2*g/180*pi))%%360
+epsilon = 23.439 - 0.0000004* n 
+Dec = asin(sin(epsilon/180*pi)*sin(Lambda/180*pi))*180/pi
+return(Dec)
+}
