@@ -689,6 +689,7 @@ Slopes.sd<-c(Slopes.sd, sqrt(vcov(Lm)[4]))
 Intercept=c(Intercept, coef(Lm)[1])
 Sigma<-c(Sigma, summary(Lm)$sigma)
 Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
+Time<-c(Time,ifelse(cur.data$type[cur.data$fTwilight==i][1]=="Dusk", max(cur.data$Time[cur.data$fTwilight==i]), min(cur.data$Time[cur.data$fTwilight==i])))
 }
 #plot(cur.slope$slope~Slopes)
 #plot(cur.slope$sd~Slopes.sd)
@@ -708,9 +709,9 @@ if (plot) hist(log(cur.slope$slope))
 Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope$sd, na.rm=T))
 
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
-cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
+#cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
 
-Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=cur.slope$time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type))
+Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=Time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type))
 return(Res) 
 }
 
