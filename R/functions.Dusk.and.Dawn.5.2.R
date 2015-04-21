@@ -95,7 +95,7 @@ get.Irradiance<-function(alpha, r=6378, s=6.9) {
 get.Irradiance<-cmpfun(get.Irradiance)
 # the new idea is that we will give a vector of coordinates...
 
-logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot=T, log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T) {
+logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot=T, log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=T) {
 
 	# =================
 	# in this function I'll add a new lnorm calibration...
@@ -124,7 +124,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
 cat("checking dawn", dawn, "\n" )
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
-		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn])
+		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
 		cat ("dawn", dawn, "was excluded from the calibration\n")
 		} else {
@@ -138,7 +138,7 @@ cat("checking dawn", dawn, "\n" )
 cat("checking dusk", dusk, "\n" )
 
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
-		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=T,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk])
+		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=T,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
 #print(str(Data)	)
 		if (length(Data)==0) {
 		cat ("dusk", dusk, "was excluded from the calibration\n")
@@ -199,9 +199,9 @@ cat("checking dusk", dusk, "\n" )
 }
 
 # ok now we need template.calibration.function..
-logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot=T) {
+logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot=T, impute.on.boundaries=T) {
 	
-	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot=plot)
+	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot=plot,impute.on.boundaries=impute.on.boundaries)
 	
 	# for lme
 	#Calibration.simple<-summary(m1)$tTable[1,1:2]
@@ -285,10 +285,10 @@ get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light
 	}
 	
 # this will use the old idea about slopes..
-get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  delta=0, time_correction=NULL, Calib.param=NULL) {
+get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  delta=0, time_correction=NULL, Calib.param=NULL, impute.on.boundaries=T) {
 	if (is.null(time_correction) & is.null(Twilight.solar.vector)) stop ("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 	Probability=0
-	Data<-check.boundaries(x, Twilight.solar.vector=Twilight.solar.vector,  Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector)
+	Data<-check.boundaries(x, Twilight.solar.vector=Twilight.solar.vector,  Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector, impute.on.boundaries=impute.on.boundaries)
 	if (dim(Data)[1]>1) {
 	LogLight<-Data[,1]
 	LogIrrad<-Data[,2]
@@ -623,7 +623,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 
 check.boundaries<-cmpfun(check.boundaries)
 
-get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, log.light.borders=log(c(2,64)), calibration=NULL) {
+get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=T) {
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
@@ -641,9 +641,9 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 			}
 		
 		if (return.slopes) {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration)	
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)	
 			} else {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration)
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)
 		}
 		return(Current.probs)
 	}
