@@ -707,7 +707,8 @@ if (plot) hist(log(cur.slope$slope))
 
 Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope$sd, na.rm=T))
 
-cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
+#cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
+cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
 
 Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=cur.slope$time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type))
 return(Res) 

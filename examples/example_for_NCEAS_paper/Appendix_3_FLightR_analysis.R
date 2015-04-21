@@ -270,7 +270,7 @@ Calibration$lat_correction_fun<-lat_correction_fun
 # but one could use any other more complicated shape
 
 xlim = c(-120, -80)
-ylim = c(-5, 45)
+ylim = c(5, 45)
 
 
 Globe.Points<-regularCoordinates(200) # 50 km between each point
@@ -368,7 +368,7 @@ Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6), nParticles=
  plot=T, prefix="pf", extend.prefix=T, max.kappa=100, 
  min.SD=25, min.Prob=0.01, max.Prob=0.99, 
  fixed.parameters=list(M.mean=300, M.sd=500, Kappa=0), 
- cluster.type="SOCK", a=45, b=1500, L=90, update.angle.drift=F, adaptive.resampling=0.99, save.transitions=T, check.outliers=T)
+ cluster.type="SOCK", a=45, b=1500, L=90, update.angle.drift=F, adaptive.resampling=0.99, save.transitions=T, check.outliers=F)
 gc()
 
 save(Result, file="result.no.mask.RData")
