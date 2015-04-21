@@ -551,6 +551,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 			if(length(First.LogIrrad)==0) First.Time <-c()
 			if(length(Last.LogIrrad)==0) Last.Time <-c()
 			}
+	if (impute.on.boundaries) {
 	Imputing<-c() # Index for imputing
 	if (length(First.LogIrrad)==2) Imputing<-c(Imputing, 1)
 	if (length(Last.LogIrrad)==2) Imputing<-c(Imputing, 2)
@@ -603,7 +604,15 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 
 	Res<-cbind(c(Left.LogLight, LogLight[NotZero], Right.LogLight)[New.Index], c(Left.LogIrrad, LogIrrad[NotZero], Right.LogIrrad)[New.Index])
 	if (!is.null(Twilight.time.vector)) Res<-cbind(Res, c(Left.Time, Twilight.time.vector[NotZero], Right.Time)[New.Index])
-
+	} else {
+	Res<-cbind(LogLight[NotZero], LogIrrad[NotZero])
+	if (!is.null(Twilight.time.vector)) Res<-cbind(Res,  Twilight.time.vector[NotZero])
+	
+	}
+	
+	
+	
+	
 	if (verbose) print(Res)
 	# and now we want to return 
 	if (plot) {
