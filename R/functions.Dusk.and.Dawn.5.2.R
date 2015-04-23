@@ -695,6 +695,7 @@ Intercept=c()
 Sigma=c()
 Type=c()
 Time=c()
+sinSolarDec<-c()
 for (i in (unique(cur.data$fTwilight))) {
 # lm
 #plot(LogLight~LogIrrad, data=cur.data[cur.data$fTwilight==i,])
@@ -707,6 +708,8 @@ Intercept=c(Intercept, coef(Lm)[1])
 Sigma<-c(Sigma, summary(Lm)$sigma)
 Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
 Time<-c(Time,ifelse(cur.data$type[cur.data$fTwilight==i][1]=="Dusk", max(cur.data$Time[cur.data$fTwilight==i]), min(cur.data$Time[cur.data$fTwilight==i])))
+get.calib.param
+sinSolarDec=c(sinSolarDec, mean(cur.data$sinSolarDec, na.rm=T))
 }
 #plot(cur.slope$slope~Slopes)
 #plot(cur.slope$sd~Slopes.sd)
