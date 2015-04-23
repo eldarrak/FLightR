@@ -128,7 +128,7 @@ cat("checking dawn", dawn, "\n" )
 		if (length(Data)==0) {
 		cat ("dawn", dawn, "was excluded from the calibration\n")
 		} else {
-		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3], sinSolarDec=Data[,4]))	
+		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3], Elevs=Data[,4]))	
 		}		
 	}
 	Calib.data.dawn$type<-"Dawn"
@@ -143,7 +143,7 @@ cat("checking dusk", dusk, "\n" )
 		if (length(Data)==0) {
 		cat ("dusk", dusk, "was excluded from the calibration\n")
 		} else {
-		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3], sinSolarDec=Data[,4]))
+		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3], Elevs=Data[,4]))
 		}
 	}
 	Calib.data.dusk$type<-"Dusk"
@@ -606,14 +606,14 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (!is.null(Twilight.time.vector)) Res<-cbind(Res, c(Left.Time, Twilight.time.vector[NotZero], Right.Time)[New.Index])
 	
 	# I want to output angle values now..
-	Res<-cbind(Res, c(NA, Twilight.solar.vector$sinSolarDec[NotZero], NA)[New.Index])
+	Res<-cbind(Res, c(NA, Elevs[NotZero], NA)[New.Index])
 	
 	} else {
 	Res<-cbind(LogLight[NotZero], LogIrrad[NotZero])
 	if (!is.null(Twilight.time.vector)) Res<-cbind(Res,  Twilight.time.vector[NotZero])
 
 	# I want to output angle values now..
-	Res<-cbind(Res, Twilight.solar.vector$sinSolarDec[NotZero])
+	Res<-cbind(Res, Elevs[NotZero])
 
 	}
 	
@@ -695,7 +695,7 @@ Intercept=c()
 Sigma=c()
 Type=c()
 Time=c()
-sinSolarDec<-c()
+Elevs<-c()
 for (i in (unique(cur.data$fTwilight))) {
 # lm
 #plot(LogLight~LogIrrad, data=cur.data[cur.data$fTwilight==i,])
@@ -709,7 +709,7 @@ Sigma<-c(Sigma, summary(Lm)$sigma)
 Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
 Time<-c(Time,ifelse(cur.data$type[cur.data$fTwilight==i][1]=="Dusk", max(cur.data$Time[cur.data$fTwilight==i]), min(cur.data$Time[cur.data$fTwilight==i])))
 get.calib.param
-sinSolarDec=c(sinSolarDec, mean(cur.data$sinSolarDec[cur.data$fTwilight==i], na.rm=T))
+Elevs=c(Elevs, mean(cur.data$Elevs[cur.data$fTwilight==i], na.rm=T))
 }
 #plot(cur.slope$slope~Slopes)
 #plot(cur.slope$sd~Slopes.sd)
@@ -731,7 +731,7 @@ Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$In
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
 
-Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=Time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type, sinSolarDec=sinSolarDec))
+Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=Time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type, Elevs=Elevs))
 return(Res) 
 }
 
