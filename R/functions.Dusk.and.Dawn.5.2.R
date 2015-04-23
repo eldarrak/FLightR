@@ -128,7 +128,7 @@ cat("checking dawn", dawn, "\n" )
 		if (length(Data)==0) {
 		cat ("dawn", dawn, "was excluded from the calibration\n")
 		} else {
-		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3]))	
+		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3], sinSolarDec=Data[,4]))	
 		}		
 	}
 	Calib.data.dawn$type<-"Dawn"
@@ -143,7 +143,7 @@ cat("checking dusk", dusk, "\n" )
 		if (length(Data)==0) {
 		cat ("dusk", dusk, "was excluded from the calibration\n")
 		} else {
-		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3]))
+		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3], sinSolarDec=Data[,4]))
 		}
 	}
 	Calib.data.dusk$type<-"Dusk"
@@ -604,10 +604,17 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 
 	Res<-cbind(c(Left.LogLight, LogLight[NotZero], Right.LogLight)[New.Index], c(Left.LogIrrad, LogIrrad[NotZero], Right.LogIrrad)[New.Index])
 	if (!is.null(Twilight.time.vector)) Res<-cbind(Res, c(Left.Time, Twilight.time.vector[NotZero], Right.Time)[New.Index])
+	
+	# I want to output angle values now..
+	Res<-cbind(Res, c(NA, Twilight.solar.vector$sinSolarDec[NotZero], NA))
+	
 	} else {
 	Res<-cbind(LogLight[NotZero], LogIrrad[NotZero])
 	if (!is.null(Twilight.time.vector)) Res<-cbind(Res,  Twilight.time.vector[NotZero])
-	
+
+	# I want to output angle values now..
+	Res<-cbind(Res, Twilight.solar.vector$sinSolarDec[NotZero])
+
 	}
 	
 	
