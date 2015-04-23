@@ -31,7 +31,7 @@ require(rgdal)
 require(CircStats)
 
 require(devtools)
-install_github("eldarrak/FLightR")
+install_github("eldarrak/FLightR@current_stable_version")
 require(FLightR)
 
 ##IF WE POST THESE FOLDERS ONLINE SOMEWHERE, THEN THEY COULD READ DIRECTLY FROM THERE

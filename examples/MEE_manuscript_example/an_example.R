@@ -28,7 +28,7 @@ require(rgdal)
 require(CircStats)
 
 require(devtools)
-install_github("eldarrak/FLightR")
+install_github("eldarrak/FLightR@current_stable_version")
 require(FLightR)
 
 # for now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there...

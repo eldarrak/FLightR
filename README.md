@@ -9,7 +9,7 @@ the package is in the active development.
 to install the package try:
     
     require("devtools")
-    install_github("eldarrak/FLightR")
+    install_github("eldarrak/FLightR@current_stable_version")
 	library(FLightR)
 
 the help files and vignette for the package are still to come :(
