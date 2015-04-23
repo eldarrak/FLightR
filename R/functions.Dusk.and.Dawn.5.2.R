@@ -606,7 +606,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (!is.null(Twilight.time.vector)) Res<-cbind(Res, c(Left.Time, Twilight.time.vector[NotZero], Right.Time)[New.Index])
 	
 	# I want to output angle values now..
-	Res<-cbind(Res, c(NA, Twilight.solar.vector$sinSolarDec[NotZero], NA))
+	Res<-cbind(Res, c(NA, Twilight.solar.vector$sinSolarDec[NotZero], NA)[New.Index])
 	
 	} else {
 	Res<-cbind(LogLight[NotZero], LogIrrad[NotZero])
