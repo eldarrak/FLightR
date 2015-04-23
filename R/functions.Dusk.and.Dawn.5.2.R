@@ -367,19 +367,19 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		if (is.null(delta)) {
 		if (length(formals(calibration$lat_correction_fun))==1) {
 		delta=calibration$lat_correction_fun(x[2])} else {
-		delta=calibration$lat_correction_fun(x[2], Twilight.time.vector[1], calibration$Gamlatcalib) # have to check whether we always have time specified...
+		delta=calibration$lat_correction_fun(x[2], Twilight.time.vector[13]) # have to check whether we always have time specified...
 		}
 		}
 		#sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
 
 		# correction for both parameters
-		sum<-mean(dlnorm(test.Slope+time_correction, Expected.mean+delta, Calib.param[2]))
-
+		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
+		#cat("time corr", time_correction ,"Expected.mean+delta", Expected.mean+delta, "\n")
 		#-----------------------
 				# correct for cos Lat
 				# looks like cos is too much... should look at sqrt(cos)
 				#sum=sum*(cos(x[2]/180*pi))
-				sum=sum*(cos(x[2]/180*pi)^0.5)
+				#sum=sum*(cos(x[2]/180*pi)^0.5)
 				#-----------------------
 		
 				}
