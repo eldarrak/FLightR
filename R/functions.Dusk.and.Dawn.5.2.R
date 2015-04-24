@@ -469,10 +469,10 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	#}
 	# here there is a trick - there is an artificial light, that does happen sometimes... so we can't skipt the whole thing in case we have one point that is lower than the boundary..
 	
-	if (length(which(LogIrrad[NotZero]<log.irrad.borders[1] ))>0) {
+	#if (length(which(LogIrrad[NotZero]<log.irrad.borders[1] ))>0) {
 		# here we have stop for the case when the sky is too clear
-		return(matrix(nrow=0, ncol=0))
-	} else {
+	#	return(matrix(nrow=0, ncol=0))
+	#} else {
 	# protection from the next twilight - extracting consequent measurements
 	if (length(NotZero)>0) {
 #print(LogIrrad)
@@ -641,7 +641,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 
 	}
 	return(Res)
-	}
+	#}
 }
 
 check.boundaries<-cmpfun(check.boundaries)
