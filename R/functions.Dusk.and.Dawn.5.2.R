@@ -380,11 +380,6 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 				# looks like cos is too much... should look at sqrt(cos)
 				#sum=sum*(cos(x[2]/180*pi))
 				#sum=sum*(cos(x[2]/180*pi)^0.5)
-				
-				Lat_cor<-x[2]-get.declination(Twilight.time.vector[13])
-				Power<-1/(90-Lat_cor)
-				sum=sum^Power
-				
 				#-----------------------
 		
 				}
