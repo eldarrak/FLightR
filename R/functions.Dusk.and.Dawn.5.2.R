@@ -718,7 +718,7 @@ Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
 Time<-c(Time,ifelse(cur.data$type[cur.data$fTwilight==i][1]=="Dusk", max(cur.data$Time[cur.data$fTwilight==i]), min(cur.data$Time[cur.data$fTwilight==i])))
 get.calib.param
 Elevs=c(Elevs, mean(cur.data$Elevs[cur.data$fTwilight==i], na.rm=T))
-fDay=c(fDay, cur.data$fDay[cur.data$fTwilight==i][1])
+Day=c(Day, cur.data$Day[cur.data$fTwilight==i][1])
 }
 #plot(cur.slope$slope~Slopes)
 #plot(cur.slope$sd~Slopes.sd)
@@ -740,7 +740,7 @@ Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$In
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
 
-Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=Time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type, Elevs=Elevs, fDay=fDay))
+Res<-list(Parameters=Parameters, Slopes=data.frame(Slope=cur.slope$slope, Time=Time, Intercept=cur.slope$Intercept, Sigma=cur.slope$Sigma, Slopes.sd=Slopes.sd, Type=Type, Elevs=Elevs, Day=Day))
 return(Res) 
 }
 
