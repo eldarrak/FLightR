@@ -373,10 +373,10 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		#sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
 
 		# correction for both parameters
-		#sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
+		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
 		#-----------------
 		# new exp correction added 24 Apr 2015
-		sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2])*test.Slope)
+		#sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2])*test.Slope)
 		#cat("time corr", time_correction ,"Expected.mean+delta", Expected.mean+delta, "\n")
 		#-----------------------
 				# correct for cos Lat
