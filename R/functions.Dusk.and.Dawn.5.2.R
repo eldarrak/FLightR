@@ -703,7 +703,7 @@ Sigma=c()
 Type=c()
 Time=c()
 Elevs<-c()
-fDay<-c()
+Day<-c()
 for (i in (unique(cur.data$fTwilight))) {
 # lm
 #plot(LogLight~LogIrrad, data=cur.data[cur.data$fTwilight==i,])
