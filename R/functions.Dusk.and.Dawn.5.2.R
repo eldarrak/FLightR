@@ -89,7 +89,7 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=T) {
 	Res[(u<=0)]<-(exp(-u^2)/(1+erf(-u)))[(u<=0)]
 	Res[(u>0)]<-(exp(-u^2)/(erfc(u)))[(u>0)]
 	
-	if (intigeo.template.correction) Res[Res>0]=exp(log(Res[Res>0])*1.279+log(Res[Res>0])^2*0.091)
+	if (intigeo.template.correction) Res[Res>0.001]=exp(log(Res[Res>0.001])*1.279+log(Res[Res>0.001])^2*0.091)
 	
 	return(Res)
 }
