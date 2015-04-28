@@ -73,9 +73,8 @@
 
 require(compiler)
 
-#get.Irradiance<-function(alpha, r=6378, s=6.9, refraction.correction=F) {
 
-get.Irradiance<-function(alpha, r=6378, s=6.9) {
+get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=T) {
 	# function from Ekstrom 2007
 	erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
 	## (see Abramowitz and Stegun 29.2.29)
@@ -89,6 +88,9 @@ get.Irradiance<-function(alpha, r=6378, s=6.9) {
 	u<-sqrt(r/(2*s))*sin(alpha)
 	Res[(u<=0)]<-(exp(-u^2)/(1+erf(-u)))[(u<=0)]
 	Res[(u>0)]<-(exp(-u^2)/(erfc(u)))[(u>0)]
+	
+	if (intigeo.template.correction) Res=Res*1.215+Res^2*0.0741
+	
 	return(Res)
 }
 
