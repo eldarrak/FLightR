@@ -126,7 +126,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
 cat("checking dawn", dawn, "\n" )
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
-		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
+		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=T,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
 		cat ("dawn", dawn, "was excluded from the calibration\n")
 		} else {
@@ -440,7 +440,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		cat("Elevs:\n")
 		print(cbind(ID=1:length(LogLight), LogLight=LogLight, LogIrrad=LogIrrad))
 			}
-	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
+	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2]) 
 	# here we should make a new cut!
 	# the idea is that we want to find at least two consequent points at the maximum
 	Border.points<-which(LogLight>=log.light.borders[2])
@@ -607,6 +607,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 
 		}		
 	}
+
 	New.Index<-which(c(Left.LogIrrad, LogIrrad[NotZero], Right.LogIrrad)>log.irrad.borders[1])
 
 	if (verbose) {cat("nz\n"); print(NotZero)}
