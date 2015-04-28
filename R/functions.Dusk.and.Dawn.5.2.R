@@ -74,7 +74,7 @@
 require(compiler)
 
 
-get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=T) {
+get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=F) {
 	# function from Ekstrom 2007
 	erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
 	## (see Abramowitz and Stegun 29.2.29)
