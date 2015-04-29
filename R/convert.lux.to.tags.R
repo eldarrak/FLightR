@@ -13,5 +13,6 @@ convert.lux.to.tags<-function(file) {
 	# now I need to save as csv...
 	write.csv(Dat_new, file=paste(unlist(strsplit(file, ".lux")), "csv", sep="."), quote = F, row.names=F) 
 	cat("Success!\n")
+	cat("file", paste(unlist(strsplit(file, ".lux")), "csv", sep="."), "\nwas saved to", getwd(), "\n")
 	return(NULL)
 }
