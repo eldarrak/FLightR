@@ -424,7 +424,9 @@ get.current.slope.prob<-cmpfun(get.current.slope.prob)
 # the new idea is that for the calibration and for the real run we want to have one function that will detect notZero..
 # thi function should be able to work under the apply mode and return a dataframe with 2 columns:
 # LogLight, LogIrrad, but already filtered from all incorrect points...
-
+# so we have to normalize by cos(Lat)
+# this means that actual pdf should be divided by cos(Lat)
+# not sure this is really needed but why not to  try?
 
 # the new idea of the 12 version is to add imputed points from the boundary..
 
