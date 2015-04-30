@@ -11,7 +11,7 @@ convert.lux.to.tags<-function(file, log=T, log.light.borders=c(1,10)) {
 	Dat_new<-Dat
 	Dat_new$datetime<-format(Dat_new$datetime, format="%Y-%m-%d %H:%M:%S")
 	
-	if (log=T) {
+	if (log) {
 	Dat_new$light<-log(Dat_new$light)
 	
 	if (!is.null(log.light.borders)) {
