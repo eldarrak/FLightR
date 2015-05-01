@@ -414,7 +414,10 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 				print(calibration$Parameters)
 				}
         }
-		} else {Probability<-0} # this is done for testing purposes only...
+		} else {
+		Probability<-0
+		if (return.slopes) Probability<-c(Probability, NA, NA)
+		} # this is done for testing purposes only...
 
 	return(Probability)
 }
