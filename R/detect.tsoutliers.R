@@ -88,10 +88,10 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15)
  cat("cval adjusted to", Cval, "\n")
  }
  
- if (nrow(mo2$outliers)>length(Lons)*0.2) {
+ if (nrow(mo2$outliers)>length(Lons)*max.outlier.proportion) {
  cat("adjusting cval up\n")
  Cval=3.5
- while(nrow(mo2$outliers)>length(Lons)*0.2) {
+ while(nrow(mo2$outliers)>length(Lons)*max.outlier.proportion) {
  Cval=Cval*1.05
  mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15, cval=Cval)
  } 
