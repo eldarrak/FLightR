@@ -6,7 +6,6 @@ Date: 2015-05-18
 Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contribution of Anatoly Saveliev
 Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
 Description: The scope of the package is to position animal using data from solar geolocation tags
-
 URL: http://github.com/eldarrak/FLightR
 BugReports: http://github.com/eldarrak/FLightR/issues
 Depends:
