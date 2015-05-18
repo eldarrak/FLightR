@@ -11,5 +11,5 @@ print.FLightR.version <- function()
 }
 
 .onAttach <- function(...) { 
-	print.RMark.version()
+	print.FLightR.version()
 }
