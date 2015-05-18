@@ -27,6 +27,5 @@ Imports:
     aspace,
     rgdal,
     CircStats
-
 License: GNU GPL v3.0
 
