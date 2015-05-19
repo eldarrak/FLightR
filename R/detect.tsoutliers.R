@@ -282,7 +282,7 @@ if (plot) {
 par(mfrow=c(2,1))
 plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="UTC", origin="1970-01-01"), main="Dusk")
 abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
-plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,]), main="Dawn")
+plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,], tz="UTC", origin="1970-01-01"), main="Dawn")
 abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
 }
 Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-Dusk.outliers]
