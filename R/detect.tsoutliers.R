@@ -280,7 +280,7 @@ Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F, max.outlier.proportion=max
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 par(mfrow=c(2,1))
-plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,],, tz="UTC", origin="1970-01-01")), main="Dusk")
+plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="UTC", origin="1970-01-01"), main="Dusk")
 abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
 plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,]), main="Dawn")
 abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
