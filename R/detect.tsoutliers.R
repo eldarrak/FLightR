@@ -22,7 +22,7 @@ Points.Land<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
 	+5, length.out=100), 0, 1)
 	Points.Land[,1]<-Points.Land[,1]%%360
 	} else {
-	Points.Land<-cbind(seq(center-30, center+30, by=0.1), 0, 1)
+	Points.Land<-cbind(seq(center-45, center+45, by=0.1), 0, 1)
 	Points.Land[,1]<-Points.Land[,1]%%360
 	}
 Current.probs1<-	apply(Points.Land, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
@@ -214,9 +214,9 @@ Dawn.obvious.outliers<-which(tsoutliers.test(Lons.dawn)>1.5)
 Problematic.Dawns<-loess.filter(x=Proc.data$Twilight.time.mat.dawn[25,], y=Lons.dawn, k=3, exclude=Dawn.obvious.outliers)
 
 par(mfrow=c(2,1))
-plot(x=Proc.data$Twilight.time.mat.dusk[25,], y=Lons.dusk, pch="+")
+plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dusk[25,], tz="UTC", origin="1970-01-01"), y=Lons.dusk, pch="+")
 if (length(Problematic.Dusks$outliers) >0) abline(v=Proc.data$Twilight.time.mat.dusk[25,Problematic.Dusks$outliers])
-plot(x=Proc.data$Twilight.time.mat.dawn[25,], y=Lons.dawn, pch="+")
+plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dawn[25,], tz="UTC", origin="1970-01-01"), y=Lons.dawn, pch="+")
 if (length(Problematic.Dawns$outliers) >0) abline(v=Proc.data$Twilight.time.mat.dawn[25,Problematic.Dawns$outliers])
 
 # for these points I'd like to rerun the estimation..
@@ -280,9 +280,9 @@ Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F, max.outlier.proportion=max
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 par(mfrow=c(2,1))
-plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,], main="Dusk")
+plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,],, tz="UTC", origin="1970-01-01")), main="Dusk")
 abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
-plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,], main="Dawn")
+plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,]), main="Dawn")
 abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
 }
 Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-Dusk.outliers]
