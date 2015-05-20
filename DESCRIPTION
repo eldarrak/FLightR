@@ -9,8 +9,7 @@ Description: The scope of the package is to position animal using data from sola
 URL: http://github.com/eldarrak/FLightR
 BugReports: http://github.com/eldarrak/FLightR/issues
 Depends:
-    R (>= 3.0.2)
-Imports:
+    R (>= 3.0.2),
     GeoLight,
     maptools,
     rgeos,
