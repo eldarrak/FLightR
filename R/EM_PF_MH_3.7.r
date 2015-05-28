@@ -67,14 +67,8 @@
 # version 0.1 May 10 2012
 # stage 0!
 # add geogr.proposal..
-require(compiler)
-enableJIT(3)
 
 
-
-generate.points.dirs<-cmpfun(generate.points.dirs)
-
-pf.final.smoothing<-cmpfun(pf.final.smoothing)
 
 #Res<-geologger.pf(all.out)
 # now wen need to plot results..
