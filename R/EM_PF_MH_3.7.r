@@ -93,7 +93,6 @@ plot.optimisation.results<-function(object, all.arrays.object, add=F, col="red",
 }
 
 
-return.matrix.from.char<-cmpfun(return.matrix.from.char)
 
 
 # new type of plot.optim.results..
@@ -115,10 +114,8 @@ plot.final.track<-function(all.out, add=F, col="red", map.fill=T, pch=3) {
 
 
 
-pf.par.internal<-cmpfun(pf.par.internal)
 
 
-my.dvonmises<-cmpfun(my.dvonmises)
 
 
 
@@ -131,14 +128,12 @@ my.dvonmises<-cmpfun(my.dvonmises)
 
 # 1. so I want to use weights from just the last point.
 # 
-pf.run.parallel.SO.resample<-cmpfun(pf.run.parallel.SO.resample)
 
 
 get.transition.rle=function(From, To) {
   rle(sort.int(From*1e5+To, method = "quick"))
 }
 
-get.transition.rle<-cmpfun(get.transition.rle)
 
 # 
 # mu.sigma.truncnorm<-function(points.current, dists, dists.real, azimuths, phys.proposal, Points.Land, point_ID, a=45, b=500, Current.mean, Current.sd, nonZero.Points) {
@@ -197,7 +192,6 @@ get.transition.rle<-cmpfun(get.transition.rle)
 # }
 
 
-mu.sigma.truncnorm<-cmpfun(mu.sigma.truncnorm)
 
 
 require(sp)
@@ -240,7 +234,6 @@ get.angle.drift<-function(in.Data, plot=F) {
   return(data.frame(Mean=Mean.angle.drift, SD=SD.angle.drift))
 }
 
-get.angle.drift<-cmpfun(get.angle.drift)
 # usage:
 #Angle.drift<-get.angle.drift(in.Data)
 
@@ -317,14 +310,12 @@ sun.matrix.internal<-function(Matrix.Index.Table.Row, Points.Land) {
   return(Res)
 }
 
-sun.matrix.internal<-cmpfun(sun.matrix.internal)
 #Z<-sun.matrix.internal(in.Data$Matrix.Index.Table[1,], in.Data$Points.Land)
 node.run<-function(x=x) {
   Points.Land<-get("Points.Land", globalenv())
   return(sun.matrix.internal(x, Points.Land))
 }
 
-node.run<-cmpfun(node.run)
 
 
 #================================================
@@ -354,13 +345,11 @@ create.spatial.sun.matrices<-function(in.Data, cpus=7, cluster.type="SOCK", exis
   return(Res)
 }
 
-create.spatial.sun.matrices<-cmpfun(create.spatial.sun.matrices)
 
 
 # the next function will be one to estimate LL
 
 
-get.LL.PF<-cmpfun(get.LL.PF)
 
 get.optimization.SD<-function(all.out.old, all.out, return.values=F) {
   require("sp")
@@ -371,7 +360,6 @@ get.optimization.SD<-function(all.out.old, all.out, return.values=F) {
   } else {return(sd(Dists))}
 }
 
-get.optimization.SD<-cmpfun(get.optimization.SD)
 
 
 EM.PF.wrapper<-function(all.out, iterations=10, save.Res=T, cpus=24, nParticles=1e6, known.last=T, precision.sd=25, sea.value=0.00, save.memory=T, k=NA, parallel=T, plot.each.iter=T, prefix="EMPF", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, start.new.optimization.SD=T, save.points.distribution=T, max.attempts=5, node.mode=F, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, sink2file=T, L=25, update.angle.drift=T, adaptive.resampling=0.5, RStudio=F, save.transitions=T, check.outliers=F) {
@@ -537,7 +525,6 @@ EM.PF.wrapper<-function(all.out, iterations=10, save.Res=T, cpus=24, nParticles=
   return(all.out)
 }
 
-EM.PF.wrapper<-cmpfun(EM.PF.wrapper)
 ###################################
 # now we also need a function that will estimate
 # SD of movement between iterations
@@ -646,7 +633,6 @@ EM.PF.safe.ram.wrapper<-function(all.out, iterations=10, save.Res=T, cpus=40, nP
   return(all.out)
 }
 
-EM.PF.safe.ram.wrapper<-cmpfun(EM.PF.safe.ram.wrapper)
 
 
 ## function to get optimization coefficient...
