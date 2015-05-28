@@ -61,6 +61,56 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 }
 
 
+generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
+  # this function is needed to generate new points - it works as from input point Index and biological proposal
+  ################
+  # x has 3 columns
+  # Index
+  # number
+  # nMoving
+ # here is the important change for the mask started in vesion 3.0
+ # the new idea is that we wnat to set probabilities of stop to 0 in case the bird is flying over the restricted habitat..
+  
+  resample <- function(x, ...) x[sample.int(length(x), ...)]
+  
+  if (x[[3]]>0) {
+	# here is the addition of clever mask
+	#if (in.Data$Points.Land[x[[1]],3]==0) x[[3]]=x[[2]]
+	# end of addition
+    Dists.distr<-in.Data$distance[x[[1]],]
+    Dists.probs<-truncnorm:::dtruncnorm(Dists.distr, a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
+    ###
+    #  library(fields)
+    # dists
+    #image.plot(as.image(Dists.probs, x=in.Data$Points.Land, nrow=50, ncol=50))
+    #
+    if (Current.Proposal$Kappa>0) {
+      Angles.dir<-in.Data$Azimuths[x[[1]],]
+      Angles.probs<-as.numeric(suppressWarnings(circular:::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
+      Angles.probs[is.na(Angles.probs)]<-0
+    }
+    else {
+      Angles.probs<-0.1591549
+    }
+    # this is neede to catch an error 
+    if (which.max(c(min(c(Angles.probs, Dists.probs)), 0))==2) {
+      cat("PF produced weird probs \n")
+      tmp.out<-list(Angles.probs=Angles.probs, Dists.probs=Dists.probs, Current.Proposal=Current.Proposal, Data=x)
+      save(tmp.out, file=paste("tmp.out", round(runif(n=1,min=1, max=1000)), "RData", sep="."))
+      Biol.proposal<-pmax.int(Dists.probs*Angles.probs, 0)
+    } else {
+      Biol.proposal<-Dists.probs*Angles.probs
+    }
+    pos.biol<-suppressWarnings(sample.int(length(Biol.proposal), size=x[[3]], replace=T, prob=Biol.proposal))
+    # ok, now we want to return more complicated stuff - final indexes!
+    return(resample(as.integer(c(pos.biol, rep(x[[1]],(x[[2]]-x[[3]]))))))
+  }
+  else {
+    return(as.integer(rep(x[[1]],(x[[2]]))))
+  }
+}
+
+
 pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.last=T, precision.sd=25, sea.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
   # this dunction is doing main job. it works on the secondary master
   ### to make algorhytm work in a fast mode w/o directional proposal use k=NA
@@ -504,7 +554,6 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	in.Data$Quantiles<-Quantiles
    return(in.Data)
 }
-get.coordinates.PF<-cmpfun(get.coordinates.PF)
 
 
 estimate.movement.parameters<-function(output.matrix, Trans, in.Data, save.transitions=F, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F) {
@@ -677,55 +726,6 @@ get.LL.PF<-function(in.Data, All.results.mat) {
   return(LL)
 }
 
-
-generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
-  # this function is needed to generate new points - it works as from input point Index and biological proposal
-  ################
-  # x has 3 columns
-  # Index
-  # number
-  # nMoving
- # here is the important change for the mask started in vesion 3.0
- # the new idea is that we wnat to set probabilities of stop to 0 in case the bird is flying over the restricted habitat..
-  
-  resample <- function(x, ...) x[sample.int(length(x), ...)]
-  
-  if (x[[3]]>0) {
-	# here is the addition of clever mask
-	#if (in.Data$Points.Land[x[[1]],3]==0) x[[3]]=x[[2]]
-	# end of addition
-    Dists.distr<-in.Data$distance[x[[1]],]
-    Dists.probs<-truncnorm:::dtruncnorm(Dists.distr, a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
-    ###
-    #  library(fields)
-    # dists
-    #image.plot(as.image(Dists.probs, x=in.Data$Points.Land, nrow=50, ncol=50))
-    #
-    if (Current.Proposal$Kappa>0) {
-      Angles.dir<-in.Data$Azimuths[x[[1]],]
-      Angles.probs<-as.numeric(suppressWarnings(circular:::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
-      Angles.probs[is.na(Angles.probs)]<-0
-    }
-    else {
-      Angles.probs<-0.1591549
-    }
-    # this is neede to catch an error 
-    if (which.max(c(min(c(Angles.probs, Dists.probs)), 0))==2) {
-      cat("PF produced weird probs \n")
-      tmp.out<-list(Angles.probs=Angles.probs, Dists.probs=Dists.probs, Current.Proposal=Current.Proposal, Data=x)
-      save(tmp.out, file=paste("tmp.out", round(runif(n=1,min=1, max=1000)), "RData", sep="."))
-      Biol.proposal<-pmax.int(Dists.probs*Angles.probs, 0)
-    } else {
-      Biol.proposal<-Dists.probs*Angles.probs
-    }
-    pos.biol<-suppressWarnings(sample.int(length(Biol.proposal), size=x[[3]], replace=T, prob=Biol.proposal))
-    # ok, now we want to return more complicated stuff - final indexes!
-    return(resample(as.integer(c(pos.biol, rep(x[[1]],(x[[2]]-x[[3]]))))))
-  }
-  else {
-    return(as.integer(rep(x[[1]],(x[[2]]))))
-  }
-}
 
 pf.par.internal<-function(x, Current.Proposal) {
   # this simple function is needed to save I/0 during parallel run. Being executed at a slave it creates inoput for the next function taking Current proposal from the slave and Parameters from the master
