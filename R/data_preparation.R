@@ -268,3 +268,50 @@ points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slop
 lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
 #invisible()
 }
+
+# this function will correct time values to make them not crossing 0.
+correct.hours<-function(datetime) {
+	# this function is supposed to correct hours by adding some amount of them.
+   hours <- as.numeric(format(datetime,"%H"))+as.numeric(format(datetime,"%M"))/60
+   hours[as.POSIXlt(datetime)$isdst==1] <-hours[as.POSIXlt(datetime)$isdst==1]-1
+	cor <- rep(NA, 24)
+	for(i in 0:23){
+		cor[i+1] <- max(abs((c(hours[1],hours)+i)%%24 - 
+		            (c(hours,hours[length(hours)])+i)%%24),na.rm=T)
+	}
+	hours <- (hours + (which.min(round(cor,2)))-1)%%24
+	return(hours)
+}
+
+make.result.list<-function(Data, raw.X, raw.Y) {
+	Int<-c(min(raw.Y), max(raw.Y))
+	Index<-sapply(raw.X,  FUN=function(x) which.min(abs(as.numeric(Data$d$gmt-x))))
+	Res<-Data$d[Index,]
+	# now I want to adjust time and light
+	Res$light<-approx(x=Data$d$gmt, y=Data$d$light, xout=raw.X)$y
+	Res$gmt<-raw.X
+	Res$Hour<-raw.Y
+	Result<-list(Data=Res)
+	Result$Data$gmt.adj<-Result$Data$gmt
+	Result$Data$gmt<-as.POSIXct(Result$Data$gmt, tz="UTC", origin="1970-01-01")
+	Result$Data$gmt.adj<-as.POSIXct(Result$Data$gmt.adj, tz="UTC", origin="1970-01-01")
+	return(Result)
+}
+
+make.processed.light.object<-function(FLightR.data) {
+# dusk
+raw.Y.dusk<-correct.hours(FLightR.data$twilights$datetime[FLightR.data$twilights$type==2 & FLightR.data$twilights$excluded==0])
+raw.X.dusk<-as.numeric(FLightR.data$twilights$datetime[FLightR.data$twilights$type==2 & FLightR.data$twilights$excluded==0])
+Data_tmp<-list(d=FLightR.data$Data)
+Result.Dusk<-make.result.list(Data_tmp, raw.X.dusk, raw.Y.dusk)
+
+# dusk
+raw.Y.dawn<-correct.hours(FLightR.data$twilights$datetime[FLightR.data$twilights$type==1 & FLightR.data$twilights$excluded==0])
+raw.X.dawn<-as.numeric(FLightR.data$twilights$datetime[FLightR.data$twilights$type==1 & FLightR.data$twilights$excluded==0])
+Result.Dawn<-make.result.list(Data_tmp, raw.X.dawn, raw.Y.dawn)
+
+# combine
+processed.light<-list(Final.dusk=Result.Dusk, Final.dawn=Result.Dawn)
+
+return(processed.light)
+}
