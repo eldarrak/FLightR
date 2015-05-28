@@ -1,145 +1,84 @@
-# ver 5.2 now I want to provide lat and time correction functions for every run and not to use the directory with saved files..
-# so the calibration object now should have 
-#	$time_correction_fun
-#	$lat_correction_fun
+# spatial_likelihood_estiamtion.R
 
 
-# ver 5.1 will work with a new formalized calibration..
-# there will be two functions one for time correction and one for Lat correction.
-# time_correction_fun, file="time_correction_fun_600.RData")
-# the correction shows what would be the estimated mean if you had cosSolarDec like that..
-# so we could add a time_correction argument that will be jsut a number..
+get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL ) {
+
+# let's say we have to submit all boundaries inside tha calibration object..
+
+if (is.character(all.out)) all.out=get("all.out")
+if (is.character(Twilight.time.mat.dusk)) Twilight.time.mat.dusk=get("Twilight.time.mat.dusk")
+if (is.character(Twilight.time.mat.dawn)) Twilight.time.mat.dawn=get("Twilight.time.mat.dawn")
+if (is.character(Twilight.log.light.mat.dusk)) Twilight.log.light.mat.dusk=get("Twilight.log.light.mat.dusk")
+if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("Twilight.log.light.mat.dawn")
+if (is.character(calibration)) calibration=get("calibration")
 
 
+Points.Land<-all.out$Points.Land
+
+cat("making cluster\n")
+mycl <- parallel:::makeCluster(Threads)
+    tmp<-parallel:::clusterSetRNGStream(mycl)
+    tmp<-parallel:::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Points.Land", "calibration"), envir=environment())
+    tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
+
+#====================
+cat("estimating dusks\n")
+
+	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
+	
+	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Points.Land=Points.Land, calibration=calibration)
+		 	
+cat("estimating dawns\n")
+	 
+	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
+		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Points.Land=Points.Land, calibration=calibration)
+stopCluster(mycl)
+
+cat("processing results\n")
+All.probs.dusk.tmp<-All.probs.dusk
+All.probs.dawn.tmp<-All.probs.dawn
+	Phys.Mat<-c()
+for (i in 1:nrow(all.out$Matrix.Index.Table)) {
+	if (all.out$Matrix.Index.Table$Dusk[i]) {
+		Phys.Mat<-cbind(Phys.Mat, All.probs.dusk.tmp[,1])
+		All.probs.dusk.tmp<-as.matrix(All.probs.dusk.tmp[,-1])
+		} else {
+		Phys.Mat<-cbind(Phys.Mat, All.probs.dawn.tmp[,1])
+		All.probs.dawn.tmp<-as.matrix(All.probs.dawn.tmp[,-1])
+		}
+}
+
+Phys.Mat<-apply(Phys.Mat, 2, FUN=function(x) {x[x<=1e-70]=1e-70; return(x)})
+
+return(Phys.Mat)
+}
 
 
-
-# 5.0 is based on the 4.0.d version. the addition is correction for time and latitude with GAM - I will first try to add gam without hte saving.period and will jsut assume that saving.period is 600..
-# Also the parameters for the input should be changed to 0.67 and 0.4 (from 0.21 and 0.4)
+get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=T) {
  
-# new 4.0.d will get cos(Lat) and then I'll go for a new gam - lat estimation
-# 4.0.d now has got delta - this is a parameter we want to optimize..
-# ver 4.0.b - just an attempt to use onoly one value - but not the distribution from LM
-# ver 4.0 is version 3.4 with small changes taken from 4.0
-#changed slope only prediction to density function.
-# ver. 3.4 decided to make a better cutting off as we need to cut if there are 3 or more consequent values at the boundary.. at least two!
-
-# ver 3.3 decided to try joint distribution of slope and Intercept
-
-# ver.3.2 adding integration of intecept..
-# ver.3.1 new model without any interactions.. based on general calibration
-
-
-# 2.22  decided to try to delete interaction as it is probably not optimized welll..
-
-# 2.21 - decide to try make boundary imputing better by making it at the log mean but not the log..
-# 2.20 decided to multiply variances. to make sd of slope 0.15
-# 
-
-# 2.16 DECIDED TO ADD A TRUNCATION POINT..
-# ver 15 - follows ver 13 22-10-2013 
-# decided to combine the two models in one
-# the idea is very simple - we just run the slope model then take the esitmated intercept velues and look at their distribution..
-# the intercept model should be taken from that results..
-
-# ver 13 - SAA interaction added.
-# ver 12 - addition of SAA random effects integration.
-
-## in this version I'll try to use an interaction of slope and intercept..
-
-## in the version 10 I'll try to use both distribution - intercept and slope..
-
-## in the new set of functions i'll focus on the correct mixed model and predictions from it.. 
-## the basic idea is following:
-## 1. during the calibration we will figure out how what is the slope of the base line..
-## 2. the we will run a mixed model on the corrected for slope estimates
-## 3. from this model we will get the distribution of slopes
-## 4. for each day we will do a simple gamma regression and the will estimate the probability of the current slope..
-
-# July 1 2013
-# the new idea is that we could try to optimize the distribution of errors during the template fitting..
-# sfor this we have to do more complicated calibration that will estimate separate thresholds but the joint shape of the distribution..
-# I am not sure I know how can we do this..
-# on of the ways will be 
-
-## 24 June 2013
-## Now I have decided to go for the lognormal distibution of errors...
-## the idea is that error between the real twilight and clear sky twiligt should be 0 in case there is no error and should follow the lognormal distribution otherwise...
-## so we will have to estimate parameters of the main distribution and then estimate values for the real points...
-## how we will do that?
-## 1. we need to calibrate logger again in a new way that will allow us to extract parameters of the distribution during calibration..
-## 2. we also can add a refraction
-
-
-require(compiler)
-
-get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders=NA, diap=c(-600, 600), plot=T,  log.irrad.borders=c(-15, 50), verbose=F) {
-
-	# this version will try to make slope difference insignificant..
-	# will try to make this criteria as the main.
-
-	# for now - very simple function:
-	# 3 loops - minutes - 10 seconds - seconds..
-	# 	# we may want to do it with optim..
-	x<-list(start[1], start[2])
-	get.time.shift.internal<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders, diap, Step=1, plot,  log.irrad.borders=c(-8, 1.5)) {
-		Final<-c()
-		for (i in seq(diap[1], diap[2], Step)) {
-#	cat("i", i, "Step", Step, "\n")	
-			Calibration<-try(logger.template.calibration(Twilight.time.mat.Calib.dawn+i, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+i, Twilight.log.light.mat.Calib.dusk, positions=start, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders))
-			
-			# and now I want to estimate LL that the bird was in the known location
-			LL<-0
-			All<- Inf
-			
-			# now combining all data together
-			Twilight.time.mat.Calib<-cbind(Twilight.time.mat.Calib.dawn, Twilight.time.mat.Calib.dusk)
-			Dusk<-c(rep(FALSE, dim(Twilight.time.mat.Calib.dawn)[2]), rep(TRUE, dim(Twilight.time.mat.Calib.dusk)[2]))
-			Twilight.log.light.mat.Calib<-cbind(Twilight.log.light.mat.Calib.dawn, Twilight.log.light.mat.Calib.dusk)
-			
-			for (Twilight.ID in 1:(dim(Twilight.time.mat.Calib)[2])) {
-			#print(Twilight.ID )
-			Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib[c(1:24, 26:49), Twilight.ID]+i, tz="gmt", origin="1970-01-01"))
-			Twilight.log.light.vector<-Twilight.log.light.mat.Calib[c(1:24, 26:49), Twilight.ID]
-			Res<-get.current.slope.prob(x, calibration=Calibration,  Twilight.solar.vector=Twilight.solar.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, dusk=Dusk[Twilight.ID])
-			#cat("Twilight.ID", Twilight.ID, "Res", Res, "\n")
-			if (is.na(Res) | Res==0 ) {
-			Res<-get.current.slope.prob(x, calibration=Calibration,  Twilight.solar.vector=Twilight.solar.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=T,  log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, dusk=Dusk[Twilight.ID])
-			
-			break
-
-			} 
-			LL<-LL+log(Res)
-			All<-c(All, Res)
-		}
-#print(length(All))
-#print(All)
-#print((dim(Twilight.time.mat.Calib)[2]))		
-		if (length(All)<=(dim(Twilight.time.mat.Calib)[2])) {
-		All=-Inf;
-		LL=-Inf
-		}
-		Final=rbind(Final, cbind(i, LL, min(All),  Calibration$Significance.of.dusk.dawn.diff))
-		if (TRUE) print(Final)
-		}
-		return(Final)
-		}
+		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
-	# minutes
-	Final.min<-get.time.shift.internal(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders, diap=diap, Step=60, plot=F, log.irrad.borders=log.irrad.borders)
-	cat("\n")
-	if (max(Final.min[,2])==-Inf) stop("something went wrong\n more likely that the logger was not stable during the calibration time\n exclude some of the twilights and try again\n")
-	#Diap.10.sec<-c(Final.min[which.max(Final.min[,4]),1]-60, Final.min[which.max(Final.min[,4]),1]+60)
-	Diap.10.sec<-c(Final.min[which.max(Final.min[,2]),1]-60, Final.min[which.max(Final.min[,2]),1]+60)
-	Final.10secs.min<-get.time.shift.internal(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders, diap=Diap.10.sec, Step=10,  log.irrad.borders= log.irrad.borders)
-	
-	Diap.1.sec<-c(Final.10secs.min[which.max(Final.10secs.min[,2]),1]-10, Final.10secs.min[which.max(Final.10secs.min[,2]),1]+10)
-	Final.1sec.min<-get.time.shift.internal(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders, diap=Diap.1.sec, Step=1,  log.irrad.borders= log.irrad.borders)
-	
-	return(Final.1sec.min[which.max(Final.1sec.min[,2]),1])
+		Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
+		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
+		
+			if (is.null(calibration)) {
+			time_correction=Calib.param[1] # this is the only place where I use calib.param...
+			} else {
+			#------------------------------
+			# here is a change to sun declination from cosSolarDec..
+			#time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
+			time_correction=calibration$time_correction_fun(get.declination(Twilight.time.vector[24]), as.numeric(dusk))
+			}
+		
+		if (return.slopes) {
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)	
+			} else {
+		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)
+		}
+		return(Current.probs)
 	}
-	
-# this will use the old idea about slopes..
+
 get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  delta=0, time_correction=NULL, Calib.param=NULL, impute.on.boundaries=T) {
 	if (is.null(time_correction) & is.null(Twilight.solar.vector)) stop ("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 	Probability=0
@@ -275,16 +214,6 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 	return(Probability)
 }
 
-
-get.current.slope.prob<-cmpfun(get.current.slope.prob)
-# the new idea is that for the calibration and for the real run we want to have one function that will detect notZero..
-# thi function should be able to work under the apply mode and return a dataframe with 2 columns:
-# LogLight, LogIrrad, but already filtered from all incorrect points...
-# so we have to normalize by cos(Lat)
-# this means that actual pdf should be divided by cos(Lat)
-# not sure this is really needed but why not to  try?
-
-# the new idea of the 12 version is to add imputed points from the boundary..
 
 check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=T, Twilight.time.vector=NULL) {
 # this function...
@@ -504,106 +433,4 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	#}
 }
 
-check.boundaries<-cmpfun(check.boundaries)
 
-get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Points.Land, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=T) {
- 
-		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
-		
-		Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
-		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
-		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
-		
-			if (is.null(calibration)) {
-			time_correction=Calib.param[1] # this is the only place where I use calib.param...
-			} else {
-			#------------------------------
-			# here is a change to sun declination from cosSolarDec..
-			#time_correction=calibration$time_correction_fun(Twilight.solar.vector$cosSolarDec[1])
-			time_correction=calibration$time_correction_fun(get.declination(Twilight.time.vector[24]), as.numeric(dusk))
-			}
-		
-		if (return.slopes) {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)	
-			} else {
-		Current.probs<-	apply(Points.Land, 1, get.current.slope.prob,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)
-		}
-		return(Current.probs)
-	}
-	
-get.prob.surface<-cmpfun(get.prob.surface)	
-
-get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL ) {
-
-# let's say we have to submit all boundaries inside tha calibration object..
-
-if (is.character(all.out)) all.out=get("all.out")
-if (is.character(Twilight.time.mat.dusk)) Twilight.time.mat.dusk=get("Twilight.time.mat.dusk")
-if (is.character(Twilight.time.mat.dawn)) Twilight.time.mat.dawn=get("Twilight.time.mat.dawn")
-if (is.character(Twilight.log.light.mat.dusk)) Twilight.log.light.mat.dusk=get("Twilight.log.light.mat.dusk")
-if (is.character(Twilight.log.light.mat.dawn)) Twilight.log.light.mat.dawn=get("Twilight.log.light.mat.dawn")
-if (is.character(calibration)) calibration=get("calibration")
-#if (is.character(log.irrad.borders)) log.irrad.borders=get("log.irrad.borders")
-#if (is.character(log.light.borders)) log.light.borders=get("log.light.borders")
-
-#print(ls())
-#print(str(Twilight.time.mat.dusk))
-
-Points.Land<-all.out$Points.Land
-
-cat("making cluster\n")
-require(parallel)
-mycl <- parallel:::makeCluster(Threads)
-    tmp<-parallel:::clusterSetRNGStream(mycl)
-    tmp<-parallel:::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Points.Land", "calibration"), envir=environment())
-    tmp<-parallel:::clusterEvalQ(mycl, library("circular")) 
-    tmp<-parallel:::clusterEvalQ(mycl, library("truncnorm")) 
-    tmp<-parallel:::clusterEvalQ(mycl, library("GeoLight")) 
-    tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
-    #tmp<-parallel:::clusterEvalQ(mycl, source("D:\\Geologgers\\LightR_development_code\\functions.Dusk.and.Dawn.5.1.r")) 
-
-#====================
-cat("estimating dusks\n")
-
-	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
-	
-	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Points.Land=Points.Land, calibration=calibration)
-		 	
-cat("estimating dawns\n")
-	 
-	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Points.Land=Points.Land, calibration=calibration)
-stopCluster(mycl)
-
-cat("processing results\n")
-All.probs.dusk.tmp<-All.probs.dusk
-All.probs.dawn.tmp<-All.probs.dawn
-	Phys.Mat<-c()
-for (i in 1:nrow(all.out$Matrix.Index.Table)) {
-	if (all.out$Matrix.Index.Table$Dusk[i]) {
-		Phys.Mat<-cbind(Phys.Mat, All.probs.dusk.tmp[,1])
-		All.probs.dusk.tmp<-as.matrix(All.probs.dusk.tmp[,-1])
-		} else {
-		Phys.Mat<-cbind(Phys.Mat, All.probs.dawn.tmp[,1])
-		All.probs.dawn.tmp<-as.matrix(All.probs.dawn.tmp[,-1])
-		}
-}
-
-Phys.Mat<-apply(Phys.Mat, 2, FUN=function(x) {x[x<=1e-70]=1e-70; return(x)})
-
-return(Phys.Mat)
-}
-
-
-get.declination<-function(Dates) {
-
-if (is.numeric(Dates[1])) Dates<-as.POSIXct(Dates, tz="UTC", origin="1970-01-01")
-
-n=as.numeric(Dates-c(as.POSIXct("2000-01-01 12:00:00", tz="UTC")))
-L=280.460+0.9856474*n
-g=357.528+0.9856003*n
-Lambda=(L+1.915*sin(g/180*pi)+0.020*sin(2*g/180*pi))%%360
-epsilon = 23.439 - 0.0000004* n 
-Dec = asin(sin(epsilon/180*pi)*sin(Lambda/180*pi))*180/pi
-return(Dec)
-}
