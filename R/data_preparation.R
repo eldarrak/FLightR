@@ -161,7 +161,7 @@ cat("checking dusk", dusk, "\n" )
 	#	calibration.slope.distr=tmp.dnorm.calib.no_interact.RE,
 	#	RE.component=RE.component), 
 	#calibration.intercept.par=list(
-	#	Parameters=Parameters, CalibrationL.LL=Optim.result$value),
+	#	Parameters=Parameters, CalibrationL.LL=Optim.processed.light$value),
 	#calibration.bayesian.model=calibration.bayesian.model # this is a stored list...
 	
 }
@@ -315,3 +315,121 @@ processed.light<-list(Final.dusk=Result.Dusk, Final.dawn=Result.Dawn)
 
 return(processed.light)
 }
+
+# this create proposal is corrected for the missing loess
+create.proposal<-function(processed.light, start=c(-98.7, 34.7), end=NA, Points.Land) {
+	if (is.na(end)) end=start
+All.Days<-seq(min(min(processed.light$Final.dusk$Data$gmt), min(processed.light$Final.dawn$Data$gmt)),max(max(processed.light$Final.dusk$Data$gmt), max(processed.light$Final.dawn$Data$gmt)), by="days")
+
+## Probabilty.of.migration
+All.Days.extended<-seq(min(All.Days)-86400, max(All.Days)+86400, by="days")
+
+# these are all potential twilights that we would have for the start point...
+Potential.twilights<-sort(c(sunriset(matrix(start, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], sunriset(matrix(start, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
+# now we need to add dask or dawn to it..
+Sunrise<-sunriset(matrix(start, nrow=1), Potential.twilights[1], direction="sunrise", POSIXct.out=TRUE)[,2]
+Sunrises<-c(Sunrise-(3600*24), Sunrise, Sunrise+(3600*24))
+Sunset<-sunriset(matrix(start, nrow=1), Potential.twilights[1], direction="sunset", POSIXct.out=TRUE)[,2]
+Sunsets<-c(Sunset-(3600*24), Sunset, Sunset+(3600*24))
+First.twilight<-ifelse(which.min(c(min(abs(difftime(Sunrises,Potential.twilights[1], units="mins"))), min(abs(difftime(Sunsets,Potential.twilights[1], units="mins")))))==1, "dawn", "dusk")
+
+Index.tab<-data.frame(Date=Potential.twilights)
+
+if (First.twilight=="dusk") {
+	Index.tab$Dusk<-rep(c(T,F), times=length(All.Days.extended))
+} else {
+		Index.tab$Dusk<-rep(c(F,T), times=length(All.Days.extended))
+}
+
+Index.tab$Curr.mat<-NA # this will be NA if no data and row number if there are..
+Index.tab$Real.time<-as.POSIXct(NA, tz="GMT")
+Index.tab$time<-as.POSIXct(NA, tz="GMT")
+
+######################################
+# !!!! this will not work if bird will move for over 12 time zones!!!
+# Dusk
+for (i in 1:length(processed.light$Final.dusk$Data$gmt)) {
+	Row2write<-which.min(abs(difftime(processed.light$Final.dusk$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==T], units="mins")))
+	Index.tab$time[Index.tab$Dusk==T][Row2write]<-processed.light$Final.dusk$Data$gmt[i]
+	Index.tab$Real.time[Index.tab$Dusk==T][Row2write]<-processed.light$Final.dusk$Data$gmt.adj[i]
+	Index.tab$Curr.mat[Index.tab$Dusk==T][Row2write]<-i
+}
+
+# Dawn
+for (i in 1:length(processed.light$Final.dawn$Data$gmt)) {
+	Row2write<-which.min(abs(difftime(processed.light$Final.dawn$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==F], units="mins")))
+	Index.tab$time[Index.tab$Dusk==F][Row2write]<-processed.light$Final.dawn$Data$gmt[i]
+	Index.tab$Real.time[Index.tab$Dusk==F][Row2write]<-processed.light$Final.dawn$Data$gmt.adj[i]
+	Index.tab$Curr.mat[Index.tab$Dusk==F][Row2write]<-i
+}
+# cutting empty ends..
+while (is.na(Index.tab$Curr.mat[1])) Index.tab<-Index.tab[-1,]
+while (is.na(Index.tab$Curr.mat[nrow(Index.tab)])) Index.tab<-Index.tab[-nrow(Index.tab),]
+Index.tab$Point<-NA
+First.Point<-which.min(spDistsN1(Points.Land[,1:2], start,  longlat=T))
+Index.tab$Point[1]<-First.Point
+#
+# I decided that Curr.mat is not needed anymore
+Index.tab$Main.Index[,-which(names(Index.tab$Main.Index)=="Curr.mat")]
+# this need to double checked
+Index.tab$yday<-as.POSIXlt(Index.tab$Date, tz="GMT")$yday
+
+ return(Index.tab)
+}
+
+
+
+geologger.sampler.create.arrays<-function(Index.tab, Points.Land, start, stop=start) {
+	# this function wil take in Index.table with all the proposals and will create an array for case of missed data..
+	
+	# the main feature is that it can account for missing data..
+	Index.tab.old<-Index.tab
+	Index.tab$proposal.index<-NA
+	Index.tab$proposal.index[Index.tab$Dusk==T]<-"Dusk"
+	Index.tab$proposal.index[Index.tab$Dusk==F]<-"Dawn"
+	
+	Missed.twilights<-which(is.na(Index.tab$Curr.mat))
+	
+	if (length(Missed.twilights)>0) {
+	Deleted.Rows.Count<-0
+		for (i in Missed.twilights) {
+			i=i-Deleted.Rows.Count
+			Index.tab$proposal.index[i-1]<-"Comb"
+			Index.tab$Decision[i-1]<-(Index.tab$Decision[i-1]+Index.tab$Decision[i])/2 # 
+			if (Index.tab$Direction[i-1] != Index.tab$Direction[i])	{
+				Index.tab$Direction[i-1]<-0
+				Index.tab$Kappa[i-1]<-0
+			}
+			Index.tab$M.mean[i-1]<-Index.tab$M.mean[i-1]+Index.tab$M.mean[i]
+			Index.tab$M.sd[i-1]<-sqrt((Index.tab$M.sd[i-1])^2+(Index.tab$M.sd[i])^2)
+			Index.tab<-Index.tab[-i,]
+			Deleted.Rows.Count=Deleted.Rows.Count+1
+		}
+	}
+	output<-list()
+	output$Matrix.Index.Table<-	Index.tab[,which(names(Index.tab) %in% c("Decision", "Direction", "Kappa", "M.mean", "M.sd", "yday", "Real.time", "time", "Dusk", "Loess.se.fit", "Loess.n")) ]
+	# I  also remove last line as bird was not flying after last twilight
+	output$Matrix.Index.Table<-output$Matrix.Index.Table[-nrow(output$Matrix.Index.Table),]
+
+	
+	# main index will have the same amount of rows we have in twilight matrices without first.. 
+	output$Main.Index$Biol.Prev<-1:nrow(output$Matrix.Index.Table)
+	output$Main.Index$proposal.index<-Index.tab$proposal.index[-nrow(Index.tab)]
+	output$Main.Index<-as.data.frame(output$Main.Index)
+	
+	output$start.point<-which.min(spDistsN1(Points.Land[,1:2], start,  longlat=T))
+	
+	output$stop.point<-which.min(spDistsN1(Points.Land[,1:2], stop,  longlat=T))
+	
+	# ok now we need to add to output all other parts..
+	output$Points.Land<-Points.Land #[,1:2]
+	output$distance<-spDists(Points.Land[,1:2], longlat=T)
+
+	output$Geogr.proposal<-as.integer(Points.Land[,3])
+	get.angles<-function(all.arrays.object) {
+		return(apply(all.arrays.object$Points.Land, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Points.Land, to=x)))))
+	}
+	output$Azimuths<-get.angles(output)
+
+	return(output)
+	}
