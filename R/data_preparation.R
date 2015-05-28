@@ -260,7 +260,8 @@ return(Res)
 
 plot.slopes<-function(all.slopes) {
 old.par <- par(no.readonly = TRUE) 
-on.exit(par(old.par))plot(log(All.slopes$Slopes$Slope)~as.POSIXct(All.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk")
+on.exit(par(old.par))
+plot(log(All.slopes$Slopes$Slope)~as.POSIXct(All.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk")
 lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=All.slopes$Slopes[All.slopes$Slopes$Type=="Dusk",])
 points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=All.slopes$Slopes[All.slopes$Slopes$Type=="Dusk",], pch="+")
 points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=All.slopes$Slopes[All.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
