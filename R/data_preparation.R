@@ -275,9 +275,9 @@ create.calibration<-function( All.slopes, Proc.data, FLightR.data, log.light.bor
 Parameters<-All.slopes$Parameters # LogSlope # 
 Parameters$measurement.period<-Proc.data$measurement.period 
 Parameters$saving.period<-Proc.data$saving.period 
-Parameters$log.light.borders<-c(2.5,8) # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
+Parameters$log.light.borders<-log.light.borders # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
 Parameters$min.max.values<-c(min(FLightR.data$Data$light), max(FLightR.data$Data$light))
-Parameters$log.irrad.borders=c(-3, 1.5)
+Parameters$log.irrad.borders=log.irrad.borders
 Parameters$start=start
 
 Parameters$LogSlope_1_minute<-Parameters$LogSlope
@@ -430,16 +430,19 @@ geologger.sampler.create.arrays<-function(Index.tab, Points.Land, start, stop=st
 		}
 	}
 	output<-list()
-	output$Matrix.Index.Table<-	Index.tab[,which(names(Index.tab) %in% c("Decision", "Direction", "Kappa", "M.mean", "M.sd", "yday", "Real.time", "time", "Dusk", "Loess.se.fit", "Loess.n")) ]
+	Matrix.Index.Table<-	Index.tab[,which(names(Index.tab) %in% c("Decision", "Direction", "Kappa", "M.mean", "M.sd", "yday", "Real.time", "time", "Dusk", "Loess.se.fit", "Loess.n")) ]
 	# I  also remove last line as bird was not flying after last twilight
-	output$Matrix.Index.Table<-output$Matrix.Index.Table[-nrow(output$Matrix.Index.Table),]
+	Matrix.Index.Table<-Matrix.Index.Table[-nrow(Matrix.Index.Table),]
 
 	
 	# main index will have the same amount of rows we have in twilight matrices without first.. 
-	output$Main.Index$Biol.Prev<-1:nrow(output$Matrix.Index.Table)
-	output$Main.Index$proposal.index<-Index.tab$proposal.index[-nrow(Index.tab)]
-	output$Main.Index<-as.data.frame(output$Main.Index)
+	Main.Index$Biol.Prev<-1:nrow(Matrix.Index.Table)
+	Main.Index$proposal.index<-Index.tab$proposal.index[-nrow(Index.tab)]
+	Main.Index<-as.data.frame(Main.Index)
 	
+	Indices<-list(Matrix.Index.Table=Matrix.Index.Table, Main.Index=Main.Index)
+	
+	output$Indices=Indices
 	output$start.point<-which.min(spDistsN1(Points.Land[,1:2], start,  longlat=T))
 	
 	output$stop.point<-which.min(spDistsN1(Points.Land[,1:2], stop,  longlat=T))
