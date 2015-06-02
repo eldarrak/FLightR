@@ -269,7 +269,30 @@ lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slope
 #invisible()
 }
 
-# this function will correct time values to make them not crossing 0.
+
+create.calibration<-function( All.slopes, Proc.data, FLightR.data, log.light.borders, log.irrad.borders, start) {
+# Now we create 'parameters' object that will have all the details about the calibration
+Parameters<-All.slopes$Parameters # LogSlope # 
+Parameters$measurement.period<-Proc.data$measurement.period 
+Parameters$saving.period<-Proc.data$saving.period 
+Parameters$log.light.borders<-c(2.5,8) # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
+Parameters$min.max.values<-c(min(FLightR.data$Data$light), max(FLightR.data$Data$light))
+Parameters$log.irrad.borders=c(-3, 1.5)
+Parameters$start=start
+
+Parameters$LogSlope_1_minute<-Parameters$LogSlope
+
+time_correction_fun= eval(parse(text=paste("function (x,y) return(", Parameters$LogSlope[1], ")")))
+Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun)
+
+lat_correction_fun<-function(x, y, z) return(0)
+
+Calibration$lat_correction_fun<-lat_correction_fun
+
+return(Calibration)
+}
+
+
 correct.hours<-function(datetime) {
 	# this function is supposed to correct hours by adding some amount of them.
    hours <- as.numeric(format(datetime,"%H"))+as.numeric(format(datetime,"%M"))/60
