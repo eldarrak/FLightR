@@ -1,5 +1,5 @@
 ###############
-# Theese functions extract from results probabilities of being inside a specific set of the grid points and also dates for these probabities
+# These functions extract from results probabilities of being inside a specific set of the grid points and also dates for these probabilities
 # first version added 11-05-2015
 
 get.prob.of.being.in<-function(Result, Index ) {

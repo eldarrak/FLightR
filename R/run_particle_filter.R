@@ -672,6 +672,11 @@ estimate.movement.parameters<-function(output.matrix, Trans, in.Data, save.trans
 }
 
 
+get.transition.rle=function(From, To) {
+  rle(sort.int(From*1e5+To, method = "quick"))
+}
+
+
 mu.sigma.truncnorm<-function(x, a=45, b=500) {
 # this is used optionally
   if (length(unique(x))>1) {
