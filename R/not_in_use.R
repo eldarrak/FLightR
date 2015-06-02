@@ -1,6 +1,7 @@
 # not_in_use.R
 # this functions are currently not used but may be used at some point....
 # I will not release them on CRAN and will archive locally.
+stop("buildingore")
 
 get.time.shift<-function(start, Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk,  log.light.borders=NA, diap=c(-600, 600), plot=T,  log.irrad.borders=c(-15, 50), verbose=F) {
 
