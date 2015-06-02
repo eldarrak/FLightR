@@ -436,6 +436,7 @@ geologger.sampler.create.arrays<-function(Index.tab, Points.Land, start, stop=st
 
 	
 	# main index will have the same amount of rows we have in twilight matrices without first.. 
+	Main.Index<-c()
 	Main.Index$Biol.Prev<-1:nrow(Matrix.Index.Table)
 	Main.Index$proposal.index<-Index.tab$proposal.index[-nrow(Index.tab)]
 	Main.Index<-as.data.frame(Main.Index)
