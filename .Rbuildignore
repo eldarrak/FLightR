@@ -1,2 +1,2 @@
 ^examples$
-^R/not_in_use\.R$
+^R\\not_in_use\.R$ # this should ignore the not_in)use file
