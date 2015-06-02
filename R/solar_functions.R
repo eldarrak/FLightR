@@ -42,7 +42,6 @@ solar.tripEstimation<-function (day) {
   solarTime <- (hh * 60 + mm + ss/60 + eqtime)/4
   list(solarTime = solarTime, sinSolarDec = sinSolarDec, cosSolarDec = cosSolarDec)
 }
-solar.tripEstimation<-cmpfun(solar.tripEstimation)
 
 elevation.tripEstimation<-function (lon, lat, sun) {
   hourAngle <- sun$solarTime + lon - 180
@@ -52,8 +51,6 @@ elevation.tripEstimation<-function (lon, lat, sun) {
   cosZenith[cosZenith < -1] <- -1
   90 - 180/pi * acos(cosZenith)
 }
-elevation.tripEstimation<-cmpfun(elevation.tripEstimation)
-
 
 #====================
 # these are a bit different solar functions based on the GeoLight's formulas
@@ -103,8 +100,6 @@ solar.GeoLight<-function(gmt) {
 	return(Res)	
 	}
 
-solar.GeoLight<-cmpfun(solar.GeoLight)
-
 elevation.GeoLight<-function(lon, lat, solarFLightR) {
     theta <- solarFLightR$theta.G + lon
     tau <- theta - solarFLightR$alpha
@@ -116,8 +111,6 @@ elevation.GeoLight<-function(lon, lat, solarFLightR) {
     hR.grad <- h.grad + R/60
     return(hR.grad)
 }
-
-elevation.GeoLight<-cmpfun(elevation.GeoLight)
 
 
 solar<-function(gmt, mode=c("tripEstimation", "GeoLight")) {
