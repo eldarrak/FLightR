@@ -393,7 +393,7 @@ First.Point<-which.min(spDistsN1(Points.Land[,1:2], start,  longlat=T))
 Index.tab$Point[1]<-First.Point
 #
 # I decided that Curr.mat is not needed anymore
-Index.tab$Main.Index[,-which(names(Index.tab$Main.Index)=="Curr.mat")]
+#Index.tab$Main.Index[,-which(names(Index.tab$Main.Index)=="Curr.mat")]
 # this need to double checked
 Index.tab$yday<-as.POSIXlt(Index.tab$Date, tz="GMT")$yday
 
