@@ -7,7 +7,7 @@ Prob.of.being.in<-c()
 
 nParticles<-length(inverse.rle(Result$Points.rle[[1]]))
 
-	for (i in 1:nrow(Result$Matrix.Index.Table)) {
+	for (i in 1:nrow(Result$Indeices$Matrix.Index.Table)) {
 	Prob.of.being.in<-c(Prob.of.being.in, length(which(inverse.rle(Result$Points.rle[[i]]) %in% Index))/nParticles)
 	}
 	return(Prob.of.being.in)

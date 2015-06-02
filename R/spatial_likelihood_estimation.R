@@ -38,8 +38,8 @@ cat("processing results\n")
 All.probs.dusk.tmp<-All.probs.dusk
 All.probs.dawn.tmp<-All.probs.dawn
 	Phys.Mat<-c()
-for (i in 1:nrow(all.out$Matrix.Index.Table)) {
-	if (all.out$Matrix.Index.Table$Dusk[i]) {
+for (i in 1:nrow(all.out$Indices$Matrix.Index.Table)) {
+	if (all.out$Indices$Matrix.Index.Table$Dusk[i]) {
 		Phys.Mat<-cbind(Phys.Mat, All.probs.dusk.tmp[,1])
 		All.probs.dusk.tmp<-as.matrix(All.probs.dusk.tmp[,-1])
 		} else {

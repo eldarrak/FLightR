@@ -136,7 +136,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	cat("smart filter is OFF\n")
 	}
   # so, the idea here will be that we don't need to create these complicated Indexes..
-  in.Data.short<-list(Main.Index=in.Data$Main.Index , Matrix.Index.Table=in.Data$Matrix.Index.Table,  Points.Land=in.Data$Points.Land, distance= in.Data$distance, Azimuths=in.Data$Azimuths, transitions=in.Data$transitions)
+  in.Data.short<-list(Indices=list(Main.Index=in.Data$Indices$Main.Index , Matrix.Index.Table=in.Data$Indices$Matrix.Index.Table),  Points.Land=in.Data$Points.Land, distance= in.Data$distance, Azimuths=in.Data$Azimuths, transitions=in.Data$transitions)
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
   if (parallel) {
     if (length(existing.cluster)==1) {
@@ -181,7 +181,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   New.weights<-rep(1/nParticles, nParticles)
   All.results<-NULL
   in.Data$outliers<-c()
-	  Trans<-vector(mode = "list", length = nrow(in.Data$Main.Index))
+	  Trans<-vector(mode = "list", length = nrow(in.Data$Indices$Main.Index))
   	if (check.outliers) {
 	  in.Data$AB.distance<-c()
 	  #in.Data$AC.distance<-c()
@@ -220,12 +220,12 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   ResampleCount<-0
   steps.from.last<-2
 
-  for (Time.Period in 1:nrow(in.Data$Main.Index)) {
+  for (Time.Period in 1:nrow(in.Data$Indices$Main.Index)) {
     steps.from.last=steps.from.last+1
 
 	cat("\n\n##########################\n     Time.Period", Time.Period, "\n")
     #cat("prep. data:")
-    Current.Proposal<-in.Data$Matrix.Index.Table[in.Data$Main.Index$Biol.Prev[Time.Period],]
+    Current.Proposal<-in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],]
     #=======================================
     cat("generating new particles")
     New.Particles<-propagate.particles(Last.Particles=Results.stack[,ncol(Results.stack)], Current.Proposal=Current.Proposal, parallel=parallel, Parameters=Parameters, mycl=mycl)
@@ -359,7 +359,7 @@ if (is.na(ESS)) {
     } else {
       ESS<-1
     }
-    if ((ESS<(nParticles*adaptive.resampling) & Time.Period>1) | Time.Period == nrow(in.Data$Main.Index)) {	
+    if ((ESS<(nParticles*adaptive.resampling) & Time.Period>1) | Time.Period == nrow(in.Data$Indices$Main.Index)) {	
 	  if (length(unique(Current.Weights.with.Prev))==1) Current.Weights.with.Prev<-rep(1, nParticles)
 	  Rows<-try(sample.int(nParticles, replace = TRUE, prob = Current.Weights.with.Prev))
 			#if (class(Rows)=="try-error") {
@@ -641,32 +641,34 @@ estimate.movement.parameters<-function(output.matrix, Trans, in.Data, save.trans
   
   all.arrays.object<-in.Data
   
-  all.arrays.object$Matrix.Index.Table$Decision<-Probability.of.migration
-  all.arrays.object$Matrix.Index.Table$Direction<-Mean.Directions
-  all.arrays.object$Matrix.Index.Table$Kappa<-Kappas
-  all.arrays.object$Matrix.Index.Table$M.mean<-Mean.Dists
-  all.arrays.object$Matrix.Index.Table$M.sd<-Mean.SD
-  all.arrays.object$Matrix.Index.Table$M.medians<-Median.Dists
-  all.arrays.object$Matrix.Index.Table$Mean2report<-Mean2report
-  all.arrays.object$Matrix.Index.Table$SD2report<-SD2report
+  #----------------
+  # actually I do not want to update this - so I rather save it outside if possible..
+  all.arrays.object$Indices$Matrix.Index.Table$Decision<-Probability.of.migration
+  all.arrays.object$Indices$Matrix.Index.Table$Direction<-Mean.Directions
+  all.arrays.object$Indices$Matrix.Index.Table$Kappa<-Kappas
+  all.arrays.object$Indices$Matrix.Index.Table$M.mean<-Mean.Dists
+  all.arrays.object$Indices$Matrix.Index.Table$M.sd<-Mean.SD
+  all.arrays.object$Indices$Matrix.Index.Table$M.medians<-Median.Dists
+  all.arrays.object$Indices$Matrix.Index.Table$Mean2report<-Mean2report
+  all.arrays.object$Indices$Matrix.Index.Table$SD2report<-SD2report
   
-  #all.arrays.object$Matrix.Index.Table<-New.Matrix.Index.Table
+  #all.arrays.object$Indices$Matrix.Index.Table<-New.Matrix.Index.Table
   
-  all.arrays.object$Main.Index$Biol.Prev=1:(nrow(all.arrays.object$Matrix.Index.Table))
+  all.arrays.object$Indices$Main.Index$Biol.Prev=1:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
   if(save.transitions) all.arrays.object$Transitions.rle<-Trans
   
   
   if (is.list(fixed.parameters)) {
     # this part can be moved upper not to estimate parametrs in case they are fixed.
-    if ("M.sd" %in% names(fixed.parameters)) all.arrays.object$Matrix.Index.Table$M.sd<-fixed.parameters$M.sd
+    if ("M.sd" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$M.sd<-fixed.parameters$M.sd
     
-    if ("M.mean" %in% names(fixed.parameters)) all.arrays.object$Matrix.Index.Table$M.mean<-fixed.parameters$M.mean
+    if ("M.mean" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$M.mean<-fixed.parameters$M.mean
     
-    if ("Kappa" %in% names(fixed.parameters)) all.arrays.object$Matrix.Index.Table$Kappa<-fixed.parameters$Kappa
+    if ("Kappa" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$Kappa<-fixed.parameters$Kappa
     
-    if ("Direction" %in% names(fixed.parameters)) all.arrays.object$Matrix.Index.Table$Kappa<-fixed.parameters$Direction
+    if ("Direction" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$Kappa<-fixed.parameters$Direction
   }
-  #all.arrays.object$Main.Index$Biol.Next=2:(nrow(all.arrays.object$Matrix.Index.Table))
+  #all.arrays.object$Indices$Main.Index$Biol.Next=2:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
   cat(" DONE!\n")
   return(all.arrays.object)
 }

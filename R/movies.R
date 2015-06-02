@@ -24,9 +24,9 @@ Start=in.Data$Points.Land[in.Data$start[1],1:2]
 		}
 print(max(Index))		
 	# adding rows ID
-	Index.Dawn<-which(in.Data$Matrix.Index.Table$Dusk==F)
+	Index.Dawn<-which(in.Data$Indices$Matrix.Index.Table$Dusk==F)
 	
-	Index.Dusk<-which(in.Data$Matrix.Index.Table$Dusk==T)
+	Index.Dusk<-which(in.Data$Indices$Matrix.Index.Table$Dusk==T)
 	# create pairs of twilights
 	# it means that we want to get closest dusks and then closest dawns to this dusks
 	Index.Dusk<-Index.Dusk[sapply(Index.Dawn, FUN=function(x) {Z<-Index.Dusk-x; which(Z>0)[1]})]
@@ -97,7 +97,7 @@ split.screen(c(1,3), screen = 2)
 			box()
 			#lines(Result$Final.dawn$Loess.predict$fit+Result$Final.dawn$Loess.predict$se.fit*1.96~Result$Final.dawn$Data$gmt, col="darkgreen", lwd=2, lty=2)
 			#lines(Result$Final.dawn$Loess.predict$fit-Result$Final.dawn$Loess.predict$se.fit*1.96~Result$Final.dawn$Data$gmt, col="darkgreen", lwd=2, lty=2)
-			Index.in.Result<-which(Result$Final.dawn$Data$gmt==in.Data$ Matrix.Index.Table$time[Index.Dawn[i]])			
+			Index.in.Result<-which(Result$Final.dawn$Data$gmt==in.Data$Indices$Matrix.Index.Table$time[Index.Dawn[i]])			
 			
 			abline(v=Result$Final.dawn$Data$gmt[Index.in.Result], col="red", lwd=2)
 			##
@@ -122,7 +122,7 @@ split.screen(c(1,3), screen = 2)
 			#lines(Result$Final.dusk$Loess.predict$fit-Result$Final.dusk$Loess.predict$se.fit*1.96~Result$Final.dusk$Data$gmt, col="darkgreen", lwd=2, lty=2)
 			
 			### dusk
-			Index.in.Result.Dusk<-which(Result$Final.dusk$Data$gmt==in.Data$Matrix.Index.Table$time[Index.Dusk[i]])
+			Index.in.Result.Dusk<-which(Result$Final.dusk$Data$gmt==in.Data$Indices$Matrix.Index.Table$time[Index.Dusk[i]])
 			abline(v=Result$Final.dusk$Data$gmt[Index.in.Result.Dusk], col="red", lwd=2)
 
 			Loess.gmt.Dusk<-Result$Final.dusk$Data$gmt.adj[Index.in.Result.Dusk]
@@ -174,9 +174,9 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
   }
   
   # adding rows ID
-  Index.Dawn<-which(in.Data$Matrix.Index.Table$Dusk==F)
+  Index.Dawn<-which(in.Data$Indices$Matrix.Index.Table$Dusk==F)
   
-  Index.Dusk<-which(in.Data$Matrix.Index.Table$Dusk==T)
+  Index.Dusk<-which(in.Data$Indices$Matrix.Index.Table$Dusk==T)
   # create pairs of twilights
   # it means that we want to get closest dusks and then closest dawns to this dusks
   Index.Dusk<-Index.Dusk[sapply(Index.Dawn, FUN=function(x) {Z<-Index.Dusk-x; which(Z>0)[1]})]
@@ -241,7 +241,7 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
         box()
         #lines(Result$Final.dawn$Loess.predict$fit+Result$Final.dawn$Loess.predict$se.fit*1.96~Result$Final.dawn$Data$gmt, col="darkgreen", lwd=2, lty=2)
         #lines(Result$Final.dawn$Loess.predict$fit-Result$Final.dawn$Loess.predict$se.fit*1.96~Result$Final.dawn$Data$gmt, col="darkgreen", lwd=2, lty=2)
-        Index.in.Result<-which(Result$Final.dawn$Data$gmt==in.Data$ Matrix.Index.Table$time[Index.Dawn[i]])			
+        Index.in.Result<-which(Result$Final.dawn$Data$gmt==in.Data$Indices$ Matrix.Index.Table$time[Index.Dawn[i]])			
         
         abline(v=Result$Final.dawn$Data$gmt[Index.in.Result], col="red", lwd=2)
         ##
@@ -266,7 +266,7 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
         #lines(Result$Final.dusk$Loess.predict$fit-Result$Final.dusk$Loess.predict$se.fit*1.96~Result$Final.dusk$Data$gmt, col="darkgreen", lwd=2, lty=2)
         
         ### dusk
-        Index.in.Result.Dusk<-which(Result$Final.dusk$Data$gmt==in.Data$Matrix.Index.Table$time[Index.Dusk[i]])
+        Index.in.Result.Dusk<-which(Result$Final.dusk$Data$gmt==in.Data$Indices$Matrix.Index.Table$time[Index.Dusk[i]])
         abline(v=Result$Final.dusk$Data$gmt[Index.in.Result.Dusk], col="red", lwd=2)
         
         Loess.gmt.Dusk<-Result$Final.dusk$Data$gmt.adj[Index.in.Result.Dusk]
@@ -305,21 +305,21 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 					bias=2.0)	
 	Start=all.out$Points.Land[all.out$start[1],1:2]
 	saveVideo({
-	  for (i in 1:(nrow(all.out$Matrix.Index.Table)-1)) { #
+	  for (i in 1:(nrow(all.out$Indices$Matrix.Index.Table)-1)) { #
 			cat("doing ", i, "\n")
 			par(mfrow=c(2,2), cex=1.2)
 			
 			# graph 1:
 			# distance plot:
 			par(mar=(c(3, 3, 3, 4) + 0.1))
-			Mean<-all.out$Matrix.Index.Table$Mean2report[i]
-			M.sd<-all.out$Matrix.Index.Table$SD2report[i]
+			Mean<-all.out$Indices$Matrix.Index.Table$Mean2report[i]
+			M.sd<-all.out$Indices$Matrix.Index.Table$SD2report[i]
 			if (! is.na(Mean)) {
 				if (is.na(M.sd)| M.sd==0) {
 					plot(1~Mean, ylim=c(0,1), xlim=c(a,b), xlab="Distance", ylab="PDF", pch=16, cex=2)
 				}
 				else {
-					try(plot(dtruncnorm(x=as.double(c(a:b)), a=a, b=b, mean = Mean , sd = M.sd), xlim=c(a,b), xlab="Distance", ylab="PDF", type="l", lwd=2, main=paste("accepted distances for flight to", all.out$Matrix.Index.Table$Real.time[i])))
+					try(plot(dtruncnorm(x=as.double(c(a:b)), a=a, b=b, mean = Mean , sd = M.sd), xlim=c(a,b), xlab="Distance", ylab="PDF", type="l", lwd=2, main=paste("accepted distances for flight to", all.out$Indices$Matrix.Index.Table$Real.time[i])))
 				}
 			} else { plot.new()}
 
@@ -327,18 +327,18 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			
 			#
 			par(mar=(c(3, 3, 3, 4) + 0.1))
-			Direction<-all.out$Matrix.Index.Table$Direction[i]
-			Kappa<-all.out$Matrix.Index.Table$Kappa[i]
+			Direction<-all.out$Indices$Matrix.Index.Table$Direction[i]
+			Kappa<-all.out$Indices$Matrix.Index.Table$Kappa[i]
 			if (is.finite(Kappa)) {
 				Directions.4.plot<-density(rvonmises(n=1000, mu=circular(Direction, units="degrees", template="geographic"), kappa=2), bw=25)
-				plot(Directions.4.plot, points.plot=FALSE, shrink=1+max(Directions.4.plot$y), main=paste("accepted directions for flight to", all.out$Matrix.Index.Table$Real.time[i], "\n Estimated probability of migration is", all.out$Matrix.Index.Table$Decision[i]))
+				plot(Directions.4.plot, points.plot=FALSE, shrink=1+max(Directions.4.plot$y), main=paste("accepted directions for flight to", all.out$Indices$Matrix.Index.Table$Real.time[i], "\n Estimated probability of migration is", all.out$Indices$Matrix.Index.Table$Decision[i]))
 			} else {plot.new()}
 			
 			# now we want to plot the matrix!
 			par(mar=(c(3, 3, 3, 4) + 0.1))
 			Matrix2plot<-all.out$Phys.Mat[,i]
 			Matrix2plot[all.out$Geogr.proposal==0]<-Matrix2plot[all.out$Geogr.proposal==0]*sea.value
-			image.plot(as.image(Matrix2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("likelihood surface at",  all.out$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
+			image.plot(as.image(Matrix2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("likelihood surface at",  all.out$Indices$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
 			if (add.boundaries) {
 			map('state',add=TRUE, lwd=1,  col=grey(0.5))
 			map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
@@ -357,7 +357,7 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			Points2plot<-all.out$Phys.Mat[,1]*0
 			Points2plot[all.out$Points.rle[[i+1]][[2]]]<-all.out$Points.rle[[i+1]][[1]]/1e6
 			
-			image.plot(as.image(Points2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("points distribution at",  all.out$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
+			image.plot(as.image(Points2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("points distribution at",  all.out$Indices$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
 			if (add.boundaries) {
 			map('state',add=TRUE, lwd=1,  col=grey(0.5))
 			map('world',add=TRUE, lwd=1.5,  col=grey(0.8))

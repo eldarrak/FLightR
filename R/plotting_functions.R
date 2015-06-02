@@ -123,7 +123,7 @@ plot.ci.array<-function(CI.array, xlim=c(-115, -94), ylim=c(16,38.5), all.out) {
   points(-98.7, 34.7, pch=1, cex=2, col="black", lwd=3)
   
   # add bars every month:
-  Index<-which(as.POSIXlt(all.out$Matrix.Index.Table$Real.time)$mday==1 &  all.out$Main.Index$proposal.index=="Dusk")
+  Index<-which(as.POSIXlt(all.out$Indices$Matrix.Index.Table$Real.time)$mday==1 &  all.out$Indices$Main.Index$proposal.index=="Dusk")
   points(all.out$Final.Means$CENTRE.y[Index]~all.out$Final.Means$CENTRE.x[Index], pch=3, cex=3, col="black", lwd=2)
   
 }
@@ -135,7 +135,7 @@ FLightR.r.save.kml<-function(all.out, file.name="result.kml") {
 	require(sp)
 	require(spacetime)
 	require(adehabitat)
-	Data<-data.frame(Time=all.out$Matrix.Index.Table$Real.time, lon=all.out$Final.Means$CENTRE.x[-1], lat=all.out$Final.Means$CENTRE.y[-1])
+	Data<-data.frame(Time=all.out$Indices$Matrix.Index.Table$Real.time, lon=all.out$Final.Means$CENTRE.x[-1], lat=all.out$Final.Means$CENTRE.y[-1])
 	coordinates(Data) <- ~lon+lat
 	proj4string(Data) <- CRS("+proj=longlat +datum=WGS84")
 	xy <- as.list(data.frame(t(coordinates(Data))))
