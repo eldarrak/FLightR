@@ -44,13 +44,13 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     rm(All.results.mat)
     # plotting resuls
     if (plot) {
-      plot(CENTRE.y~CENTRE.x, type="p", data=all.out$Final.Means, pch=3, col="blue", main="mean poistions")
-      #if (all.out$EMIter>1 & !is.null(all.out$Final.Means)) {
-      #  points(CENTRE.y~CENTRE.x, type="p", data=all.out.old$Final.Means, pch=3, col="red")
-      #  lines(CENTRE.y~CENTRE.x, data=all.out.old$Final.Means, col="red")
+      plot(CENTRE.y~CENTRE.x, type="p", data=all.out$Results$Final.Means, pch=3, col="blue", main="mean poistions")
+      #if (all.out$EMIter>1 & !is.null(all.out$Results$Final.Means)) {
+      #  points(CENTRE.y~CENTRE.x, type="p", data=all.out.old$Results$Final.Means, pch=3, col="red")
+      #  lines(CENTRE.y~CENTRE.x, data=all.out.old$Results$Final.Means, col="red")
       #}
-      points(CENTRE.y~CENTRE.x, type="p", data=all.out$Final.Means, pch=3, col="blue")
-      lines(CENTRE.y~CENTRE.x, data=all.out$Final.Means, col="blue")
+      points(CENTRE.y~CENTRE.x, type="p", data=all.out$Results$Final.Means, pch=3, col="blue")
+      lines(CENTRE.y~CENTRE.x, data=all.out$Results$Final.Means, col="blue")
       data("wrld_simpl", package="maptools")
       plot(wrld_simpl, add=T)
     }
@@ -501,22 +501,12 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
   # I will start from mean and SD
   #plot(c(min(in.Data$Spatial$Grid[,1]),max(in.Data$Spatial$Grid[,1])), c(min(in.Data$Spatial$Grid[,2]),max(in.Data$Spatial$Grid[,2])), type="n")
   
-  if (save.points.distribution) {
-    require("bit")
-    Points<-vector(mode = "list", length = (dim(output.matrix)[2]))
-    cat("   extracting indexes for rle\n")
-    for (i in 1:(dim(output.matrix)[2])) {
-      Points[[i]]<-Rle<-bit:::intrle(sort.int(output.matrix[,i], method="quick"))
-      if (is.null(Rle)) Points[[i]]<-rle(sort.int(output.matrix[,i], method="quick"))
-    }
-    in.Data$Points.rle<-Points
-  }
-  Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[output.matrix[,1],1:2])
+    Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[output.matrix[,1],1:2])
   for (i in 2:(dim(output.matrix)[2])) {
     Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[output.matrix[,i], 1:2])
     #plot_box(plotnew=F, plotpoints=F)
   }
-  in.Data$Final.Means<-Means
+  in.Data$Results<-list(Final.Means=Means)
   
   #############
   # new part for medians
@@ -553,7 +543,19 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	Quantiles$LCI.lon<-CIntervals[,3]
 	Quantiles$UCI.lon<-CIntervals[,4]
 	  
-	in.Data$Quantiles<-Quantiles
+	in.Data$Results$Quantiles<-Quantiles
+	
+	if (save.points.distribution) {
+    require("bit")
+    Points<-vector(mode = "list", length = (dim(output.matrix)[2]))
+    cat("   extracting indexes for rle\n")
+    for (i in 1:(dim(output.matrix)[2])) {
+      Points[[i]]<-Rle<-bit:::intrle(sort.int(output.matrix[,i], method="quick"))
+      if (is.null(Rle)) Points[[i]]<-rle(sort.int(output.matrix[,i], method="quick"))
+    }
+    in.Data$Results$Points.rle<-Points
+  }
+	
    return(in.Data)
 }
 
