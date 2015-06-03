@@ -168,13 +168,13 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     D.kappa<-as.numeric(suppressWarnings(circular:::dvonmises(0, mu=0, kappa=0)))
   }
   # stage 1. create burn-in set
-  #Last.Particles<-rep(as.integer(in.Data$start.point), nParticles)
+  #Last.Particles<-rep(as.integer(in.Data$Spatial$start.point), nParticles)
   #Last.Last.Particles<-Last.Particles
   
   # here I'll save results stack.
   #All.results
   
-  Results.stack<-as.matrix(rep(as.integer(in.Data$start.point), nParticles))
+  Results.stack<-as.matrix(rep(as.integer(in.Data$Spatial$start.point), nParticles))
   
   Weights.stack<-as.matrix(rep(1/nParticles, nParticles))
   
@@ -748,7 +748,7 @@ my.dvonmises<-function(x, mykap) {
   
 pf.final.smoothing<-function(in.Data, All.results, precision.sd=25, nParticles=1e6, save.memory=F, last.particles=NA) {
   # this function simply resamples final points proportionally to the distance to known finish.
-  Final.point.real<-in.Data$stop.point
+  Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
   Weights<-dnorm(in.Data$distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
