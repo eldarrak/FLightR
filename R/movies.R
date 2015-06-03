@@ -291,7 +291,7 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
   par(op)
 }
 
-make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, sea.value=0, a=0, b=500) {
+make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, behav.mask.low.value=0, a=0, b=500) {
 	require(animation)
 	#require(maptools)
 	require(maps)
@@ -337,7 +337,7 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			# now we want to plot the matrix!
 			par(mar=(c(3, 3, 3, 4) + 0.1))
 			Matrix2plot<-all.out$Phys.Mat[,i]
-			Matrix2plot[all.out$Spatial$Behav.mask==0]<-Matrix2plot[all.out$Spatial$Behav.mask==0]*sea.value
+			Matrix2plot[all.out$Spatial$Behav.mask==0]<-Matrix2plot[all.out$Spatial$Behav.mask==0]*behav.mask.low.value
 			image.plot(as.image(Matrix2plot, x= all.out$Spatial$Grid, nrow=50, ncol=50), main=paste("likelihood surface at",  all.out$Indices$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
 			if (add.boundaries) {
 			map('state',add=TRUE, lwd=1,  col=grey(0.5))

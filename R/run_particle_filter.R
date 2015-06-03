@@ -1,7 +1,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, sea.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, save.points.distribution=T, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, update.angle.drift=F, adaptive.resampling=0.5, save.transitions=T, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, save.points.distribution=T, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, update.angle.drift=F, adaptive.resampling=0.5, save.transitions=T, check.outliers=F, sink2file=F) {
 
     all.out$SD<-vector(mode = "double")
     all.out$LL<-vector(mode = "double")
@@ -18,7 +18,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 
   }	else mycl=NA
 
-    Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, sea.value=sea.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
     # Part 2. Creating matrix of results.
     cat("creating results matrix \n")
     All.results.mat<-return.matrix.from.char(Res$All.results)
@@ -111,7 +111,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 }
 
 
-pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.last=T, precision.sd=25, sea.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
+pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
   # this dunction is doing main job. it works on the secondary master
   ### to make algorhytm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
@@ -157,7 +157,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   #########################################
   # part from the main function
   
-  in.Data$Spatial$Behav.mask[in.Data$Spatial$Behav.mask==0]<-sea.value
+  in.Data$Spatial$Behav.mask[in.Data$Spatial$Behav.mask==0]<-behav.mask.low.value
   in.Data$Phys.Mat<-in.Data$Phys.Mat*in.Data$Spatial$Behav.mask
   #=========================================
   # get value for density for angles
