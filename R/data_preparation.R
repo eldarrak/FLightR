@@ -446,8 +446,11 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	output$Indices=Indices
 	output$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
 	
-	output$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
-	
+	if (!is.na(stop) ) {
+	 output$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
+	} else {
+	output$stop.point<-NA
+	}
 	# ok now we need to add to output all other parts..
 	
 	output$Spatial<-list(Grid=Grid) #[,1:2]
