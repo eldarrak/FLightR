@@ -136,7 +136,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	cat("smart filter is OFF\n")
 	}
   # so, the idea here will be that we don't need to create these complicated Indexes..
-  in.Data.short<-list(Indices=list(Main.Index=in.Data$Indices$Main.Index , Matrix.Index.Table=in.Data$Indices$Matrix.Index.Table),  Grid=in.Data$Spatial$Grid, distance= in.Data$Spatial$tmp$Distance, Azimuths=in.Data$Spatial$tmp$Azimuths, transitions=in.Data$transitions)
+  in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
   if (parallel) {
     if (length(existing.cluster)==1) {
