@@ -77,7 +77,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	# here is the addition of clever mask
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
-    Dists.distr<-in.Data$distance[x[[1]],]
+    Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]
     Dists.probs<-truncnorm:::dtruncnorm(Dists.distr, a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
     #  library(fields)
@@ -85,7 +85,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     #image.plot(as.image(Dists.probs, x=in.Data$Spatial$Grid, nrow=50, ncol=50))
     #
     if (Current.Proposal$Kappa>0) {
-      Angles.dir<-in.Data$Azimuths[x[[1]],]
+      Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
       Angles.probs<-as.numeric(suppressWarnings(circular:::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
       Angles.probs[is.na(Angles.probs)]<-0
     }
@@ -136,7 +136,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	cat("smart filter is OFF\n")
 	}
   # so, the idea here will be that we don't need to create these complicated Indexes..
-  in.Data.short<-list(Indices=list(Main.Index=in.Data$Indices$Main.Index , Matrix.Index.Table=in.Data$Indices$Matrix.Index.Table),  Grid=in.Data$Spatial$Grid, distance= in.Data$distance, Azimuths=in.Data$Azimuths, transitions=in.Data$transitions)
+  in.Data.short<-list(Indices=list(Main.Index=in.Data$Indices$Main.Index , Matrix.Index.Table=in.Data$Indices$Matrix.Index.Table),  Grid=in.Data$Spatial$Grid, distance= in.Data$Spatial$tmp$Distance, Azimuths=in.Data$Spatial$tmp$Azimuths, transitions=in.Data$transitions)
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
   if (parallel) {
     if (length(existing.cluster)==1) {
@@ -238,8 +238,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     if (!is.na(k) & Time.Period >1) {
       get.directional.weights<-function(in.Data, Last.Last.Particles, Last.Particles, New.Particles, k, parallel, mycl, D.kappa) {
         #===================================
-        Prev.Dirs<-in.Data$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
-        New.Dirs<-in.Data$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
+        Prev.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
+        New.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
         FromTo=cbind(Prev.Dirs, New.Dirs)
         if (parallel) {Angles.probs<-parallel:::parApply(mycl, FromTo, 1, my.dvonmises, mykap=k)
         } else {
@@ -271,9 +271,9 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	# 
 	#=================================================================
 	AB.distance<-weighted.mean(
-	in.Data$distance[Results.stack[,(ncol(Results.stack)-1):ncol(Results.stack)]], Weights.stack[,ncol(Weights.stack)])
-	#AC.distance<-	weighted.mean(in.Data$distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Current.Weights)
-	AC.distance2<-	weighted.mean(in.Data$distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Weights.stack[,ncol(Weights.stack)]*Current.Weights)
+	in.Data$Spatial$tmp$Distance[Results.stack[,(ncol(Results.stack)-1):ncol(Results.stack)]], Weights.stack[,ncol(Weights.stack)])
+	#AC.distance<-	weighted.mean(in.Data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Current.Weights)
+	AC.distance2<-	weighted.mean(in.Data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Weights.stack[,ncol(Weights.stack)]*Current.Weights)
 	cat("AB.distance:", round(AB.distance, 2), "\n")
 	#cat("AC.distance:", round(AC.distance, 2), "\n")
 	cat("AC.distance2:", round(AC.distance2, 2), "\n")
@@ -282,11 +282,11 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	if (AB.distance>50) { # go for angles only if disctances are high!
 	resample <- function(x, ...) x[sample.int(length(x), ...)]
 	# the AB ones wil have folowing..
-	BA.dir<-in.Data$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
+	BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
 	BA.moved<-which(!is.na(BA.dir))
 	BA.mean<-mean.circular(circular(resample(BA.dir[BA.moved], replace=T,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=T)
 	#cat(BA.mean)
-	BC.dir<-in.Data$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
+	BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
 	BC.moved<-which(!is.na(BC.dir))
 	BC.mean<-mean.circular(circular(resample(BC.dir[BC.moved], replace=T, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=T)
 	#cat(BC.mean)
@@ -532,7 +532,7 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	###########
 	# doing jitter first
 	cat("adding jitter to medians\n")
-	JitRadius<-min(in.Data$distance[in.Data$distance>0])/2*1000 # in meters
+	JitRadius<-min(in.Data$Spatial$tmp$Distance[in.Data$Spatial$tmp$Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(Quantiles$Medianlon, Quantiles$Medianlat)
 	tmp<-try(apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 ))
@@ -576,7 +576,7 @@ estimate.movement.parameters<-function(output.matrix, Trans, in.Data, save.trans
   #####   let's try to get distance distribution:
   Distances<-Trans
   dist.fun<-function(x) {
-    in.Data$distance[x%/%1e5, x%%1e5]
+    in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
   }
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
@@ -586,7 +586,7 @@ estimate.movement.parameters<-function(output.matrix, Trans, in.Data, save.trans
   
   Directions<-Trans
   direct.fun<-function(x) {
-    in.Data$Azimuths[x%/%1e5, x%%1e5]
+    in.Data$Spatial$tmp$Azimuths[x%/%1e5, x%%1e5]
   }
   for (i in 1:length(Trans)) {
     Directions[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) direct.fun(x))
@@ -751,7 +751,7 @@ pf.final.smoothing<-function(in.Data, All.results, precision.sd=25, nParticles=1
   Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
-  Weights<-dnorm(in.Data$distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
+  Weights<-dnorm(in.Data$Spatial$tmp$Distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
   Rows<- suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights)))
   if (save.memory) {
     return(All.results[Rows])
