@@ -137,6 +137,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	}
   # so, the idea here will be that we don't need to create these complicated Indexes..
   in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
+  in.Data.short$Spatial$Behav.mask<-NULL
+  in.Data.short$Spatial$Phys.Mat<-NULL
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
   if (parallel) {
     if (length(existing.cluster)==1) {
@@ -158,7 +160,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   # part from the main function
   
   in.Data$Spatial$Behav.mask[in.Data$Spatial$Behav.mask==0]<-behav.mask.low.value
-  in.Data$Phys.Mat<-in.Data$Phys.Mat*in.Data$Spatial$Behav.mask
+  in.Data$Spatial$Phys.Mat<-in.Data$Spatial$Phys.Mat*in.Data$Spatial$Behav.mask
   #=========================================
   # get value for density for angles
   if (!is.na(k)) {
@@ -233,7 +235,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     #=====================================================
     # resampling step 
     # we need to estimate weights of resulting points and then resample them proportionally to weights..
-    Current.Phys.Weights<-in.Data$Phys.Mat[New.Particles,Time.Period]
+    Current.Phys.Weights<-in.Data$Spatial$Phys.Mat[New.Particles,Time.Period]
     
     if (!is.na(k) & Time.Period >1) {
       get.directional.weights<-function(in.Data, Last.Last.Particles, Last.Particles, New.Particles, k, parallel, mycl, D.kappa) {
@@ -391,7 +393,7 @@ if (is.na(ESS)) {
     #
     #	New.Particles.MH<-propagate.particles(Last.Particles= Results.stack[,ncol(Results.stack)], Current.Proposal=Current.Proposal, parallel=parallel, Parameters=Parameters, mycl=mycl)
     #
-    #	Current.Phys.Weights.MH<-in.Data$Phys.Mat[New.Particles.MH,Time.Period]
+    #	Current.Phys.Weights.MH<-in.Data$Spatial$Phys.Mat[New.Particles.MH,Time.Period]
     #	
     #   if (!is.na(k) & Time.Period > 1) {
     #	  Angles.probs<-get.directional.weights(in.Data, Results.stack[,ncol(Results.stack)-1], Results.stack[,ncol(Results.stack)], New.Particles.MH, k, parallel, mycl, D.kappa)
@@ -725,7 +727,7 @@ get.LL.PF<-function(in.Data, All.results.mat) {
   # needed to estimate log likelihood of the optimization
   L=0
   for (i in 1:(dim(All.results.mat)[2]-1)) {
-    L=L+log(mean(in.Data$Phys.Mat[All.results.mat[,i],i]))
+    L=L+log(mean(in.Data$Spatial$Phys.Mat[All.results.mat[,i],i]))
   }
   #L=L/(dim(All.results.mat)[2]-1)
   #LL=-sum(log(L))
