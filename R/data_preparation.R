@@ -458,7 +458,7 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 
 	output$Geogr.proposal<-as.integer(Grid[,3])
 	get.angles<-function(all.arrays.object) {
-		return(apply(all.arrays.object$Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Grid, to=x)))))
+		return(apply(all.arrays.object$Spatial$Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Spatial$Grid, to=x)))))
 	}
 	output$Azimuths<-get.angles(output)
 
