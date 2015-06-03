@@ -157,8 +157,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   #########################################
   # part from the main function
   
-  in.Data$Geogr.proposal[in.Data$Geogr.proposal==0]<-sea.value
-  in.Data$Phys.Mat<-in.Data$Phys.Mat*in.Data$Geogr.proposal
+  in.Data$Spatial$Behav.mask[in.Data$Spatial$Behav.mask==0]<-sea.value
+  in.Data$Phys.Mat<-in.Data$Phys.Mat*in.Data$Spatial$Behav.mask
   #=========================================
   # get value for density for angles
   if (!is.na(k)) {

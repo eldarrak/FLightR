@@ -449,6 +449,8 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	
 	output$Spatial<-list(Grid=Grid) #[,1:2]
 
+	output$Spatial$Behav.mask<-as.integer(Grid[,3])
+
 	output$Spatial$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
 
 	if (!is.na(stop) ) {
@@ -459,7 +461,6 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	
 	output$distance<-spDists(Grid[,1:2], longlat=T)
 
-	output$Geogr.proposal<-as.integer(Grid[,3])
 	get.angles<-function(all.arrays.object) {
 		return(apply(all.arrays.object$Spatial$Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Spatial$Grid, to=x)))))
 	}
