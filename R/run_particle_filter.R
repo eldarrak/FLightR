@@ -75,14 +75,14 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   
   if (x[[3]]>0) {
 	# here is the addition of clever mask
-	#if (in.Data$Points.Land[x[[1]],3]==0) x[[3]]=x[[2]]
+	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
     Dists.distr<-in.Data$distance[x[[1]],]
     Dists.probs<-truncnorm:::dtruncnorm(Dists.distr, a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
     #  library(fields)
     # dists
-    #image.plot(as.image(Dists.probs, x=in.Data$Points.Land, nrow=50, ncol=50))
+    #image.plot(as.image(Dists.probs, x=in.Data$Spatial$Grid, nrow=50, ncol=50))
     #
     if (Current.Proposal$Kappa>0) {
       Angles.dir<-in.Data$Azimuths[x[[1]],]
@@ -128,7 +128,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   require("geosphere")
   
   
-  if (any(in.Data$Points.Land[,3]!=1)) { 
+  if (any(in.Data$Spatial$Grid[,3]!=1)) { 
 	smart.filter=TRUE
 	cat("smart filter is ON\n")
 	} else {
@@ -136,7 +136,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	cat("smart filter is OFF\n")
 	}
   # so, the idea here will be that we don't need to create these complicated Indexes..
-  in.Data.short<-list(Indices=list(Main.Index=in.Data$Indices$Main.Index , Matrix.Index.Table=in.Data$Indices$Matrix.Index.Table),  Points.Land=in.Data$Points.Land, distance= in.Data$distance, Azimuths=in.Data$Azimuths, transitions=in.Data$transitions)
+  in.Data.short<-list(Indices=list(Main.Index=in.Data$Indices$Main.Index , Matrix.Index.Table=in.Data$Indices$Matrix.Index.Table),  Grid=in.Data$Spatial$Grid, distance= in.Data$distance, Azimuths=in.Data$Azimuths, transitions=in.Data$transitions)
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
   if (parallel) {
     if (length(existing.cluster)==1) {
@@ -260,7 +260,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	# here we should introduce clever mask..
 	# this will be something like that
 	Index.Stable<-which(New.Particles == Results.stack[,ncol(Results.stack)])
-	Current.Weights[Index.Stable]<-Current.Weights[Index.Stable]*in.Data$Points.Land[New.Particles,3]
+	Current.Weights[Index.Stable]<-Current.Weights[Index.Stable]*in.Data$Spatial$Grid[New.Particles,3]
 	}
 	#=======================================================
 	# now I want to add 3.3
@@ -497,7 +497,7 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
   # this function will extract point coordinates from the output matrix.. 
   # the question is do we need only mean and sd or also median and quantiles?
   # I will start from mean and SD
-  #plot(c(min(in.Data$Points.Land[,1]),max(in.Data$Points.Land[,1])), c(min(in.Data$Points.Land[,2]),max(in.Data$Points.Land[,2])), type="n")
+  #plot(c(min(in.Data$Spatial$Grid[,1]),max(in.Data$Spatial$Grid[,1])), c(min(in.Data$Spatial$Grid[,2]),max(in.Data$Spatial$Grid[,2])), type="n")
   
   if (save.points.distribution) {
     require("bit")
@@ -509,9 +509,9 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
     }
     in.Data$Points.rle<-Points
   }
-  Means=aspace:::calc_box(id=1,  points=in.Data$Points.Land[output.matrix[,1],1:2])
+  Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[output.matrix[,1],1:2])
   for (i in 2:(dim(output.matrix)[2])) {
-    Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Points.Land[output.matrix[,i], 1:2])
+    Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[output.matrix[,i], 1:2])
     #plot_box(plotnew=F, plotpoints=F)
   }
   in.Data$Final.Means<-Means
@@ -522,8 +522,8 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	Quantiles<-c()
 	CIntervals<-c()
 	for (i in 1:length(Points)) {
-	Quantiles<-rbind(Quantiles, c(summary(in.Data$Points.Land[inverse.rle(Points[[i]]),2]), Mode=in.Data$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(in.Data$Points.Land[inverse.rle(Points[[i]]),1]), Mode=in.Data$Points.Land[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
-	CIntervals<-rbind(CIntervals, c(quantile(in.Data$Points.Land[inverse.rle(Points[[i]]),2], probs = c(0.025, 0.975)), quantile(in.Data$Points.Land[inverse.rle(Points[[i]]),1], probs = c(0.025, 0.975))))
+	Quantiles<-rbind(Quantiles, c(summary(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),2]), Mode=in.Data$Spatial$Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),1]), Mode=in.Data$Spatial$Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
+	CIntervals<-rbind(CIntervals, c(quantile(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),2], probs = c(0.025, 0.975)), quantile(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),1], probs = c(0.025, 0.975))))
 	}
 	Quantiles<-as.data.frame(Quantiles)
 	names(Quantiles)[1:6]<-paste(names(Quantiles)[1:6], "lat", sep="")

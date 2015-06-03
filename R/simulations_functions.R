@@ -1,7 +1,7 @@
 #simulations_functions.R
 # these functions were used right befre the 0.2.1 version so they should work
 
-get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), min.max.values=c(0,64), Points.Land, start, ask=F, slopes.only=F, delta=NULL, short.run=F, measurement.period=60, saving.period=NULL, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL, GeoLight=F) {
+get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), min.max.values=c(0,64), Grid, start, ask=F, slopes.only=F, delta=NULL, short.run=F, measurement.period=60, saving.period=NULL, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL, GeoLight=F) {
 #========================================
 if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
@@ -52,8 +52,8 @@ tw <- twilightCalc(Track$gmt, Track$light, allTwilights=T, ask=F, LightThreshold
 
 
 # so we will create a vector of points from Equator to Pole and will estimate the likelihood of out positions in that points..
-#Points.Land<-cbind(start[1], seq(0, 67, 0.5))
-#Points.Land<-cbind(-143, seq(50, 67, 0.5))
+#Grid<-cbind(start[1], seq(0, 67, 0.5))
+#Grid<-cbind(-143, seq(50, 67, 0.5))
 
 # now we want to solve the equation for every day..
 
@@ -144,7 +144,7 @@ Result.all<-list(Final.dusk=Result.Dusk, Final.dawn=Result.Dawn)
 
 # ok now I want to create an output..
 
-Index.tab<-create.proposal(Result.all, start=start, Points.Land=Points.Land)
+Index.tab<-create.proposal(Result.all, start=start, Grid=Grid)
 #save(Index.tab, file="Index.tab.RData")
 
 Index.tab$yday<-as.POSIXlt(Index.tab$Date, tz="GMT")$yday
@@ -157,7 +157,7 @@ Index.tab$M.sd<- 500 # distance sd
 
 
 ##START POINTS###
-all.out<-geologger.sampler.create.arrays(Index.tab, Points.Land, start=start)
+all.out<-geologger.sampler.create.arrays(Index.tab, Grid, start=start)
 
 #================= END== =====================================================
 
@@ -227,12 +227,12 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twi
 		#cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
  
-		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land,log.light.borders=log.light.borders, calibration=calibration)
-		 #All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=cbind(0,38), return.slopes=T)
+		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid,log.light.borders=log.light.borders, calibration=calibration)
+		 #All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Grid=cbind(0,38), return.slopes=T)
 	
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Parameters$LogSlope,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land,  log.light.borders=log.light.borders, calibration=calibration)
-		#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Points.Land=Points.Land)
+		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Parameters$LogSlope,log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid,  log.light.borders=log.light.borders, calibration=calibration)
+		#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid)
 # ok, what should we do now?
 # first I'd found a maximum of the probabilities for each day and comapre it with the means 
 
@@ -299,7 +299,7 @@ Track<-simulate.track(measurement.period=measurement.period, saving.period=savin
 
 #start=c(0,Latitude) # let's make it random also.. but this should already come from TO.run
 
-#Points.Land<-cbind(start[1], start[2], 1)
+#Grid<-cbind(start[1], start[2], 1)
 
 # now we will be measuring evey 60 seconds and save max inside a period for the future.
 
@@ -364,21 +364,21 @@ Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 #		cat("doing", Twilight.ID, "\n")	
 
-# now I need to create Points.Land
+# now I need to create Grid
 Row<-sapply(as.numeric(Filtered_tw$datetime), FUN=function(x) which.min(abs(x-Track$Time.seq)))
 
 
 # ok and here we need to get around somehow...
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
-#Points.Land<-cbind(start[1],start[2],1)
+#Grid<-cbind(start[1],start[2],1)
 
 All.probs.dusk<-c()
 for (Twilight.ID in Twilight.vector) {
 	Lon<-Track$Lon[Row[Filtered_tw$type==2][Twilight.ID]]
 	Lat<-Track$Lat[Row[Filtered_tw$type==2][Twilight.ID]]
-	Points.Land<-cbind(Lon, Lat)
+	Grid<-cbind(Lon, Lat)
 	
-	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Grid=Grid, delta=0, log.light.borders=log.light.borders))
 	#print(str(Prob.surf))
 	All.probs.dusk<-cbind(All.probs.dusk, Prob.surf)
  }
@@ -392,9 +392,9 @@ for (Twilight.ID in Twilight.vector) {
 	for (Twilight.ID in Twilight.vector) {
 	Lon<-Track$Lon[Row[Filtered_tw$type==1][Twilight.ID]]
 	Lat<-Track$Lat[Row[Filtered_tw$type==1][Twilight.ID]]
-	#print(Points.Land)
-	Points.Land<-cbind(Lon, Lat)
-	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Points.Land=Points.Land, delta=0, log.light.borders=log.light.borders))
+	#print(Grid)
+	Grid<-cbind(Lon, Lat)
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Grid=Grid, delta=0, log.light.borders=log.light.borders))
 	#print(str(Prob.surf))
 	All.probs.dawn<-cbind(All.probs.dawn, Prob.surf)
 	}
@@ -599,24 +599,24 @@ return(Track)
 get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=F, measurement.period=60, saving.period=600, short.run=T, calibration=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0,64), log.irrad.borders=c(-15, 50)) {
 # so this function will have to return 1 0 or -1
 
-Points.Land<-as.matrix(expand.grid(start[1], seq(start[2]-8, start[2]+8, 0.5)))
-Points.Land<-cbind(Points.Land, 1)
+Grid<-as.matrix(expand.grid(start[1], seq(start[2]-8, start[2]+8, 0.5)))
+Grid<-cbind(Grid, 1)
 Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-22 23:59:59", tz="UTC")), by=saving.period)
 Track<-cbind(start[1], start[2], Time.seq)
 
 Parameters=calibration$Parameters
 Parameters$LogSigma=c(log(Sigma), 0.0)
-all.out<-get.shifts(Track=Track, Points.Land=Points.Land, start=start, Parameters=Parameters, log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders, slopes.only=F, delta=delta, short.run=short.run, measurement.period=measurement.period, saving.period=saving.period, calibration=calibration)
+all.out<-get.shifts(Track=Track, Grid=Grid, start=start, Parameters=Parameters, log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders, slopes.only=F, delta=delta, short.run=short.run, measurement.period=measurement.period, saving.period=saving.period, calibration=calibration)
 Real.Sigma<-mean(all.out$Slopes[,2], na.rm=T)
 # and now we need to get resulting value
 
-Diff<-try(all.out$Points.Land[which.max(apply(all.out$Phys.Mat[,1:(dim(all.out$Phys.Mat)[2])],1,  FUN=prod)),2]-start[2])
+Diff<-try(all.out$Spatial$Grid[which.max(apply(all.out$Phys.Mat[,1:(dim(all.out$Phys.Mat)[2])],1,  FUN=prod)),2]-start[2])
 if (class(Diff)=="try-error") Diff=NA
 
-Diff_1<-try(all.out$Points.Land[which.max(apply(all.out$Phys.Mat[,1:80],1,  FUN=prod)),2]-start[2])
+Diff_1<-try(all.out$Spatial$Grid[which.max(apply(all.out$Phys.Mat[,1:80],1,  FUN=prod)),2]-start[2])
 if (class(Diff_1)=="try-error") Diff_1=NA
 
-Diff_2<-try(all.out$Points.Land[which.max(apply(all.out$Phys.Mat[,80:(dim(all.out$Phys.Mat)[2])],1,  FUN=prod)),2]-start[2])
+Diff_2<-try(all.out$Spatial$Grid[which.max(apply(all.out$Phys.Mat[,80:(dim(all.out$Phys.Mat)[2])],1,  FUN=prod)),2]-start[2])
 if (class(Diff_2)=="try-error") Diff_2=NA
 
 Res<-c(Diff, Real.Sigma, delta, start[2], Diff_1=Diff_1, Diff_2=Diff_2)
@@ -988,7 +988,7 @@ Result.all<-list(Final.dusk=Result.Dusk, Final.dawn=Result.Dawn)
 ####
 
 ##START POINTS###
-#all.out<-geologger.sampler.create.arrays(Index.tab, Points.Land, start=start)
+#all.out<-geologger.sampler.create.arrays(Index.tab, Grid, start=start)
 
 #================= END== =====================================================
 
@@ -1038,12 +1038,12 @@ return(Tracks)
 
 get.diff<-function(prepared.data, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50)) {
 
-	Points.Land<-as.matrix(expand.grid(0, seq(prepared.data$Lat-10, prepared.data$Lat+10, 0.5)))
-	Points.Land<-cbind(Points.Land, 1)
+	Grid<-as.matrix(expand.grid(0, seq(prepared.data$Lat-10, prepared.data$Lat+10, 0.5)))
+	Grid<-cbind(Grid, 1)
 
-	All.probs.dusk<-sapply(prepared.data$Dusk$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dusk$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dusk$Twilight.time.mat, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Points.Land=Points.Land,log.light.borders=log.light.borders, calibration=calibration)
+	All.probs.dusk<-sapply(prepared.data$Dusk$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dusk$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dusk$Twilight.time.mat, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Grid=Grid,log.light.borders=log.light.borders, calibration=calibration)
 	
-	All.probs.dawn<-sapply(prepared.data$Dawn$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dawn$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dawn$Twilight.time.mat, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Points.Land=Points.Land,  log.light.borders=log.light.borders, calibration=calibration)
+	All.probs.dawn<-sapply(prepared.data$Dawn$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dawn$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dawn$Twilight.time.mat, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Grid=Grid,  log.light.borders=log.light.borders, calibration=calibration)
 
 	Phys.Mat<-c()
 	for (i in 1:nrow(prepared.data$Filtered_tw)) {
@@ -1056,10 +1056,10 @@ get.diff<-function(prepared.data, calibration, min.max.values=c(1, 1150), log.li
 		}
 	}
 	
-	Diff<-try(Points.Land[which.max(apply(Phys.Mat[,1:(dim(Phys.Mat)[2])],1,  FUN=prod)),2]-prepared.data$Lat)
+	Diff<-try(Grid[which.max(apply(Phys.Mat[,1:(dim(Phys.Mat)[2])],1,  FUN=prod)),2]-prepared.data$Lat)
 	#if (class(Diff)=="try-error") Diff=NA
 
-	#Diff_1<-try(all.out$Points.Land[which.max(apply(all.out$Phys.Mat[,1:80],1,  FUN=prod)),2]-start[2])
+	#Diff_1<-try(all.out$Grid[which.max(apply(all.out$Phys.Mat[,1:80],1,  FUN=prod)),2]-start[2])
 	#if (class(Diff_1)=="try-error") Diff_1=NA
 
 	return(Diff)

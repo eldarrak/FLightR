@@ -15,10 +15,10 @@ if (add.boundaries) data(wrld_simpl)
 # new addition - as far as spatial points may have 3 columns
 # 1 additional for water
 # we could check for this column and then exclude all the points which have it..
-Start=in.Data$Points.Land[in.Data$start[1],1:2]
-	  if (dim(in.Data$Points.Land)[2]>2) {
-	  Index<-  which(in.Data$Points.Land[,3]>0)
-		in.Data$Points.Land=in.Data$Points.Land[Index,]
+Start=in.Data$Spatial$Grid[in.Data$start[1],1:2]
+	  if (dim(in.Data$Spatial$Grid)[2]>2) {
+	  Index<-  which(in.Data$Spatial$Grid[,3]>0)
+		in.Data$Spatial$Grid=in.Data$Spatial$Grid[Index,]
 		#Dawn.matrix=Dawn.matrix[Index,]
 		#Dusk.matrix=Dusk.matrix[Index,]
 		}
@@ -50,7 +50,7 @@ split.screen(c(1,3), screen = 2)
 			cat("producing image #", i, "\n")
 		screen(7)
 			if (length(unique(Dawn.Column[Index]))>2) {
-			Image<-try(as.image(Dawn.Column[Index], x= in.Data$Points.Land, nrow=30, ncol=30, na.rm=T))
+			Image<-try(as.image(Dawn.Column[Index], x= in.Data$Spatial$Grid, nrow=30, ncol=30, na.rm=T))
 			image(Image , main="Dawn", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -65,7 +65,7 @@ split.screen(c(1,3), screen = 2)
 		screen(8)
 			if (length(unique(Dawn.Column[Index]))>2 & length(unique(Dusk.Column[Index]))>2) {
 
-			Image<-as.image(Dusk.Column[Index]*Dawn.Column[Index], x= in.Data$Points.Land, nrow=30, ncol=30)
+			Image<-as.image(Dusk.Column[Index]*Dawn.Column[Index], x= in.Data$Spatial$Grid, nrow=30, ncol=30)
 			image(Image, main="Multiplication", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -76,7 +76,7 @@ split.screen(c(1,3), screen = 2)
 
 		screen(9)
 			if (length(unique(Dusk.Column[Index]))>2) {
-			Image<-as.image(Dusk.Column[Index], x= in.Data$Points.Land, nrow=30, ncol=30)
+			Image<-as.image(Dusk.Column[Index], x= in.Data$Spatial$Grid, nrow=30, ncol=30)
 			image(Image, main="Dusk", col=my.golden.colors(64))
 			box()
 			if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -165,10 +165,10 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
   # new addition - as far as spatial points may have 3 columns
   # 1 additional for water
   # we could check for this column and then exclude all the points which have it..
-  Start=in.Data$Points.Land[in.Data$start[1],1:2]
-  if (dim(in.Data$Points.Land)[2]>2) {
-    Index<-  which(in.Data$Points.Land[,3]>0)
-    in.Data$Points.Land=in.Data$Points.Land[Index,]
+  Start=in.Data$Spatial$Grid[in.Data$start[1],1:2]
+  if (dim(in.Data$Spatial$Grid)[2]>2) {
+    Index<-  which(in.Data$Spatial$Grid[,3]>0)
+    in.Data$Spatial$Grid=in.Data$Spatial$Grid[Index,]
     #Dawn.matrix=Dawn.matrix[Index,]
     #Dusk.matrix=Dusk.matrix[Index,]
   }
@@ -200,7 +200,7 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
         cat("producing image #", i, "\n")
         screen(7)
         
-        Image<-as.image(Dawn.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
+        Image<-as.image(Dawn.Column[Index], x= in.Data$Spatial$Grid, nrow=50, ncol=50)
         image(Image , main="Dawn", col=my.golden.colors(64))
         box()
         if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -211,7 +211,7 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
         ## Multiplication graph
         #par( my.par)
         screen(8)
-        Image<-as.image(Dusk.Column[Index]*Dawn.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
+        Image<-as.image(Dusk.Column[Index]*Dawn.Column[Index], x= in.Data$Spatial$Grid, nrow=50, ncol=50)
         image(Image, main="Multiplication", col=my.golden.colors(64))
         box()
         if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -222,7 +222,7 @@ make.movie2<-function(in.Data, Data, Result, video.name="test1.mp4", start=c(-98
         ## Dusk graph			
         #par( my.par)
         screen(9)
-        Image<-as.image(Dusk.Column[Index], x= in.Data$Points.Land, nrow=50, ncol=50)
+        Image<-as.image(Dusk.Column[Index], x= in.Data$Spatial$Grid, nrow=50, ncol=50)
         image(Image, main="Dusk", col=my.golden.colors(64))
         box()
         if (add.boundaries) plot(wrld_simpl, add=T, border=grey(0.6), lwd=2)
@@ -299,11 +299,11 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 	require(fields)
 	require(truncnorm)
 	#if (add.boundaries) data(wrld_simpl)
-	Points.Land<-all.out$Points.Land
+	Grid<-all.out$Spatial$Grid
 	my.golden.colors <- colorRampPalette(
 					c("white","#FF7100"),
 					bias=2.0)	
-	Start=all.out$Points.Land[all.out$start[1],1:2]
+	Start=all.out$Spatial$Grid[all.out$start[1],1:2]
 	saveVideo({
 	  for (i in 1:(nrow(all.out$Indices$Matrix.Index.Table)-1)) { #
 			cat("doing ", i, "\n")
@@ -338,7 +338,7 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			par(mar=(c(3, 3, 3, 4) + 0.1))
 			Matrix2plot<-all.out$Phys.Mat[,i]
 			Matrix2plot[all.out$Geogr.proposal==0]<-Matrix2plot[all.out$Geogr.proposal==0]*sea.value
-			image.plot(as.image(Matrix2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("likelihood surface at",  all.out$Indices$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
+			image.plot(as.image(Matrix2plot, x= all.out$Spatial$Grid, nrow=50, ncol=50), main=paste("likelihood surface at",  all.out$Indices$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
 			if (add.boundaries) {
 			map('state',add=TRUE, lwd=1,  col=grey(0.5))
 			map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
@@ -357,7 +357,7 @@ make.final.movie<-function(all.out, video.name="result.mp4", add.boundaries=T, s
 			Points2plot<-all.out$Phys.Mat[,1]*0
 			Points2plot[all.out$Points.rle[[i+1]][[2]]]<-all.out$Points.rle[[i+1]][[1]]/1e6
 			
-			image.plot(as.image(Points2plot, x= all.out$Points.Land, nrow=50, ncol=50), main=paste("points distribution at",  all.out$Indices$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
+			image.plot(as.image(Points2plot, x= all.out$Spatial$Grid, nrow=50, ncol=50), main=paste("points distribution at",  all.out$Indices$Matrix.Index.Table$Real.time[i]), col=my.golden.colors(64))
 			if (add.boundaries) {
 			map('state',add=TRUE, lwd=1,  col=grey(0.5))
 			map('world',add=TRUE, lwd=1.5,  col=grey(0.8))

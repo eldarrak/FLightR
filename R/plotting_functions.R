@@ -5,10 +5,10 @@
 plot.optimisation.results<-function(object, all.arrays.object, add=F, col="red", map.fill=T, type="mean", pch=3) {
   # simple plotting function
   if (as.character(type)=="mean") {
-    Track.coords<-t(apply(object,2, FUN=function(x) cbind(mean( all.arrays.object$Points.Land[x,1]), mean(all.arrays.object$Points.Land[x,2]))))}
+    Track.coords<-t(apply(object,2, FUN=function(x) cbind(mean( all.arrays.object$Spatial$Grid[x,1]), mean(all.arrays.object$Spatial$Grid[x,2]))))}
   else {
     cat("plotting medians\n")
-    Track.coords<-t(apply(object,2, FUN=function(x) cbind(median( all.arrays.object$Points.Land[x,1]), median(all.arrays.object$Points.Land[x,2]))))
+    Track.coords<-t(apply(object,2, FUN=function(x) cbind(median( all.arrays.object$Spatial$Grid[x,1]), median(all.arrays.object$Spatial$Grid[x,2]))))
   }
   if (add) {lines(Track.coords, type="l", col=col)} 
   else {
@@ -60,7 +60,7 @@ create.credible.intervals.array<-function(in.Data, intervals=c(0.8, 0.6, 0.4, 0.
       Pointstopoly<-as.integer(names(Density)[Density<=Seq[int]])
       if (length(Pointstopoly)==0) {
         Pointstopoly<-as.integer(names(Density)[1])}
-      Pol<-Polygons(list(Polygon(in.Data$Points.Land[c(Pointstopoly, Pointstopoly[1]), ])), ID=Iteration)
+      Pol<-Polygons(list(Polygon(in.Data$Spatial$Grid[c(Pointstopoly, Pointstopoly[1]), ])), ID=Iteration)
       Polygons[[int]][[Iteration]]<-Pol
     }
   }

@@ -340,7 +340,7 @@ return(processed.light)
 }
 
 # this create proposal is corrected for the missing loess
-create.proposal<-function(processed.light, start=c(-98.7, 34.7), end=NA, Points.Land) {
+create.proposal<-function(processed.light, start=c(-98.7, 34.7), end=NA, Grid) {
 	if (is.na(end)) end=start
 All.Days<-seq(min(min(processed.light$Final.dusk$Data$gmt), min(processed.light$Final.dawn$Data$gmt)),max(max(processed.light$Final.dusk$Data$gmt), max(processed.light$Final.dawn$Data$gmt)), by="days")
 
@@ -389,7 +389,7 @@ for (i in 1:length(processed.light$Final.dawn$Data$gmt)) {
 while (is.na(Index.tab$Curr.mat[1])) Index.tab<-Index.tab[-1,]
 while (is.na(Index.tab$Curr.mat[nrow(Index.tab)])) Index.tab<-Index.tab[-nrow(Index.tab),]
 Index.tab$Point<-NA
-First.Point<-which.min(spDistsN1(Points.Land[,1:2], start,  longlat=T))
+First.Point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
 Index.tab$Point[1]<-First.Point
 #
 # I decided that Curr.mat is not needed anymore
@@ -402,7 +402,7 @@ Index.tab$yday<-as.POSIXlt(Index.tab$Date, tz="GMT")$yday
 
 
 
-geologger.sampler.create.arrays<-function(Index.tab, Points.Land, start, stop=start) {
+geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	# this function wil take in Index.table with all the proposals and will create an array for case of missed data..
 	
 	# the main feature is that it can account for missing data..
@@ -444,17 +444,18 @@ geologger.sampler.create.arrays<-function(Index.tab, Points.Land, start, stop=st
 	Indices<-list(Matrix.Index.Table=Matrix.Index.Table, Main.Index=Main.Index)
 	
 	output$Indices=Indices
-	output$start.point<-which.min(spDistsN1(Points.Land[,1:2], start,  longlat=T))
+	output$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
 	
-	output$stop.point<-which.min(spDistsN1(Points.Land[,1:2], stop,  longlat=T))
+	output$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
 	
 	# ok now we need to add to output all other parts..
-	output$Points.Land<-Points.Land #[,1:2]
-	output$distance<-spDists(Points.Land[,1:2], longlat=T)
+	
+	output$Spatial<-list(Grid=Grid) #[,1:2]
+	output$distance<-spDists(Grid[,1:2], longlat=T)
 
-	output$Geogr.proposal<-as.integer(Points.Land[,3])
+	output$Geogr.proposal<-as.integer(Grid[,3])
 	get.angles<-function(all.arrays.object) {
-		return(apply(all.arrays.object$Points.Land, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Points.Land, to=x)))))
+		return(apply(all.arrays.object$Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Grid, to=x)))))
 	}
 	output$Azimuths<-get.angles(output)
 
