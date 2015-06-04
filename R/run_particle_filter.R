@@ -484,7 +484,7 @@ cat("******************\n")
   if (sink2file) sink()
   tmp.results<-list(AB.distance=in.Data$AB.distance, AC.distance2=in.Data$AC.distance2, Dif.ang=in.Data$Dif.ang)
 
-  return(list(All.results=All.results, Trans=Trans, Results=list(outliers=in.Data$Results$outliers, tmp.results=tmp.results))
+  return(list(All.results=All.results, Trans=Trans, Results=list(outliers=in.Data$Results$outliers, tmp.results=tmp.results)))
 }
 
 
