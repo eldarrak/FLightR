@@ -1,7 +1,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, update.angle.drift=F, adaptive.resampling=0.5, save.transitions=T, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, update.angle.drift=F, adaptive.resampling=0.5, check.outliers=F, sink2file=F) {
 
     all.out$SD<-vector(mode = "double")
     all.out$LL<-vector(mode = "double")
@@ -38,7 +38,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
       cat("estimating results object\n")
       all.out.old<-all.out
       all.out<-get.coordinates.PF(All.results.mat, all.out)
-      all.out<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl, save.transitions=save.transitions)
+      all.out<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl)
 
     rm(Res)
     rm(All.results.mat)
@@ -561,7 +561,7 @@ get.coordinates.PF<-function(output.matrix, in.Data) {
 }
 
 
-estimate.movement.parameters<-function(output.matrix, Trans, in.Data, save.transitions=F, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F) {
+estimate.movement.parameters<-function(output.matrix, Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F) {
   mycl=existing.cluster
   
   # old name update.proposal.PF
@@ -660,7 +660,7 @@ estimate.movement.parameters<-function(output.matrix, Trans, in.Data, save.trans
   #all.arrays.object$Indices$Matrix.Index.Table<-New.Matrix.Index.Table
   
   all.arrays.object$Indices$Main.Index$Biol.Prev=1:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
-  if(save.transitions) all.arrays.object$Transitions.rle<-Trans
+  all.arrays.object$Results$Transitions.rle<-Trans
   
   
   if (is.list(fixed.parameters)) {
