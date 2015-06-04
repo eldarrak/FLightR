@@ -22,6 +22,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     # Part 2. Creating matrix of results.
     cat("creating results matrix \n")
     All.results.mat<-return.matrix.from.char(Res$All.results)
+	all.out$Results<-list()
 	all.out$Results$outliers <- Res$outliers
 	all.out$Results$tmp<-Res$Results$tmp
     # Part 2a. Estimating log likelihood
@@ -182,7 +183,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   
   New.weights<-rep(1/nParticles, nParticles)
   All.results<-NULL
-  in.Data$outliers<-c()
+  outliers<-c()
 	  Trans<-vector(mode = "list", length = nrow(in.Data$Indices$Main.Index))
   	if (check.outliers) {
 	  in.Data$AB.distance<-c()
@@ -321,8 +322,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	#if ( steps.from.last>2 & ((AB.distance>50 & AB.distance>(AC.distance2*1.3))| (abs(Dif.ang)<90))) {
 	if ( steps.from.last>2 & ((AB.distance>50 & AB.distance>(AC.distance2*1.3))| (AB.distance>AC.distance2 & abs(Dif.ang)<100))) {
 	steps.from.last=0
-	cat("outlier number", length(in.Data$outliers)+1, "detected! removing observations from ", Time.Period-1, "!\n")
-	in.Data$outliers<-c(in.Data$outliers, Time.Period-1)
+	cat("outlier number", length(outliers)+1, "detected! removing observations from ", Time.Period-1, "!\n")
+	outliers<-c(outliers, Time.Period-1)
 	# and now the main question - how should we remove the weights??
 	# probably the easiest way would be to add 1/nParticles into the last column..
 	Weights.stack[,ncol(Weights.stack)]<-rep(1/nParticles, nParticles)
@@ -484,7 +485,7 @@ cat("******************\n")
   if (sink2file) sink()
   tmp.results<-list(AB.distance=in.Data$AB.distance, AC.distance2=in.Data$AC.distance2, Dif.ang=in.Data$Dif.ang)
 
-  return(list(All.results=All.results, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results)))
+  return(list(All.results=All.results, Trans=Trans, Results=list(outliers=outliers, tmp.results=tmp.results)))
 }
 
 
