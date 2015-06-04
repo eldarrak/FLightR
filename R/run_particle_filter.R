@@ -1,7 +1,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, save.points.distribution=T, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, update.angle.drift=F, adaptive.resampling=0.5, save.transitions=T, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, update.angle.drift=F, adaptive.resampling=0.5, save.transitions=T, check.outliers=F, sink2file=F) {
 
     all.out$SD<-vector(mode = "double")
     all.out$LL<-vector(mode = "double")
@@ -37,7 +37,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
       all.out.old<-all.out
-      all.out<-get.coordinates.PF(All.results.mat, all.out, save.points.distribution=save.points.distribution)
+      all.out<-get.coordinates.PF(All.results.mat, all.out)
       all.out<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl, save.transitions=save.transitions)
 
     rm(Res)
@@ -494,7 +494,7 @@ return.matrix.from.char<-function(Res.txt) {
 }
 
 
-get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F) {
+get.coordinates.PF<-function(output.matrix, in.Data) {
   library("aspace")
   # this function will extract point coordinates from the output matrix.. 
   # the question is do we need only mean and sd or also median and quantiles?
@@ -511,6 +511,14 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
   #############
   # new part for medians
   cat("estimating quantiles for positions\n")
+      require("bit")
+    Points<-vector(mode = "list", length = (dim(output.matrix)[2]))
+    cat("   extracting indices for rle\n")
+    for (i in 1:(dim(output.matrix)[2])) {
+      Points[[i]]<-Rle<-bit:::intrle(sort.int(output.matrix[,i], method="quick"))
+      if (is.null(Rle)) Points[[i]]<-rle(sort.int(output.matrix[,i], method="quick"))
+    }
+	
 	Quantiles<-c()
 	CIntervals<-c()
 	for (i in 1:length(Points)) {
@@ -545,16 +553,9 @@ get.coordinates.PF<-function(output.matrix, in.Data, save.points.distribution=F)
 	  
 	in.Data$Results$Quantiles<-Quantiles
 	
-	if (save.points.distribution) {
-    require("bit")
-    Points<-vector(mode = "list", length = (dim(output.matrix)[2]))
-    cat("   extracting indexes for rle\n")
-    for (i in 1:(dim(output.matrix)[2])) {
-      Points[[i]]<-Rle<-bit:::intrle(sort.int(output.matrix[,i], method="quick"))
-      if (is.null(Rle)) Points[[i]]<-rle(sort.int(output.matrix[,i], method="quick"))
-    }
+	#if (save.points.distribution) {
     in.Data$Results$Points.rle<-Points
-  }
+  #}
 	
    return(in.Data)
 }
