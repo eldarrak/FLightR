@@ -1,7 +1,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, update.angle.drift=F, adaptive.resampling=0.5, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
 
     all.out$SD<-vector(mode = "double")
     all.out$LL<-vector(mode = "double")
@@ -22,8 +22,8 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     # Part 2. Creating matrix of results.
     cat("creating results matrix \n")
     All.results.mat<-return.matrix.from.char(Res$All.results)
-	all.out$outliers <- Res$outliers
-	all.out$tmp<-Res$tmp
+	all.out$Results$outliers <- Res$outliers
+	all.out$Results$tmp<-Res$Results$tmp
     # Part 2a. Estimating log likelihood
     LL<-get.LL.PF(all.out, All.results.mat)
     cat("+----------------------------------+\n")
@@ -482,9 +482,9 @@ cat("******************\n")
   if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
   if (length(existing.cluster)==1) parallel:::stopCluster(cl = mycl)
   if (sink2file) sink()
-  tmp<-list(AB.distance=in.Data$AB.distance, AC.distance2=in.Data$AC.distance2, Dif.ang=in.Data$Dif.ang)
+  tmp.results<-list(AB.distance=in.Data$AB.distance, AC.distance2=in.Data$AC.distance2, Dif.ang=in.Data$Dif.ang)
 
-  return(list(All.results=All.results, Trans=Trans, outliers=in.Data$outliers, tmp=tmp))
+  return(list(All.results=All.results, Trans=Trans, Results=list(outliers=in.Data$Results$outliers, tmp.results=tmp.results))
 }
 
 
