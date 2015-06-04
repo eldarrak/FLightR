@@ -506,9 +506,9 @@ get.coordinates.PF<-function(output.matrix, in.Data) {
     Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[output.matrix[,i], 1:2])
     #plot_box(plotnew=F, plotpoints=F)
   }
-  outliers<-in.Data$Results$outliers
-  tmp.results<-in.Data$Results$tmp.results
-  in.Data$Results<-list(Final.Means=Means)
+ 
+   if (length(in.Data$Results)==0) in.Data$Results<-list()
+  in.Data$Results$Final.Means<-Means
   
   #############
   # new part for medians
@@ -558,8 +558,6 @@ get.coordinates.PF<-function(output.matrix, in.Data) {
 	#if (save.points.distribution) {
     in.Data$Results$Points.rle<-Points
   #}
-	in.Data$Results$outliers<-outliers
-	in.Data$Results$tmp.results<-tmp.results
   return(in.Data)
 }
 
