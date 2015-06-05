@@ -532,12 +532,12 @@ get.coordinates.PF<-function(output.matrix, in.Data) {
   #plot(c(min(in.Data$Spatial$Grid[,1]),max(in.Data$Spatial$Grid[,1])), c(min(in.Data$Spatial$Grid[,2]),max(in.Data$Spatial$Grid[,2])), type="n")
   log <- capture.output({
     Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[output.matrix[,1],1:2])
-   })
+   
   for (i in 2:(dim(output.matrix)[2])) {
     Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[output.matrix[,i], 1:2])
     #plot_box(plotnew=F, plotpoints=F)
   }
- 
+	})
    if (length(in.Data$Results)==0) in.Data$Results<-list()
   in.Data$Results$Final.Means<-Means
   
