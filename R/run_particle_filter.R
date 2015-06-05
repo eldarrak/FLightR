@@ -1,7 +1,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
 
 	all.out$Results<-list()
     all.out$Results$SD<-vector(mode = "double")
@@ -40,8 +40,11 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
       cat("estimating results object\n")
       all.out.old<-all.out
       all.out<-get.coordinates.PF(All.results.mat, all.out)
-      all.out<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl)
-
+      Movement.parameters<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl)
+	  
+	all.out$Results$Movement.results=Movement.parameters$Movement.results
+	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
+	
 	  all.out$Results$LL<-LL
     rm(Res)
     rm(All.results.mat)
@@ -648,38 +651,38 @@ estimate.movement.parameters<-function(output.matrix, Trans, in.Data, fixed.para
   #New.Matrix.Index.Table<-data.frame(Direction=Mean.Directions, M.mean=Mean.Dists, M.sd=Mean.SD, Decision=Probability.of.migration, Kappa=Kappas)
   ################
   
-  all.arrays.object<-in.Data
+  Movement.results<-in.Data$Indices$Matrix.Index.Table
+  #all.arrays.object<-in.Data
   
   #----------------
   # actually I do not want to update this - so I rather save it outside if possible..
-  all.arrays.object$Indices$Matrix.Index.Table$Decision<-Probability.of.migration
-  all.arrays.object$Indices$Matrix.Index.Table$Direction<-Mean.Directions
-  all.arrays.object$Indices$Matrix.Index.Table$Kappa<-Kappas
-  all.arrays.object$Indices$Matrix.Index.Table$M.mean<-Mean.Dists
-  all.arrays.object$Indices$Matrix.Index.Table$M.sd<-Mean.SD
-  all.arrays.object$Indices$Matrix.Index.Table$M.medians<-Median.Dists
-  all.arrays.object$Indices$Matrix.Index.Table$Mean2report<-Mean2report
-  all.arrays.object$Indices$Matrix.Index.Table$SD2report<-SD2report
+  Movement.results$Decision<-Probability.of.migration
+  Movement.results$Direction<-Mean.Directions
+  Movement.results$Kappa<-Kappas
+  Movement.results$M.mean<-Mean.Dists
+  Movement.results$M.sd<-Mean.SD
+  Movement.results$M.medians<-Median.Dists
+  Movement.results$Mean2report<-Mean2report
+  Movement.results$SD2report<-SD2report
   
   #all.arrays.object$Indices$Matrix.Index.Table<-New.Matrix.Index.Table
   
-  all.arrays.object$Indices$Main.Index$Biol.Prev=1:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
-  all.arrays.object$Results$Transitions.rle<-Trans
-  
-  
+  #all.arrays.object$Indices$Main.Index$Biol.Prev=1:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
+    
   if (is.list(fixed.parameters)) {
     # this part can be moved upper not to estimate parametrs in case they are fixed.
-    if ("M.sd" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$M.sd<-fixed.parameters$M.sd
+    if ("M.sd" %in% names(fixed.parameters)) Movement.results$M.sd<-fixed.parameters$M.sd
     
-    if ("M.mean" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$M.mean<-fixed.parameters$M.mean
+    if ("M.mean" %in% names(fixed.parameters)) Movement.results$M.mean<-fixed.parameters$M.mean
     
-    if ("Kappa" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$Kappa<-fixed.parameters$Kappa
+    if ("Kappa" %in% names(fixed.parameters)) Movement.results$Kappa<-fixed.parameters$Kappa
     
-    if ("Direction" %in% names(fixed.parameters)) all.arrays.object$Indices$Matrix.Index.Table$Kappa<-fixed.parameters$Direction
+    if ("Direction" %in% names(fixed.parameters)) Movement.results$Direction<-fixed.parameters$Direction
   }
   #all.arrays.object$Indices$Main.Index$Biol.Next=2:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
   cat(" DONE!\n")
-  return(all.arrays.object)
+  Res<-list(Movement.results=Movement.results, Transitions.rle=Trans)
+  return(Res)
 }
 
 
