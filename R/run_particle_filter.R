@@ -3,8 +3,9 @@
 
 run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=25, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
 
-    all.out$SD<-vector(mode = "double")
-    all.out$LL<-vector(mode = "double")
+	all.out$Results<-list()
+    all.out$Results$SD<-vector(mode = "double")
+    all.out$Results$LL<-vector(mode = "double")
 	
   if (parallel) {
 	if (is.null(cpus)) cpus=detectCores()-1
@@ -25,7 +26,6 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	all.out$Results<-list()
 	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp.results<-Res$Results$tmp.results
-print(str(all.out$Results))	
     # Part 2a. Estimating log likelihood
     LL<-get.LL.PF(all.out, All.results.mat)
     cat("+----------------------------------+\n")
@@ -34,7 +34,7 @@ print(str(all.out$Results))
     #save(LL, file=paste(LL, "time", format(Sys.time(), "%H-%m"), ".RData"))
 	# Part 2b comparing the likelihood with previous estimate
     # now we need to save it..
-      all.out$LL<-LL
+      
 
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
@@ -42,6 +42,7 @@ print(str(all.out$Results))
       all.out<-get.coordinates.PF(All.results.mat, all.out)
       all.out<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl)
 
+	  all.out$Results$LL<-LL
     rm(Res)
     rm(All.results.mat)
     # plotting resuls
