@@ -46,6 +46,15 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
 	
 	  all.out$Results$LL<-LL
+	  
+	all.out$Results<-list(Final.Means=all.out$Results$Final.Means, 
+						Quantiles=all.out$Results$Quantiles,
+						Movement.results=all.out$Results$Movement.results,
+						outliers=all.out$Results$outliers,
+						LL=all.out$Results$LL,
+						SD=all.out$Results$LL,
+						Points.rle=all.out$Results$Points.rle,
+						Transitions.rle=all.out$Results$Transitions.rle)
     rm(Res)
     rm(All.results.mat)
     # plotting resuls
