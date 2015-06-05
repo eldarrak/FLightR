@@ -1,11 +1,22 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, min.Prob=0.01, max.Prob=0.99, fixed.parameters=NA, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
 
 	all.out$Results<-list()
     all.out$Results$SD<-vector(mode = "double")
     all.out$Results$LL<-vector(mode = "double")
+	
+	cat("preestimating distances and angles")
+	
+	all.out$Spatial$tmp<-list(Distance=spDists(all.out$Spatial$Grid[,1:2], longlat=T))
+
+	get.angles<-function(Grid) {
+		return(apply(Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=Grid, to=x)))))
+	}
+	all.out$Spatial$tmp$Azimuths<-get.angles(all.out$Spatial$Grid)
+	cat("  ... Done\n")
+
 	
   if (parallel) {
 	if (is.null(cpus)) cpus=detectCores()-1
@@ -40,7 +51,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
       cat("estimating results object\n")
       all.out.old<-all.out
       all.out<-get.coordinates.PF(All.results.mat, all.out)
-      Movement.parameters<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=fixed.parameters, a=a, b=b, parallel=parallel, existing.cluster=mycl)
+      Movement.parameters<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
@@ -54,7 +65,8 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 						LL=all.out$Results$LL,
 						SD=all.out$Results$LL,
 						Points.rle=all.out$Results$Points.rle,
-						Transitions.rle=all.out$Results$Transitions.rle)
+						Transitions.rle=all.out$Results$Transitions.rle,
+						tmp.results=all.out$Resultstmp.results)
     rm(Res)
     rm(All.results.mat)
     # plotting resuls
@@ -71,6 +83,9 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     }
     gc()
   if (parallel) parallel:::stopCluster(cl =mycl)
+  
+  all.out$Spatial$tmp<-NULL
+  
   cat("DONE!\n")
   return(all.out)
 }

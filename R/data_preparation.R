@@ -459,12 +459,12 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	output$Spatial$stop.point<-NA
 	}
 	
-	output$Spatial$tmp<-list(Distance=spDists(Grid[,1:2], longlat=T))
+	#output$Spatial$tmp<-list(Distance=spDists(Grid[,1:2], longlat=T))
 
-	get.angles<-function(all.arrays.object) {
-		return(apply(all.arrays.object$Spatial$Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Spatial$Grid, to=x)))))
-	}
-	output$Spatial$tmp$Azimuths<-get.angles(output)
+	#get.angles<-function(all.arrays.object) {
+	#	return(apply(all.arrays.object$Spatial$Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Spatial$Grid, to=x)))))
+	#}
+	#output$Spatial$tmp$Azimuths<-get.angles(output)
 
 	return(output)
 	}
