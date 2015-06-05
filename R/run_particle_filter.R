@@ -66,7 +66,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 						SD=all.out$Results$LL,
 						Points.rle=all.out$Results$Points.rle,
 						Transitions.rle=all.out$Results$Transitions.rle,
-						tmp.results=all.out$Resultstmp.results)
+						tmp.results=all.out$Results$tmp.results)
     rm(Res)
     rm(All.results.mat)
     # plotting resuls
@@ -530,8 +530,9 @@ get.coordinates.PF<-function(output.matrix, in.Data) {
   # the question is do we need only mean and sd or also median and quantiles?
   # I will start from mean and SD
   #plot(c(min(in.Data$Spatial$Grid[,1]),max(in.Data$Spatial$Grid[,1])), c(min(in.Data$Spatial$Grid[,2]),max(in.Data$Spatial$Grid[,2])), type="n")
-  
+  sink("/dev/null")
     Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[output.matrix[,1],1:2])
+	sink()
   for (i in 2:(dim(output.matrix)[2])) {
     Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[output.matrix[,i], 1:2])
     #plot_box(plotnew=F, plotpoints=F)
