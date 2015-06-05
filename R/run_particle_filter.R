@@ -23,7 +23,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     cat("creating results matrix \n")
     All.results.mat<-return.matrix.from.char(Res$All.results)
 	all.out$Results<-list()
-	all.out$Results$outliers <- Res$outliers
+	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp<-Res$Results$tmp
     # Part 2a. Estimating log likelihood
     LL<-get.LL.PF(all.out, All.results.mat)
