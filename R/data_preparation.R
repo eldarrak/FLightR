@@ -326,7 +326,7 @@ calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(resi
 Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes)
 } else {
 calib_outliers<-All.slopes$Slopes$Time[which(abs(log(All.slopes$Slopes$Slope)-mean(log(All.slopes$Slopes$Slope), na.rm=T))>3*sd(log(All.slopes$Slopes$Slope)))]
-Res<-list(calib_outliers=calib_outliers)
+Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
 }
 return(Res)
 }
