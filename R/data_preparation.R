@@ -517,7 +517,7 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 
 	output$Spatial$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
 
-	if (!is.na(stop) ) {
+	if (!is.na(stop[1]) ) {
 	output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
 	} else {
 	output$Spatial$stop.point<-NA
