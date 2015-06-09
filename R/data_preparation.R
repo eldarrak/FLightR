@@ -270,7 +270,69 @@ lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slope
 }
 
 
-create.calibration<-function( All.slopes, Proc.data, FLightR.data, log.light.borders, log.irrad.borders, start) {
+get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5)) {
+
+# ageing.model this option should be used only in case there are two periods of calibration or there is one but very long.
+if (nrow(Calibration.periods)==1 & model.ageing) warning("you have only one calibration period ageing estimation is unreliable and should be turned ot F!!!")
+
+Calibration.periods.int<-Calibration.periods
+Calibration.periods.int$calibration.start<-as.numeric(Calibration.periods.int$calibration.start)
+Calibration.periods.int$calibration.stop<-as.numeric(Calibration.periods.int$calibration.stop)
+
+
+Dusk.calib.days<-c()
+Dawn.calib.days<-c()
+Positions=list(dawn=c(), dusk=c())
+#sum(apply(Calibration.periods.int, 1, FUN=function(x) x[2]-x[1]))/3600/24
+for (i in 1:nrow(Calibration.periods)) {
+Dusk.calib.days.cur<-which(Proc.data$Twilight.time.mat.dusk[1,]>Calibration.periods.int$calibration.start[i] & Proc.data$Twilight.time.mat.dusk[1,] < Calibration.periods.int$calibration.stop[i])
+Dusk.calib.days<-unique(c(Dusk.calib.days, Dusk.calib.days.cur))
+
+Dawn.calib.days.cur<-which(Proc.data$Twilight.time.mat.dawn[1,]>Calibration.periods.int$calibration.start[i] & Proc.data$Twilight.time.mat.dawn[1,] < Calibration.periods.int$calibration.stop[i] )
+Dawn.calib.days<-unique(c(Dawn.calib.days,Dawn.calib.days.cur ))
+
+	dawn.cur=matrix(ncol=2, nrow=length(Dawn.calib.days.cur))
+		dawn.cur[,1]<-Calibration.periods.int$lon[i]
+		dawn.cur[,2]<-Calibration.periods.int$lat[i]
+		#
+		dusk.cur=matrix(ncol=2, nrow=length(Dusk.calib.days.cur))
+		dusk.cur[,1]<-Calibration.periods.int$lon[i]
+		dusk.cur[,2]<-Calibration.periods.int$lat[i]
+		Positions$dawn<-rbind(Positions$dawn, dawn.cur)
+		Positions$dusk<-rbind(Positions$dusk, dusk.cur)
+
+}
+Twilight.time.mat.Calib.dusk<-Proc.data$Twilight.time.mat.dusk[,Dusk.calib.days]
+Twilight.log.light.mat.Calib.dusk<-Proc.data$Twilight.log.light.mat.dusk[,Dusk.calib.days]
+
+## Dawn
+
+Twilight.time.mat.Calib.dawn<-Proc.data$Twilight.time.mat.dawn[,Dawn.calib.days]
+Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn[,Dawn.calib.days ]
+
+#-------------------#
+
+Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot=F)
+
+All.slopes<-get.calib.param(Calib.data.all, plot=F)
+
+All.slopes$Slopes$logSlope<-log(All.slopes$Slopes$Slope)
+
+if (model.ageing) {
+All.slopes.int<-All.slopes
+All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
+Model=lm(logSlope~Time, data=All.slopes.int$Slopes)
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model)))]
+Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes)
+} else {
+calib_outliers<-All.slopes$Slopes$Time[which(abs(log(All.slopes$Slopes$Slope)-mean(log(All.slopes$Slopes$Slope), na.rm=T))>3*sd(log(All.slopes$Slopes$Slope)))]
+Res<-list(calib_outliers=calib_outliers)
+}
+return(Res)
+}
+
+
+create.calibration<-function( All.slopes, Proc.data, FLightR.data, log.light.borders, log.irrad.borders, start, ageing.model=NULL) {
 # Now we create 'parameters' object that will have all the details about the calibration
 Parameters<-All.slopes$Parameters # LogSlope # 
 Parameters$measurement.period<-Proc.data$measurement.period 
@@ -281,13 +343,15 @@ Parameters$log.irrad.borders=log.irrad.borders
 Parameters$start=start
 
 Parameters$LogSlope_1_minute<-Parameters$LogSlope
-
+ if (is.null(ageing.model)) {
 time_correction_fun= eval(parse(text=paste("function (x,y) return(", Parameters$LogSlope[1], ")")))
-Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun)
-
 lat_correction_fun<-function(x, y, z) return(0)
+} else {
+time_correction_fun= function(x, y) return(0)
+lat_correction_fun<-eval(parse(text=paste("function (x,y) return(", coef(ageing.model)[1], "+", coef(ageing.model)[2], "* y)")))
+}
 
-Calibration$lat_correction_fun<-lat_correction_fun
+Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun)
 
 return(Calibration)
 }
