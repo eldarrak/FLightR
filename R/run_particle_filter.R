@@ -774,14 +774,10 @@ coords.aeqd.jitter <- function(coords, r, n)
 get.LL.PF<-function(in.Data, data) {
   # needed to estimate log likelihood of the optimization
   L=0
- 
+ print(str(in.Data$Spatial$Phys.Mat))
+ print(length(Data))
   if (is.list(data)) {
-  for (i in 1:(length(data)-1)) {
-  
- print(str(inverse.rle(data[[i]])))
- 
- print(str(in.Data$Spatial$Phys.Mat[,i]))
- 
+  for (i in 1:(length(data)-1)) { 
       L=L+log(mean(in.Data$Spatial$Phys.Mat[inverse.rle(data[[i]]),i]))
 	  }
   } else{ 
