@@ -775,10 +775,12 @@ get.LL.PF<-function(in.Data, data) {
   # needed to estimate log likelihood of the optimization
   L=0
  
-  for (i in 1:(dim(data)[2]-1)) {
   if (is.list(data)) {
+  for (i in 1:(length(data)-1)) {
       L=L+log(mean(in.Data$Spatial$Phys.Mat[inverse.rle(Data[[i]])[[1]],i]))
+	  }
   } else{ 
+    for (i in 1:(dim(data)[2]-1)) {
     L=L+log(mean(in.Data$Spatial$Phys.Mat[data[,i],i]))
 	}
   }
