@@ -7,3 +7,4 @@
 # towards_0.4 ver 0.1.6 - brute force calibration and the whole bunch of small changes
 # ver 0.2.1 May 2015 Many changes with reorganizing the whole thing, putting functions in thematic files and so on
 # ver 0.2.2 functions reorganized and the whole package is cleaned all output is in the results section now.
+# ver 0.2.3 June 10 2015 added the double calibration option reorganized the wrorkflow.
