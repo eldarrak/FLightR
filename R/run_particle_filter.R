@@ -36,7 +36,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 
     Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
     # Part 2. Creating matrix of results.
-    cat("creating results matrix \n")
+    #cat("creating results matrix \n")
     #All.results.mat<-return.matrix.from.char(Res$All.results)
 	all.out$Results<-list()
 	all.out$Results$outliers <- Res$Results$outliers
