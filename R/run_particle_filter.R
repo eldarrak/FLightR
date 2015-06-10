@@ -55,7 +55,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
       cat("estimating results object\n")
       all.out.old<-all.out
       all.out<-get.coordinates.PF(Res$Points, all.out)
-      Movement.parameters<-estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl)
+      Movement.parameters<-estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
@@ -607,7 +607,7 @@ get.coordinates.PF<-function(Points, in.Data) {
 }
 
 
-estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F) {
+estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F, nParticles=1e6) {
   mycl=existing.cluster
   
   # old name update.proposal.PF
@@ -659,7 +659,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   cat("   estimating probs of migration\n")
   # ok, now we want to get parameters for distances
   #
-  Probability.of.migration<-unlist(lapply(Distances, FUN=function(x) sum(x$lengths[x$values!=0])))/sum(x$lengths)
+  Probability.of.migration<-unlist(lapply(Distances, FUN=function(x) sum(x$lengths[x$values!=0])))/nParticles
   
   ## 
     if (estimatetruncnorm) {
