@@ -483,7 +483,7 @@ if (is.na(ESS)) {
       if (is.null(Points)) Points<-vector(mode = "list")
 	  Rle<-bit:::intrle(sort.int(Results.stack[,1], method="quick"))
       if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,1], method="quick"))
-	  Points[[length(Points)+1]]<-Rle
+	  Points[length(Points)+1]<-list(Rle)
       #  All.results<-paste(Results.stack[,1], sep=".")
       #} else {
       #  All.results<-paste(All.results, Results.stack[,1], sep=".")
@@ -513,7 +513,7 @@ cat("******************\n")
     
 	  Rle<-bit:::intrle(sort.int(Results.stack[,rest], method="quick"))
       if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,rest], method="quick"))
-	  Points[[length(Points)+1]]<-Rle
+	  Points[length(Points)+1]<-list(Rle)
 
 	#All.results<-paste(All.results, Results.stack[,rest], sep=".")
     if (rest<Length) {
