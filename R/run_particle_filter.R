@@ -1,3 +1,7 @@
+# for the version 0.2.4
+# decided to work on the resampling - I want to go to rle immediately inside the run
+# as it looks like the most time package needs to just sort the vary long character vectors..
+
 # run_particle.filter.R
 # functions used during the main run
 
@@ -33,14 +37,14 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
     # Part 2. Creating matrix of results.
     cat("creating results matrix \n")
-    All.results.mat<-return.matrix.from.char(Res$All.results)
+    #All.results.mat<-return.matrix.from.char(Res$All.results)
 	all.out$Results<-list()
 	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp.results<-Res$Results$tmp.results
     # Part 2a. Estimating log likelihood
-    LL<-get.LL.PF(all.out, All.results.mat)
+    LL<-get.LL.PF(all.out, Res$Points)
     cat("+----------------------------------+\n")
-    cat("|     estimated Log Likelihood is",  LL, "\n")
+    cat("|     estimated negative Log Likelihood is",  LL, "\n")
     cat("+----------------------------------+\n")
     #save(LL, file=paste(LL, "time", format(Sys.time(), "%H-%m"), ".RData"))
 	# Part 2b comparing the likelihood with previous estimate
@@ -50,8 +54,8 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
       all.out.old<-all.out
-      all.out<-get.coordinates.PF(All.results.mat, all.out)
-      Movement.parameters<-estimate.movement.parameters(All.results.mat, Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl)
+      all.out<-get.coordinates.PF(Res$Points, all.out)
+      Movement.parameters<-estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
@@ -68,7 +72,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 						Transitions.rle=all.out$Results$Transitions.rle,
 						tmp.results=all.out$Results$tmp.results)
     rm(Res)
-    rm(All.results.mat)
+    #rm(All.results.mat)
     # plotting resuls
     if (plot) {
       plot(CENTRE.y~CENTRE.x, type="p", data=all.out$Results$Final.Means, pch=3, col="blue", main="mean poistions")
@@ -211,7 +215,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   Weights.stack<-as.matrix(rep(1/nParticles, nParticles))
   
   New.weights<-rep(1/nParticles, nParticles)
-  All.results<-NULL
+  #All.results<-NULL
   in.Data$outliers<-c()
 	  Trans<-vector(mode = "list", length = nrow(in.Data$Indices$Main.Index))
   	if (check.outliers) {
@@ -474,12 +478,16 @@ if (is.na(ESS)) {
     
     if (Time.Period<=L) cat("creating stack\n")
     if (Time.Period>L) {
+	# the new idea is that we could skip the saving all results and save just points and transitions - we are not outputting them anyways... THis will help avoiding the sort of All.results, that proved to be very slow..
       # save points
-      if (is.null(All.results)) {
-        All.results<-paste(Results.stack[,1], sep=".")
-      } else {
-        All.results<-paste(All.results, Results.stack[,1], sep=".")
-      }
+      if (is.null(Points)) Points<-vector(mode = "list")
+	  Rle<-bit:::intrle(sort.int(Results.stack[,1], method="quick"))
+      if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,1], method="quick"))
+	  Points[[length(Points)+1]]<-Rle
+      #  All.results<-paste(Results.stack[,1], sep=".")
+      #} else {
+      #  All.results<-paste(All.results, Results.stack[,1], sep=".")
+      #}
       # save transitions
       Trans[[Time.Period-L]]<-get.transition.rle(Results.stack[,1], Results.stack[,2])
       # clean Results.stack
@@ -494,7 +502,7 @@ cat("******************\n")
   # now we need to add final point!
   
   if (known.last) {
-    Results.stack<-pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, save.memory=F, last.particles=Results.stack[,ncol(Results.stack)])
+    Results.stack<-pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, last.particles=Results.stack[,ncol(Results.stack)])
   }
   
   # and here we need to add a thing that will finish All.results and Trans from the points that are still in the stack
@@ -502,7 +510,12 @@ cat("******************\n")
   cat("adding last points form the stack to the resutls\n")
   for (rest in 1:Length) {
     # save points
-    All.results<-paste(All.results, Results.stack[,rest], sep=".")
+    
+	  Rle<-bit:::intrle(sort.int(Results.stack[,rest], method="quick"))
+      if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,rest], method="quick"))
+	  Points[[length(Points)+1]]<-Rle
+
+	#All.results<-paste(All.results, Results.stack[,rest], sep=".")
     if (rest<Length) {
       # save transitions
       Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
@@ -514,7 +527,7 @@ cat("******************\n")
   if (sink2file) sink()
   tmp.results<-list(AB.distance=in.Data$AB.distance, AC.distance2=in.Data$AC.distance2, Dif.ang=in.Data$Dif.ang)
 
-  return(list(All.results=All.results, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results)))
+  return(list(Points=Points, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results)))
 }
 
 
@@ -524,17 +537,17 @@ return.matrix.from.char<-function(Res.txt) {
 }
 
 
-get.coordinates.PF<-function(output.matrix, in.Data) {
+get.coordinates.PF<-function(Points, in.Data) {
   library("aspace")
   # this function will extract point coordinates from the output matrix.. 
   # the question is do we need only mean and sd or also median and quantiles?
   # I will start from mean and SD
   #plot(c(min(in.Data$Spatial$Grid[,1]),max(in.Data$Spatial$Grid[,1])), c(min(in.Data$Spatial$Grid[,2]),max(in.Data$Spatial$Grid[,2])), type="n")
   log <- capture.output({
-    Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[output.matrix[,1],1:2])
+    Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[inverse.rle(Points[[1]]),1:2])
    
-  for (i in 2:(dim(output.matrix)[2])) {
-    Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[output.matrix[,i], 1:2])
+  for (i in 2:length(Points)) {
+    Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[inverse.rle(Points[[i]], 1:2])
     #plot_box(plotnew=F, plotpoints=F)
   }
 	})
@@ -544,13 +557,13 @@ get.coordinates.PF<-function(output.matrix, in.Data) {
   #############
   # new part for medians
   cat("estimating quantiles for positions\n")
-      require("bit")
-    Points<-vector(mode = "list", length = (dim(output.matrix)[2]))
-    cat("   extracting indices for rle\n")
-    for (i in 1:(dim(output.matrix)[2])) {
-      Points[[i]]<-Rle<-bit:::intrle(sort.int(output.matrix[,i], method="quick"))
-      if (is.null(Rle)) Points[[i]]<-rle(sort.int(output.matrix[,i], method="quick"))
-    }
+    #  require("bit")
+    #Points<-vector(mode = "list", length = (dim(output.matrix)[2]))
+    #cat("   extracting indices for rle\n")
+    #for (i in 1:(dim(output.matrix)[2])) {
+    #  Points[[i]]<-Rle<-bit:::intrle(sort.int(output.matrix[,i], method="quick"))
+    #  if (is.null(Rle)) Points[[i]]<-rle(sort.int(output.matrix[,i], method="quick"))
+    #}
 	
 	Quantiles<-c()
 	CIntervals<-c()
@@ -593,7 +606,7 @@ get.coordinates.PF<-function(output.matrix, in.Data) {
 }
 
 
-estimate.movement.parameters<-function(output.matrix, Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F) {
+estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F) {
   mycl=existing.cluster
   
   # old name update.proposal.PF
@@ -645,7 +658,7 @@ estimate.movement.parameters<-function(output.matrix, Trans, in.Data, fixed.para
   cat("   estimating probs of migration\n")
   # ok, now we want to get parameters for distances
   #
-  Probability.of.migration<-unlist(lapply(Distances, FUN=function(x) sum(x$lengths[x$values!=0])))/(dim(output.matrix)[1])
+  Probability.of.migration<-unlist(lapply(Distances, FUN=function(x) sum(x$lengths[x$values!=0])))/sum(x$lengths)
   
   ## 
     if (estimatetruncnorm) {
@@ -758,11 +771,16 @@ coords.aeqd.jitter <- function(coords, r, n)
 }
 
 
-get.LL.PF<-function(in.Data, All.results.mat) {
+get.LL.PF<-function(in.Data, data) {
   # needed to estimate log likelihood of the optimization
   L=0
-  for (i in 1:(dim(All.results.mat)[2]-1)) {
-    L=L+log(mean(in.Data$Spatial$Phys.Mat[All.results.mat[,i],i]))
+ 
+  for (i in 1:(dim(data)[2]-1)) {
+  if (is.list(data)) {
+      L=L+log(mean(in.Data$Spatial$Phys.Mat[inverse.rle(Data[[i]])[[1]],i]))
+  } else{ 
+    L=L+log(mean(in.Data$Spatial$Phys.Mat[data[,i],i]))
+	}
   }
   #L=L/(dim(All.results.mat)[2]-1)
   #LL=-sum(log(L))
@@ -783,16 +801,12 @@ my.dvonmises<-function(x, mykap) {
   return(as.numeric(suppressWarnings(circular:::dvonmises(x[[2]], mu=x[[1]], kappa=mykap))))}
 
   
-pf.final.smoothing<-function(in.Data, All.results, precision.sd=25, nParticles=1e6, save.memory=F, last.particles=NA) {
+pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles=1e6, last.particles=NA) {
   # this function simply resamples final points proportionally to the distance to known finish.
   Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
   Weights<-dnorm(in.Data$Spatial$tmp$Distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
   Rows<- suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights)))
-  if (save.memory) {
-    return(All.results[Rows])
-  } else {		
-    return(All.results[Rows,])
-  }
+    return(results.stack[Rows,])
 }
