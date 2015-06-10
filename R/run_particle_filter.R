@@ -777,9 +777,10 @@ get.LL.PF<-function(in.Data, data) {
  
   if (is.list(data)) {
   for (i in 1:(length(data)-1)) {
- print(str(inverse.rle(data[[i]]))
+  
+ print(str(inverse.rle(data[[i]])))
  
- print(in.Data$Spatial$Phys.Mat[,i])
+ print(str(in.Data$Spatial$Phys.Mat[,i]))
  
       L=L+log(mean(in.Data$Spatial$Phys.Mat[inverse.rle(data[[i]]),i]))
 	  }
