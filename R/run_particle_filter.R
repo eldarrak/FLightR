@@ -477,11 +477,12 @@ if (is.na(ESS)) {
     #	}
     
     if (Time.Period<=L) cat("creating stack\n")
+	
+	rm(Points)
     if (Time.Period>L) {
 	# the new idea is that we could skip the saving all results and save just points and transitions - we are not outputting them anyways... THis will help avoiding the sort of All.results, that proved to be very slow..
       # save points
-      #if (is.null(Points)) 
-	  Points<-vector(mode = "list")
+      if (is.null(Points))  Points<-vector(mode = "list")
 	  Rle<-bit:::intrle(sort.int(Results.stack[,1], method="quick"))
       if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,1], method="quick"))
 	  Points[length(Points)+1]<-list(Rle)
