@@ -485,7 +485,6 @@ if (is.na(ESS)) {
 	  Rle<-bit:::intrle(sort.int(Results.stack[,1], method="quick"))
       if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,1], method="quick"))
 	  Points[length(Points)+1]<-list(Rle)
-print(length(Points))
       #  All.results<-paste(Results.stack[,1], sep=".")
       #} else {
       #  All.results<-paste(All.results, Results.stack[,1], sep=".")
@@ -776,8 +775,6 @@ coords.aeqd.jitter <- function(coords, r, n)
 get.LL.PF<-function(in.Data, data) {
   # needed to estimate log likelihood of the optimization
   L=0
- print(str(in.Data$Spatial$Phys.Mat))
- print(length(data))
   if (is.list(data)) {
   for (i in 1:(length(data)-1)) { 
       L=L+log(mean(in.Data$Spatial$Phys.Mat[inverse.rle(data[[i]]),i]))
