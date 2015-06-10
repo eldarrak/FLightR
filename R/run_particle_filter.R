@@ -547,7 +547,7 @@ get.coordinates.PF<-function(Points, in.Data) {
     Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[inverse.rle(Points[[1]]),1:2])
    
   for (i in 2:length(Points)) {
-    Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[inverse.rle(Points[[i]], 1:2])
+    Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[inverse.rle(Points[[i]]), 1:2])
     #plot_box(plotnew=F, plotpoints=F)
   }
 	})
