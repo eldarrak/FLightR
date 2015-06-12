@@ -1,0 +1,5 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Tree swallow analysis}
+%\VignetteDepends{FLightR}
+-->
