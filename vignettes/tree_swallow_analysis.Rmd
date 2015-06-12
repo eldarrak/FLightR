@@ -3,3 +3,4 @@
 %\VignetteIndexEntry{Tree swallow analysis}
 %\VignetteDepends{FLightR}
 -->
+# Tree swallow geolocator analysis
