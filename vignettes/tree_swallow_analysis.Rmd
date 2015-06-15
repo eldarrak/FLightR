@@ -21,109 +21,106 @@ lig.raw<-read.csv(text=text, stringsAsFactors =F)
 ```
 Now we have data read and we want to process them with the `read.tags.light.twilight()` function:
 ```{r}
-FLightR.data<-read.tags.light.twilight(lig.raw, end.date="2012-05-12")
+FLightR.data<-read.tags.light.twilight(lig.raw, end.date="2012-05-03")
 
 ```
 and process them with
 ```{r}
 Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights, measurement.period=60, saving.period=120)
 ```
-  -`measurement.period` - how often tag measures data (in seconds);
-  -`saving.period` - how often tag saves data (sec).
+    -`measurement.period` - how often tag measures data (in seconds);
+    -`saving.period` - how often tag saves data (sec).
 Current tag measures data every minute (`measurement.period=60`) and saves maximum over 2 minutes (`saving.period=120`)
 
+add calibration location as x,y
+```{r}
 start=c(-80.46,	42.62) # where the bird was captured...
-
-################################################
-## PART 2. Calibration
-################################################
-
-##----------------------------------------------
-##   Search for a proper calibration period 
-##   and manual check of outliers
-##----------------------------------------------
-
-## we need to select days when bird was in a known location
-## these are typically days in the beginning or in the end
-## of migration. To do we first will plot all sun slopes over 
-## the whole period and then will decide when is our calibration period
-
+```
+## Part 2. Calibration
+We need to select days when bird was in a known location. These are typically days in the beginning or in the end the data. To do we first will plot all sun slopes over the whole period and then will decide when is our calibration period
+```{r}
 Calibration.periods<-data.frame(calibration.start=as.POSIXct("2000-01-01"),calibration.stop=as.POSIXct("2020-01-01"), lon=start[1], lat=start[2])
-
+# note - we select dates outside the range 
 calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=F, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-1000, 1000))
+# and log irradiance boundaries also outside normal range  as we want to see the whole track first.
 
 plot.slopes(calibration.parameters$All.slopes)
-
+```
+Now we have to select the calibration periods. One should try to play with 1abline()` to find the proper boundaries for the calibration. The calibration is characterized by more or less coinciding dawn and dusk lines. And absense of a strong pattern - the lines should be norizontal.
+```{r}
 abline(v=as.POSIXct("2012-04-11")) # fine
 abline(v=as.POSIXct("2011-07-13")) # fine
+```
+I will use both calibration periods  - one in the beginning and another in the end. Now we create a data.frame where each line is one of the calibration periods. and the columns are start, end, x, y.
 
-#---------------------------------------
-# this is just for testing.
-# ok, so now we want to plot data for two periods..
-# and unfortunately we do not have s special functio for that..
-# so from Calib.data.all we need preset of points..
-
-#Calib.data<-Calib.data.all[Calib.data.all$Time<as.numeric(as.POSIXct("2011-07-13"))| Calib.data.all$Time>as.numeric(as.POSIXct("2012-04-11")),]
-
-#str(Calib.data)
-
-#plot(LogLight~LogIrrad, data=Calib.data, type="b")
-#as.POSIXct("2012-04-11"))]
-#as.POSIXct("2012-04-11"))
-# ok, we have to try -7, 1.5
-
-
-# after calibration
-# looks strange, so 
-
+```{r}
 Calibration.periods<-data.frame(calibration.start=as.POSIXct(c("2000-01-01", "2012-04-11") ),calibration.stop=as.POSIXct(c("2011-07-13", "2020-07-08")), lon=start[1], lat=start[2])
 
-log.irrad.borders=c(-5.75,1.5)
-calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=log.irrad.borders)
+log.light.borders=log(c(2, 63)) # these are the values for tags that measure in 1-64
+log.irrad.borders=c(-5.75,1.5) # these are the values one should use for BAS tags
+model.ageing=T # set this FALSE is you are not going to model tag ageing. Actually one can model it only f there are light data in known position in the beginning and in the end of the logger data
+
+```
+And now we estimate calibration parameters with a real boundaries...
+```{r}
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log(c(2, 63)),  log.irrad.borders=log.irrad.borders)
 
 plot.slopes(calibration.parameters$All.slopes)
+```
+The next part is needed to exclude very strong outliers if there are some
 
+```{r}
 
- if (length(calibration.parameters$calib_outliers)>0) {
- 
-FLightR.data$twilights$excluded[which(sapply(FLightR.data$twilights$datetime, FUN=function(x) min(abs(calib_outliers-as.numeric(x))))<3600)]<-1
-Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights[FLightR.data$twilights$excluded==0,], measurement.period=60, saving.period=120)
-calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=log.irrad.borders)
-plot.slopes(calibration.parameters$All.slopes)
+if (length(calibration.parameters$calib_outliers)>0) {
+  FLightR.data$twilights$excluded[which(sapply(FLightR.data$twilights$datetime, FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
+  Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights[FLightR.data$twilights$excluded==0,], measurement.period=60, saving.period=120)
+  calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders)
+  plot.slopes(calibration.parameters$All.slopes)
 }
+```
+Now we create a preliminary calibration and use it to check on wthere there are serious outliers that should be excluded before hand.
 
-Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data, FLightR.data, log.light.borders=log(c(2,63)), log.irrad.borders=log.irrad.borders, start, ageing.model=calibration.parameters$ageing.model)
-############################
+```{r}
+Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data, FLightR.data, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, start, ageing.model=calibration.parameters$ageing.model)
 
 library(parallel)
-Threads=detectCores()-1
+Threads=detectCores()-1 # setting how many cores we allow to use
 
-Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T, Threads=Threads, max.outlier.proportion=0.05, simple.version=F)
+Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T, Threads=Threads, max.outlier.proportion=0.075, simple.version=F)
 
-# DO not run next if you do not want to exclude outliers
+# max.outlier.proportion sets proportion of outliers we allow to exclude at maximum.
+```
+Now it is very important to decide on whether we are going to exclude outliers or not. One does not want to do it if there are definitely many important points exluded. In the currect case the outliers are detected well an we go for the exclusion
+
+```{r}
+# DO not run next if you do not want to exclude outliers!!!
+exclude.dected.outliers=T
+if (exclude.dected.outliers) {
 Proc.data<-Outliers$Proc.data
 FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,  Proc.data$Twilight.time.mat.dawn[25,]) & FLightR.data$twilights$excluded!=1 )]<-2
 # end of outlier exclusion
 
-if (any(FLightR.data$twilights$datetime[FLightR.data$twilights$excluded==2]>=Calibration.start & FLightR.data$twilights$datetime[FLightR.data$twilights$excluded==2]<=Calibration.end)) {
 #--------------------------------------------------------
 # recalibration with outliers excluded..
 #--------------------------------------------------------
 
-#FLightR.data$twilights$excluded[which(FLightR.data$twilights$datetime <= as.POSIXct("2012-05-30"))]<-2
 Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights[FLightR.data$twilights$excluded==0,], measurement.period=60, saving.period=120)
-#---------------------------------
 
-calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=log.irrad.borders)
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders)
 
 plot.slopes(calibration.parameters$All.slopes)
 
-Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data, FLightR.data, log.light.borders=log(c(2,63)), log.irrad.borders=log.irrad.borders, start, ageing.model=calibration.parameters$ageing.model)
+Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data, FLightR.data, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, start, ageing.model=calibration.parameters$ageing.model)
 
 }
-
+# and now we make a processed light object and switch to spatial part
 Processed.light<-make.processed.light.object(FLightR.data)
 
+```
+## Spatial extent
+Now we set up a grid.
+
+```{r}
 ylim = c(15, 45)
 xlim = c(-92, -70)
 
@@ -140,13 +137,15 @@ abline(v=start[1])
 abline(h=start[2])
 
 Grid<-cbind(All.Points.Focus, Land=1)
+```
+There are two main ideas in the extent - 
+   1. you have to delete the points you do not want to allow (and it will speed up the process).
+   2. you can set up 0 in the thord column if ou want to allow to move through the point but not stay there between twilights (still experimental option)..
 
-##########################################################
-## Part 4. Preestimation of all the matrices           ##
-##########################################################
+Now we will finalize the object preparation
 
+```{r}
 Index.tab<-create.proposal(Processed.light, start=start, Grid=Grid)
-
 Index.tab$Decision<-0.1 # prob of migration
 Index.tab$Direction<- 0 # direction 0 - North
 Index.tab$Kappa<-0 # distr concentration 0 means even
@@ -155,7 +154,6 @@ Index.tab$M.sd<- 500 # distance sd
 
 all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=start)
 
-# this parts are needed to promote repeatability..
 all.in$Calibration<-Calibration
 all.in$Data<-FLightR.data
 ```
