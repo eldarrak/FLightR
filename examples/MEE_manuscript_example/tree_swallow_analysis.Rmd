@@ -1,0 +1,297 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Tree swallow analysis}
+%\VignetteDepends{FLightR}
+-->
+# Tree swallow geolocator analysis
+this version is under development!!!
+## Install package and read data
+```{r}
+require(devtools)
+install_github("eldarrak/FLightR/0.2.3") # note the version
+require(FLightR)
+```
+###Download data from GitHub
+For now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there. Below we download data in the TAGS outpur format
+```{r}
+library(RCurl)
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/MEE_manuscript_example/749.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
+
+lig.raw<-read.csv(text=text, stringsAsFactors =F)
+```
+Now we have data read and we want to process them with the `read.tags.light.twilight()` function:
+```{r}
+FLightR.data<-read.tags.light.twilight(lig.raw, end.date=as.POSIXct("2012-05-03"))
+
+```
+and process them with
+```{r}
+Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights, measurement.period=60, saving.period=120)
+```
+    -`measurement.period` - how often tag measures data (in seconds);
+    -`saving.period` - how often tag saves data (sec).
+Current tag measures data every minute (`measurement.period=60`) and saves maximum over 2 minutes (`saving.period=120`)
+
+add calibration location as x,y
+```{r}
+start=c(-80.46,	42.62) # where the bird was captured...
+```
+## Part 2. Calibration
+We need to select days when bird was in a known location. These are typically days in the beginning or in the end the data. To do we first will plot all sun slopes over the whole period and then will decide when is our calibration period
+```{r}
+Calibration.periods<-data.frame(calibration.start=as.POSIXct("2000-01-01"),calibration.stop=as.POSIXct("2020-01-01"), lon=start[1], lat=start[2])
+# note - we select dates outside the range 
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=F, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-1000, 1000))
+# and log irradiance boundaries also outside normal range  as we want to see the whole track first.
+
+plot.slopes(calibration.parameters$All.slopes)
+```
+Now we have to select the calibration periods. One should try to play with 1abline()` to find the proper boundaries for the calibration. The calibration is characterized by more or less coinciding dawn and dusk lines. And absense of a strong pattern - the lines should be norizontal.
+```{r}
+abline(v=as.POSIXct("2012-04-11")) # fine
+abline(v=as.POSIXct("2011-07-13")) # fine
+```
+I will use both calibration periods  - one in the beginning and another in the end. Now we create a data.frame where each line is one of the calibration periods. and the columns are start, end, x, y.
+
+```{r}
+Calibration.periods<-data.frame(calibration.start=as.POSIXct(c("2000-01-01", "2012-04-11") ),calibration.stop=as.POSIXct(c("2011-07-13", "2020-07-08")), lon=start[1], lat=start[2])
+
+log.light.borders=log(c(2, 63)) # these are the values for tags that measure in 1-64
+log.irrad.borders=c(-5.75,1.5) # these are the values one should use for BAS tags
+model.ageing=T # set this FALSE is you are not going to model tag ageing. Actually one can model it only f there are light data in known position in the beginning and in the end of the logger data
+
+```
+And now we estimate calibration parameters with a real boundaries...
+```{r}
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log(c(2, 63)),  log.irrad.borders=log.irrad.borders)
+
+plot.slopes(calibration.parameters$All.slopes)
+```
+The next part is needed to exclude very strong outliers if there are some
+
+```{r}
+
+if (length(calibration.parameters$calib_outliers)>0) {
+  FLightR.data$twilights$excluded[which(sapply(FLightR.data$twilights$datetime, FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
+  Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights[FLightR.data$twilights$excluded==0,], measurement.period=60, saving.period=120)
+  calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders)
+  plot.slopes(calibration.parameters$All.slopes)
+}
+```
+Now we create a preliminary calibration and use it to check whether there are serious outliers that should be excluded before hand.
+
+```{r}
+Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data, FLightR.data, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, start, ageing.model=calibration.parameters$ageing.model)
+
+library(parallel)
+Threads=detectCores()-1 # setting how many cores we allow to use
+
+Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T, Threads=Threads, max.outlier.proportion=0.075, simple.version=F)
+
+# max.outlier.proportion sets proportion of outliers we allow to exclude at maximum.
+```
+Now it is very important to decide on whether we are going to exclude outliers or not. One does not want to do it if there are definitely many important points exluded. In the currect case the outliers are detected well an we go for the exclusion
+
+```{r}
+# DO not run next if you do not want to exclude outliers!!!
+exclude.dected.outliers=T
+if (exclude.dected.outliers) {
+Proc.data<-Outliers$Proc.data
+FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,  Proc.data$Twilight.time.mat.dawn[25,]) & FLightR.data$twilights$excluded!=1 )]<-2
+# end of outlier exclusion
+
+#--------------------------------------------------------
+# recalibration with outliers excluded..
+#--------------------------------------------------------
+
+Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights[FLightR.data$twilights$excluded==0,], measurement.period=60, saving.period=120)
+
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders)
+
+plot.slopes(calibration.parameters$All.slopes)
+
+Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data, FLightR.data, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, start, ageing.model=calibration.parameters$ageing.model)
+
+}
+# and now we make a processed light object and switch to spatial part
+Processed.light<-make.processed.light.object(FLightR.data)
+
+```
+## Spatial extent
+Now we set up a grid.
+
+```{r}
+ylim = c(15, 45)
+xlim = c(-92, -70)
+
+Globe.Points<-regularCoordinates(200) # 50 km between each point
+
+All.Points.Focus<-Globe.Points[Globe.Points[,1]>xlim[1] & Globe.Points[,1]<xlim[2] & Globe.Points[,2]>ylim[1] & Globe.Points[,2]<ylim[2],]
+
+# here we could cut by the sea but we will not do it now
+
+plot(All.Points.Focus, type="n")
+map('state',add=TRUE, lwd=1,  col=grey(0.5))
+map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+abline(v=start[1])
+abline(h=start[2])
+
+Grid<-cbind(All.Points.Focus, Land=1)
+```
+There are two main ideas in the extent - 
+   1. you have to delete the points you do not want to allow (and it will speed up the process).
+   2. you can set up 0 in the thord column if ou want to allow to move through the point but not stay there between twilights (still experimental option)..
+
+Now we will finalize the object preparation
+
+```{r}
+Index.tab<-create.proposal(Processed.light, start=start, Grid=Grid)
+Index.tab$Decision<-0.1 # prob of migration
+Index.tab$Direction<- 0 # direction 0 - North
+Index.tab$Kappa<-0 # distr concentration 0 means even
+Index.tab$M.mean<- 300 # distance mu
+Index.tab$M.sd<- 500 # distance sd
+
+all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=start)
+
+all.in$Calibration<-Calibration
+all.in$Data<-FLightR.data
+```
+Now we estimate likelihoods for every point of the grid at every twilight.
+
+```{r}
+# the next step might have some time
+# with the current example it takes about 5 min at 24 core workstation
+
+Threads= detectCores()-1
+Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk, Proc.data$Twilight.log.light.mat.dusk, Proc.data$Twilight.time.mat.dawn, Proc.data$Twilight.log.light.mat.dawn,  threads=Threads, calibration=all.in$Calibration)
+
+all.in$Spatial$Phys.Mat<-Phys.Mat
+
+```
+Doing some preliminary checks now:
+First, we plot likelihood surface for a sample twilight
+```{r}
+t=10
+image.plot(as.image(all.in$Spatial$Phys.Mat[,t], x=all.in$Spatial$Grid[,1:2], nrow=60, ncol=60), col=my.golden.colors(64), main=paste("twilight number",t ))			
+library(maps)
+map('world', add=T)
+map('state', add=T)
+abline(v=start[1])
+abline(h=start[2])			
+```
+And second we mutiply likelihoods by each other and see where the results is going to be.
+
+```{r}
+my.golden.colors <- colorRampPalette(
+			c("white","#FF7100"))
+
+#if (FALSE) {
+par(mfrow=c(3,3), ask=T)
+for (t in seq(1,dim(all.in$Spatial$Phys.Mat)[2], by=30)) {
+# ok now I want to see how stable my estimates are.
+image.plot(as.image(apply(all.in$Spatial$Phys.Mat[,t:(t+30)],1,  FUN=prod), x=all.in$Spatial$Grid[,1:2], nrow=60, ncol=60), col=my.golden.colors(64), main=paste("twilight number", t))
+library(maps)
+map('world', add=T)
+map('state', add=T)
+abline(v=start[1])
+abline(h=start[2])
+}
+#}
+
+dev.off()
+```
+## Main run
+For the main run you might want to select:
+   1. nParticles 1e4 - is for test is 1e6 is for the main run
+   2. known.last select TRUE if you know that in the end of data collection tag was in a known place
+   3. check.outliers - additional on a fly outliers selection. Normally shoud be chosen as TRUE.
+   
+```{r}
+Threads= detectCores()-1
+a= Sys.time()
+Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6), nParticles=1e6, known.last=TRUE,  precision.sd=25, save.memory=T, k=NA, parallel=T,  plot=T, prefix="pf", extend.prefix=T, cluster.type="SOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=T)
+b= Sys.time()
+b-a
+save(Result, file="Result.ageing.model.RData")
+
+```
+This is it. Now we can do some plotting.
+First, plot a map:
+```{r}
+
+par(mfrow=c(1,1))
+par(mar=c(4,4,3,1),las=1,mgp=c(2.25,1,0))
+
+#--------------------------------------------------------
+# we can plot either mean or median.
+
+Mean_coords<-cbind(Result$Results$Quantiles$Meanlon, Result$Results$Quantiles$Meanlat)
+Median_coords<-cbind(Result$Results$Quantiles$MedianlonJ, Result$Results$Quantiles$MedianlatJ)
+plot(Median_coords, type = "n",ylab="Latitude",xlab="Longitude")
+library(maptools)
+data(wrld_simpl)
+plot(wrld_simpl, add = T, col = "grey95", border="grey70")
+lines(Median_coords, col = "darkgray", cex = 0.1)
+points(Median_coords, pch = 16, cex = 0.75, col = "darkgray")
+#lines(Mean_coords, col = "blue", cex = 0.1)
+#points(Mean_coords, pch = 16, cex = 0.75, col = "blue")
+```
+And now longitudes and latitudes separately
+```{r}
+Quantiles<-Result$Results$Quantiles[1:length(Result$Indices$Matrix.Index.Table$Real.time),]
+Quantiles$Time<-Result$Indices$Matrix.Index.Table$Real.time
+
+par(mfrow=c(2,1))
+par(mar=c(2,4,3,1),cex=1)
+ Sys.setlocale("LC_ALL", "English")  
+
+#Longitude
+plot(Quantiles$Medianlon~Quantiles$Time, las=1,col=grey(0.1),pch=16,ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon, Quantiles$UCI.lon )), type="n")
+
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)), col=grey(0.9), border=grey(0.5))
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)), col=grey(0.7), border=grey(0.5))
+
+lines(Quantiles$Medianlon~Quantiles$Time, col=grey(0.1),lwd=2)
+
+
+abline(v=as.POSIXct("2011-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2012-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2015-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2015-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+
+#Latitude
+par(mar=c(3,4,1,1))
+
+plot(Quantiles$Medianlat~Quantiles$Time, las=1,col=grey(0.1),pch=16,ylab="Latitude",xlab="",lwd=2, ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)), col=grey(0.9), border=grey(0.5))
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)), col=grey(0.7), border=grey(0.5))
+
+lines(Quantiles$Medianlat~Quantiles$Time, col=grey(0.1),lwd=2)
+
+abline(v=as.POSIXct("2011-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+
+abline(v=as.POSIXct("2012-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2015-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2015-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+```
+This is it... There are of cours many more things one could do with the data but we are not going to do.
+Let me know what else you would like to see..
+
+
+
+
