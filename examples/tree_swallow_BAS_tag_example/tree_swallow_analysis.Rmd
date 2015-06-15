@@ -8,14 +8,14 @@ this version is under development!!!
 ## Install package and read data
 ```{r}
 require(devtools)
-install_github("eldarrak/FLightR/0.2.3") # note the version
+install_github("eldarrak/FLightR/0.2.4") # note the version
 require(FLightR)
 ```
 ###Download data from GitHub
 For now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there. Below we download data in the TAGS outpur format
 ```{r}
 library(RCurl)
-text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/MEE_manuscript_example/749.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/tree_swallow_BAS_tag_example/749.csv", ssl.verifypeer = FALSE, followlocation = TRUE)
 
 lig.raw<-read.csv(text=text, stringsAsFactors =F)
 ```
