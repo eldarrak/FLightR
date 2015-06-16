@@ -14,5 +14,5 @@ to install the package try:
 
 the help files and vignette for the package are still to come :(
 
-BUT - there is an example available in examples!
+BUT - there are examplse available! Find one here - [tree swallow example](https://github.com/eldarrak/FLightR/blob/master/examples/tree_swallow_BAS_tag_example/tree_swallow_analysis.Rmd)
 
