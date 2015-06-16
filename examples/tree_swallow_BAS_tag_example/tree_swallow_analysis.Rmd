@@ -4,7 +4,7 @@
 %\VignetteDepends{FLightR}
 -->
 # Tree swallow geolocator analysis
-this version is under development!!!
+version works wih FLightR 0.2.4
 ## Install package and read data
 ```{r}
 require(devtools)
@@ -38,7 +38,7 @@ add calibration location as x,y
 ```{r}
 start=c(-80.46,	42.62) # where the bird was captured...
 ```
-## Part 2. Calibration
+##Calibration
 We need to select days when bird was in a known location. These are typically days in the beginning or in the end the data. To do we first will plot all sun slopes over the whole period and then will decide when is our calibration period
 ```{r}
 Calibration.periods<-data.frame(calibration.start=as.POSIXct("2000-01-01"),
