@@ -12,7 +12,7 @@ install_github("eldarrak/FLightR/0.2.4") # note the version
 require(FLightR)
 ```
 ###Download data from GitHub
-For now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there. Below we download data in the TAGS outpur format
+For now I will assume that one uses the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there. Below we download data in the TAGS outpur format
 ```{r}
 library(RCurl)
 text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/tree_swallow_BAS_tag_example/749.csv"
@@ -66,7 +66,8 @@ Calibration.periods<-data.frame(calibration.start=as.POSIXct(c("2000-01-01", "20
 
 log.light.borders=log(c(2, 63)) # these are the values for tags that measure in 1-64
 log.irrad.borders=c(-5.75,1.5) # these are the values one should use for BAS tags
-model.ageing=T # set this FALSE is you are not going to model tag ageing. Actually one can model it only f there are light data in known position in the beginning and in the end of the logger data
+model.ageing=T # set this FALSE is you are not going to model tag ageing.
+	#Actually one can model it only f there are light data in known position in the beginning and in the end of the logger data
 
 ```
 And now we estimate calibration parameters with a real boundaries...
