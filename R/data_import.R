@@ -36,7 +36,7 @@ read.tags.light.twilight<-function(lig.raw, start.date=NULL, end.date=NULL) {
 	###
 	### I also want to exclude the last days...
 	
-	if (!is.null(start.date)) lig.raw<-lig.raw[as.numeric(lig.raw$datetime) < as.numeric(as.POSIXct(start.date , tz="UTC")),]
+	if (!is.null(start.date)) lig.raw<-lig.raw[as.numeric(lig.raw$datetime) > as.numeric(as.POSIXct(start.date , tz="UTC")),]
 	if (!is.null(end.date)) lig.raw<-lig.raw[as.numeric(lig.raw$datetime) < as.numeric(as.POSIXct(end.date , tz="UTC")),]
 
 	## and also I want to exclude the interpolated and excluded afterwards points
