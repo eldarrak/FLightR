@@ -30,12 +30,13 @@ convert.lux.to.tags<-function(file, log=T, log.light.borders=c(1,10)) {
 }
 
 
-read.tags.light.twilight<-function(lig.raw, end.date=NULL) {
+read.tags.light.twilight<-function(lig.raw, start.date=NULL, end.date=NULL) {
 	lig.raw$datetime<-as.POSIXct(lig.raw$datetime, tz="UTC", format="%Y-%m-%dT%T")
 
 	###
 	### I also want to exclude the last days...
 	
+	if (!is.null(start.date)) lig.raw<-lig.raw[as.numeric(lig.raw$datetime) < as.numeric(as.POSIXct(start.date , tz="UTC")),]
 	if (!is.null(end.date)) lig.raw<-lig.raw[as.numeric(lig.raw$datetime) < as.numeric(as.POSIXct(end.date , tz="UTC")),]
 
 	## and also I want to exclude the interpolated and excluded afterwards points
