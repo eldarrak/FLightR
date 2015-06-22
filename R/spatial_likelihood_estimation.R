@@ -297,7 +297,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	# LogIrrad
 	if (verbose) print(NotZero)
 	if (length(NotZero)>0) {
-		NotZero<-NotZero[1]:rev(NotZero)[1]
+		#NotZero<-NotZero[1]:rev(NotZero)[1]
 		First.LogIrrad<-NA
 		if (dusk & !(LogLight[NotZero[1]] ==  log.light.borders[2])) First.LogIrrad<-LogIrrad[(NotZero[1]-1):NotZero[1]]
 		if (!dusk & !(LogLight[NotZero[1]] ==  log.light.borders[1])) First.LogIrrad<-LogIrrad[(NotZero[1]-1):NotZero[1]]
