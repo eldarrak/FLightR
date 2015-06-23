@@ -5,10 +5,10 @@
 get.prob.of.being.in<-function(Result, Index ) {
 Prob.of.being.in<-c()
 
-nParticles<-length(inverse.rle(Result$Points.rle[[1]]))
+nParticles<-length(inverse.rle(Result$Results$Points.rle[[1]]))
 
-	for (i in 1:nrow(Result$Indeices$Matrix.Index.Table)) {
-	Prob.of.being.in<-c(Prob.of.being.in, length(which(inverse.rle(Result$Points.rle[[i]]) %in% Index))/nParticles)
+	for (i in 1:nrow(Result$Indices$Matrix.Index.Table)) {
+	Prob.of.being.in<-c(Prob.of.being.in, length(which(inverse.rle(Result$Results$Points.rle[[i]]) %in% Index))/nParticles)
 	}
 	return(Prob.of.being.in)
 }
