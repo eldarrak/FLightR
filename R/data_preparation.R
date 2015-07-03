@@ -321,7 +321,9 @@ All.slopes$Slopes$logSlope<-log(All.slopes$Slopes$Slope)
 if (model.ageing) {
 All.slopes.int<-All.slopes
 All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
-Model=lm(logSlope~Time, data=All.slopes.int$Slopes)
+Time.start=min(Time)
+Model=lm(logSlope~I(Time-Time.start), data=All.slopes.int$Slopes)
+Model$Time.start<-Time.start
 calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model)))]
 Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes)
 } else {
@@ -348,7 +350,7 @@ time_correction_fun= eval(parse(text=paste("function (x,y) return(", Parameters$
 lat_correction_fun<-function(x, y, z) return(0)
 } else {
 time_correction_fun= function(x, y) return(0)
-lat_correction_fun<-eval(parse(text=paste("function (x,y) return(", coef(ageing.model)[1], "+", coef(ageing.model)[2], "* y)")))
+lat_correction_fun<-eval(parse(text=paste("function (x,y) return(", Time.start, "+", coef(ageing.model)[1], "+", coef(ageing.model)[2], "* y)")))
 }
 
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun)
