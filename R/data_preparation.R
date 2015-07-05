@@ -321,7 +321,7 @@ All.slopes$Slopes$logSlope<-log(All.slopes$Slopes$Slope)
 if (model.ageing) {
 All.slopes.int<-All.slopes
 All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
-Time.start=min(Time)
+Time.start=min(c(Twilight.time.mat.Calib.dusk, Twilight.time.mat.Calib.dawn))
 Model=lm(logSlope~I(Time-Time.start), data=All.slopes.int$Slopes)
 Model$Time.start<-Time.start
 calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model)))]
