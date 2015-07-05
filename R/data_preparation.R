@@ -350,7 +350,7 @@ time_correction_fun= eval(parse(text=paste("function (x,y) return(", Parameters$
 lat_correction_fun<-function(x, y, z) return(0)
 } else {
 time_correction_fun= function(x, y) return(0)
-lat_correction_fun<-eval(parse(text=paste("function (x,y) return(", Time.start, "+", coef(ageing.model)[1], "+", coef(ageing.model)[2], "* y)")))
+lat_correction_fun<-eval(parse(text=paste("function (x,y) return(",  coef(ageing.model)[1], "+", coef(ageing.model)[2], "* (Time.start, "+",y))")))
 }
 
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun)
