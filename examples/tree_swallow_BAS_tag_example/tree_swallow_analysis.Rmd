@@ -8,7 +8,7 @@ this version is under development!!!
 ## Install package and read data
 ```{r}
 require(devtools)
-install_github("eldarrak/FLightR/0.2.4") # note the version
+install_github("eldarrak/FLightR@0.2.5") # note the version
 require(FLightR)
 ```
 ###Download data from GitHub
@@ -71,7 +71,7 @@ model.ageing=T # set this FALSE is you are not going to model tag ageing. Actual
 ```
 And now we estimate calibration parameters with a real boundaries...
 ```{r}
-calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log(c(2, 63)),  log.irrad.borders=log.irrad.borders)
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders)
 
 plot.slopes(calibration.parameters$All.slopes)
 ```
