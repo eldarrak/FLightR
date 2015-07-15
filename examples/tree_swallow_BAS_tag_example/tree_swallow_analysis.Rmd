@@ -6,6 +6,7 @@
 # Bar tailed godwit analysis example
 # Intigeo tag
 ## Install package and read data
+
 ```{r}
 require(devtools)
 
@@ -16,7 +17,8 @@ require(FLightR)
 ##Download data from GitHub
 There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from James Fox. This file does not have defined twilights. There is plenty of ways to predefine twilights and here I will use the TAGS online service (http://tags.animalmigration.org). In order to process data to the TAGS format one should do following:
 1. Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391_driftadj.lux) file into your working directory. I assume you will name it '749.csv'.
-2. open R and process .lux file:
+2. open R and process .lux to .csv
+
 
 ```{r} 
 # set wroking directory
@@ -25,10 +27,18 @@ process()
 
 ```
 
+# Tree swallow geolocator analysis
+this version is under development!!!
+## Install package and read data
+```{r}
+require(devtools)
+install_github("eldarrak/FLightR@0.2.5") # note the version
+require(FLightR)
+```
+###Download data from GitHub
+For now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there. Below we download data in the TAGS outpur format
 
 ```{r}
-
-
 library(RCurl)
 text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/tree_swallow_BAS_tag_example/749.csv"
 , ssl.verifypeer = FALSE, followlocation = TRUE)
