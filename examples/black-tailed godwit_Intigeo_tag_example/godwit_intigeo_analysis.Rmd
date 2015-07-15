@@ -347,9 +347,20 @@ lines(Quantiles$Medianlat~Quantiles$Time, col=grey(0.1),lwd=2)
 abline(v=as.POSIXct("2011-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
 abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
 ```
-This is it... There are of cours many more things one could do with the data but we are not going to do.
+# Migration schedules
+We can extract departure arrival estimates from the results we have got. 
+First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at Lat 2&deg;
+```{r}
+Index<-which(Result$Spatial$Frid[,1]>(2))
+```
+And now I estimate probabilities if being in the area for each twilight:
+```{r}
+Prob.of.being.in.NL<-get.prob.of.being.in(Result, Index)
+
+Times.NL=find.times.distribution(Prob.of.being.in.NL,Result$Matrix.Index.Table$time)
+
+Times.NL
+```
+
+This is it so far... There are of course many more things one could do with the data but we are not going to do.
 Let me know what else you would like to see..
-
-
-
-
