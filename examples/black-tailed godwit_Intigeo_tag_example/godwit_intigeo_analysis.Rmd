@@ -53,7 +53,7 @@ Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights,
 ```
     -`measurement.period` - how often tag measures data (in seconds);
     -`saving.period` - how often tag saves data (sec).
-Current tag measures data every minute (`measurement.period=60`) and saves maximum over 2 minutes (`saving.period=300`)
+Current tag measures data every minute (`measurement.period=60`) and saves maximum over 5 minutes (`saving.period=300`)
 
 add calibration location as x,y
 ```{r}
