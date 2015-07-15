@@ -277,7 +277,7 @@ Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
 		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=T)
 b= Sys.time()
 b-a
-save(Result, file="Result.ageing.model.-5.75.1.5.RData")
+save(Result, file="Result.bltg.ageing.model.RData")
 
 ```
 This is it. Now we can do some plotting.
@@ -302,6 +302,7 @@ lines(Median_coords, col = "darkgray", cex = 0.1)
 points(Median_coords, pch = 16, cex = 0.75, col = "darkgray")
 lines(Mean_coords, col = "blue", cex = 0.1)
 points(Mean_coords, pch = 16, cex = 0.75, col = "blue")
+box()
 ```
 And now longitudes and latitudes separately
 ```{r}
@@ -352,13 +353,13 @@ abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
 We can extract departure arrival estimates from the results we have got. 
 First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at Lat 2&deg;
 ```{r}
-Index<-which(Result$Spatial$Frid[,1]>(2))
+Index<-which(Result$Spatial$Grid[,1]>(2))
 ```
 And now I estimate probabilities if being in the area for each twilight:
 ```{r}
 Prob.of.being.in.NL<-get.prob.of.being.in(Result, Index)
 
-Times.NL=find.times.distribution(Prob.of.being.in.NL,Result$Matrix.Index.Table$time)
+Times.NL=find.times.distribution(Prob.of.being.in.NL,Result$Indices$Matrix.Index.Table$time)
 
 Times.NL
 ```
