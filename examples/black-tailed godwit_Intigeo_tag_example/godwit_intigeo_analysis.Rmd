@@ -35,8 +35,9 @@ lig.raw<-read.csv(File, stringsAsFactors =F)
 Or you can download it straight into R:
 ```{r}
 library(RCurl)
-text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv"
-, ssl.verifypeer = FALSE, followlocation = TRUE)
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/
+		black-tailed%20godwit_Intigeo_tag_example/E391.csv"
+		, ssl.verifypeer = FALSE, followlocation = TRUE)
 lig.raw<-read.csv(text=text, stringsAsFactors =F)
 lig.raw$light<-exp(lig.raw$light) # this is needed because we log transformed data in convert.lux.to.tags()
 
@@ -88,12 +89,16 @@ Calibration.periods<-data.frame(calibration.start=as.POSIXct(c("2000-01-01", "20
                                 calibration.stop=as.POSIXct(c("2013-08-10", "2020-01-01")),
 								lon=start[1], lat=start[2])
 
-model.ageing=T # set this FALSE is you are not going to model tag ageing. Actually one can model it only f there are light data in known position in the beginning and in the end of the logger data
+model.ageing=T # set this FALSE is you are not going to model tag ageing.
+#Actually one can model it only if there are light data 
+#in known position in the beginning and in the end of the logger data
 
 ```
 And now we estimate calibration parameters with a real boundaries...
 ```{r}
-calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, model.ageing=model.ageing, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders)
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, 
+	model.ageing=model.ageing, log.light.borders=log.light.borders,
+	log.irrad.borders=log.irrad.borders)
 
 plot.slopes(calibration.parameters$All.slopes)
 ```
@@ -131,16 +136,19 @@ Now it is very important to decide on whether we are going to exclude outliers o
 exclude.dected.outliers=T
 if (exclude.dected.outliers) {
 Proc.data<-Outliers$Proc.data
-FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in% c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period-Calibration$Parameters$measurement.period,
-                              Proc.data$Twilight.time.mat.dawn[25,]) & FLightR.data$twilights$excluded!=1 )]<-2
+FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in%
+	c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period
+	-Calibration$Parameters$measurement.period, Proc.data$Twilight.time.mat.dawn[25,]) & 
+	FLightR.data$twilights$excluded!=1 )]<-2
 # end of outlier exclusion
 
 #--------------------------------------------------------
 # recalibration with outliers excluded..
 #--------------------------------------------------------
 
-Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
-                             measurement.period=60, saving.period=300)
+Proc.data<-process.twilights(FLightR.data$Data, 
+	FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
+        measurement.period=60, saving.period=300)
 
 calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
                model.ageing=model.ageing, log.light.borders=log.light.borders,  
@@ -149,8 +157,8 @@ calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.dat
 plot.slopes(calibration.parameters$All.slopes)
 
 Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
-                FLightR.data, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,
-				start, ageing.model=calibration.parameters$ageing.model)
+        FLightR.data, log.light.borders=log.light.borders,log.irrad.borders=log.irrad.borders,
+	start, ageing.model=calibration.parameters$ageing.model)
 
 }
 # and now we make a processed light object and switch to spatial part
@@ -208,10 +216,10 @@ Now we estimate likelihoods for every point of the grid at every twilight.
 
 Threads= detectCores()-1
 Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
-                              Proc.data$Twilight.log.light.mat.dusk,
-							  Proc.data$Twilight.time.mat.dawn,
-							  Proc.data$Twilight.log.light.mat.dawn,
-							  threads=Threads, calibration=all.in$Calibration)
+        Proc.data$Twilight.log.light.mat.dusk,
+	Proc.data$Twilight.time.mat.dawn,
+	Proc.data$Twilight.log.light.mat.dawn,
+	threads=Threads, calibration=all.in$Calibration)
 
 all.in$Spatial$Phys.Mat<-Phys.Mat
 
@@ -222,8 +230,8 @@ First, we plot likelihood surface for a sample twilight
 t=10
 my.golden.colors <- colorRampPalette(c("white","#FF7100"))
 
-image.plot(as.image(all.in$Spatial$Phys.Mat[,t], x=all.in$Spatial$Grid[,1:2],nrow=60, ncol=60),
-				   col=my.golden.colors(64), main=paste("twilight number",t ))			
+image.plot(as.image(all.in$Spatial$Phys.Mat[,t], x=all.in$Spatial$Grid[,1:2],
+	nrow=60, ncol=60), col=my.golden.colors(64), main=paste("twilight number",t ))			
 library(maps)
 map('world', add=T)
 map('state', add=T)
@@ -263,11 +271,11 @@ nParticles=1e6
 Threads= detectCores()-1
 a= Sys.time()
 Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
-                            nParticles=nParticles, known.last=TRUE,
-							precision.sd=25, save.memory=T, k=NA,
-							parallel=T,  plot=T, prefix="pf",
-							extend.prefix=T, cluster.type="SOCK",
-							a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=T)
+                nParticles=nParticles, known.last=TRUE,
+		precision.sd=25, save.memory=T, k=NA,
+		parallel=T,  plot=T, prefix="pf",
+		extend.prefix=T, cluster.type="SOCK",
+		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=T)
 b= Sys.time()
 b-a
 save(Result, file="Result.ageing.model.-5.75.1.5.RData")
