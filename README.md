@@ -16,3 +16,6 @@ the help files and vignette for the package are still to come :(
 
 BUT - there are examplse available! Find one here - [tree swallow example](https://github.com/eldarrak/FLightR/blob/master/examples/tree_swallow_BAS_tag_example/tree_swallow_analysis.Rmd)
 
+-------------
+ I am also working on [wiki pages for the package] (https://github.com/eldarrak/FLightR/wiki)
+
