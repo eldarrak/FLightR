@@ -34,8 +34,7 @@ lig.raw<-read.csv(File, stringsAsFactors =F)
 Or you can download it straight into R:
 ```{r}
 library(RCurl)
-text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/
-		black-tailed%20godwit_Intigeo_tag_example/E391.csv"
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/	black-tailed%20godwit_Intigeo_tag_example/E391.csv"
 		, ssl.verifypeer = FALSE, followlocation = TRUE)
 lig.raw<-read.csv(text=text, stringsAsFactors =F)
 lig.raw$light<-exp(lig.raw$light) # this is needed because we log transformed data in convert.lux.to.tags()
