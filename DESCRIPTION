@@ -24,6 +24,8 @@ Depends:
     bit,
     aspace,
     rgdal,
-    CircStats
+    CircStats.
+	snow,
+	Rcpp
 License: GNU GPL v3.0
 
