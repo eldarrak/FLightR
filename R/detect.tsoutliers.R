@@ -221,36 +221,6 @@ if (length(Problematic.Dawns$outliers) >0) abline(v=Proc.data$Twilight.time.mat.
 
 # for these points I'd like to rerun the estimation..
 if (length(Problematic.Dusks$outliers) >0| length(Problematic.Dawns$outliers)>0) {
-if (!is.null(Threads)) {
-	cat("making cluster\n")
-	require(parallel)
-	mycl <- parallel:::makeCluster(Threads)
-	tmp<-parallel:::clusterSetRNGStream(mycl)
-    tmp<-parallel:::clusterExport(mycl,c("calibration", "Proc.data"), envir=environment())
-    #tmp<-parallel:::clusterEvalQ(mycl, library("circular")) 
-    #tmp<-parallel:::clusterEvalQ(mycl, library("truncnorm")) 
-    tmp<-parallel:::clusterEvalQ(mycl, library("GeoLight")) 
-    tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
-	
-	if (length(Problematic.Dusks$outliers) >0) {
-	cat("reestimating dusk errors projection on equator\n")
-	Dusks<-cbind(Problematic.Dusks$outliers,  ((Problematic.Dusks$center+Delta_cur_dusk)%%360)-Delta_cur_dusk)
-	Lons.dusk_short<-apply(Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
-	Lons.dusk_short<-((Lons.dusk_short+Delta_cur_dusk)%%360)-Delta_cur_dusk
-	Lons.dusk[Problematic.Dusks$outliers]<-Lons.dusk_short
-
-	}
-	
-	if (length(Problematic.Dawns$outliers) >0) {
-	cat("reestimating dawn errors projection on equator\n")
-	Dawns<-cbind(Problematic.Dawns$outliers, ((Problematic.Dawns$center+Delta_cur_dawn)%%360)-Delta_cur_dawn)
-	Lons.dawn_short<-apply(Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
-	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
-	Lons.dawn[Problematic.Dawns$outliers]<-Lons.dawn_short
-
-	}
-	stopCluster(mycl)
-} else {
 	if (length(Problematic.Dusks$outliers) >0) {
 	cat("reestimating dusk errors projection on equator\n")
 	Dusks<-cbind(Problematic.Dusks$outliers,  ((Problematic.Dusks$center+Delta_cur_dusk)%%360)-Delta_cur_dusk)
@@ -267,7 +237,7 @@ if (!is.null(Threads)) {
 	Lons.dawn[Problematic.Dawns$outliers]<-Lons.dawn_short
 
 	}
-}
+
 }
 }
 cat("detecting outliers\n")
