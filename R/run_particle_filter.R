@@ -579,12 +579,8 @@ get.coordinates.PF<-function(Points, in.Data) {
 	###########
 	# doing jitter first
 	cat("adding jitter to medians\n")
-	JitRadius<-min(in.Data$Spatial$tmp$Distance[in.Data$Spatial$tmp$Distance>0])/2*1000 # in meters
-	#now I want to generate random poitns in the radius of this
-	coords=cbind(Quantiles$Medianlon, Quantiles$Medianlat)
-	tmp<-try(apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 ))
-	if (class(tmp)!="try-error") {
-	jitter_coords<-t(sapply(tmp, coordinates))
+	jitter_coords<-get.coords.jitter(in.Data)
+	if (!is.null(jitter_coords)) {
 	Quantiles$MedianlonJ<-jitter_coords[,1]
 	Quantiles$MedianlatJ<-jitter_coords[,2]
 	}
@@ -769,6 +765,21 @@ coords.aeqd.jitter <- function(coords, r, n)
 	if (is.null(random_points)) random_points<-spsample(buffered_eqarea,n=n,type="random", iter=40) 
 	if (is.null(random_points)) random_points<-p
     spTransform(random_points, p@proj4string)
+}
+
+# wrapper for jitter
+get.coords.jitter<-function(in.Data) {
+	Distance<-in.Data$Spatial$tmp$Distance
+	if (is.null(Distance)) Distance=spDists(all.out$Spatial$Grid[,1:2], longlat=T)
+	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
+	#now I want to generate random poitns in the radius of this
+	coords=cbind(Quantiles$Medianlon, Quantiles$Medianlat)
+	tmp<-try(apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 ))
+	jitter_coords<-NULL
+	if (class(tmp)!="try-error") {
+	jitter_coords<-t(sapply(tmp, coordinates))
+	}
+	return(jitter_coords)
 }
 
 
