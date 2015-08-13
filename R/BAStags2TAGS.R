@@ -1,4 +1,4 @@
-SGAT2TAGS <- function(raw, twl, threshold) {
+BAStags2TAGS <- function(raw, twl, threshold) {
   # function by Simeon
   names(raw) <- c("Twilight", "Light")
   twl$Light <- threshold
