@@ -1,7 +1,7 @@
 FLightR
 =======
 
-here is a source code for R package FLightR
+Welcome to FLightR, an R package that deals with solar geolocation data. 
 The scope of the package is to position animal using data from solar geolocation archival tags
 the package is in the active development.
 
