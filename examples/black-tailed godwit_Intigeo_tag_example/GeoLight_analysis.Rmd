@@ -24,14 +24,21 @@ Many datasets contain some very bad data in the beginning and in the end. If you
 
 Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv) file downloaded from TAGS. Now you can process these data:
 
+
 ```{r}
 File="E391.csv"
 lig.raw<-read.csv(File, stringsAsFactors =F)
+``` 
+Or you can download it straight into R:
+```{r}
+library(RCurl)
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv"
+		, ssl.verifypeer = FALSE, followlocation = TRUE)
+lig.raw<-read.csv(text=text, stringsAsFactors =F)
+lig.raw$light<-exp(lig.raw$light) # this is needed because we log transformed data in convert.lux.to.tags()
 
-lig.raw$light<-exp(lig.raw$light)
 lig.raw$datetime<-as.POSIXct(lig.raw$datetime, tz="UTC", format="%Y-%m-%dT%T")
 
-str(lig.raw)
 # so we have to create extract twilights
 tw<-lig.raw[lig.raw$twilight>0 &  lig.raw$excluded==0 & lig.raw$datetime<as.POSIXct("2014-05-18", tz="UTC"),]
 
@@ -45,7 +52,7 @@ gl_twl<-data.frame(tFirst=tw$datetime[which(diff(tw$datetime)<20)], tSecond=tw$d
 #Calibrate the sun elevation angle with a known location
 calib1 <- gl_twl[gl_twl$tFirst<=as.POSIXct("2013-08-05", tz="UTC"),] #designate first ten twilights for calibration
 known.coord <- c(5.43, 52.93)
-elev <- getElevation(calib1$tFirst,calib1$tSecond,calib1$type,known.coord,plot=T) #get sun elevation angle 
+elev <- getElevation(calib1$tFirst,calib1$tSecond,calib1$type,known.coord=known.coord,plot=T) #get sun elevation angle 
 
 #Generate the coordinates
 coord <- coord(gl_twl$tFirst, gl_twl$tSecond, gl_twl$type, elev)

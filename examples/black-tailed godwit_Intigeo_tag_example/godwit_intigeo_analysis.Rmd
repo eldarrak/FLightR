@@ -58,7 +58,7 @@ add calibration location as x,y
 ```{r}
 start=c(5.43, 52.93)
 
-log.light.borders=c(2.5, 8) # default values for Intigeo tag
+log.light.borders=c(2, 8) # default values for Intigeo tag
 log.irrad.borders=c(-3,1.5) # default values for Intigeo tag
 ```
 ##Calibration
@@ -151,7 +151,7 @@ FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetim
 
 Proc.data<-process.twilights(FLightR.data$Data, 
 	FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
-        measurement.period=Proc.data$measurement.period, saving.period=Proc.data$measurement.period)
+        measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period)
 
 calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
                model.ageing=model.ageing, log.light.borders=log.light.borders,  
@@ -282,6 +282,20 @@ Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
 b= Sys.time()
 b-a
 save(Result, file="Result.bltg.ageing.model.RData")
+
+
+nParticles=1e6
+Threads= detectCores()-1
+a= Sys.time()
+Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
+                nParticles=nParticles, known.last=TRUE,
+		precision.sd=25, save.memory=T, k=NA,
+		parallel=T,  plot=T, prefix="pf",
+		extend.prefix=T, cluster.type="SOCK",
+		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F)
+b= Sys.time()
+b-a
+save(Result, file="Result.bltg.ageing.model.noOD.RData")
 
 ```
 This is it. Now we can do some plotting.
