@@ -1,0 +1,74 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Tree swallow analysis}
+%\VignetteDepends{FLightR}
+-->
+# Intigeo tag on a Bar tailed godwit analysis example
+## GeoLight analysis
+
+```{r}
+require(GeoLight)
+```
+##Download data from GitHub
+There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from James Fox. This file does not have defined twilights. There is plenty of ways to predefine twilights and here I will use the TAGS online service (http://tags.animalmigration.org). In order to process data to the TAGS format one should do following:
+1. Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391_driftadj.lux) file into your working directory. I assume you will name it 'E391_driftadj.lux'.
+2. open R and process .lux file
+```{r}
+# set working directory
+setwd("your path")
+convert.lux.to.tags("E391_driftadj.lux")
+```
+Now we have created a csv file that can be uploaded to [TAGS](http://tags.animalmigration.org)
+There you define light threshold at 2.5, process all the data and save them with 'save light-twilight' option.
+Many datasets contain some very bad data in the beginning and in the end. If you do not want to clean all these noysy ens you may just write down start and end date of the data you want to work with and then use these values at the next step.
+
+Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv) file downloaded from TAGS. Now you can process these data:
+
+```{r}
+File="E391.csv"
+lig.raw<-read.csv(File, stringsAsFactors =F)
+
+lig.raw$light<-exp(lig.raw$light)
+lig.raw$datetime<-as.POSIXct(lig.raw$datetime, tz="UTC", format="%Y-%m-%dT%T")
+
+str(lig.raw)
+# so we have to create extract twilights
+tw<-lig.raw[lig.raw$twilight>0 &  lig.raw$excluded==0 & lig.raw$datetime<as.POSIXct("2014-05-18", tz="UTC"),]
+
+# make pairs of pairs
+tw$datetime[tw$twilight==2]<-tw$datetime[tw$twilight==2]-(300-60)
+
+gl_twl<-data.frame(tFirst=tw$datetime[which(diff(tw$datetime)<20)], tSecond=tw$datetime[which(diff(tw$datetime)<20)+1], type=tw$twilight[which(diff(tw$datetime)<20)])
+
+# ok now we have to work with GeoLight
+
+#Calibrate the sun elevation angle with a known location
+calib1 <- gl_twl[gl_twl$tFirst<=as.POSIXct("2013-08-05", tz="UTC"),] #designate first ten twilights for calibration
+known.coord <- c(5.43, 52.93)
+elev <- getElevation(calib1$tFirst,calib1$tSecond,calib1$type,known.coord,plot=T) #get sun elevation angle 
+
+#Generate the coordinates
+coord <- coord(gl_twl$tFirst, gl_twl$tSecond, gl_twl$type, elev)
+
+#Add times to GeoLight coords
+names(coord)<-c("Lon","Lat")
+coord2<-data.frame(coord)
+coord2$tFirst<-gl_twl$tFirst
+coord2$tSecond<-gl_twl$tSecond
+coords<-coord2
+
+coords$tMean<-as.POSIXct(apply(cbind(coords$tFirst,coords$tSecond), 1 , mean), tz="UTC", origin="1970-01-01")
+
+save(coords, file="GeoLight_coords.RData")
+
+#---------------------------------
+# ok, now we will also try to estimate migration 
+
+sites <- changeLight(gl_twl$tFirst, gl_twl$tSecond,gl_twl$type, rise.prob = 0.5, set.prob = 0.5, days = 3, quantile=0.99)
+
+# ok, we have got many sites.. let's check where are the ones that we really need..
+
+save(sites, file="GLsites.RData")
+
+```
+
