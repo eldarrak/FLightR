@@ -151,7 +151,7 @@ FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetim
 
 Proc.data<-process.twilights(FLightR.data$Data, 
 	FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
-        measurement.period=60, saving.period=300)
+        measurement.period=Proc.data$measurement.period, saving.period=Proc.data$measurement.period)
 
 calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
                model.ageing=model.ageing, log.light.borders=log.light.borders,  
