@@ -230,7 +230,7 @@ all.in$Spatial$Phys.Mat<-Phys.Mat
 Doing some preliminary checks now:
 First, we plot likelihood surface for a sample twilight
 ```{r}
-t=10
+t=1
 my.golden.colors <- colorRampPalette(c("white","#FF7100"))
 
 image.plot(as.image(all.in$Spatial$Phys.Mat[,t], x=all.in$Spatial$Grid[,1:2],
@@ -256,8 +256,8 @@ image.plot(as.image(apply(all.in$Spatial$Phys.Mat[,t:(t+30)],1,  FUN=prod),
 library(maps)
 map('world', add=T)
 map('state', add=T)
-abline(v=start[1])
-abline(h=start[2])
+#abline(v=start[1])
+#abline(h=start[2])
 }
 #}
 

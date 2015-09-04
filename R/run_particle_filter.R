@@ -477,7 +477,7 @@ if (is.na(ESS)) {
     #	}
     
     if (Time.Period<=L) cat("creating stack\n")
-	 if (Time.Period==L) 	Points<-vector(mode = "list")
+	if (Time.Period==L) 	Points<-vector(mode = "list")
     if (Time.Period>L) {
 	# the new idea is that we could skip the saving all results and save just points and transitions - we are not outputting them anyways... THis will help avoiding the sort of All.results, that proved to be very slow..
       # save points
@@ -506,14 +506,11 @@ cat("******************\n")
     Results.stack<-pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, last.particles=Results.stack[,ncol(Results.stack)])
   }
   
+  if (!is.list(Points)) Points<-vector(mode = "list")
   # and here we need to add a thing that will finish All.results and Trans from the points that are still in the stack
-  Length<-ncol(Results.stack)
-  print(Length)
-  if (length(Length)>1) {
   cat("adding last points form the stack to the resutls\n")
   for (rest in 1:Length) {
     # save points
-    
 	  Rle<-bit:::intrle(sort.int(Results.stack[,rest], method="quick"))
       if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,rest], method="quick"))
 	  Points[length(Points)+1]<-list(Rle)
@@ -524,8 +521,7 @@ cat("******************\n")
       Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
     }
   }
-  }
-  #save(All.results, file="All.results.smoothed.RData")
+  
   if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
   if (length(existing.cluster)==1) parallel:::stopCluster(cl = mycl)
   if (sink2file) sink()
