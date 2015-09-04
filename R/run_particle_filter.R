@@ -509,6 +509,8 @@ cat("******************\n")
   if (!is.list(Points)) Points<-vector(mode = "list")
   # and here we need to add a thing that will finish All.results and Trans from the points that are still in the stack
   cat("adding last points form the stack to the resutls\n")
+  Length<-ncol(Results.stack)
+
   for (rest in 1:Length) {
     # save points
 	  Rle<-bit:::intrle(sort.int(Results.stack[,rest], method="quick"))
