@@ -508,6 +508,8 @@ cat("******************\n")
   
   # and here we need to add a thing that will finish All.results and Trans from the points that are still in the stack
   Length<-ncol(Results.stack)
+  print(Length)
+  if (length(Length)>1) {
   cat("adding last points form the stack to the resutls\n")
   for (rest in 1:Length) {
     # save points
@@ -521,6 +523,7 @@ cat("******************\n")
       # save transitions
       Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
     }
+  }
   }
   #save(All.results, file="All.results.smoothed.RData")
   if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
