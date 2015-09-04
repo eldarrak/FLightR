@@ -217,7 +217,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   New.weights<-rep(1/nParticles, nParticles)
   #All.results<-NULL
   in.Data$outliers<-c()
-	  Trans<-vector(mode = "list", length = nrow(in.Data$Indices$Main.Index))
+	  #Trans<-vector(mode = "list", length = nrow(in.Data$Indices$Main.Index))
+	  Trans<-vector(mode = "list")
   	if (check.outliers) {
 	  in.Data$AB.distance<-c()
 	  #in.Data$AC.distance<-c()
