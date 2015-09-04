@@ -520,7 +520,8 @@ cat("******************\n")
 	#All.results<-paste(All.results, Results.stack[,rest], sep=".")
     if (rest<Length) {
       # save transitions
-      Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
+      #Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
+      Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
     }
   }
   
