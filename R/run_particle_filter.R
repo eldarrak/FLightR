@@ -525,7 +525,6 @@ cat("******************\n")
       Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
     }
   }
-save(Trans, file="tmp.RData")  
   if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
   if (length(existing.cluster)==1) parallel:::stopCluster(cl = mycl)
   if (sink2file) sink()
