@@ -522,10 +522,9 @@ cat("******************\n")
       # save transitions
       #Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
       Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
-	  print(str(Trans[[length(Trans)]]))
     }
   }
-  
+save(Trans, file="tmp.RData")  
   if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
   if (length(existing.cluster)==1) parallel:::stopCluster(cl = mycl)
   if (sink2file) sink()
