@@ -8,7 +8,7 @@
 ```{r}
 require(devtools)
 
-install_github("eldarrak/FLightR/0.2.5") # note the version
+install_github("eldarrak/FLightR@0.3.3") # note the version
 
 library(FLightR)
 ```
@@ -270,6 +270,9 @@ For the main run you might want to select:
    3. check.outliers - additional on a fly outliers selection. Normally shoud be chosen as TRUE.
    
 ```{r}
+
+# the following part uses outlier detection
+if (FALSE) {
 nParticles=1e6
 Threads= detectCores()-1
 a= Sys.time()
@@ -283,6 +286,9 @@ b= Sys.time()
 b-a
 save(Result, file="Result.bltg.ageing.model.RData")
 
+} 
+
+# and this is the main run w/o outlier detection
 
 nParticles=1e6
 Threads= detectCores()-1
