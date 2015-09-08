@@ -64,7 +64,7 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=F) {
 }
 
 
-logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot=T, log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=T) {
+logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=T, plot.final=T,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=T) {
 
 	# =================
 	# in this function I'll add a new lnorm calibration...
@@ -89,11 +89,11 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	Twilight.log.light.mat.Calib.dusk<-Twilight.log.light.mat.Calib.dusk[-25,]
 	# let's try to create Calib.data.all first!!
 	Calib.data.dawn<-data.frame()
-	if (plot) par(ask=F)
+	if (plot.each) par(ask=F)
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
 cat("checking dawn", dawn, "\n" )
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
-		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
+		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot.each, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
 		cat ("dawn", dawn, "was excluded from the calibration\n")
 		} else {
@@ -107,7 +107,7 @@ cat("checking dawn", dawn, "\n" )
 cat("checking dusk", dusk, "\n" )
 
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
-		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=T,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
+		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot.each, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=T,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
 #print(str(Data)	)
 		if (length(Data)==0) {
 		cat ("dusk", dusk, "was excluded from the calibration\n")
@@ -121,7 +121,7 @@ cat("checking dusk", dusk, "\n" )
 	Calib.data.all<-rbind(Calib.data.dawn, Calib.data.dusk)
 	#print(str(Calib.data.all))	
 	
-	if (plot) {
+	if (plot.final) {
 		plot(LogLight~LogIrrad,data=Calib.data.all, type="n")
 		for (Day in unique(Calib.data.all$Day)) {
 		lines(LogLight~LogIrrad, data=Calib.data.all[Calib.data.all$Day==Day,], type="b", pch="+", col=rainbow(length(unique(Calib.data.all$Day)))[Day])
@@ -167,9 +167,9 @@ cat("checking dusk", dusk, "\n" )
 }
 
 # ok now we need template.calibration.function..
-logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot=T, impute.on.boundaries=T) {
+logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot.each=T, plot.final=T, impute.on.boundaries=T) {
 	
-	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot=plot,impute.on.boundaries=impute.on.boundaries)
+	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot.each=plot.each, plot.final=plot.final,impute.on.boundaries=impute.on.boundaries)
 	
 	# for lme
 	#Calibration.simple<-summary(m1)$tTable[1,1:2]
@@ -270,7 +270,7 @@ lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slope
 }
 
 
-get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5)) {
+get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5), plot.each=F, plot.final=T) {
 
 # ageing.model this option should be used only in case there are two periods of calibration or there is one but very long.
 if (nrow(Calibration.periods)==1 & model.ageing) warning("you have only one calibration period ageing estimation is unreliable and should be turned ot F!!!")
@@ -312,7 +312,7 @@ Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn[,Dawn.c
 
 #-------------------#
 
-Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot=F)
+Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final)
 
 All.slopes<-get.calib.param(Calib.data.all, plot=F)
 

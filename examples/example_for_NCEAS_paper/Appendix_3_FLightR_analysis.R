@@ -95,7 +95,7 @@ Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn
 # this is especially important for the nest box or cavity breeders.
 # the abnormally fast twilights corresponding to twilight missed inside a cavity should be excluded..
 
-Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=known.coord, log.light.borders=log(c(2, 64)),  log.irrad.borders=c(-1000, 1000), plot=F) 
+Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=known.coord, log.light.borders=log(c(2, 64)),  log.irrad.borders=c(-1000, 1000), plot.each=F, plot.final=T) 
 
 # plot=T - will plot al the twilights and you might exclude weird ones.
 # plot=F will just go to the end without manual check possibility
