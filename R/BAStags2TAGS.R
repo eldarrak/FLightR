@@ -13,3 +13,4 @@ BAStags2TAGS <- function(raw, twl, threshold) {
   out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
   return(out)
  }
+BAStag2TAGS <- BAStags2TAGS
