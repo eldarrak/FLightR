@@ -231,7 +231,7 @@ Cur_slope_mean<-coef(Lm)[2]
 Cur_slope_sd<-sqrt(vcov(Lm)[4])
 
 
-if (calibration.type="nonparametric.calibration") {
+if (calibration.type=="nonparametric.calibration") {
 	# Here I want to physically estimate slopes
 
 	All_slopes_cur<-diff(Data$LogLight)/diff(Data$LogIrrad)
