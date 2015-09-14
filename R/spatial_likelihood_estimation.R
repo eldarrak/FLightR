@@ -80,7 +80,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 	}
 
 			
-get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, delta=0) {
+get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, Twilight.time.vector=NULL,  delta=0, dusk=T) {
 		require(fields)
 		# check for the intercept
 		sum=0
@@ -184,7 +184,7 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 		}
 		
 			
-get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, delta=0) {
+get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, Twilight.time.vector=NULL,  delta=0, dusk=T) {
 
 		if (is.null(time_correction)) {	
 
