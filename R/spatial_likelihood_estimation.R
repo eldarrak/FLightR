@@ -231,7 +231,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		} 
 		
 		if (calibration$Parameters$calibration.type=="nonparametric.slope") {
-			Slopes<-diff(logLight)/diff(LogIrrad)
+			Slopes<-diff(LogLight)/diff(LogIrrad)
 			Probability<-get.probs.nonparam.slope(Slopes, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes) 
 		} 
 
