@@ -226,13 +226,13 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		if (calibration$Parameters$calibration.type=="parametric.slope") {
 			Model<- lm(LogLight~LogIrrad)
 			if (verbose) print(summary(Model))
-			Probability<-get.probs.lm(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta)
+			Probability<-get.probs.lm(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta, Twilight.time.vector=Twilight.time.vector, dusk=dusk)
 			
 		} 
 		
 		if (calibration$Parameters$calibration.type=="nonparametric.slope") {
 			Slopes<-diff(LogLight)/diff(LogIrrad)
-			Probability<-get.probs.nonparam.slope(Slopes, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta) 
+			Probability<-get.probs.nonparam.slope(Slopes, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta, Twilight.time.vector=Twilight.time.vector, dusk=dusk)
 		} 
 
 
