@@ -80,7 +80,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 	}
 
 			
-get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, ...) {
+get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, delta=0) {
 		require(fields)
 		# check for the intercept
 		sum=0
@@ -184,7 +184,7 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 		}
 		
 			
-get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, ...) {
+get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, delta=0) {
 
 		if (is.null(time_correction)) {	
 
@@ -226,13 +226,13 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		if (calibration$Parameters$calibration.type=="parametric.slope") {
 			Model<- lm(LogLight~LogIrrad)
 			if (verbose) print(summary(Model))
-			Probability<-get.probs.lm(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes)
+			Probability<-get.probs.lm(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta)
 			
 		} 
 		
 		if (calibration$Parameters$calibration.type=="nonparametric.slope") {
 			Slopes<-diff(LogLight)/diff(LogIrrad)
-			Probability<-get.probs.nonparam.slope(Slopes, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes) 
+			Probability<-get.probs.nonparam.slope(Slopes, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta) 
 		} 
 
 
