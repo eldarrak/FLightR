@@ -221,7 +221,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 	
 	#===========
 	# here I'll check on how many points we have
-		if (length(LogLight) >=2) { # I had 2 here for unknown reason.
+		if (length(LogLight) >=1) { # I had 2 here for unknown reason.
 	
 		if (calibration$Parameters$calibration.type=="parametric.slope") {
 			Model<- lm(LogLight~LogIrrad)
