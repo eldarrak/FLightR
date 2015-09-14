@@ -223,14 +223,14 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 	# here I'll check on how many points we have
 		if (length(LogLight) >=1) { # I had 2 here for unknown reason.
 	
-		if (Calibration$Parameters$calibration.type=="parametric.slope") {
+		if (calibration$Parameters$calibration.type=="parametric.slope") {
 			Model<- lm(LogLight~LogIrrad)
 			if (verbose) print(summary(Model))
 			Probability<-get.probs.lm(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes)
 			
 		} 
 		
-		if (Calibration$Parameters$calibration.type=="nonparametric.slope") {
+		if (calibration$Parameters$calibration.type=="nonparametric.slope") {
 			Slopes<-diff(logLight)/diff(LogIrrad)
 			Probability<-get.probs.nonparam.slope(Slopes, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes) 
 		} 
