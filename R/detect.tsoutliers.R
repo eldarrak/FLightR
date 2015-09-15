@@ -72,32 +72,31 @@ otypes <- c("AO", "TC", "LS")
 
 # I want to limit cval to allow it no more than 10% of outliers.. this could become a parameter later on..
 
-mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15)
+mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100)
 
 # if 
 
-
+ Cval=3.5
  if (nrow(mo2$outliers)<length(Lons)*0.075) {
  cat("adjusting cval down\n")
- Cval=3.5
  while(nrow(mo2$outliers)<length(Lons)*0.075) {
  Cval=Cval*0.95
- mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15, cval=Cval)
+ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
  } 
  cat("cval adjusted to", Cval, "\n")
  }
  
  if (nrow(mo2$outliers)>length(Lons)*max.outlier.proportion) {
  cat("adjusting cval up\n")
- Cval=3.5
  while(nrow(mo2$outliers)>length(Lons)*max.outlier.proportion) {
  Cval=Cval*1.05
- mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=15, cval=Cval)
+ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
  } 
  cat("cval adjusted to", Cval, "\n")
  }
 
 Outliers1=try(remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call, cval=1)$outliers)
+
 if (class(Outliers1)=="try-error") {
 cat("error detected, switching detection method to bottom-up")
 Outliers1=remove.outliers(mo2, .Lons.ts, method = "bottom-up",  tsmethod.call = fit$call, cval=1)$outliers
