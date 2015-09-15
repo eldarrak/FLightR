@@ -98,9 +98,9 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 		}
 		#if (length(resid(Model))== 3) coef.vcov<-coef.vcov*15
 		# coef.vcov<-coef.vcov*100/(length(resid(Model))^2) # adding errors from MCMC
-		if (use.intercept) {
-		stop("use of intercept is not implemented!!!")
-		} else { 
+		#if (use.intercept) {
+		#stop("use of intercept is not implemented!!!")
+		#} else { 
 
 		#test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
 		if (slope.sd==0) {
@@ -166,7 +166,7 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 				#sum=sum*(cos(x[2]/180*pi)^0.5)
 				#-----------------------
 		
-				}
+		#		}
 		#if (plot) {
 		#my.golden.colors <- colorRampPalette(
 		#c("white","#FF7100"))
@@ -202,7 +202,8 @@ get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correc
 		delta=calibration$lat_correction_fun(x[2], Twilight.time.vector[13]) # have to check whether we always have time specified...
 		}
 		}
-		Probability<-mean(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
+		#Probability<-mean(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
+		Probability<-sum(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
 		if (!is.finite(Probability)) Probability<-0
 		if (Probability<0) Probability<-0
 		if (return.slopes) 	Probability<-c(Probability, mean(Slopes), sd(Slopes))
