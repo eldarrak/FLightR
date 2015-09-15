@@ -11,7 +11,7 @@ Twilight.solar.vector<-solar(as.POSIXct(Proc.data$Twilight.time.mat.dawn[c(1:24,
 Twilight.log.light.vector<-Proc.data$Twilight.log.light.mat.dawn[c(1:24, 26:49), Twilight.ID]
 Twilight.time.vector=Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.ID]
 }
-
+save.image(paste(runif(1),"tmp.RData",sep=".")
 #ok let's now create a line at equator
 Grid<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
  if (is.null(center)) {
