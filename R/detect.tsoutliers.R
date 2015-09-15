@@ -250,14 +250,19 @@ cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for
 if (plot) {
 par(mfrow=c(2,1))
 plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="UTC", origin="1970-01-01"), main="Dusk")
-abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
+if (length(Dusk.outliers)>0) abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
 plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,], tz="UTC", origin="1970-01-01"), main="Dawn")
-abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
+if (length(Dawn.outliers)>0) abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
 }
-Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-Dusk.outliers]
-Proc.data$Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk[,-Dusk.outliers]
-Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn[,-Dawn.outliers]
-Proc.data$Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn[,-Dawn.outliers]
+Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk
+if (length(Dusk.outliers)>0)  Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-Dusk.outliers]
+Proc.data$Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk
+if (length(Dusk.outliers)>0) Proc.data$Twilight.log.light.mat.dusk<-Proc.data$Twilight.log.light.mat.dusk[,-Dusk.outliers]
+Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn
+if (length(Dawn.outliers)>0) Proc.data$Twilight.time.mat.dawn<-Proc.data$Twilight.time.mat.dawn[,-Dawn.outliers]
+Proc.data$Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
+
+if (length(Dawn.outliers)>0) Proc.data$Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn[,-Dawn.outliers]
 Res<-list(Proc.data=Proc.data, Lons.dusk=Lons.dusk, Lons.dawn=Lons.dawn)
 return(Res)
 }
