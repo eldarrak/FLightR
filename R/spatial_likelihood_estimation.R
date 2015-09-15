@@ -180,7 +180,7 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 		if (!is.finite(Probability)) Probability<-0
 		if (Probability<0) Probability<-0
 		if (return.slopes) 	Probability<-c(Probability, coef(Model)[2], sqrt(vcov(Model)[4]))
-		return(sum)
+		return(Probability)
 		}
 		
 			
@@ -206,7 +206,7 @@ get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correc
 		if (!is.finite(Probability)) Probability<-0
 		if (Probability<0) Probability<-0
 		if (return.slopes) 	Probability<-c(Probability, mean(Slopes), sd(Slopes))
-		return(sum)
+		return(Probability)
 		}
 		
 
