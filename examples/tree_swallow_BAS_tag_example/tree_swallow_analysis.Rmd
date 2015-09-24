@@ -264,7 +264,11 @@ par(mar=c(4,4,3,1),las=1,mgp=c(2.25,1,0))
 # we can plot either mean or median.
 
 Mean_coords<-cbind(Result$Results$Quantiles$Meanlon, Result$Results$Quantiles$Meanlat)
-Median_coords<-cbind(Result$Results$Quantiles$MedianlonJ, Result$Results$Quantiles$MedianlatJ)
+if (is.null(Result$Results$Quantiles$MedianlatJ)) {
+	Median_coords<-cbind(Result$Results$Quantiles$Medianlon, Result$Results$Quantiles$Medianlat)
+} else {
+	Median_coords<-cbind(Result$Results$Quantiles$MedianlonJ, Result$Results$Quantiles$MedianlatJ)
+}
 plot(Median_coords, type = "n",ylab="Latitude",xlab="Longitude")
 library(maptools)
 data(wrld_simpl)
