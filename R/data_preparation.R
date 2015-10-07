@@ -65,7 +65,6 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=F) {
 
 
 logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=T, plot.final=T,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=T) {
-
 	# =================
 	# in this function I'll add a new lnorm calibration...
 	#
@@ -186,7 +185,11 @@ logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log
 
 	
 
-get.calib.param<-function(Calib.data.all, plot=F) {
+get.calib.param<-function(Calib.data.all, plot=F, calibration.type=NULL) {
+
+if (is.null(calibration.type)) calibration.type="parametric.slope"
+cat("calibration method used:", calibration.type, "\n")
+
 Calib.data.all$fTwilight<-Calib.data.all$fDay
 #Calib.data.all<-Calib.data.all[-which(Calib.data.all$fTwilight%in% c(191, 222, 249, 250)),]
 # Calib.data.all<-Calib.data.all[-which(Calib.data.all$fTwilight%in% c( 222)),]
@@ -222,16 +225,40 @@ for (i in (unique(cur.data$fTwilight))) {
 #plot(LogLight~LogIrrad, data=cur.data[cur.data$fTwilight==i,])
 Data<-cur.data[cur.data$fTwilight==i,]
 Data<-Data[Data$LogLight>0,]
+
 Lm<-lm(LogLight~LogIrrad,data=Data)
-Slopes<-c(Slopes, coef(Lm)[2])
-Slopes.sd<-c(Slopes.sd, sqrt(vcov(Lm)[4]))
+Cur_slope_mean<-coef(Lm)[2]
+Cur_slope_sd<-sqrt(vcov(Lm)[4])
+
+
+if (calibration.type=="nonparametric.slope") {
+	# Here I want to physically estimate slopes
+
+	All_slopes_cur<-diff(Data$LogLight)/diff(Data$LogIrrad)
+	All_slopes_mean<-mean(All_slopes_cur)
+	All_slopes_sd<-sd(All_slopes_cur)
+	# exclude outliers
+	All_slopes_diff<-abs(All_slopes_cur-All_slopes_mean)
+	Slopes_outliers<-which(All_slopes_diff>3*All_slopes_sd)
+	if (length(Slopes_outliers)>0) {
+		All_slopes_cur<-All_slopes_cur[-Slopes_outliers]
+		All_slopes_mean<-mean(All_slopes_cur)
+		All_slopes_sd<-sd(All_slopes_cur)
+	}
+	Cur_slope_mean<-All_slopes_mean
+	Cur_slope_sd<-All_slopes_sd
+}
+
+Slopes<-c(Slopes, Cur_slope_mean)
+Slopes.sd<-c(Slopes.sd, Cur_slope_sd)
 Intercept=c(Intercept, coef(Lm)[1])
 Sigma<-c(Sigma, summary(Lm)$sigma)
 Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
 Time<-c(Time,ifelse(cur.data$type[cur.data$fTwilight==i][1]=="Dusk", max(cur.data$Time[cur.data$fTwilight==i]), min(cur.data$Time[cur.data$fTwilight==i])))
-get.calib.param
 Elevs=c(Elevs, mean(cur.data$Elevs[cur.data$fTwilight==i], na.rm=T))
 Day=c(Day, cur.data$Day[cur.data$fTwilight==i][1])
+# nonparametric slope estimation
+
 }
 #plot(cur.slope$slope~Slopes)
 #plot(cur.slope$sd~Slopes.sd)
@@ -248,7 +275,7 @@ names(cur.slope)[2]<-"slope"
 #=====================
 if (plot) hist(log(cur.slope$slope))
 
-Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope$sd, na.rm=T))
+Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope$sd, na.rm=T), calibration.type=calibration.type)
 
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
@@ -270,7 +297,7 @@ lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slope
 }
 
 
-get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5), plot.each=F, plot.final=T) {
+get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5), plot.each=F, plot.final=T, calibration.type=NULL) {
 
 # ageing.model this option should be used only in case there are two periods of calibration or there is one but very long.
 if (nrow(Calibration.periods)==1 & model.ageing) warning("you have only one calibration period ageing estimation is unreliable and should be turned ot F!!!")
@@ -314,7 +341,7 @@ Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn[,Dawn.c
 
 Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final)
 
-All.slopes<-get.calib.param(Calib.data.all, plot=F)
+All.slopes<-get.calib.param(Calib.data.all, plot=F, calibration.type=calibration.type)
 
 All.slopes$Slopes$logSlope<-log(All.slopes$Slopes$Slope)
 

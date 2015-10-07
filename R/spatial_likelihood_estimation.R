@@ -79,21 +79,8 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 		return(Current.probs)
 	}
 
-get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  delta=0, time_correction=NULL, Calib.param=NULL, impute.on.boundaries=T) {
-	if (is.null(time_correction) & is.null(Twilight.solar.vector)) stop ("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
-	Probability=0
-	Data<-check.boundaries(x, Twilight.solar.vector=Twilight.solar.vector,  Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector, impute.on.boundaries=impute.on.boundaries)
-	if (dim(Data)[1]>1) {
-	LogLight<-Data[,1]
-	LogIrrad<-Data[,2]
-	
-	#===========
-	# here I'll check on how many points we have
-		if (length(LogLight) >=2) { 
-		Model<- lm(LogLight~LogIrrad)
-		if (verbose) print(summary(Model))
-
-	get.probs<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL) {
+			
+get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, Twilight.time.vector=NULL,  delta=0, dusk=T) {
 		require(fields)
 		# check for the intercept
 		sum=0
@@ -111,9 +98,9 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		}
 		#if (length(resid(Model))== 3) coef.vcov<-coef.vcov*15
 		# coef.vcov<-coef.vcov*100/(length(resid(Model))^2) # adding errors from MCMC
-		if (use.intercept) {
-		stop("use of intercept is not implemented!!!")
-		} else { 
+		#if (use.intercept) {
+		#stop("use of intercept is not implemented!!!")
+		#} else { 
 
 		#test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
 		if (slope.sd==0) {
@@ -179,7 +166,7 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 				#sum=sum*(cos(x[2]/180*pi)^0.5)
 				#-----------------------
 		
-				}
+		#		}
 		#if (plot) {
 		#my.golden.colors <- colorRampPalette(
 		#c("white","#FF7100"))
@@ -188,14 +175,69 @@ get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL
 		#contour(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities, add=T)
 		#}
 		#}
-		return(sum)
-		}
 		
-		Probability<-get.probs(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param)
-
+		Probability<-sum
 		if (!is.finite(Probability)) Probability<-0
 		if (Probability<0) Probability<-0
 		if (return.slopes) 	Probability<-c(Probability, coef(Model)[2], sqrt(vcov(Model)[4]))
+		return(Probability)
+		}
+		
+			
+get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, Twilight.time.vector=NULL,  delta=0, dusk=T) {
+
+		if (is.null(time_correction)) {	
+
+			if (is.null(calibration)) {
+			time_correction=Calib.param[1] # this is the only place where I use calib.param...
+			} else {
+			time_correction=calibration$time_correction_fun(get.declination(Twilight.time.vector[24]), as.numeric(dusk))
+			}
+		}
+		Expected.mean<-time_correction
+	
+		if (is.null(delta)) {
+		if (length(formals(calibration$lat_correction_fun))==1) {
+		delta=calibration$lat_correction_fun(x[2])} else {
+		delta=calibration$lat_correction_fun(x[2], Twilight.time.vector[13]) # have to check whether we always have time specified...
+		}
+		}
+		#Probability<-mean(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
+		Probability<-sum(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
+		if (!is.finite(Probability)) Probability<-0
+		if (Probability<0) Probability<-0
+		if (return.slopes) 	Probability<-c(Probability, mean(Slopes), sd(Slopes))
+		return(Probability)
+		}
+		
+
+	
+get.current.slope.prob<-function(x, calibration=NULL, Twilight.solar.vector=NULL, Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-9, 1.5), dusk=T, use.intercept=F, return.slopes=F, Twilight.time.vector=NULL,  delta=0, time_correction=NULL, Calib.param=NULL, impute.on.boundaries=T) {
+	if (is.null(time_correction) & is.null(Twilight.solar.vector)) stop ("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
+	Probability=0
+	Data<-check.boundaries(x, Twilight.solar.vector=Twilight.solar.vector,  Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector, impute.on.boundaries=impute.on.boundaries)
+	if (dim(Data)[1]>1) {
+	LogLight<-Data[,1]
+	LogIrrad<-Data[,2]
+	
+	#===========
+	# here I'll check on how many points we have
+		if (length(LogLight) >=1) { # I had 2 here for unknown reason.
+	
+		if (calibration$Parameters$calibration.type=="parametric.slope") {
+			Model<- lm(LogLight~LogIrrad)
+			if (verbose) print(summary(Model))
+			Probability<-get.probs.lm(Model, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta, Twilight.time.vector=Twilight.time.vector, dusk=dusk)
+			
+		} 
+		
+		if (calibration$Parameters$calibration.type=="nonparametric.slope") {
+			Slopes<-diff(LogLight)/diff(LogIrrad)
+			Probability<-get.probs.nonparam.slope(Slopes, plot=plot, calibration=calibration, time_correction=time_correction, Calib.param=Calib.param, return.slopes=return.slopes, delta=delta, Twilight.time.vector=Twilight.time.vector, dusk=dusk)
+		} 
+
+
+
 
 		} else {
 		if (return.slopes) 	Probability<-c(Probability, NA, NA)
