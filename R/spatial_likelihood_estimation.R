@@ -206,7 +206,7 @@ get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correc
 		}
 		
 
-get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,    Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, кeturn.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = T) {
+get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,   Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, return.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = T) {
     if (is.null(time_correction) & is.null(Twilight.solar.vector)) 
         stop("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 		
