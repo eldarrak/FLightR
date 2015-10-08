@@ -89,7 +89,7 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 		
 		#if (coef(Model)[1] < calibration$calibration.bayesian.model$Intercept.boundary[1]) { 
 		#if (is.na(coef.vcov[1])) coef.vcov[is.na(coef.vcov)]<-calibration$calibration.bayesian.model$Slope.integration$fast.tw.vcov # adding errors from MCMC
-		if (is.finite(slope.sd)) {
+		if (!is.finite(slope.sd)) {
 			if (is.null(calibration)) {
 			slope.sd=0 
 			} else slope.sd<- calibration$Parameters$mean.of.individual.slope.sigma
