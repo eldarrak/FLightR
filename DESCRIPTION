@@ -26,6 +26,7 @@ Depends:
     rgdal,
     CircStats,
 	snow,
-	Rcpp
+	Rcpp,
+	RcppArmadillo
 License: GNU GPL v3.0
-
+ByteCompile: true
