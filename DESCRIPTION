@@ -1,8 +1,8 @@
 Package: FLightR
 Type: Package
 Title: SSM for solar geolocation
-Version: 0.3.2
-Date: 2015-06-10
+Version: 0.3.3
+Date: 2015-10-08
 Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contribution of Anatoly Saveliev
 Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
 Description: The scope of the package is to position animal using data from solar geolocation tags
@@ -26,6 +26,7 @@ Depends:
     rgdal,
     CircStats,
 	snow,
-	Rcpp
+	Rcpp,
+	RcppArmadillo
 License: GNU GPL v3.0
-
+ByteCompile: true
