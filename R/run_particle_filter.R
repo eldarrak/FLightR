@@ -111,8 +111,8 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	# here is the addition of clever mask
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
-    Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]
-    Dists.probs<-truncnorm:::dtruncnorm(Dists.distr, a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
+    Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
+    Dists.probs<-dtruncnorm(Dists.distr, a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
     #  library(fields)
     # dists
@@ -127,7 +127,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
       Angles.probs<-0.1591549
     }
     # this is neede to catch an error 
-    if (which.max(c(min(c(Angles.probs, Dists.probs)), 0))==2) {
+    if (any(c(Angles.probs, Dists.probs)<0)) {
       cat("PF produced weird probs \n")
       tmp.out<-list(Angles.probs=Angles.probs, Dists.probs=Dists.probs, Current.Proposal=Current.Proposal, Data=x)
       save(tmp.out, file=paste("tmp.out", round(runif(n=1,min=1, max=1000)), "RData", sep="."))
@@ -136,14 +136,12 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
       Biol.proposal<-Dists.probs*Angles.probs
     }
     pos.biol<-suppressWarnings(sample.int(length(Biol.proposal), size=x[[3]], replace=T, prob=Biol.proposal))
-    # ok, now we want to return more complicated stuff - final indexes!
+    # ok, now we want to return more complicated stuff - final indices!
     return(resample(as.integer(c(pos.biol, rep(x[[1]],(x[[2]]-x[[3]]))))))
-  }
-  else {
+  } else {
     return(as.integer(rep(x[[1]],(x[[2]]))))
   }
 }
-
 
 pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
   # this dunction is doing main job. it works on the secondary master
@@ -229,7 +227,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   
   propagate.particles<-function(Last.Particles, Current.Proposal, parallel=T, Parameters, mycl) {
     Order.vector<-order(Last.Particles)
-    Particles.rle<-bit:::intrle(as.integer(Last.Particles[Order.vector]))
+    Particles.rle<-intrle(as.integer(Last.Particles[Order.vector]))
     if (is.null(Particles.rle)) 	Particles.rle<-rle(as.integer(Last.Particles[Order.vector]))
     Last.State<-cbind(Particles.rle$values, Particles.rle$length)
     Last.State<-cbind(Last.State,nMoving=rbinom(dim(Last.State)[[1]], size=Last.State[,2], prob=Current.Proposal$Decision))
@@ -238,7 +236,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     if (nSeq==1 | (!parallel)) {
       #cat("non.parallel\n")
       #New.Points<-t(lapply(Last.State, 1, pf.par.internal, Current.Proposal))			
-      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
+      #New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
+      New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
     }
     else {
       cat(" initial diversity is ", nSeq)
