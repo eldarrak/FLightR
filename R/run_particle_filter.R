@@ -236,8 +236,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     if (nSeq==1 | (!parallel)) {
       #cat("non.parallel\n")
       #New.Points<-t(lapply(Last.State, 1, pf.par.internal, Current.Proposal))			
-      #New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
-      New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
+      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
+      #New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
     }
     else {
       cat(" initial diversity is ", nSeq)
