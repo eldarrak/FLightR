@@ -5,7 +5,7 @@ bibentry(
     author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
 	person(given="Anatoly", family="Saveliev",role="ctb")),
             year = sub("-.*", "", meta$Date),
-			note = "R package version 0.3.3",
+			note = paste("R package version", meta$Version),
 			url = "http://github.com/eldarrak/FLightR"
 			)
 bibentry(
