@@ -1,3 +1,4 @@
+citHeader("When citing the 'FLightR' package in publications please include:")
 bibentry(
 	bibtype ="Article",
     title = "A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity",
