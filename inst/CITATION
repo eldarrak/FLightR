@@ -1,5 +1,14 @@
 citHeader("When citing the 'FLightR' package in publications please include:")
 bibentry(
+	bibtype ="Manual",
+    title = "FLightR: SSM for solar geolocation",
+    author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
+	person(given="Anatoly", family="Saveliev",role="ctb")),
+            year = sub("-.*", "", meta$Date),
+			note = "R package version 0.3.3",
+			url = "http://github.com/eldarrak/FLightR"
+			)
+bibentry(
 	bibtype ="Article",
     title = "A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity",
     author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
