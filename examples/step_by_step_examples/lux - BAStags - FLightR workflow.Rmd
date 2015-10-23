@@ -9,8 +9,9 @@
 ```{r}
 require(devtools)
 
-install_github("eldarrak/FLightR@0.3.1") # note the version
-
+install_github("SWotherspoon/BAStag")
+install_github("eldarrak/FLightR") # note the version
+library(BAStag)
 library(FLightR)
 ```
 
@@ -37,12 +38,12 @@ twl <- preprocessLight(d.lux, threshold, offset = offset,lmax=12) # only needs t
 
 ```
 Transfer BAStag output to TAGS format...
-
+```{r}
 library(FLightR)
 
 TAGS.twilights<-BAStag2TAGS(d.lux, twl, threshold=2.5)
 
 TAGS.twilights$light<-exp(lig.raw$light) # this is needed only if you log transformed in the beginning..
 
-
-#
+```
+Now you can read these data by the FLightR data
