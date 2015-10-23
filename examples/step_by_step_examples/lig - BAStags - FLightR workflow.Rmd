@@ -1,0 +1,42 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{lig - BAStags - FLightR workflow}
+%\VignetteDepends{FLightR}
+%\VignetteDepends{BAStag}
+-->
+# .lig - BAStags - FLightR workflow
+## Install package
+```{r}
+require(devtools)
+install_github("SWotherspoon/BAStag")
+install_github("eldarrak/FLightR") # note the version
+library(BAStag)
+library(FLightR)
+```
+
+Here I use FLightR after initial twilight detection by BAStag.
+First we start with downloading the .lig file [.lig](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/tree_swallow_BAS_tag_example/749_000.lig) file into your working directory. I assume you will name it '749.lig'.
+2. open R and process .lig file
+```{r}
+d.lux<-readLig("749_000.lig", skip = 0)
+d.lux<- subset(d.lux,select=c("Date","Light"))
+```
+now we plot the image and select offset
+
+```{r}
+offset = 17
+lightImage(d.lux, offset = offset, zlim = c(0, 64), dt = 120) # dt specifies the recording interval
+
+threshold=2.5 # better use 2 for lig files if no strong reason for other value
+		  
+twl <- preprocessLight(d.lux, threshold, offset = offset,lmax=64) # only needs to be done once
+
+```
+Transfer BAStag output to TAGS format...
+```{r}
+library(FLightR)
+
+TAGS.twilights<-BAStag2TAGS(d.lux, twl, threshold=2.5)
+
+```
+Now you can read these data by the FLightR.
