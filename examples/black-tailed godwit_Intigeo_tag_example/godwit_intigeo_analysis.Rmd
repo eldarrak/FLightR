@@ -13,7 +13,7 @@ install_github("eldarrak/FLightR@0.3.1") # note the version
 library(FLightR)
 ```
 ##Download data from GitHub
-There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from James Fox. This file does not have defined twilights. There is plenty of ways to predefine twilights and here I will use the TAGS online service (http://tags.animalmigration.org). In order to process data to the TAGS format one should do following:
+There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology. This file does not have defined twilights. There is plenty of ways to predefine twilights and here I will use the TAGS online service (http://tags.animalmigration.org). In order to process data to the TAGS format one should do following:
 1. Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391_driftadj.lux) file into your working directory. I assume you will name it 'E391_driftadj.lux'.
 2. open R and process .lux file
 ```{r} 
