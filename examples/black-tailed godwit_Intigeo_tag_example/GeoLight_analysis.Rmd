@@ -27,20 +27,20 @@ Let's now assume that you have done the previous step and have a [.csv](https://
 
 ```{r}
 File="E391.csv"
-lig.raw<-read.csv(File, stringsAsFactors =F)
+TAGS.twilights<-read.csv(File, stringsAsFactors =F)
 ``` 
 Or you can download it straight into R:
 ```{r}
 library(RCurl)
 text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv"
 		, ssl.verifypeer = FALSE, followlocation = TRUE)
-lig.raw<-read.csv(text=text, stringsAsFactors =F)
-lig.raw$light<-exp(lig.raw$light) # this is needed because we log transformed data in convert.lux.to.tags()
+TAGS.twilights<-read.csv(text=text, stringsAsFactors =F)
+TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because we log transformed data in convert.lux.to.tags()
 
-lig.raw$datetime<-as.POSIXct(lig.raw$datetime, tz="UTC", format="%Y-%m-%dT%T")
+TAGS.twilights$datetime<-as.POSIXct(TAGS.twilights$datetime, tz="UTC", format="%Y-%m-%dT%T")
 
-# so we have to create extract twilights
-tw<-lig.raw[lig.raw$twilight>0 &  lig.raw$excluded==0 & lig.raw$datetime<as.POSIXct("2014-05-18", tz="UTC"),]
+# so we have to extract twilights
+tw<-TAGS.twilights[TAGS.twilights$twilight>0 &  TAGS.twilights$excluded==0 & TAGS.twilights$datetime<as.POSIXct("2014-05-18", tz="UTC"),]
 
 # make pairs of pairs
 tw$datetime[tw$twilight==2]<-tw$datetime[tw$twilight==2]-(300-60)
@@ -50,7 +50,7 @@ gl_twl<-data.frame(tFirst=tw$datetime[which(diff(tw$datetime)<20)], tSecond=tw$d
 # ok now we have to work with GeoLight
 
 #Calibrate the sun elevation angle with a known location
-calib1 <- gl_twl[gl_twl$tFirst<=as.POSIXct("2013-08-05", tz="UTC"),] #designate first ten twilights for calibration
+calib1 <- gl_twl[gl_twl$tFirst<=as.POSIXct("2013-08-05", tz="UTC"),] #designate first twilights for calibration
 known.coord <- c(5.43, 52.93)
 elev <- getElevation(calib1$tFirst,calib1$tSecond,calib1$type,known.coord=known.coord,plot=T) #get sun elevation angle 
 
@@ -67,6 +67,8 @@ coords<-coord2
 coords$tMean<-as.POSIXct(apply(cbind(coords$tFirst,coords$tSecond), 1 , mean), tz="UTC", origin="1970-01-01")
 
 save(coords, file="GeoLight_coords.RData")
+
+tripMap(coord, xlim=c(-10, 10), ylim=c(0, 60))
 
 #---------------------------------
 # ok, now we will also try to estimate migration 
