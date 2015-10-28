@@ -29,20 +29,20 @@ Let's now assume that you have done the previous step and have a [.csv](https://
 
 ```{r}
 File="E391.csv"
-lig.raw<-read.csv(File, stringsAsFactors =F)
+TAGS.twilights<-read.csv(File, stringsAsFactors =F)
 ``` 
 Or you can download it straight into R:
 ```{r}
 library(RCurl)
 text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv"
 		, ssl.verifypeer = FALSE, followlocation = TRUE)
-lig.raw<-read.csv(text=text, stringsAsFactors =F)
-lig.raw$light<-exp(lig.raw$light) # this is needed because we log transformed data in convert.lux.to.tags()
+TAGS.twilights<-read.csv(text=text, stringsAsFactors =F)
+TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because we log transformed data in convert.lux.to.tags()
 
 ```
 Now we have data read and we want to process them with the `read.tags.light.twilight()` function:
 ```{r}
-FLightR.data<-read.tags.light.twilight(lig.raw, start.date="2013-06-10", end.date="2014-05-17")
+FLightR.data<-read.tags.light.twilight(TAGS.twilights, start.date="2013-06-10", end.date="2014-05-17")
 
 ```
 and process them with
