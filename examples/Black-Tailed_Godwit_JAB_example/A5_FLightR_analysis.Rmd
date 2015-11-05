@@ -1,43 +1,44 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{Tree swallow analysis}
+%\VignetteIndexEntry{Bar-Tailed Godwit FLightR analysis}
 %\VignetteDepends{FLightR}
 -->
 # Intigeo tag on a Bar tailed godwit analysis example
 # FLightR analysis
 Appendix A1 to 
-Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2015 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Ttailed Godwit. - Journal of Avian Biology 000: 000-000.
+Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2015 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
+
 ## Install package
 ```{r}
 require(devtools)
 
-install_github("eldarrak/FLightR@0.3.1") # note the version
+install_github("eldarrak/FLightR@0.3.4") # note the version
 
 library(FLightR)
 ```
 ##Download data from GitHub
 There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology. This file does not have defined twilights. There is plenty of ways to predefine twilights and here I will use the TAGS online service (http://tags.animalmigration.org). In order to process data to the TAGS format one should do following:
-1. Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391_driftadj.lux) file into your working directory. I assume you will name it 'E391_driftadj.lux'.
+1. Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A2_raw_data.lux) file into your working directory. I assume you will name it 'A2_raw_data.lux'.
 2. open R and process .lux file
 ```{r} 
 # set working directory
 setwd("your path")
-convert.lux.to.tags("E391_driftadj.lux")
+convert.lux.to.tags("A2_raw_data.lux")
 ```
 Now we have created a csv file that can be uploaded to [TAGS](http://tags.animalmigration.org)
 There you define light threshold at 2.5, process all the data and save them with 'save light-twilight' option.
 Many datasets contain some very bad data in the beginning and in the end. If you do not want to clean all these noysy ens you may just write down start and end date of the data you want to work with and then use these values at the next step.
 
-Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv) file downloaded from TAGS. Now you can process these data:
+Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A3_TAGS_format.csv) file downloaded from TAGS. Now you can process these data:
 
 ```{r}
-File="E391.csv"
+File="A3_TAGS_format.csv"
 TAGS.twilights<-read.csv(File, stringsAsFactors =F)
 ``` 
 Or you can download it straight into R:
 ```{r}
 library(RCurl)
-text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391.csv"
+text <- getURL("text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A3_TAGS_format.csv"
 		, ssl.verifypeer = FALSE, followlocation = TRUE)
 TAGS.twilights<-read.csv(text=text, stringsAsFactors =F)
 TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because we log transformed data in convert.lux.to.tags()
