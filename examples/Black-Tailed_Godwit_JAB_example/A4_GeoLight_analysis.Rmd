@@ -7,8 +7,12 @@
 # GeoLight analysis
 Appendix A1 to 
 Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2015 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
+
 ```{r}
-require(GeoLight)
+# we used GeoLight 1.03 version, so you might want to install it if you want to get exactly the same results.
+packageurl <- "http://cran.r-project.org/src/contrib/Archive/GeoLight/GeoLight_1.03.tar.gz"
+install.packages(packageurl, repos=NULL, type="source")
+library(GeoLight)
 ```
 ##Download data from GitHub
 There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from James Fox. This file does not have defined twilights. There is plenty of ways to predefine twilights and here I will use the TAGS online service (http://tags.animalmigration.org). In order to process data to the TAGS format one should do following:

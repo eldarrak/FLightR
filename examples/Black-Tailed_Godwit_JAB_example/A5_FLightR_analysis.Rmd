@@ -10,10 +10,11 @@ Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. a
 
 ## Install package
 ```{r}
-require(devtools)
 
+# we used FLightR 0.3.4 version, so you might want to install it if you want to get exactly the same results.
+
+library(devtools)
 install_github("eldarrak/FLightR@0.3.4") # note the version
-
 library(FLightR)
 ```
 ##Download data from GitHub
