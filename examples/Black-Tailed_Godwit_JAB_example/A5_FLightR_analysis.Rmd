@@ -226,7 +226,7 @@ Now we estimate likelihoods for every point of the grid at every twilight.
 
 ```{r, eval = F}
 # the next step might have some time
-# with the current example it takes about 5 min at 24 core workstation
+# with the current example it takes about 3 min at 8 core workstation
 
 Threads= detectCores()-1
 Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
@@ -259,7 +259,7 @@ my.golden.colors <- colorRampPalette(c("white","#FF7100"))
 
 #if (FALSE) {
 par(mfrow=c(3,3), ask=T)
-for (t in seq(1,dim(all.in$Spatial$Phys.Mat)[2], by=30)) {
+for (t in seq(1,dim(all.in$Spatial$Phys.Mat)[2]-30, by=30)) {
 # ok now I want to see how stable my estimates are.
 image.plot(as.image(apply(all.in$Spatial$Phys.Mat[,t:(t+30)],1,  FUN=prod),
            x=all.in$Spatial$Grid[,1:2], nrow=60, ncol=60),
