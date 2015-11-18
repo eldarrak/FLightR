@@ -39,4 +39,4 @@ library(FLightR)
 TAGS.twilights<-BAStag2TAGS(d.lux, twl, threshold=2.5)
 
 ```
-Now you can read these data by the FLightR.
+Now you can read these data by FLightR.
