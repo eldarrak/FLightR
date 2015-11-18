@@ -47,4 +47,4 @@ TAGS.twilights<-BAStag2TAGS(d.lux, twl, threshold=2.0)
 TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed only if you log transformed in the beginning..
 save(TAGS.twilights, file="TAGS.twilights.RData")
 ```
-Now you can read these data by the FLightR data
+Now you can read these data by FLightR.
