@@ -1,6 +1,3 @@
----
-output: pdf_document
----
 <!--
 %\VignetteEngine{knitr}
 %\VignetteIndexEntry{Bar-Tailed Godwit GeoLight analysis}
