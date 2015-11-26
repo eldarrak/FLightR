@@ -10,3 +10,4 @@
 # ver 0.2.3 June 10 2015 added the double calibration option reorganized the workflow.
 # ver 0.2.4 June 16 2015  pf filter became MUCH faster! the rest is more or less unchanged
 # ver. 0.3.4 08 Oct 2014 fast lm first implementation
+# ver. 0.3.5 26 Nov 2015 - corrected first line in coordinates problem.
