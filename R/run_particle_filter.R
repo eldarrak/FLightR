@@ -62,15 +62,20 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	
 	  all.out$Results$LL<-LL
 	  
-	all.out$Results<-list(Final.Means=all.out$Results$Final.Means, 
-						Quantiles=all.out$Results$Quantiles,
-						Movement.results=all.out$Results$Movement.results,
-						outliers=all.out$Results$outliers,
-						LL=all.out$Results$LL,
-						SD=all.out$Results$LL,
-						Points.rle=all.out$Results$Points.rle,
-						Transitions.rle=all.out$Results$Transitions.rle,
-						tmp.results=all.out$Results$tmp.results)
+	all.out$Results<-list(
+        Final.Means=cbind(all.out$Results$Final.Means[-1,],
+		time=all.out$Indices$Matrix.Index.Table$time),
+		Quantiles=cbind(all.out$Results$Quantiles[-1,],
+		time=all.out$Indices$Matrix.Index.Table$time),
+		Movement.results=all.out$Results$Movement.results,
+		outliers=all.out$Results$outliers,
+		LL=all.out$Results$LL,
+		SD=all.out$Results$LL,
+		Points.rle=all.out$Results$Points.rle[-1],
+		Transitions.rle=all.out$Results$Transitions.rle,
+		tmp.results=all.out$Results$tmp.results)
+	# [-1] was added in ver 0.3.5, and it makes schedules correct.
+	# still there are problems with transitions - the first transition we have is from the starting point and it has no Dawn or Dusk! So one should remove that one if he/she wants to pair these transitions with the time
     rm(Res)
     #rm(All.results.mat)
     # plotting resuls
