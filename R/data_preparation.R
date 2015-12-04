@@ -64,7 +64,7 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=F) {
 }
 
 
-logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=T, plot.final=T,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=T) {
+logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=T, plot.final=T,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=F) {
 	# =================
 	# in this function I'll add a new lnorm calibration...
 	#
@@ -166,7 +166,7 @@ cat("checking dusk", dusk, "\n" )
 }
 
 # ok now we need template.calibration.function..
-logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot.each=T, plot.final=T, impute.on.boundaries=T) {
+logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot.each=T, plot.final=T, impute.on.boundaries=F) {
 	
 	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot.each=plot.each, plot.final=plot.final,impute.on.boundaries=impute.on.boundaries)
 	
