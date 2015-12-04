@@ -274,7 +274,14 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		cat("Elevs:\n")
 		print(cbind(ID=1:length(LogLight), LogLight=LogLight, LogIrrad=LogIrrad))
 			}
+	#NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
+	#------------------------------------
+	# version 0.3.6 after impute on.boundaries turned to FALSE figured out that there is not cut for low log irradiance so added it here..
+	if (impute.on.boundaries) {
 	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
+	} else {
+	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2] &  LogIrrad>log.irrad.borders[1])
+	}
 	# here we should make a new cut!
 	# the idea is that we want to find at least two consequent points at the maximum
 	Border.points<-which(LogLight>=log.light.borders[2])
