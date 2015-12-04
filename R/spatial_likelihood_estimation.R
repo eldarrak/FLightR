@@ -54,7 +54,7 @@ return(Phys.Mat)
 }
 
 
-get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Grid, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=T) {
+get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Grid, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=F) {
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
@@ -206,7 +206,7 @@ get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correc
 		}
 		
 
-get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,   Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, return.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = T) {
+get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,   Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, return.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = F) {
     if (is.null(time_correction) & is.null(Twilight.solar.vector)) 
         stop("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 		
@@ -262,7 +262,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
     return(Probability)
 }
 
-check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=T, Twilight.time.vector=NULL) {
+check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=F, Twilight.time.vector=NULL) {
 # this function...
 	if (is.null(Twilight.solar.vector))  {
 	Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
