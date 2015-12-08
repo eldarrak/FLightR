@@ -17,10 +17,10 @@ library(FLightR)
 ```
 
 Here I use FLightR after initial twilight detection by BAStag.
-First we start with downloading the .lux file [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A2_raw_data.lux) file into your working directory. I assume you will name it 'E391_driftadj.lux'.
+First we start with downloading the .lux file [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A2_raw_data.lux) file into your working directory. I assume you will name it 'A2_raw_data.lux'.
 2. open R and process .lux file
 ```{r}
-d.lux<-readMTlux("E391_driftadj.lux")
+d.lux<-readMTlux("A2_raw_data.lux")
 d.lux<- subset(d.lux,select=c("Date","Light"))
 ```
 In the lux file light values go very high, so we should log transform data before selecting twilights.
@@ -33,7 +33,7 @@ now we plot the image and select offset
 offset = 10
 lightImage(d.lux, offset = offset, zlim = c(0, 12), dt = 300) # dt specifies the recording interval
 
-threshold=2 # better use 2 for Intigeo tags if no strong reason for other value
+threshold=1.5 # better use 1.5 for Intigeo tags if no strong reason for other value
 		  
 twl <- preprocessLight(d.lux, threshold, offset = offset,lmax=12) # only needs to be done once
 
@@ -42,7 +42,7 @@ Transfer BAStag output to TAGS format...
 ```{r}
 library(FLightR)
 
-TAGS.twilights<-BAStag2TAGS(d.lux, twl, threshold=2.0)
+TAGS.twilights<-BAStag2TAGS(d.lux, twl, threshold=1.5)
 
 TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed only if you log transformed in the beginning..
 save(TAGS.twilights, file="TAGS.twilights.RData")
