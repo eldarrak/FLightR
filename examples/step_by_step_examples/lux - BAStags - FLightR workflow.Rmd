@@ -17,7 +17,7 @@ library(FLightR)
 ```
 
 Here I use FLightR after initial twilight detection by BAStag.
-First we start with downloading the .lux file [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed%20godwit_Intigeo_tag_example/E391_driftadj.lux) file into your working directory. I assume you will name it 'E391_driftadj.lux'.
+First we start with downloading the .lux file [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A2_raw_data.lux) file into your working directory. I assume you will name it 'E391_driftadj.lux'.
 2. open R and process .lux file
 ```{r}
 d.lux<-readMTlux("E391_driftadj.lux")
