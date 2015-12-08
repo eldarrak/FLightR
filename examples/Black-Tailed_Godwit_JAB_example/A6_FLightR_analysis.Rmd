@@ -39,7 +39,7 @@ TAGS.twilights<-read.csv(File, stringsAsFactors =F)
 Or you can download it straight into R:
 ```{r, eval = F}
 library(RCurl)
-text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv",
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv",
            ssl.verifypeer = FALSE, followlocation = TRUE)
 TAGS.twilights<-read.csv(text=text, stringsAsFactors =F)
 TAGS.twilights$light<-exp(TAGS.twilights$light) 
@@ -64,8 +64,8 @@ add calibration location as x,y
 ```{r, eval = F}
 start=c(5.43, 52.93)
 
-log.light.borders=c(1.5, 8.5) # default values for Intigeo tag
-log.irrad.borders=c(-4.25, 2.55) # default values for Intigeo tag
+log.light.borders=c(1.5, 9) # default values for Intigeo tag
+log.irrad.borders=c(-4.5, 4.5) # default values for Intigeo tag
 ```
 ##Calibration
 We need to select days when bird was in a known location. These are typically days in the beginning or in the end the data. To do we first will plot all sun slopes over the whole period and then will decide when is our calibration period
@@ -116,7 +116,8 @@ FLightR.data$twilights$excluded[which(sapply(FLightR.data$twilights$datetime,
         FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
 Proc.data<-process.twilights(FLightR.data$Data, 
         FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
-        measurement.period=60, saving.period=300)
+        measurement.period=60, saving.period=300,
+		impute.on.boundaries=Proc.data$impute.on.boundaries)
         calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, 
         model.ageing=model.ageing, log.light.borders=log.light.borders,
         log.irrad.borders=log.irrad.borders)
@@ -131,7 +132,6 @@ Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
         log.irrad.borders=log.irrad.borders, start,
         ageing.model=calibration.parameters$ageing.model)
 
-library(parallel)
 Threads=detectCores()-1 # setting how many cores we allow to use
 
 Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T,
@@ -158,7 +158,7 @@ FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetim
 
 Proc.data<-process.twilights(FLightR.data$Data, 
 	FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
-        measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period)
+        measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
 calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
                model.ageing=model.ageing, log.light.borders=log.light.borders,  

@@ -361,14 +361,15 @@ return(Res)
 }
 
 
-create.calibration<-function( All.slopes, Proc.data, FLightR.data, log.light.borders, log.irrad.borders, start, ageing.model=NULL) {
+create.calibration<-function( All.slopes, Proc.data, FLightR.data, start, ageing.model=NULL) {
 # Now we create 'parameters' object that will have all the details about the calibration
 Parameters<-All.slopes$Parameters # LogSlope # 
 Parameters$measurement.period<-Proc.data$measurement.period 
 Parameters$saving.period<-Proc.data$saving.period 
-Parameters$log.light.borders<-log.light.borders # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
+Parameters$log.light.borders<-Proc.data$log.light.borders # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
 Parameters$min.max.values<-c(min(FLightR.data$Data$light), max(FLightR.data$Data$light))
-Parameters$log.irrad.borders=log.irrad.borders
+Parameters$log.irrad.borders=Proc.data$log.irrad.borders
+Parameters$impute.on.boundaries=Proc.data$impute.on.boundaries
 Parameters$start=start
 
 Parameters$LogSlope_1_minute<-Parameters$LogSlope
