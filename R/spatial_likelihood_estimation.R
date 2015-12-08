@@ -26,12 +26,12 @@ cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration)
+	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
 		 	
 cat("estimating dawns\n")
 	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration)
+		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
 stopCluster(mycl)
 
 cat("processing results\n")

@@ -2,7 +2,7 @@
 
 ##############
 # process.data
-process.twilights<-function(All.p, Filtered_tw, measurement.period=60, saving.period=NULL) {
+process.twilights<-function(All.p, Filtered_tw, measurement.period=60, saving.period=NULL, impute.on.boundaries=FALSE) {
 # this function just prepares data for the next steps..
 ##########
 ## Dusk
@@ -36,7 +36,7 @@ Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function
 #Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) All.p$light[x])
 Twilight.log.light.mat.dawn<-apply(Twilight.log.light.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
 
-Res<-list(Twilight.time.mat.dusk=Twilight.time.mat.dusk, Twilight.log.light.mat.dusk=Twilight.log.light.mat.dusk, Twilight.time.mat.dawn=Twilight.time.mat.dawn,  Twilight.log.light.mat.dawn=Twilight.log.light.mat.dawn, measurement.period=measurement.period, saving.period=saving.period)
+Res<-list(Twilight.time.mat.dusk=Twilight.time.mat.dusk, Twilight.log.light.mat.dusk=Twilight.log.light.mat.dusk, Twilight.time.mat.dawn=Twilight.time.mat.dawn,  Twilight.log.light.mat.dawn=Twilight.log.light.mat.dawn, measurement.period=measurement.period, saving.period=saving.period, impute.on.boundaries=impute.on.boundaries)
 return(Res)
 }
 
