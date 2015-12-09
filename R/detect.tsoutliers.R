@@ -119,7 +119,7 @@ detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.ou
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 
-calibration$Parameters$log.irrad.borders<-c(-15, 5)
+#calibration$Parameters$log.irrad.borders<-c(-4.5, 4.5)
 
 if (!is.null(Threads)) {
 	cat("making cluster\n")
