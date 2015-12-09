@@ -143,7 +143,7 @@ Now it is very important to decide on whether we are going to exclude outliers o
 
 ```{r, eval = F}
 # DO not run next if you do not want to exclude outliers!!!
-exclude.detected.outliers=T
+exclude.detected.outliers=F
 if (exclude.detected.outliers) {
 Proc.data<-Outliers$Proc.data
 FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in%
@@ -171,6 +171,8 @@ Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
 	start, ageing.model=calibration.parameters$ageing.model)
 
 }
+
+
 # and now we make a processed light object and switch to spatial part
 Processed.light<-make.processed.light.object(FLightR.data)
 
@@ -237,11 +239,11 @@ all.in$Spatial$Phys.Mat<-Phys.Mat
 Doing some preliminary checks now:
 First, we plot likelihood surface for a sample twilight
 ```{r, eval = F}
-t=1
+t=20
 my.golden.colors <- colorRampPalette(c("white","#FF7100"))
 
 image.plot(as.image(all.in$Spatial$Phys.Mat[,t], x=all.in$Spatial$Grid[,1:2],
-	nrow=60, ncol=60), col=my.golden.colors(64), main=paste("twilight number",t ))			
+	nrow=30, ncol=30), col=my.golden.colors(64), main=paste("twilight number",t ))			
 library(maps)
 map('world', add=T)
 map('state', add=T)
@@ -305,7 +307,7 @@ Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
 		precision.sd=25, save.memory=T, k=NA,
 		parallel=T,  plot=T, prefix="pf",
 		extend.prefix=T, cluster.type="SOCK",
-		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F)
+		a=45, b=1500, L=45, adaptive.resampling=0.99, check.outliers=F)
 b= Sys.time()
 b-a
 save(Result, file="Result.bltg.ageing.model.noOD.RData")
@@ -341,48 +343,51 @@ box()
 ```
 And now longitudes and latitudes separately
 ```{r, eval = F}
-Quantiles<-Result$Results$Quantiles[1:length(Result$Indices$Matrix.Index.Table$Real.time),]
-Quantiles$Time<-Result$Indices$Matrix.Index.Table$Real.time
-
+if (nrow(Result$Results$Quantiles)==nrow(Result$Indices$Matrix.Index.Table)) {
+      Quantiles=Result$Results$Quantiles
+   } else {
+      Quantiles<-Result$Results$Quantiles[-1,] 
+   }
+      Quantiles$time<-Result$Indices$Matrix.Index.Table$Real.time
 par(mfrow=c(2,1))
 par(mar=c(2,4,3,1),cex=1)
  Sys.setlocale("LC_ALL", "English")  
 
 #Longitude
-plot(Quantiles$Medianlon~Quantiles$Time, las=1,col=grey(0.1),pch=16,
+plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grey(0.1),pch=16,
      ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
 	 Quantiles$UCI.lon )), type="n")
 
 
-polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
          col=grey(0.9), border=grey(0.5))
 
-polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
          col=grey(0.7), border=grey(0.5))
 
-lines(Quantiles$Medianlon~Quantiles$Time, col=grey(0.1),lwd=2)
+lines(Quantiles$Medianlon~Quantiles$time, col=grey(0.1),lwd=2)
 
 
-abline(v=as.POSIXct("2011-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
-abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
 
 #Latitude
 par(mar=c(3,4,1,1))
 
-plot(Quantiles$Medianlat~Quantiles$Time, las=1,col=grey(0.1),
+plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grey(0.1),
      pch=16,ylab="Latitude",xlab="",lwd=2,
 	 ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
 
-polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
            col=grey(0.9), border=grey(0.5))
 
-polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
            col=grey(0.7), border=grey(0.5))
 
-lines(Quantiles$Medianlat~Quantiles$Time, col=grey(0.1),lwd=2)
+lines(Quantiles$Medianlat~Quantiles$time, col=grey(0.1),lwd=2)
 
-abline(v=as.POSIXct("2011-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
-abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
 ```
 ## Migration schedules
 We can extract departure arrival estimates from the results we have got. 
