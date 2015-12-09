@@ -128,7 +128,8 @@ Now we create a preliminary calibration and use it to check whether there are se
 
 ```{r, eval = F}
 Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
-        FLightR.data, start,
+        FLightR.data, start, 
+		log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,
         ageing.model=calibration.parameters$ageing.model)
 
 Threads=detectCores()-1 # setting how many cores we allow to use
