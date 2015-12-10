@@ -52,7 +52,6 @@ Current tag measures data every minute (`measurement.period=60`) and saves maxim
 
 add calibration location as x,y
 ```{r, eval = F}
-#start=c(5.43, 52.93)
 start=c(5.47, 53.04)
 
 log.light.borders=c(1.5, 9) # default values for Intigeo tag
@@ -130,11 +129,16 @@ Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T,
 
 # max.outlier.proportion sets proportion of outliers we allow to exclude at maximum.
 ```
-Now it is very important to decide on whether we are going to exclude outliers or not. One does not want to do it if there are definitely many important points exluded. In the currect case the outliers are detected well an we go for the exclusion
+Now it is very important to decide on whether we are going to exclude outliers or not. Generally I would recommend to
+
+1. run without any outlier exclusion and see what you have got
+2. If you are not satisfied - you might run it with outlier detection, but for schedules of migration I wouls still use version w/o outlier detection, as it often ecludes migration points.
+
+In the currect case we will not exclude any outliers.
 
 ```{r, eval = F}
 # DO not run next if you do not want to exclude outliers!!!
-exclude.detected.outliers=T
+exclude.detected.outliers=FALSE
 if (exclude.detected.outliers) {
 Proc.data<-Outliers$Proc.data
 FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in%
@@ -162,12 +166,12 @@ Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
 	start, ageing.model=calibration.parameters$ageing.model)
 
 }
-
-
-# and now we make a processed light object and switch to spatial part
-Processed.light<-make.processed.light.object(FLightR.data)
-
 ```
+Now we need one more line before going for the spatial part
+```{r}
+Processed.light<-make.processed.light.object(FLightR.data)
+```
+
 ## Spatial extent
 Now we set up a grid.
 
