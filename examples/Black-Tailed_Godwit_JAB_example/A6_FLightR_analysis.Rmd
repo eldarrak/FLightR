@@ -292,7 +292,7 @@ save(Result, file="Result.bltg.ageing.model.RData")
 
 } 
 
-# and this is the main run w/o outlier detection
+# and this is the main run w/o online outlier detection
 
 nParticles=1e6
 Threads= detectCores()-1
