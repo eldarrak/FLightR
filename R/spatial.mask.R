@@ -13,7 +13,7 @@ Potential_water<-is.na(over( spTransform(Sp.All.Points.Focus, CRS("+proj=longlat
 
 # Now we have potential water and we could try to estimate distance on lonlat (first) and after it in km
 
-wrld_simpl_t<-spTransform(wrld_simpl,  proj4string(Sp.All.Points.Focus))
+wrld_simpl_t<-spTransform(wrld_simpl,  CRS=CRS(proj4string(Sp.All.Points.Focus)))
 
 Close_to_coast<-rep(0, length(Potential_water))
 
