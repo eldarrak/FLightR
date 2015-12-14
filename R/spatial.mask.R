@@ -4,7 +4,7 @@
 
 create.land.mask<-function(Points, distance=25000) {
 
-Sp.All.Points.Focus<-SpatialPoints(All.Points.Focus, proj4string=CRS("+proj=longlat +datum=WGS84"))
+Sp.All.Points.Focus<-SpatialPoints(Points, proj4string=CRS("+proj=longlat +datum=WGS84"))
 #############
 # ok, let's check 
 data(wrld_simpl)
@@ -27,7 +27,7 @@ cat("\r",i)
 
 Land<-as.numeric(!Potential_water)
 
-for (i in 1:nrow(All.Points.Focus)) {
+for (i in 1:nrow(Points)) {
 if (Close_to_coast[i]==1) {
 Land[i]<-as.numeric(gWithinDistance( spTransform(Sp.All.Points.Focus[i,], CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), spTransform(wrld_simpl, CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), distance))
 cat("\r",i)
