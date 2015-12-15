@@ -302,7 +302,7 @@ Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
 		precision.sd=25, save.memory=T, k=NA,
 		parallel=T,  plot=T, prefix="pf",
 		extend.prefix=T, cluster.type="SOCK",
-		a=45, b=1500, L=60, adaptive.resampling=0.99, check.outliers=F)
+		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F)
 b= Sys.time()
 b-a
 save(Result, file="Result.bltg.ageing.model.noOD.RData")
