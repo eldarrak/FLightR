@@ -15,7 +15,7 @@ to install the package try:
 ---------------
 ## NB
 Very important changes were made for version 0.3.6
-They will have effects on the estimation of Intigeo tags. The rest is not checked so far, so if you use it for other tags and results come out strange - just contact me.
+Just contact me if results come out strange.
 
 ##Examples of packages use:
 
