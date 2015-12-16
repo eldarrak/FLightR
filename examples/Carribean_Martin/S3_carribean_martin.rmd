@@ -1,0 +1,383 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Carribean Martin FLightR analysis}
+%\VignetteDepends{FLightR}
+-->
+# Intigeo tag on a Carribean Martin analysis example
+Supplement to 
+Perlut, N.G., Klak. K, Rakhimberdiev, E. 2016 Geolocator data reveals the migration route and wintering location of the Caribbean Martin. - Journal of Field Ornithology 000: 000-000.
+
+## Install packages
+We used FLightR 0.3.6 version, so you might want to install it if you want to get exactly the same results.
+
+```{r, eval=FALSE}
+library(devtools)
+install_github("SWotherspoon/SGAT")
+install_github("SWotherspoon/BAStag")
+install_github("eldarrak/FLightR@0.3.6")
+
+library(BAStag)
+library(FLightR)
+```
+
+## Define twilights with BAStag package
+```
+download.file("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Carribean_Martin/S1_Carribean_martin.lux", "S1_Carribean_martin.lux")
+
+d.lux<-luxTrans("S1_Carribean_martin.lux")
+names(d.lux) <- c("Datetime", "Light")
+d.lux$Light <- log(d.lux$Light)
+
+threshold <- 1.5
+offset = 15
+
+lightImage(d.lux, offset = offset, zlim = c(0,11.3))
+
+# Calibration Coordinates
+lon.calib <- -61.2534
+lat.calib <- 15.2417
+start<-c(lon.calib, lat.calib)
+
+twl <- preprocessLight(d.lux, threshold, offset = offset, lmax = 12)
+
+library(FLightR)
+TAGS.twilights.raw<-BAStag2TAGS(d.lux, twl, threshold=threshold)
+TAGS.twilights.raw$datetime<-format(TAGS.twilights.raw$datetime, format="%Y-%m-%dT%T.000Z")
+write.csv(TAGS.twilights.raw, file="tmp.csv", quote=FALSE, row.names=FALSE)
+```
+
+## Read data in FLightR
+Now yo can TAGS.twiligths you have just created or download one we made
+
+```{r, eval=F}
+download.file("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Carribean_Martin/S2_TAGS_format.csv", "S2_TAGS_format.csv")
+
+TAGS.twilights<-read.csv("S2_TAGS_format.csv", stringsAsFactors =F)
+
+TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because we log transformed data in convert.lux.to.tags()
+
+FLightR.data<-read.tags.light.twilight(TAGS.twilights)
+
+Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights,
+                             measurement.period=60, saving.period=300)
+
+```
+## Calibration
+
+```{r, eval=FALSE}
+						 
+#------------------------------------
+# these are new boundaries that recommended for use with intigeo tags..
+log.light.borders=c(1.5, 9)
+log.irrad.borders=c(-4.35, 4.35)
+#------------------------------------
+
+Calibration.periods<-data.frame(calibration.start=as.POSIXct("2000-01-01"),
+                                calibration.stop=as.POSIXct("2020-01-01"),
+                                lon=start[1], lat=start[2])
+								
+# note - we select dates outside the range
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
+                                                   model.ageing=F, log.light.borders=log.light.borders,
+                                                   log.irrad.borders=log.irrad.borders, plot.each=F)
+
+# let's use following period for the calibration												   
+abline(v=as.POSIXct("2013-06-15")) # start of the first calibration 
+abline(v=as.POSIXct("2013-08-30")) # end of first calibration period
+
+model.ageing=FALSE
+								
+Calibration.periods<-data.frame(calibration.start=as.POSIXct(c( "2013-06-15")),
+                                calibration.stop=as.POSIXct(c("2013-08-30")),
+                                lon=start[1], lat=start[2])
+
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
+                                                   model.ageing=model.ageing, log.light.borders=log.light.borders,
+                                                   log.irrad.borders=log.irrad.borders,
+                                                   plot.each=F, plot.final=T)
+
+plot.slopes(calibration.parameters$All.slopes)
+
+if (length(calibration.parameters$calib_outliers)>0) {
+FLightR.data$twilights$excluded[which(sapply(FLightR.data$twilights$datetime,
+        FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
+Proc.data<-process.twilights(FLightR.data$Data, 
+        FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
+        measurement.period=60, saving.period=300,
+		impute.on.boundaries=Proc.data$impute.on.boundaries)
+        calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, 
+        model.ageing=model.ageing, log.light.borders=log.light.borders,
+        log.irrad.borders=log.irrad.borders)
+plot.slopes(calibration.parameters$All.slopes)
+}
+
+
+Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
+                               FLightR.data, log.light.borders=log.light.borders,
+                               log.irrad.borders=log.irrad.borders, start,
+                               ageing.model=calibration.parameters$ageing.model)
+
+```
+## Time series outliers
+						
+Will skip outlier detection for for this tag. Ideally we should run w/o it and repeat with if we are not satisfied with results.
+
+```{r, eval=FALSE}
+					   
+Threads=detectCores()-1 # setting how many cores we allow to use
+
+Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=F, #this should start as outliers = t
+                            Threads=Threads, max.outlier.proportion=0.1, simple.version=F)
+
+
+exclude.detected.outliers=FALSE  ## change it to TRUE if you want to exclude outliers
+if (exclude.detected.outliers) {
+Proc.data<-Outliers$Proc.data
+FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in%
+                                        c(Proc.data$Twilight.time.mat.dusk[25,]+Calibration$Parameters$saving.period
+                                        -Calibration$Parameters$measurement.period, Proc.data$Twilight.time.mat.dawn[25,]) &
+                                        FLightR.data$twilights$excluded!=1 )]<-2
+  # end of outlier exclusion
+Proc.data<-process.twilights(FLightR.data$Data,
+                             FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
+                             measurement.period=60, saving.period=300)
+  
+calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
+                                                   model.ageing=model.ageing, log.light.borders=log.light.borders, 
+                                                   log.irrad.borders=log.irrad.borders)
+  
+plot.slopes(calibration.parameters$All.slopes)
+  
+Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
+                               FLightR.data, log.light.borders=log.light.borders,log.irrad.borders=log.irrad.borders,
+                               start, ageing.model=calibration.parameters$ageing.model)
+  
+ }
+
+```
+
+```{r, eval=FALSE}
+# and now we make a processed light object and switch to spatial part
+Processed.light<-make.processed.light.object(FLightR.data)
+```
+
+
+## Spatial extent
+
+```{r, eval=FALSE}
+
+ylim = c(-20, 25)
+xlim = c(-66, -40)
+  
+Globe.Points<-regularCoordinates(200) # 50 km between each point
+  
+All.Points.Focus<-Globe.Points[Globe.Points[,1]>xlim[1] &
+                                 Globe.Points[,1]<xlim[2] &
+                                 Globe.Points[,2]>ylim[1] &
+                                 Globe.Points[,2]<ylim[2],]
+```
+
+Here we use spatial behavioural mask, that allows bird to fly over water and not stage there. We create mask with the new function - ```create.land.mask()```. Function takes set of coordinates and returns 1 for the poitns that are over land or within some ```distance``` (in meters) from land. Use of 25 km should be default for 50 km grid that we use.
+
+```{r, eval=FALSE}
+use.spatial.mask=TRUE
+
+if (use.spatial.mask) {
+
+Land<-create.land.mask(All.Points.Focus, distance=25000)
+
+} else {
+
+Land=1
+}
+
+Grid<-cbind(All.Points.Focus, Land=Land)
+ 
+plot(Grid, type="n")
+map('state',add=TRUE, lwd=1,  col=grey(0.5))
+map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+abline(v=start[1])
+abline(h=start[2])
+points(Grid[Grid[,3]==1,1:2], pch=".", col="red", cex=2)  
+ 
+```
+## Spatial likelihood estimation
+
+```{r, eval=FALSE}
+
+Index.tab<-create.proposal(Processed.light, start=start, Grid=Grid)
+Index.tab$Decision<-0.1 # prob of migration
+Index.tab$Direction<- 0 # direction 0 - North
+Index.tab$Kappa<-0 # distr concentration 0 means even
+Index.tab$M.mean<- 300 # distance mu
+Index.tab$M.sd<- 500 # distance sd
+  
+all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=start)
+
+  
+all.in$Calibration<-Calibration
+all.in$Data<-FLightR.data
+
+Threads= detectCores()-1
+Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
+                 Proc.data$Twilight.log.light.mat.dusk,
+                 Proc.data$Twilight.time.mat.dawn,
+                 Proc.data$Twilight.log.light.mat.dawn,
+                 threads=Threads, calibration=all.in$Calibration)
+
+all.in$Spatial$Phys.Mat<-Phys.Mat
+
+```
+## Some preliminary plotting
+
+```{r, eval=FALSE}
+
+t=100
+my.golden.colors <- colorRampPalette(c("white","#FF7100"))
+#install.packages('snow')
+#library(snow)
+  
+image.plot(as.image(all.in$Spatial$Phys.Mat[,t], x=all.in$Spatial$Grid[,1:2],
+               nrow=60, ncol=60), col=my.golden.colors(64), main=paste("twilight number",t, all.in$Indices$Matrix.Index.Table$time[t] ))
+library(maps)
+map('world', add=T)
+map('state', add=T)
+abline(v=start[1])
+abline(h=start[2])
+  
+my.golden.colors <- colorRampPalette(c("white","#FF7100"))
+  
+  
+par(mfrow=c(3,3), ask=T)
+for (t in seq(1,dim(all.in$Spatial$Phys.Mat)[2]-30, by=30)) {
+   # ok now I want to see how stable my estimates are.
+image.plot(as.image(apply(all.in$Spatial$Phys.Mat[,t:(t+30)],1,  FUN=prod),
+                       x=all.in$Spatial$Grid[,1:2], nrow=60, ncol=60),
+          col=my.golden.colors(64), main=paste("twilight number", t))
+library(maps)
+map('world', add=T)
+map('state', add=T)
+abline(v=start[1])
+abline(h=start[2])
+    }
+  
+dev.off()
+```
+## Main run
+
+```{r, eval=FALSE}
+
+nParticles=1e6
+Threads= detectCores()-1
+a= Sys.time()
+Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
+                            nParticles=nParticles, known.last=FALSE,
+                            precision.sd=25, save.memory=T, k=NA,
+                            parallel=T,  plot=T, prefix="pf",
+                            extend.prefix=T, cluster.type="SOCK",
+                            a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE)
+  
+  
+b= Sys.time()
+b-a
+save(Result, file="Martin1_ER._Ageing_new_boundaries_no_OD_no_ts_outliers.4.35.4.35_behav.mask.RData")
+```
+
+## Plotting results
+
+### Figure 2. Longitude and latitude.
+
+```{r, eval=FALSE}
+
+pdf("figure_2.pdf", width=14, height=7)
+  
+Quantiles<-Result$Results$Quantiles
+ 
+#--------------------------------------------------- 
+par(mfrow=c(2,1))
+par(mar=c(2,4,3,1),cex=1)
+Sys.setlocale("LC_ALL", "English") 
+  
+#Longitude
+plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grey(0.1),pch=16,
+     ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
+                                                     Quantiles$UCI.lon )), type="n")
+  
+  
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
+        col=grey(0.9), border=grey(0.5))
+  
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
+        col=grey(0.7), border=grey(0.5))
+  
+lines(Quantiles$Medianlon~Quantiles$time, col=grey(0.1),lwd=2)
+  
+  
+abline(v=as.POSIXct("2012-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(h=start[1])
+
+
+#Latitude
+par(mar=c(3,4,1,1))
+  
+plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grey(0.1),
+     pch=16,ylab="Latitude",xlab="",lwd=2,
+     ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
+  
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
+        col=grey(0.9), border=grey(0.5))
+  
+polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
+        col=grey(0.7), border=grey(0.5))
+  
+lines(Quantiles$Medianlat~Quantiles$time, col=grey(0.1),lwd=2)
+
+abline(h=start[2])
+  
+  
+abline(v=as.POSIXct("2012-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+
+  
+  
+dev.off()
+
+```
+### Figure 1
+
+```{r, eval=FALSE}
+
+library(fields)
+		Points_rle<-Result$Results$Points.rle[1:length(Result$Results$Points.rle)]
+		All.Points<-rep(0, nrow(Result$Spatial$Grid))
+for (i in 1:length(Result$Results$Points.rle)) {
+   All.Points[Points_rle[[i]]$values]<-All.Points[Points_rle[[i]]$values]+
+                                       Points_rle[[i]]$lengths
+   }
+background2 <- get_map( cbind( min(Quantiles$Medianlon),
+min(Quantiles$Medianlat),max(Quantiles_clean$Medianlon), max(Quantiles$Medianlat)), col=c("bw"),zoom=4)
+	 
+W<-Result$Spatial$Grid[All.Points>0,][sample.int(length(All.Points[All.Points>0]), size = 10000, replace = TRUE, prob = All.Points[All.Points>0]), 1:2]
+
+library(ggmap)
+
+ggmap(background2, maprange=T)  +
+stat_density2d(data=data.frame(W), aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01, bins = 16, geom = 'polygon', n=200)+
+ scale_alpha(range = c(0.00, 0.25), guide = FALSE)+
+     scale_fill_gradient(low = "green", high = "red") +
+     scale_alpha(range = c(0.00, 0.25), guide = FALSE) +
+     coord_map(projection="mercator", 
+     xlim=c(attr(background2, "bb")$ll.lon, attr(background1, "bb")$ur.lon),
+     ylim=c(attr(background2, "bb")$ll.lat, attr(background1, "bb")$ur.lat)) +
+     theme(legend.position = "none", axis.title = element_blank(), text = element_text(size = 12) ) +
+	 geom_path(data=data.frame(lat=Quantiles$Medianlat,lon=Quantiles$Medianlon),aes(x=lon,y=lat),  colour=grey(0.3))+
+	 geom_point(data=data.frame(lat=Quantiles$Medianlat,lon=Quantiles$Medianlon), shape="+",  colour=grey(0.3))
+
+ggsave("Figure 1.pdf")	 
+
+```
