@@ -1,9 +1,9 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{Carribean Martin FLightR analysis}
+%\VignetteIndexEntry{Caribean Martin FLightR analysis}
 %\VignetteDepends{FLightR}
 -->
-# Intigeo tag on a Carribean Martin analysis example
+# Intigeo tag on a Caribean Martin analysis example
 Supplement to 
 Perlut, N.G., Klak. K, Rakhimberdiev, E. 2016 Geolocator data reveals the migration route and wintering location of the Caribbean Martin. - Journal of Field Ornithology 000: 000-000.
 
@@ -22,9 +22,9 @@ library(FLightR)
 
 ## Define twilights with BAStag package
 ```
-download.file("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Carribean_Martin/S1_Carribean_martin.lux", "S1_Carribean_martin.lux")
+download.file("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Caribean_Martin/S1_Caribean_martin.lux", "S1_Caribean_martin.lux")
 
-d.lux<-luxTrans("S1_Carribean_martin.lux")
+d.lux<-luxTrans("S1_Caribean_martin.lux")
 names(d.lux) <- c("Datetime", "Light")
 d.lux$Light <- log(d.lux$Light)
 
@@ -50,7 +50,7 @@ write.csv(TAGS.twilights.raw, file="tmp.csv", quote=FALSE, row.names=FALSE)
 Now yo can TAGS.twiligths you have just created or download one we made
 
 ```{r, eval=F}
-download.file("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Carribean_Martin/S2_TAGS_format.csv", "S2_TAGS_format.csv")
+download.file("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Caribean_Martin/S2_TAGS_format.csv", "S2_TAGS_format.csv")
 
 TAGS.twilights<-read.csv("S2_TAGS_format.csv", stringsAsFactors =F)
 
@@ -69,7 +69,7 @@ Proc.data<-process.twilights(FLightR.data$Data, FLightR.data$twilights,
 #------------------------------------
 # these are new boundaries that recommended for use with intigeo tags..
 log.light.borders=c(1.5, 9)
-log.irrad.borders=c(-4.35, 4.35)
+log.irrad.borders=c(-3, 3)
 #------------------------------------
 
 Calibration.periods<-data.frame(calibration.start=as.POSIXct("2000-01-01"),
