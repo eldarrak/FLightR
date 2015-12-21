@@ -62,11 +62,8 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	
 	  all.out$Results$LL<-LL
 	  
-<<<<<<< HEAD
 	all.out$Results<-list(
-=======
-		all.out$Results<-list(
->>>>>>> 0.3.6
+
         Final.Means=cbind(all.out$Results$Final.Means[-1,],
 		time=all.out$Indices$Matrix.Index.Table$time),
 		Quantiles=cbind(all.out$Results$Quantiles[-1,],
