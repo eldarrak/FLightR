@@ -1,0 +1,100 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Bar-Tailed Godwit GeoLight analysis}
+%\VignetteDepends{FLightR}
+-->
+# Intigeo tag on a Bar tailed godwit analysis example
+# GeoLight analysis
+Appendix A5 to 
+Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2015 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
+
+We used GeoLight 2.01 version, so you might want to install it if you want to get exactly the same results.
+```{r, eval = F}
+library(devtools)
+install_github("SLisovski/GeoLight@Update_2.01")
+library(GeoLight)
+```
+##Download data from GitHub
+There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the appendix A3 we already defined twilights with BAStag package and saved them. You can define twilights by yourself or just download file with predefined format.
+Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A3_TAGS_format.csv) file. Now you can process these data:
+
+```{r, eval = F}
+File="A3_TAGS_format.csv"
+TAGS.twilights<-read.csv(File, stringsAsFactors =F)
+``` 
+Or you can download it straight into R:
+```{r, eval = FALSE, tidy=FALSE}
+library(RCurl)
+text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv"
+                , ssl.verifypeer = FALSE, followlocation = TRUE)
+TAGS.twilights<-read.csv(text=text, stringsAsFactors =F)
+
+
+TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because
+                      # we log transformed data in convert.lux.to.tags()
+
+TAGS.twilights$datetime<-as.POSIXct(TAGS.twilights$datetime,
+                                    tz="UTC", format="%Y-%m-%dT%T")
+
+# so we have to extract twilights
+tw<-TAGS.twilights[TAGS.twilights$twilight>0 &  TAGS.twilights$excluded==0
+ & TAGS.twilights$datetime<as.POSIXct("2014-05-18", tz="UTC"),]
+
+# make pairs
+tw$datetime[tw$twilight==2]<-tw$datetime[tw$twilight==2]-(300-60)
+
+gl_twl<-data.frame(tFirst=tw$datetime[which(diff(tw$datetime)<20)],
+                   tSecond=tw$datetime[which(diff(tw$datetime)<20)+1],
+				   type=tw$twilight[which(diff(tw$datetime)<20)])
+
+# ok now we have to work with GeoLight
+
+#Calibrate the sun elevation angle with a known location
+#designate first twilights for calibration
+calib1 <- gl_twl[gl_twl$tFirst<=as.POSIXct("2013-08-05", tz="UTC"),] 
+known.coord <- start=c(5.47, 53.04)
+
+elev <- getElevation(calib1$tFirst,calib1$tSecond,
+                     calib1$type,known.coord=known.coord,
+					 plot=T) #get sun elevation angle 
+
+
+#Generate the coordinates
+crds <- coord(twl=gl_twl, degElevation = elev)
+
+#Add times to GeoLight crds
+crds <- data.frame(Time = as.POSIXct(apply(cbind(gl_twl$tFirst,gl_twl$tSecond), 1 , mean), tz="UTC", origin="1970-01-01"),
+                   Lon  = crds[,1], Lat = crds[,2])
+
+tripMap(crds[,c("Lon", "Lat")], xlim=c(-10, 10), ylim=c(0, 60))
+
+save(crds, file="GeoLight_coords.RData")
+
+tripMap(crds, xlim=c(-10, 10), ylim=c(0, 60))
+
+
+#---------------------------------
+# Now we will also try to estimate migration 
+
+cL <- changeLight(gl_twl,  quantile = 0.95, days = 3) #0.95 does not work..
+
+mS <- mergeSites(gl_twl, site = cL$site, degElevation = elev, distThreshold = 400)
+
+siteMap(crds[,c("Lon", "Lat")], mS$site, type = "cross", hull = F, xlim = c(-12, 12), ylim = c(30, 58))
+
+(schedule(tFirst = gl_twl$tFirst, gl_twl$tSecond, site = mS$site))
+```
+
+```
+  Site             Arrival           Departure
+1    a                <NA> 2013-08-20 11:55:25
+2    b 2013-08-26 00:10:58 2014-04-20 00:26:08
+3    c 2014-04-22 00:17:36 2014-04-28 11:59:32
+4    d 2014-05-02 23:45:04                <NA>
+```
+
+crds$Site <- mS$site
+
+save(crds, file="GeoLight_coords.RData")
+```
+

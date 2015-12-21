@@ -2,7 +2,7 @@
 
 ##############
 # process.data
-process.twilights<-function(All.p, Filtered_tw, measurement.period=60, saving.period=NULL) {
+process.twilights<-function(All.p, Filtered_tw, measurement.period=60, saving.period=NULL, impute.on.boundaries=FALSE) {
 # this function just prepares data for the next steps..
 ##########
 ## Dusk
@@ -36,7 +36,7 @@ Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function
 #Twilight.log.light.mat.dawn<-apply(Twilight.index.mat.dawn, c(1,2), FUN=function(x) All.p$light[x])
 Twilight.log.light.mat.dawn<-apply(Twilight.log.light.mat.dawn, c(1,2), FUN=function(x) ifelse(is.finite(x), x, -1))
 
-Res<-list(Twilight.time.mat.dusk=Twilight.time.mat.dusk, Twilight.log.light.mat.dusk=Twilight.log.light.mat.dusk, Twilight.time.mat.dawn=Twilight.time.mat.dawn,  Twilight.log.light.mat.dawn=Twilight.log.light.mat.dawn, measurement.period=measurement.period, saving.period=saving.period)
+Res<-list(Twilight.time.mat.dusk=Twilight.time.mat.dusk, Twilight.log.light.mat.dusk=Twilight.log.light.mat.dusk, Twilight.time.mat.dawn=Twilight.time.mat.dawn,  Twilight.log.light.mat.dawn=Twilight.log.light.mat.dawn, measurement.period=measurement.period, saving.period=saving.period, impute.on.boundaries=impute.on.boundaries)
 return(Res)
 }
 
@@ -64,7 +64,7 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=F) {
 }
 
 
-logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=T, plot.final=T,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=T) {
+logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=T, plot.final=T,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=F) {
 	# =================
 	# in this function I'll add a new lnorm calibration...
 	#
@@ -166,7 +166,7 @@ cat("checking dusk", dusk, "\n" )
 }
 
 # ok now we need template.calibration.function..
-logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot.each=T, plot.final=T, impute.on.boundaries=T) {
+logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot.each=T, plot.final=T, impute.on.boundaries=F) {
 	
 	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot.each=plot.each, plot.final=plot.final,impute.on.boundaries=impute.on.boundaries)
 	
@@ -339,7 +339,7 @@ Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn[,Dawn.c
 
 #-------------------#
 
-Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final)
+Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
 All.slopes<-get.calib.param(Calib.data.all, plot=F, calibration.type=calibration.type)
 
@@ -354,14 +354,15 @@ Model$Time.start<-Time.start
 calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model)))]
 Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes)
 } else {
-calib_outliers<-All.slopes$Slopes$Time[which(abs(log(All.slopes$Slopes$Slope)-mean(log(All.slopes$Slopes$Slope), na.rm=T))>3*sd(log(All.slopes$Slopes$Slope)))]
+calib_outliers<-All.slopes$Slopes$Time[which(abs(log(All.slopes$Slopes$Slope)-mean(log(All.slopes$Slopes$Slope), na.rm=T))>3*sd(log(All.slopes$Slopes$Slope), na.rm=TRUE))]
+
 Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
 }
 return(Res)
 }
 
 
-create.calibration<-function( All.slopes, Proc.data, FLightR.data, log.light.borders, log.irrad.borders, start, ageing.model=NULL) {
+create.calibration<-function( All.slopes, Proc.data, FLightR.data, start, log.light.borders, log.irrad.borders, ageing.model=NULL) {
 # Now we create 'parameters' object that will have all the details about the calibration
 Parameters<-All.slopes$Parameters # LogSlope # 
 Parameters$measurement.period<-Proc.data$measurement.period 
@@ -369,6 +370,7 @@ Parameters$saving.period<-Proc.data$saving.period
 Parameters$log.light.borders<-log.light.borders # these are the boundaries in which one should use the BAS tag.. for the other types of tags they will be different.
 Parameters$min.max.values<-c(min(FLightR.data$Data$light), max(FLightR.data$Data$light))
 Parameters$log.irrad.borders=log.irrad.borders
+Parameters$impute.on.boundaries=Proc.data$impute.on.boundaries
 Parameters$start=start
 
 Parameters$LogSlope_1_minute<-Parameters$LogSlope

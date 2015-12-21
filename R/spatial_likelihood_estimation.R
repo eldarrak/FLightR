@@ -26,12 +26,12 @@ cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration)
+	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
 		 	
 cat("estimating dawns\n")
 	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration)
+		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
 stopCluster(mycl)
 
 cat("processing results\n")
@@ -54,7 +54,7 @@ return(Phys.Mat)
 }
 
 
-get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Grid, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=T) {
+get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Grid, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=F) {
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
@@ -206,7 +206,7 @@ get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correc
 		}
 		
 
-get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,   Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, return.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = T) {
+get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,   Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, return.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = F) {
     if (is.null(time_correction) & is.null(Twilight.solar.vector)) 
         stop("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 		
@@ -262,7 +262,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
     return(Probability)
 }
 
-check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=T, Twilight.time.vector=NULL) {
+check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=F, Twilight.time.vector=NULL) {
 # this function...
 	if (is.null(Twilight.solar.vector))  {
 	Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
@@ -274,7 +274,14 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		cat("Elevs:\n")
 		print(cbind(ID=1:length(LogLight), LogLight=LogLight, LogIrrad=LogIrrad))
 			}
+	#NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
+	#------------------------------------
+	# version 0.3.6 after impute on.boundaries turned to FALSE figured out that there is not cut for low log irradiance so added it here..
+	if (impute.on.boundaries) {
 	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
+	} else {
+	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2] &  LogIrrad>log.irrad.borders[1])
+	}
 	# here we should make a new cut!
 	# the idea is that we want to find at least two consequent points at the maximum
 	Border.points<-which(LogLight>=log.light.borders[2])

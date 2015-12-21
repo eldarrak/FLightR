@@ -2,11 +2,12 @@
 # here are the functions that read data
 
 
-convert.lux.to.tags<-function(file, log=T, log.light.borders=c(1,10)) {
+convert.lux.to.tags<-function(file, log=F, log.light.borders=c(1,10)) {
 	# the function takes the current (2015)
 	# .lux format and converts it to .csv format that
 	# TAGS service accepts
-
+	warning("\n\nwe have figured out that TAGS service is rounding data, so log=T will produce wrong rounding on upload\n\nsetting log to FALSE\n")
+	log=F
 	Dat<-read.csv(file, skip=20, sep="\t", stringsAsFactors =F)
 	names(Dat)<-c("datetime", "light")
 	Dat$datetime<-as.POSIXct(Dat$datetime, tz="UTC", format="%d/%m/%Y %H:%M:%S")
@@ -71,12 +72,12 @@ Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
 
 
 # now I want to pair data and twilights..		  
-Filtered_tw$id<-0
-Data$d$type<-0
-Data$d<-rbind(Data$d, data.frame(id=Filtered_tw$id, gmt= Filtered_tw$datetime, light=Filtered_tw$light, type=Filtered_tw$type))
+#Filtered_tw$id<-0
+#Data$d$type<-0
+#Data$d<-rbind(Data$d, data.frame(id=Filtered_tw$id, gmt= Filtered_tw$datetime, light=Filtered_tw$light, type=Filtered_tw$type))
 
-All.p<-Data$d[order(Data$d$gmt),]
-rownames(All.p)<-1:nrow(All.p)
+#All.p<-Data$d[order(Data$d$gmt),]
+#rownames(All.p)<-1:nrow(All.p)
 
 #############################################################
 

@@ -14,7 +14,7 @@ Twilight.time.vector=Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.I
 #ok let's now create a line at equator
 Grid<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
  if (is.null(center)) {
-	Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
+	Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
 	Grid<-cbind(seq(Grid[which.max(Current.probs1),1]
 	-5, Grid[which.max(Current.probs1),1]
@@ -24,7 +24,7 @@ Grid<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
 	Grid<-cbind(seq(center-45, center+45, by=0.1), 0, 1)
 	Grid[,1]<-Grid[,1]%%360
 	}
-Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL)
+Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
 Final.max=Grid[which.max(Current.probs1),1]
 return(Final.max)
@@ -119,7 +119,7 @@ detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.ou
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 
-calibration$Parameters$log.irrad.borders<-c(-15, 5)
+#calibration$Parameters$log.irrad.borders<-c(-4.5, 4.5)
 
 if (!is.null(Threads)) {
 	cat("making cluster\n")
