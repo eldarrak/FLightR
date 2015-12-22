@@ -146,7 +146,9 @@ FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetim
 
 Proc.data<-process.twilights(FLightR.data$Data, 
 	FLightR.data$twilights[FLightR.data$twilights$excluded==0,],
-        measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period, impute.on.boundaries=Proc.data$impute.on.boundaries)
+        measurement.period=Proc.data$measurement.period,
+		saving.period=Proc.data$saving.period, 
+		impute.on.boundaries=Proc.data$impute.on.boundaries)
 
 calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data,
                model.ageing=model.ageing, log.light.borders=log.light.borders,  
@@ -161,7 +163,7 @@ Calibration=create.calibration(calibration.parameters$All.slopes, Proc.data,
 }
 ```
 Now we need one more line before going for the spatial part
-```{r}
+```{r, eval=FALSE}
 Processed.light<-make.processed.light.object(FLightR.data)
 ```
 
@@ -268,25 +270,6 @@ For the main run you might want to select:
    
 ```{r, eval = F}
 
-# the following part uses outlier detection
-if (FALSE) {
-nParticles=1e6
-Threads= detectCores()-1
-a= Sys.time()
-Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
-                nParticles=nParticles, known.last=TRUE,
-		precision.sd=25, save.memory=T, k=NA,
-		parallel=T,  plot=T, prefix="pf",
-		extend.prefix=T, cluster.type="SOCK",
-		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=T)
-b= Sys.time()
-b-a
-save(Result, file="Result.bltg.ageing.model.RData")
-
-} 
-
-# and this is the main run w/o online outlier detection
-
 nParticles=1e6
 Threads= detectCores()-1
 a= Sys.time()
@@ -304,7 +287,8 @@ save(Result, file="Result.bltg.ageing.model.noOD.RData")
 This is it. Now we can do some plotting.
 
 ## Plotting results
-First, plot a map:
+
+### Plot a simple map
 ```{r, eval = F}
 
 par(mfrow=c(1,1))
@@ -329,14 +313,9 @@ lines(Mean_coords, col = "blue", cex = 0.1)
 points(Mean_coords, pch = 16, cex = 0.75, col = "blue")
 box()
 ```
-And now longitudes and latitudes separately
+### Plot lon lat graph
 ```{r, eval = F}
-if (nrow(Result$Results$Quantiles)==nrow(Result$Indices$Matrix.Index.Table)) {
-      Quantiles=Result$Results$Quantiles
-   } else {
-      Quantiles<-Result$Results$Quantiles[-1,] 
-   }
-      Quantiles$time<-Result$Indices$Matrix.Index.Table$Real.time
+Quantiles<-Result$Results$Quantiles
 par(mfrow=c(2,1))
 par(mar=c(2,4,3,1),cex=1)
  Sys.setlocale("LC_ALL", "English")  
