@@ -28,8 +28,9 @@ library(RCurl)
 text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv"
                 , ssl.verifypeer = FALSE, followlocation = TRUE)
 TAGS.twilights<-read.csv(text=text, stringsAsFactors =F)
-
-
+```
+##Prepare data
+```{r, eval=FALSE}
 TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because
                       # we log transformed data in convert.lux.to.tags()
 
@@ -47,8 +48,9 @@ gl_twl<-data.frame(tFirst=tw$datetime[which(diff(tw$datetime)<20)],
                    tSecond=tw$datetime[which(diff(tw$datetime)<20)+1],
 				   type=tw$twilight[which(diff(tw$datetime)<20)])
 
-# ok now we have to work with GeoLight
-
+```
+## Calibration
+```{r, eval=FALSE}
 #Calibrate the sun elevation angle with a known location
 #designate first twilights for calibration
 calib1 <- gl_twl[gl_twl$tFirst<=as.POSIXct("2013-08-05", tz="UTC"),] 
@@ -57,20 +59,22 @@ known.coord <- c(5.47, 53.04)
 elev <- getElevation(calib1$tFirst,calib1$tSecond,
                      calib1$type,known.coord=known.coord,
 					 plot=T) #get sun elevation angle 
+```
+##Generate the coordinates
+```{r, eval=FALSE}
 
-
-#Generate the coordinates
 crds <- coord(twl=gl_twl, degElevation = elev)
 
 #Add times to GeoLight crds
-crds <- data.frame(Time = as.POSIXct(apply(cbind(gl_twl$tFirst,gl_twl$tSecond), 1 , mean), tz="UTC", origin="1970-01-01"),
+crds <- data.frame(Time = as.POSIXct(apply(cbind(gl_twl$tFirst,gl_twl$tSecond)
+                                           , 1 , mean), tz="UTC", origin="1970-01-01"),
                    Lon  = crds[,1], Lat = crds[,2])
 
 tripMap(crds[,c("Lon", "Lat")], xlim=c(-10, 10), ylim=c(0, 60))
+```
 
-#---------------------------------
-# Now we will also try to estimate migration 
-
+## Estimate sites and migration schedules
+```{r, eval=FALSE}
 cL <- changeLight(gl_twl,  quantile = 0.95, days = 3) #0.95 does not work..
 
 mS <- mergeSites(gl_twl, site = cL$site, degElevation = elev, distThreshold = 400)
@@ -79,7 +83,7 @@ siteMap(crds[,c("Lon", "Lat")], mS$site, type = "cross", hull = F, xlim = c(-12,
 
 (schedule(tFirst = gl_twl$tFirst, gl_twl$tSecond, site = mS$site))
 ```
-
+Result:
 ```
   Site             Arrival           Departure
 1    a                <NA> 2013-08-20 11:55:25
