@@ -18,8 +18,10 @@ library(BAStag)
 
 ##Download data from GitHub
 
-Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A2_raw_data.lux) file into your working directory. I assume you will name it 'A2_raw_data.lux'.
-
+Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A2_raw_data.lux) file into your working directory and name it 'A2_raw_data.lux'.
+```{r, eval=FALSE}
+download.file("https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A2_raw_data.lux", "A2_raw_data.lux")
+```
 ##Process .lux file in R
 ```{r, eval=F}
 library(BAStag)
