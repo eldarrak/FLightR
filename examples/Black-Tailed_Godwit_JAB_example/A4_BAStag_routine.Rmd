@@ -57,4 +57,4 @@ TAGS.twilights.raw$datetime<-format(TAGS.twilights.raw$datetime, format="%Y-%m-%
 write.csv(TAGS.twilights.raw, file="tmp.csv", quote=FALSE, row.names=FALSE)
 
 ```
-Now you can read these data by [GeoLight](https://github.com/slisovski/GeoLight) or [FLightR](https://github.com/eldarrak/FLightR).
+Now you can read these data by [GeoLight](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A5_GeoLight_analysis.Rmd) or [FLightR](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis.Rmd).
