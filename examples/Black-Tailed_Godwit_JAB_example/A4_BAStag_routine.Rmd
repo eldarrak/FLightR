@@ -6,9 +6,9 @@
 # Intigeo tag on a Bar tailed godwit analysis example
 # BAStag twilights selection
 Appendix A4 to 
-Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2015 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
+Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
 
-In order to run GeoLight ir FLightR over the light data we have to preselect twilights. *.lux in the directory is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. There is plenty of ways to predefine twilights and here we will use BAStag package:
+In order to run GeoLight ir FLightR over the light data we have to preselect twilights. *.lux in the directory is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. There is plenty of ways to predefine twilights and here we will use [BAStag package] (https://github.com/SWotherspoon/BAStag):
 
 ```{r, eval=F}
 install_github("SWotherspoon/SGAT")
@@ -18,9 +18,9 @@ library(BAStag)
 
 ##Download data from GitHub
 
-1. Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A2_raw_data.lux) file into your working directory. I assume you will name it 'A2_raw_data.lux'.
+Download [.lux](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A2_raw_data.lux) file into your working directory. I assume you will name it 'A2_raw_data.lux'.
 
-2. Process .lux file in R
+##Process .lux file in R
 ```{r, eval=F}
 library(BAStag)
 d.lux<-readMTlux("A2_raw_data.lux")
@@ -47,8 +47,8 @@ threshold=1.5 # better use 1.5 for Intigeo tags if no strong reason for other va
 twl <- preprocessLight(d.lux, threshold, offset = offset,lmax=12) # only needs to be done once
 ```
 The idea of ```preprocessLight()``` function is that you go through twilights one by one and delete ones that have obvious non random change in the shading in +/- 24 points around twilight (2 hours for 5 minute logging interval). For example twilight should be deleted if in the beginning birds was in hig vegetation and after it immediately flew to the open space. Or other way around - there is nice pattern of rising sun and in the middle bird goes to high vegetation and stays there...
-```{r, eval=F}
-Transfer BAStag output to TAGS format...
+
+##Transfer BAStag output to TAGS format...
 ```{r, eval=F}
 
 library(FLightR)
@@ -57,5 +57,4 @@ TAGS.twilights.raw$datetime<-format(TAGS.twilights.raw$datetime, format="%Y-%m-%
 write.csv(TAGS.twilights.raw, file="tmp.csv", quote=FALSE, row.names=FALSE)
 
 ```
-Now you can read these data by GeoLight or FLightR.
-
+Now you can read these data by [GeoLight](https://github.com/slisovski/GeoLight) or [FLightR](https://github.com/eldarrak/FLightR).
