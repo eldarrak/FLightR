@@ -6,7 +6,7 @@
 # Intigeo tag on a Bar tailed godwit analysis example
 # FLightR analysis
 Appendix A6 to 
-Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2015 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
+Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
 
 ## Install package
 We used FLightR 0.3.6 version, so you might want to install it if you want to get exactly the same results.
@@ -17,7 +17,7 @@ install_github("eldarrak/FLightR@0.3.6") # note the version
 library(FLightR)
 ```
 ##Download data from GitHub
-There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the appendix A3 we already defined twilights with [BAStag package] (https://github.com/SWotherspoon/BAStag) and saved them. You can define twilights by yourself or just download file with predefined format.
+There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) we already defined twilights with [BAStag package] (https://github.com/SWotherspoon/BAStag) and saved them. You can define twilights by yourself or just download file with predefined format.
 Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A3_TAGS_format.csv) file. Now you can process these data:
 
 ```{r, eval = F}
@@ -130,6 +130,7 @@ Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T,
 # max.outlier.proportion sets proportion of outliers we allow to exclude at maximum.
 ```
 Now it is very important to decide on whether we are going to exclude outliers or not. Generally I would recommend to
+
 1. run without any outlier exclusion and see what you have got
 2. If you are not satisfied - you might run it with outlier detection, but for schedules of migration I wouls still use version w/o outlier detection, as it often ecludes migration points.
 
