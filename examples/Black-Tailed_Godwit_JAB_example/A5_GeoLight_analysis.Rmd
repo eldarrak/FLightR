@@ -88,6 +88,7 @@ siteMap(crds[,c("Lon", "Lat")], mS$site, type = "cross", hull = F, xlim = c(-12,
 4    d 2014-05-02 23:45:04                <NA>
 ```
 
+```{r, eval=FALSE}
 crds$Site <- mS$site
 
 save(crds, file="GeoLight_coords.RData")
