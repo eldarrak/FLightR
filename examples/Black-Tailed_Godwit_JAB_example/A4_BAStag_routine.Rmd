@@ -11,6 +11,7 @@ Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. a
 In order to run GeoLight ir FLightR over the light data we have to preselect twilights. *.lux in the directory is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. There is plenty of ways to predefine twilights and here we will use [BAStag package] (https://github.com/SWotherspoon/BAStag):
 
 ```{r, eval=F}
+library(devtools)
 install_github("SWotherspoon/SGAT")
 install_github("SWotherspoon/BAStag")
 library(BAStag)
