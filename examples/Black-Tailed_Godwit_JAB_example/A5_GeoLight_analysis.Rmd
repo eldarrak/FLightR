@@ -15,7 +15,7 @@ install_github("SLisovski/GeoLight@Update_2.01")
 library(GeoLight)
 ```
 ##Download data from GitHub
-There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the appendix A3 we already defined twilights with BAStag package and saved them. You can define twilights by yourself or just download file with predefined format.
+There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the appendix A3 we already defined twilights with [BAStag package] (https://github.com/SWotherspoon/BAStag) and saved them. You can define twilights by yourself or just download file with predefined format.
 Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A3_TAGS_format.csv) file. Now you can process these data:
 
 ```{r, eval = F}
@@ -52,7 +52,7 @@ gl_twl<-data.frame(tFirst=tw$datetime[which(diff(tw$datetime)<20)],
 #Calibrate the sun elevation angle with a known location
 #designate first twilights for calibration
 calib1 <- gl_twl[gl_twl$tFirst<=as.POSIXct("2013-08-05", tz="UTC"),] 
-known.coord <- start=c(5.47, 53.04)
+known.coord <- c(5.47, 53.04)
 
 elev <- getElevation(calib1$tFirst,calib1$tSecond,
                      calib1$type,known.coord=known.coord,
@@ -67,11 +67,6 @@ crds <- data.frame(Time = as.POSIXct(apply(cbind(gl_twl$tFirst,gl_twl$tSecond), 
                    Lon  = crds[,1], Lat = crds[,2])
 
 tripMap(crds[,c("Lon", "Lat")], xlim=c(-10, 10), ylim=c(0, 60))
-
-save(crds, file="GeoLight_coords.RData")
-
-tripMap(crds, xlim=c(-10, 10), ylim=c(0, 60))
-
 
 #---------------------------------
 # Now we will also try to estimate migration 

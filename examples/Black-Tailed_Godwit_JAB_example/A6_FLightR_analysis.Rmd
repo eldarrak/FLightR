@@ -17,7 +17,7 @@ install_github("eldarrak/FLightR@0.3.6") # note the version
 library(FLightR)
 ```
 ##Download data from GitHub
-There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the appendix A3 we already defined twilights with BAStag package and saved them. You can define twilights by yourself or just download file with predefined format.
+There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the appendix A3 we already defined twilights with [BAStag package] (https://github.com/SWotherspoon/BAStag) and saved them. You can define twilights by yourself or just download file with predefined format.
 Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A3_TAGS_format.csv) file. Now you can process these data:
 
 ```{r, eval = F}
@@ -84,7 +84,7 @@ Calibration.periods<-data.frame(calibration.start=as.POSIXct(c("2000-01-01", "20
                                 calibration.stop=as.POSIXct(c("2013-08-20", "2020-01-01")),
 								lon=start[1], lat=start[2])
 
-model.ageing=T # set this FALSE is you are not going to model tag ageing.
+model.ageing=FALSE # set this FALSE is you are not going to model tag ageing.
 #Actually one can model it only if there are light data 
 #in known position in the beginning and in the end of the logger data
 
@@ -130,15 +130,13 @@ Outliers<-detect.tsoutliers(Calibration, Proc.data, plot=T,
 # max.outlier.proportion sets proportion of outliers we allow to exclude at maximum.
 ```
 Now it is very important to decide on whether we are going to exclude outliers or not. Generally I would recommend to
-
 1. run without any outlier exclusion and see what you have got
 2. If you are not satisfied - you might run it with outlier detection, but for schedules of migration I wouls still use version w/o outlier detection, as it often ecludes migration points.
 
-In the currect case we will not exclude any outliers.
+In the currect case we will not exclude any outliers. So we set `exclude.detected.outliers` to `FALSE` and R will skip the next part
 
 ```{r, eval = F}
-# DO not run next if you do not want to exclude outliers!!!
-exclude.detected.outliers=FALSE
+exclude.detected.outliers<-FALSE
 if (exclude.detected.outliers) {
 Proc.data<-Outliers$Proc.data
 FLightR.data$twilights$excluded[which(!as.numeric(FLightR.data$twilights$datetime) %in%
@@ -399,5 +397,4 @@ Times.NL=find.times.distribution(Prob.of.being.in.NL,Result$Indices$Matrix.Index
 Times.NL
 ```
 
-This is it so far... There are of course many more things one could do with the data but we are not going to do.
-Let me know what else you would like to see..
+This is it so far... There are of course many more things one could do with the data and we plan to show them in the other manuscripts.
