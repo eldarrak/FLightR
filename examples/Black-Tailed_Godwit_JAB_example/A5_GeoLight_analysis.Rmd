@@ -16,19 +16,15 @@ library(GeoLight)
 ```
 ##Download data from GitHub
 There are two files available in the directory: *.lux and *.csv. *.lux is the original file you get from Migrate Technology Ltd. This file does not have defined twilights. In the [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) we already defined twilights with [BAStag package] (https://github.com/SWotherspoon/BAStag) and saved them. You can define twilights by yourself or just download file with predefined format.
-Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/black-tailed_godwit_Intigeo_tag_example/A3_TAGS_format.csv) file. Now you can process these data:
+Let's now assume that you have done the previous step and have a [.csv](https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv) file. Now you can process these data:
 
-```{r, eval = F}
-File="A3_TAGS_format.csv"
-TAGS.twilights<-read.csv(File, stringsAsFactors =F)
+```{r, eval = F, tidy=FALSE}
+download.file(
+ "https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv",
+ "A3_TAGS_format.csv")
+TAGS.twilights<-read.csv(A3_TAGS_format.csv, stringsAsFactors =F)
 ``` 
-Or you can download it straight into R:
-```{r, eval = FALSE, tidy=FALSE}
-library(RCurl)
-text <- getURL("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv"
-                , ssl.verifypeer = FALSE, followlocation = TRUE)
-TAGS.twilights<-read.csv(text=text, stringsAsFactors =F)
-```
+
 ##Prepare data
 ```{r, eval=FALSE}
 TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because
