@@ -23,7 +23,7 @@ Let's now assume that you have done the previous step and have a [.csv](https://
 download.file(
  "https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv",
  "A3_TAGS_format.csv")
-TAGS.twilights<-read.csv(A3_TAGS_format.csv, stringsAsFactors =F)
+TAGS.twilights<-read.csv("A3_TAGS_format.csv", stringsAsFactors =F)
 
 TAGS.twilights$light<-exp(TAGS.twilights$light) # this is needed because
                       # we log transformed data in convert.lux.to.tags()
