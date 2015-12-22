@@ -30,8 +30,7 @@ In the .lux files light values go very high, so we should log transform data bef
 ```{r, eval=F}
 d.lux$Light<-log(d.lux$Light)
 ```
-now we plot the image and select offset
-
+## Find proper offset and have a first look at the data
 ```{r, eval=F}
 offset = 10
 lightImage(d.lux, offset = offset, zlim = c(0, 12), dt = 300) # dt specifies the recording interval
@@ -41,7 +40,9 @@ end   <- as.POSIXct("2014-05-17", tz = "GMT")
 abline(v = c(start, end), lty = c(1,2), col = "orange", lwd = 2)
 
 d.lux <- subset(d.lux, Date>=start & Date<=end)
-
+```
+## Twilight detection - selection
+```{r, eval=FALSE}
 threshold=1.5 # better use 1.5 for Intigeo tags if no strong reason for other value
 		  
 twl <- preprocessLight(d.lux, threshold, offset = offset,lmax=12) # only needs to be done once
