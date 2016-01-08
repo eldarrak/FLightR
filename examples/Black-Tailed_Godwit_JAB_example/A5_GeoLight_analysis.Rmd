@@ -71,7 +71,7 @@ tripMap(crds[,c("Lon", "Lat")], xlim=c(-10, 10), ylim=c(0, 60))
 
 ## Estimate sites and migration schedules
 ```{r, eval=FALSE}
-cL <- changeLight(gl_twl,  quantile = 0.95, days = 3) #0.95 does not work..
+cL <- changeLight(gl_twl,  quantile = 0.95, days = 3) 
 
 mS <- mergeSites(gl_twl, site = cL$site, degElevation = elev, distThreshold = 400)
 
