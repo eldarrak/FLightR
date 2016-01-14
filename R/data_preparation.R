@@ -197,7 +197,7 @@ Calib.data.all$fTwilight<-Calib.data.all$fDay
 # we should do some outlier tests...
 
 Calib.data.all<-Calib.data.all[is.finite(Calib.data.all$logSlope),]
-
+print(str(Calib.data.all))
 cur.data<-Calib.data.all
 p.lm1<-lm(LogLight~fTwilight/LogIrrad,data=cur.data)
 cur.slope<-matrix(coef(p.lm1),ncol=2) # foo[,2] - slope
