@@ -196,6 +196,8 @@ Calib.data.all$fTwilight<-Calib.data.all$fDay
 #============================
 # we should do some outlier tests...
 
+Calib.data.all<-Calib.data.all[is.finite(Calib.data.all$logSlope),]
+
 cur.data<-Calib.data.all
 p.lm1<-lm(LogLight~fTwilight/LogIrrad,data=cur.data)
 cur.slope<-matrix(coef(p.lm1),ncol=2) # foo[,2] - slope
@@ -354,7 +356,11 @@ Model$Time.start<-Time.start
 calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model)))]
 Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes)
 } else {
-calib_outliers<-All.slopes$Slopes$Time[which(abs(log(All.slopes$Slopes$Slope)-mean(log(All.slopes$Slopes$Slope), na.rm=T))>3*sd(log(All.slopes$Slopes$Slope), na.rm=TRUE))]
+All.slopes.int<-All.slopes
+
+All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
+
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(log(All.slopes.int$Slopes$Slope)-mean(log(All.slopes.int$Slopes$Slope), na.rm=T))>3*sd(log(All.slopes.int$Slopes$Slope), na.rm=TRUE))]
 
 Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
 }
