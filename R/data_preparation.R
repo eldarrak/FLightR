@@ -275,9 +275,9 @@ names(cur.slope)[2]<-"slope"
 if (plot) hist(log(cur.slope$slope))
 
 
-cur.slope<-cur.slope[is.finite(log(cur.slope$slope)),]
+cur.slope.int<-cur.slope[is.finite(log(cur.slope$slope)),]
 
-Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope$sd, na.rm=T), calibration.type=calibration.type)
+Parameters<-list(Intercept=c(mean(cur.slope.int$Intercept, na.rm=T), sd(cur.slope.int$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope.int$slope), na.rm=T), sd(log(cur.slope.int$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)])), sd(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope.int$sd, na.rm=T), calibration.type=calibration.type)
 
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
