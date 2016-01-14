@@ -195,9 +195,6 @@ Calib.data.all$fTwilight<-Calib.data.all$fDay
 # Calib.data.all<-Calib.data.all[-which(Calib.data.all$fTwilight%in% c( 222)),]
 #============================
 # we should do some outlier tests...
-
-Calib.data.all<-Calib.data.all[is.finite(Calib.data.all$logSlope),]
-print(str(Calib.data.all))
 cur.data<-Calib.data.all
 p.lm1<-lm(LogLight~fTwilight/LogIrrad,data=cur.data)
 cur.slope<-matrix(coef(p.lm1),ncol=2) # foo[,2] - slope
@@ -276,6 +273,9 @@ cur.slope$sd<-Slopes.sd
 names(cur.slope)[2]<-"slope"
 #=====================
 if (plot) hist(log(cur.slope$slope))
+
+
+cur.slope<-cur.slope[is.finite(log(cur.slope$slope)),]
 
 Parameters<-list(Intercept=c(mean(cur.slope$Intercept, na.rm=T), sd(cur.slope$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope$slope), na.rm=T), sd(log(cur.slope$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope$Sigma[!is.na(cur.slope$sd)])), sd(log(cur.slope$Sigma[!is.na(cur.slope$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope$sd, na.rm=T), calibration.type=calibration.type)
 
