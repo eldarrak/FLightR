@@ -27,6 +27,7 @@ Depends:
     CircStats,
 	snow,
 	Rcpp,
-	RcppArmadillo
+	RcppArmadillo,
+	ggmap
 License: GNU GPL v3.0
 ByteCompile: true
