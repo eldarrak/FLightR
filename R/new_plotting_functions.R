@@ -1,6 +1,7 @@
 
 
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL) {
+if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
 # ggsave.options is a list that will be will be directly passed to ggsave
