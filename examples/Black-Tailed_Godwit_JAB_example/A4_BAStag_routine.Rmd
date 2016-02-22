@@ -15,7 +15,7 @@ library(devtools)
 install_github("SWotherspoon/SGAT")
 install_github("SWotherspoon/BAStag")
 install_github("eldarrak/FLightR@0.3.6") # install this version if you want completely the same results as in the paper
-install_github("eldarrak/FLightR@0.3.6")  # this will install latest version
+install_github("eldarrak/FLightR")  # this will install latest version
 library(BAStag)
 ```
 
