@@ -353,7 +353,7 @@ All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$log
 Time.start=min(c(Twilight.time.mat.Calib.dusk, Twilight.time.mat.Calib.dawn))
 Model=lm(logSlope~I(Time-Time.start), data=All.slopes.int$Slopes)
 Model$Time.start<-Time.start
-calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model)))]
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model))*sqrt(length(residuals(Model))))]
 Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes)
 } else {
 All.slopes.int<-All.slopes
