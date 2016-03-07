@@ -368,7 +368,7 @@ return(Res)
 }
 
 
-create.calibration<-function( All.slopes, Proc.data, FLightR.data, start, log.light.borders, log.irrad.borders, ageing.model=NULL) {
+create.calibration<-function( All.slopes, Proc.data, FLightR.data, location, log.light.borders, log.irrad.borders, ageing.model=NULL) {
 # Now we create 'parameters' object that will have all the details about the calibration
 Parameters<-All.slopes$Parameters # LogSlope # 
 Parameters$measurement.period<-Proc.data$measurement.period 
@@ -377,7 +377,7 @@ Parameters$log.light.borders<-log.light.borders # these are the boundaries in wh
 Parameters$min.max.values<-c(min(FLightR.data$Data$light), max(FLightR.data$Data$light))
 Parameters$log.irrad.borders=log.irrad.borders
 Parameters$impute.on.boundaries=Proc.data$impute.on.boundaries
-Parameters$start=start
+Parameters$location=location
 
 Parameters$LogSlope_1_minute<-Parameters$LogSlope
  if (is.null(ageing.model)) {
@@ -553,11 +553,14 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	output$Spatial$Behav.mask<-as.integer(Grid[,3])
 
 	output$Spatial$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
-
+    
+	output$Spatial$start.location<-start
 	if (!is.na(stop[1]) ) {
-	output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
+	   output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
+	   output$Spatial$stop.location<-stop
 	} else {
-	output$Spatial$stop.point<-NA
+	   output$Spatial$stop.point<-NA
+	   output$Spatial$stop.location<-NA
 	}
 	
 	#output$Spatial$tmp<-list(Distance=spDists(Grid[,1:2], longlat=T))
