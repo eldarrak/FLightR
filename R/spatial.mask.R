@@ -38,3 +38,28 @@ cat("\r",i)
 }
 return(Land)
 }
+
+get.distance.to.water<-function(Points) {
+   Sp.All.Points.Focus<-SpatialPoints(Points, 
+         proj4string=CRS( "+proj=longlat +datum=WGS84"))
+
+   data(wrld_simpl)
+
+   Potential_water<-is.na(over(
+        spTransform(Sp.All.Points.Focus, CRS("+proj=longlat +datum=WGS84")),
+		spTransform(wrld_simpl, CRS("+proj=longlat +datum=WGS84")))[,1])
+
+   wrld_simpl_t<-spTransform(wrld_simpl,  CRS=CRS(proj4string(Sp.All.Points.Focus)))
+   Distance<-as.numeric(Potential_water)
+
+
+   for (i in 1:nrow(Points)) {
+      if (Potential_water[i]==TRUE) {
+         Distance[i]<-gDistance(spTransform(Sp.All.Points.Focus[i,], CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), spTransform(wrld_simpl, CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))))/1000
+         cat("\r",i)
+      }
+   }
+   return(Distance)
+}
+
+#D<-get.distance.to.water(Points)
