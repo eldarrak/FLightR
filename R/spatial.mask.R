@@ -40,10 +40,11 @@ return(Land)
 }
 
 get.distance.to.water<-function(Points) {
-   Sp.All.Points.Focus<-SpatialPoints(Points, 
-         proj4string=CRS( "+proj=longlat +datum=WGS84"))
   Points[,2]<-pmin(Points[,2], 89.9)
   Points[,2]<-pmax(Points[,2], -89.9)
+   Sp.All.Points.Focus<-SpatialPoints(Points, 
+         proj4string=CRS( "+proj=longlat +datum=WGS84"))
+
   
   data(wrld_simpl)
 
