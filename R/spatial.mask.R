@@ -42,8 +42,8 @@ return(Land)
 get.distance.to.water<-function(Points) {
    Sp.All.Points.Focus<-SpatialPoints(Points, 
          proj4string=CRS( "+proj=longlat +datum=WGS84"))
-  Points[,2]<-min(Points[,2], 89.9)
-  Points[,2]<-max(Points[,2], -89.9)
+  Points[,2]<-pmin(Points[,2], 89.9)
+  Points[,2]<-pmax(Points[,2], -89.9)
   
   data(wrld_simpl)
 
@@ -58,8 +58,7 @@ get.distance.to.water<-function(Points) {
    for (i in 1:nrow(Points)) {
       if (Potential_water[i]==TRUE) {
 	     Point<-Sp.All.Points.Focus[i,]
-		 if ()
-         Distance[i]<-gDistance(spTransform(Sp.All.Points.Focus[i,], CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Sp.All.Points.Focus[i,]@coords[1], " +lat_0=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), spTransform(wrld_simpl, CRS(paste("+proj=aeqd +R=6371000 +lon=", Sp.All.Points.Focus[i,]@coords[1], " +lat_0=", Sp.All.Points.Focus[i,]@coords[2], sep=""))))/1000
+         Distance[i]<-gDistance(spTransform(Point, CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Sp.All.Points.Focus[i,]@coords[1], " +lat_0=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), spTransform(wrld_simpl, CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Sp.All.Points.Focus[i,]@coords[1], " +lat_0=", Sp.All.Points.Focus[i,]@coords[2], sep=""))))/1000
          cat("\r",i)
       }
    }
