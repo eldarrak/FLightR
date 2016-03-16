@@ -19,7 +19,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	   Index_distance<-which(Distances>b)
        Distances[Index_distance]<-0
 	   Distances<-round(Distances)
-       Distances<-Matrix(Distances, nrow=nrow(Distances), ncol=ncol(Distances), sparse=TRUE)
+       Distances<-Matrix(Distances, sparse=TRUE)
     }
 	all.out$Spatial$tmp<-list(Distance=Distances)
 
@@ -31,7 +31,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	Angles<-get.angles(all.out$Spatial$Grid)
     if (use.sparse.matix) {
 	Angles[Index_distance]<-0
-	Angles<-Matrix(Angles, nrow=nrow(Angles), ncol=ncol(Angles), sparse=TRUE)
+	Angles<-Matrix(Angles, sparse=TRUE)
 	}
 	all.out$Spatial$tmp$Azimuths<-Angles
 	cat("  ... Done\n")
