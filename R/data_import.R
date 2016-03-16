@@ -2,6 +2,118 @@
 # here are the functions that read data
 
 
+get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
+ # measurement.period should be set to saving period for swiss tags
+   TAGS.twilights<-read.csv(filename, stringsAsFactors =F)
+
+   # now we have to find tag type and figure out whether data were logtransformed..
+
+   detected<-get.tag.type(TAGS.twilights)
+
+   if (is.null(detected)) {
+      if (log.light.borders=='auto') stop("Unrecognized tag type, please supply log.light.borders\n")
+      if (log.irrad.borders=='auto') stop("Unrecognized tag type, please supply log.irrad.borders\n")
+      if (sum(saves==c("max", "mean"))==2) stop("Unrecognized tag type, please supply either tell me what was tag saving - max or mean over saving period\n")
+   } else {
+      if (detected$log_tranformed) TAGS.twilights$light<-exp(TAGS.twilights$light)
+      if(detected$tagtype=="Intigeo_Mode_1") {
+	     if (log.light.borders=='auto') log.light.borders<-c(1.5, 9)
+	     if (log.irrad.borders=='auto') log.irrad.borders<-c(-3,3)
+	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
+	  }
+      if(detected$tagtype=="Intigeo_Mode_4") {
+	     if (log.light.borders=='auto') log.light.borders<-c(1.5, 7)
+	     if (log.irrad.borders=='auto') log.irrad.borders<-c(-3,3)
+	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
+      }
+      if(detected$tagtype=="mk") {
+	     if (log.light.borders=='auto') log.light.borders<-log(c(2, 63)) 
+	     if (log.irrad.borders=='auto') log.irrad.borders<-c(-5.75,1.5)
+	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
+      }
+   }
+
+   FLightR.data<-read.tags.light.twilight(TAGS.twilights,
+                      start.date=start.date, end.date=end.date)
+
+   # ok, now we want to specify measurement period
+   saving.period<-round(diff(as.numeric(FLightR.data$Data$gmt[1:2])))
+   if (is.null(measurement.period)) {
+      if(saves=="mean") {
+	     measurement.period<-saving.period	
+      } else {
+         measurement.period<-60
+      }
+   }
+   cat("tag saved data every", saving.period, "seconds, and is assumed to measure data every", measurement.period, "seconds, and write down", saves[1], "\n" )
+   if (max(TAGS.twilights$light) ==64 & saving.period>500) {
+      impute.on.boundaries=TRUE
+      cat("saving period was too long for this type of tag, FLightR will impute data\n")
+   }
+   Proc.data<-process.twilights(FLightR.data$Data,FLightR.data$twilights, 
+                             measurement.period=measurement.period, saving.period=saving.period, impute.on.boundaries=impute.on.boundaries)
+   if (!is.null(detected)) {
+   Proc.data$tagtype<-detected$tagtype
+   Proc.data$log_tranformed<-detected$log_tranformed
+   Proc.data$log.light.borders=log.light.borders
+   Proc.data$log.irrad.borders=log.irrad.borders
+   }
+   Proc.data$FLightR.data<-FLightR.data
+   return(Proc.data)			
+}
+
+
+get.tag.type<-function(TAGS.twilights) {
+
+   Max_light<-max(TAGS.twilights$light)
+   recognized<-FALSE
+   if(round(Max_light,2)==11.22) {
+      tagtype<-"Intigeo_Mode_1"
+      log_tranformed<-TRUE
+	  recognized<-TRUE
+   }
+   
+   if (round(Max_light/10)==7442) {
+     tagtype<-"Intigeo_Mode_1"
+	 log_tranformed<-FALSE
+     recognized<-TRUE
+   }
+
+   if(round(Max_light,2)==7.06) {
+      tagtype<-"Intigeo_Mode_4"
+      log_tranformed<-TRUE
+	  recognized<-TRUE
+   }
+   if (round(Max_light/10)==116) {
+     tagtype<-"Intigeo_Mode_4"
+	 log_tranformed<-FALSE
+     recognized<-TRUE
+   }
+   
+   if (Max_light == 64) {
+      tagtype<-"mk"
+	  log_tranformed<-FALSE
+	  recognized<-TRUE
+   }
+
+   if (Max_light == log(64)) {
+      tagtype<-"mk"
+	  log_tranformed<-TRUE
+	  recognized<-TRUE
+   }
+   if (recognized==FALSE) { 
+   cat("tag type was not recognised!\nmail me details of your tag and I will add them to the list!\n")
+   return(NULL)
+   } else {
+   cat("Detected", tagtype, "tag\n")
+   if (log_tranformed) cat("Data found to be logtransformed\n")
+   Res<-list(tagtype=tagtype, log_tranformed=log_tranformed)
+   return(Res)
+  }
+}
+
+
+
 convert.lux.to.tags<-function(file, log=F, log.light.borders=c(1,10)) {
 	# the function takes the current (2015)
 	# .lux format and converts it to .csv format that

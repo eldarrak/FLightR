@@ -1,6 +1,33 @@
 # this function creates a spatial mask
 # the main feture is that it will search for any land in the ditance of xx meters, 
 
+make.grid<-function(left=-180, bottom=-90,
+                    right=180, top=90,
+					distance.from.land.allowed.to.use=Inf,
+					distance.from.land.allowed.to.stay=50, plot=TRUE) {
+   # N is passed to the regularCoordinates function.. n=200 means distance of 50 km between points
+   bb<-c(left, bottom, right, top)
+   Points<-FLightR::Points
+   if (distance.from.land.allowed.to.stay<25) distance.from.land.allowed.to.stay<25
+    All.Points.Focus<-Points[Points[,1]>=left &
+                  Points[,1]<=right & 
+                  Points[,2]>=bottom &
+                  Points[,2]<=top &
+				  Points[,3]<distance.from.land.allowed.to.use,]
+
+    Land<-as.numeric(All.Points.Focus[,3]<distance.from.land.allowed.to.stay)
+    Grid<-cbind(All.Points.Focus[,1:2], Land)
+	
+	if (plot) {
+	plot(Grid, type="n")
+    map('state',add=TRUE, lwd=1,  col=grey(0.5))
+    map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+    points(Grid[,1:2], pch=".", col="grey", cex=2) 
+    points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
+	}	
+    return(Grid)
+	}
+
 
 create.land.mask<-function(Points, distance_km=25) {
 distance<-distance_km*1000
