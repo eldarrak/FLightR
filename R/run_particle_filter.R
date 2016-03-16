@@ -194,8 +194,6 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   in.Data.short$Spatial$Behav.mask<-NULL
   in.Data.short$Spatial$Phys.Mat<-NULL
   
-  if (all(in.Data$Indices$Direction==0) & all(in.Data$Indices$Kappa==0)) Spatial$tmp$Azimuths<-NULL
- 
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
   if (parallel) {
     if (length(existing.cluster)==1) {
