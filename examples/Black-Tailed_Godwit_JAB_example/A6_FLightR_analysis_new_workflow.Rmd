@@ -5,7 +5,7 @@
 -->
 # Intigeo tag on a Bar tailed godwit analysis example
 # FLightR analysis
-Appendix A6 to 
+This is a new workflow for FLightR>=0.3.8 based on the original Appendix A6 to 
 Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
 
 ## Install package
