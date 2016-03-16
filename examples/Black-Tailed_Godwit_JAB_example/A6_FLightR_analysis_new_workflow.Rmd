@@ -106,7 +106,7 @@ save(Result, file="Result.bltg.ageing.model.noOD.RData")
 ```
 Now your results are saved in your work directory as an RData object.
 
-#Дальше не переписывала
+#Below is old workflow that will be updates soon
 ## Plotting the results
 
 ### Plot a simple map
