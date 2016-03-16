@@ -13,14 +13,28 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	
 	cat("preestimating distances and angles")
 	
-	all.out$Spatial$tmp<-list(Distance=spDists(all.out$Spatial$Grid[,1:2], longlat=T))
+	# sparce matrix for distances...
+	Distances<-spDists(all.out$Spatial$Grid[,1:2], longlat=T)
+	Index_distance<-which(Distances>b)
+    Distances[Index_distance]<-0
+	Distances<-round(Distances)
+    Distances<-Matrix(Distances, nrow=nrow(Distances), ncol=ncol(Distances), sparse=TRUE)
 
+	all.out$Spatial$tmp<-list(Distance=Distances)
+
+	
 	get.angles<-function(Grid) {
 		return(apply(Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=Grid, to=x)))))
 	}
-	all.out$Spatial$tmp$Azimuths<-get.angles(all.out$Spatial$Grid)
+	
+	Angles<-get.angles(all.out$Spatial$Grid)
+	Angles[Index_distance]<-0
+	Angles<-Matrix(Angles, nrow=nrow(Angles), ncol=ncol(Angles), sparse=TRUE)
+	
+	all.out$Spatial$tmp$Azimuths<-Angles
 	cat("  ... Done\n")
 
+	
 	
   if (parallel) {
 	if (is.null(cpus)) cpus=detectCores()-1
@@ -177,6 +191,9 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
   in.Data.short$Spatial$Behav.mask<-NULL
   in.Data.short$Spatial$Phys.Mat<-NULL
+  
+  if (all(in.Data$Indices$Direction==0) & all(in.Data$Indices$Kappa==0)) Spatial$tmp$Azimuths<-NULL
+ 
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
   if (parallel) {
     if (length(existing.cluster)==1) {
