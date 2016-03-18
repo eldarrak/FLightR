@@ -217,7 +217,6 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     parallel:::clusterExport(mycl, "Parameters", envir=environment())
 
 	if (!is.null(in.Data$Spatial$tmp$dDistance))  {parallel:::clusterEvalQ(mycl, {Parameters$in.Data$Spatial$tmp$Distance <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance);Parameters$in.Data$Spatial$tmp$A <- 0;1})
-	cat("evalQ")
 	}
 	if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, { Parameters$in.Data$Spatial$tmp$Azimuths <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths);1})
   }
@@ -268,7 +267,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     Last.State<-cbind(Last.State,nMoving=rbinom(dim(Last.State)[[1]], size=Last.State[,2], prob=Current.Proposal$Decision))
     Last.State.List<-split(Last.State, row(Last.State))
     nSeq<-nrow(Last.State)
-    if (nSeq==1 | (!parallel)) {
+    #if (nSeq==1 | (!parallel)) {
+    if (!parallel) {
       #cat("non.parallel\n")
       #New.Points<-t(lapply(Last.State, 1, pf.par.internal, Current.Proposal))			
       New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
