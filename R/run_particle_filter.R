@@ -139,6 +139,9 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   
   resample <- function(x, ...) x[sample.int(length(x), ...)]
   
+  if (!is.null(in.Data$Spatial$tmp$dDistance))in.Data$Spatial$tmp$Distance<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance)
+  if (!is.null(in.Data$Spatial$tmp$dAzimuths))in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths)
+  
   if (x[[3]]>0) {
 	# here is the addition of clever mask
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
@@ -211,9 +214,9 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     }
     parallel:::clusterExport(mycl, "Parameters", envir=environment())
 
-	if (!is.null(in.Data$Spatial$tmp$dDistance))  parallel:::clusterEvalQ(mycl, Parameters$in.Data$Spatial$tmp$Distance<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance))
+	#if (!is.null(in.Data$Spatial$tmp$dDistance))  parallel:::clusterEvalQ(mycl, Parameters$in.Data$Spatial$tmp$Distance<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance))
 	
-	if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, Parameters$in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths))
+	#if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, Parameters$in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths))
   }
   
   
