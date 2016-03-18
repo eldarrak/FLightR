@@ -216,7 +216,9 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     }
     parallel:::clusterExport(mycl, "Parameters", envir=environment())
 
-	if (!is.null(in.Data$Spatial$tmp$dDistance))  parallel:::clusterEvalQ(mycl, {Parameters$in.Data$Spatial$tmp$Distance <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance);Parameters$in.Data$Spatial$tmp$A <- 0;1})
+	if (!is.null(in.Data$Spatial$tmp$dDistance))  {parallel:::clusterEvalQ(mycl, {Parameters$in.Data$Spatial$tmp$Distance <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance);Parameters$in.Data$Spatial$tmp$A <- 0;1})
+	cat("evalQ")
+	}
 	if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, { Parameters$in.Data$Spatial$tmp$Azimuths <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths);1})
   }
   
