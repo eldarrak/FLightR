@@ -804,10 +804,12 @@ get.coords.jitter<-function(in.Data) {
 	if (is.null(Distance)) Distance=spDists(in.Data$Spatial$Grid[,1:2], longlat=T)
 	Distance<-as.matrix(Distance)
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
-	
+	cat("aaaaa")
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
 	tmp<-try(apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 ))
+		cat("bbbb")
+
 	jitter_coords<-NULL
 	if (class(tmp)!="try-error") {
 	jitter_coords<-t(sapply(tmp, coordinates))
