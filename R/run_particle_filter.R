@@ -19,7 +19,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	   Index_distance<-which(Distance>b)
        Distance[Index_distance]<-0
 	   Distance<-round(Distance)
-       Distance<-as.big.matrix(Distance, shared=TRUE)
+       Distance<-as.big.matrix(Distance, shared=TRUE, type="short")
 	   dDistance<-describe(Distance)
 	   all.out$Spatial$tmp<-list(dDistance=dDistance)
     } else {
@@ -35,7 +35,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	if (use.bigmemory) {
 	Azimuths[Index_distance]<-0
 	Azimuths<-round(Azimuths)
-	Azimuths<-as.big.matrix(Azimuths, shared=TRUE)
+	Azimuths<-as.big.matrix(Azimuths, shared=TRUE, type="short")
 	dAzimuths<-describe(Azimuths)
 	all.out$Spatial$tmp$dAzimuths<-dAzimuths
 	} else {
