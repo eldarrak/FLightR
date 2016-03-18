@@ -146,9 +146,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	# here is the addition of clever mask
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
-	tmp<-in.Data
-	save(tmp, file=tempfile(tmpdir =getwd()))
-    Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
+	Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
     Dists.probs<-dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
     #  library(fields)
@@ -202,6 +200,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   in.Data.short$Spatial$Phys.Mat<-NULL
   
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
+  Parameters$in.Data$Spatial$tmp$Distance<-Distance
+  Parameters$in.Data$Spatial$tmp$Azimuths<-Azimuths
   if (parallel) {
     if (length(existing.cluster)==1) {
       mycl <- parallel:::makeCluster(cpus, type=cluster.type)
@@ -215,8 +215,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
       mycl<-existing.cluster
     }
     parallel:::clusterExport(mycl, "Parameters", envir=environment())
-
-	if (!is.null(in.Data$Spatial$tmp$dDistance))  {parallel:::clusterEvalQ(mycl, {Parameters$in.Data$Spatial$tmp$Distance <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance);Parameters$in.Data$Spatial$tmp$A <- 0;1})
+	if (!is.null(in.Data$Spatial$tmp$dDistance))  {parallel:::clusterEvalQ(mycl, {Parameters$in.Data$Spatial$tmp$Distance <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance);1})
 	}
 	if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, { Parameters$in.Data$Spatial$tmp$Azimuths <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths);1})
   }
@@ -267,8 +266,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     Last.State<-cbind(Last.State,nMoving=rbinom(dim(Last.State)[[1]], size=Last.State[,2], prob=Current.Proposal$Decision))
     Last.State.List<-split(Last.State, row(Last.State))
     nSeq<-nrow(Last.State)
-    #if (nSeq==1 | (!parallel)) {
-    if (!parallel) {
+    if (nSeq==1 | (!parallel)) {
       #cat("non.parallel\n")
       #New.Points<-t(lapply(Last.State, 1, pf.par.internal, Current.Proposal))			
       New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
