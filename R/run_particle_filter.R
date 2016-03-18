@@ -5,7 +5,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, use.sparse.matix=TRUE) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, use.bigmemory=TRUE) {
 
 	all.out$Results<-list()
     all.out$Results$SD<-vector(mode = "double")
@@ -13,27 +13,35 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	
 	cat("preestimating distances and angles")
 	
-	# sparce matrix for distances...
-	Distances<-spDists(all.out$Spatial$Grid[,1:2], longlat=T)
-	if (use.sparse.matix) {
-	   Index_distance<-which(Distances>b)
-       Distances[Index_distance]<-0
-	   Distances<-round(Distances)
-       Distances<-Matrix(Distances, sparse=TRUE)
-    }
+	# bigmemory
+	Distance<-spDists(all.out$Spatial$Grid[,1:2], longlat=T)
+	if (use.bigmemory) {
+	   Index_distance<-which(Distance>b)
+       Distance[Index_distance]<-0
+	   Distance<-round(Distance)
+       Distance<-as.big.matrix(Distance, shared=TRUE)
+	   dDistance<-describe(Distance)
+	   all.out$Spatial$tmp<-list(dDistance=dDistance)
+    } else {
 	all.out$Spatial$tmp<-list(Distance=Distances)
+    }
+    rm(Distance)
 
-	
 	get.angles<-function(Grid) {
 		return(apply(Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=Grid, to=x)))))
 	}
-	
-	Angles<-get.angles(all.out$Spatial$Grid)
-    if (use.sparse.matix) {
-	Angles[Index_distance]<-0
-	Angles<-Matrix(Angles, sparse=TRUE)
+
+	Azimuths<-get.angles(all.out$Spatial$Grid)
+	if (use.bigmemory) {
+	Azimuths[Index_distance]<-0
+	Azimuths<-round(Azimuths)
+	Azimuths<-as.big.matrix(Azimuths, shared=TRUE)
+	dAzimuths<-describe(Azimuths)
+	all.out$Spatial$tmp$dAzimuths<-dAzimuths
+	} else {
+	all.out$Spatial$tmp$Azimuths<-Azimuths
 	}
-	all.out$Spatial$tmp$Azimuths<-Angles
+	rm(Azimuths)
 	cat("  ... Done\n")
 
 	
@@ -44,13 +52,13 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     mycl <- parallel:::makeCluster(cpus, type=cluster.type)
     parallel:::clusterSetRNGStream(mycl)
     ### we don' need to send all parameters to node. so keep it easy..
-    parallel:::clusterEvalQ(mycl, library("circular")) 
-    parallel:::clusterEvalQ(mycl, library("truncnorm")) 
+    #parallel:::clusterEvalQ(mycl, library("circular")) 
+    #parallel:::clusterEvalQ(mycl, library("truncnorm")) 
 	parallel:::clusterEvalQ(mycl, library("FLightR")) 
 
   }	else mycl=NA
 
-    Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers, use.bigmemory=use.bigmemory)
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
     #All.results.mat<-return.matrix.from.char(Res$All.results)
@@ -172,15 +180,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   if (sink2file & RStudio) sink()
   #### if save.rle=T function will save a out.rle object in out.rle.RData file in working directory BUT to make it work There have to be out.rle column in Main.Index that will contain true for the twilights where results needed.
   ####
-  require("parallel")
-  require("circular")
-  require("maptools")
   data("wrld_simpl", package="maptools")
-  require("truncnorm")
-  require("circular")
-  require("bit")
-  require("geosphere")
-  
   
   if (any(in.Data$Spatial$Grid[,3]!=1)) { 
 	smart.filter=TRUE
@@ -201,13 +201,16 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
       parallel:::clusterSetRNGStream(mycl)
       ### we don' need to send all parameters to node. so keep it easy..
       # cleaning dataset
-      parallel:::clusterEvalQ(mycl, library("circular")) 
-      parallel:::clusterEvalQ(mycl, library("truncnorm")) 
+      #parallel:::clusterEvalQ(mycl, library("circular")) 
+      #parallel:::clusterEvalQ(mycl, library("truncnorm")) 
     }
     else {
       mycl<-existing.cluster
     }
     parallel:::clusterExport(mycl, "Parameters", envir=environment())
+
+	if (!is.null(in.Data$Spatial$tmp$dDistance))  parallel:::clusterEvalQ(mycl, in.Data$Spatial$tmp$Distance<-attach.big.matrix(in.Data$Spatial$tmp$dDistance)
+	if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(in.Data$Spatial$tmp$dAzimuths)
   }
   
   

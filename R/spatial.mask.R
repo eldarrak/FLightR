@@ -4,7 +4,7 @@
 make.grid<-function(left=-180, bottom=-90,
                     right=180, top=90,
 					distance.from.land.allowed.to.use=Inf,
-					distance.from.land.allowed.to.stay=50, plot=TRUE) {
+					distance.from.land.allowed.to.stay=Inf, plot=TRUE) {
    # N is passed to the regularCoordinates function.. n=200 means distance of 50 km between points
    bb<-c(left, bottom, right, top)
    Points<-FLightR::Points
