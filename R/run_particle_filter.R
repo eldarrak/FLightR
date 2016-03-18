@@ -27,7 +27,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
     } else {
 	all.out$Spatial$tmp<-list(Distance=Distances)
     }
-    rm(Distance)
+    #rm(Distance)
 
 	get.angles<-function(Grid) {
 		return(apply(Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=Grid, to=x)))))
@@ -43,7 +43,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	} else {
 	all.out$Spatial$tmp$Azimuths<-Azimuths
 	}
-	rm(Azimuths)
+	#rm(Azimuths)
 	cat("  ... Done\n")
 
 	
