@@ -305,8 +305,8 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     if (!is.na(k) & Time.Period >1) {
       get.directional.weights<-function(in.Data, Last.Last.Particles, Last.Particles, New.Particles, k, parallel, mycl, D.kappa) {
         #===================================
-        Prev.Dirs<-in.data$Spatial$tmp$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
-        New.Dirs<-in.data$Spatial$tmp$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
+        Prev.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
+        New.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
         FromTo=cbind(Prev.Dirs, New.Dirs)
         if (parallel) {Angles.probs<-parallel:::parApply(mycl, FromTo, 1, my.dvonmises, mykap=k)
         } else {
@@ -337,9 +337,9 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	# so we need to pick up particles that moved..
 	# 
 	#=================================================================
-	AB.distance<-weighted.mean(in.data$Spatial$tmp$Distance[Results.stack[,(ncol(Results.stack)-1):ncol(Results.stack)]], Weights.stack[,ncol(Weights.stack)])
+	AB.distance<-weighted.mean(in.Data$Spatial$tmp$Distance[Results.stack[,(ncol(Results.stack)-1):ncol(Results.stack)]], Weights.stack[,ncol(Weights.stack)])
 	#AC.distance<-	weighted.mean(in.Data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Current.Weights)
-	AC.distance2<-	weighted.mean(in.data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Weights.stack[,ncol(Weights.stack)]*Current.Weights)
+	AC.distance2<-	weighted.mean(in.Data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Weights.stack[,ncol(Weights.stack)]*Current.Weights)
 	cat("AB.distance:", round(AB.distance, 2), "\n")
 	#cat("AC.distance:", round(AC.distance, 2), "\n")
 	cat("AC.distance2:", round(AC.distance2, 2), "\n")
@@ -348,11 +348,11 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	if (AB.distance>50) { # go for angles only if disctances are high!
 	resample <- function(x, ...) x[sample.int(length(x), ...)]
 	# the AB ones wil have folowing..
-	BA.dir<-in.data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
+	BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
 	BA.moved<-which(!is.na(BA.dir))
 	BA.mean<-mean.circular(circular(resample(BA.dir[BA.moved], replace=T,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=T)
 	#cat(BA.mean)
-	BC.dir<-in.data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
+	BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
 	BC.moved<-which(!is.na(BC.dir))
 	BC.mean<-mean.circular(circular(resample(BC.dir[BC.moved], replace=T, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=T)
 	#cat(BC.mean)
@@ -654,7 +654,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   #####   let's try to get distance distribution:
   Distances<-Trans
   dist.fun<-function(x) {
-   in.data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
+   in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
   }
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
@@ -664,7 +664,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   
   Directions<-Trans
   direct.fun<-function(x) {
-    in.data$Spatial$tmp$Azimuths[x%/%1e5, x%%1e5]
+    in.Data$Spatial$tmp$Azimuths[x%/%1e5, x%%1e5]
   }
   for (i in 1:length(Trans)) {
     Directions[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) direct.fun(x))
@@ -850,7 +850,7 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
-  Weights<-dnorm(in.data$Spatial$tmp$Distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
+  Weights<-dnorm(in.Data$Spatial$tmp$Distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
   Rows<- suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights)))
     return(results.stack[Rows,])
 }
