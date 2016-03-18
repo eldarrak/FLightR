@@ -16,6 +16,8 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	# bigmemory
 	Distance<-spDists(all.out$Spatial$Grid[,1:2], longlat=T)
 	if (use.bigmemory) {
+	options(bigmemory.typecast.warning=FALSE)
+
 	   Index_distance<-which(Distance>b)
        Distance[Index_distance]<-0
 	   Distance<-round(Distance)
@@ -209,9 +211,9 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     }
     parallel:::clusterExport(mycl, "Parameters", envir=environment())
 
-	if (!is.null(in.Data$Spatial$tmp$dDistance))  parallel:::clusterEvalQ(mycl, in.Data$Spatial$tmp$Distance<-attach.big.matrix(in.Data$Spatial$tmp$dDistance))
+	if (!is.null(in.Data$Spatial$tmp$dDistance))  parallel:::clusterEvalQ(mycl, Parameters$in.Data$Spatial$tmp$Distance<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance))
 	
-	if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(in.Data$Spatial$tmp$dAzimuths))
+	if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, Parameters$in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths))
   }
   
   
