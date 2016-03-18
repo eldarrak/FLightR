@@ -147,7 +147,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
 	tmp<-in.Data$Spatial$tmp$Distance[1,]
-	save(tmp, tempfile(tmpdir =getwd()))
+	save(tmp, file=tempfile(tmpdir =getwd()))
     Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
     Dists.probs<-dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
