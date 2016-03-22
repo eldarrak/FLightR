@@ -37,7 +37,7 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
                       start.date=start.date, end.date=end.date)
 
    # ok, now we want to specify measurement period
-   saving.period<-round(diff(as.numeric(FLightR.data$Data$gmt[1:2])))
+   saving.period<-round(diff(as.numeric(FLightR.data$Data$gmt[1:2]))/10)*10
    if (is.null(measurement.period)) {
       if(saves=="mean") {
 	     measurement.period<-saving.period	
