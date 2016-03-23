@@ -5,7 +5,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
 
 	all.out$Results<-list()
     all.out$Results$SD<-vector(mode = "double")
@@ -43,7 +43,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
       all.out.old<-all.out
-      all.out<-get.coordinates.PF(Res$Points, all.out)
+      all.out<-get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
       Movement.parameters<-estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
@@ -553,7 +553,7 @@ return.matrix.from.char<-function(Res.txt) {
 }
 
 
-get.coordinates.PF<-function(Points, in.Data) {
+get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
   library("aspace")
   # this function will extract point coordinates from the output matrix.. 
   # the question is do we need only mean and sd or also median and quantiles?
@@ -593,11 +593,16 @@ get.coordinates.PF<-function(Points, in.Data) {
 
 	###########
 	# doing jitter first
+	if (add.jitter) {
 	cat("adding jitter to medians\n")
 	jitter_coords<-get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
 	Quantiles$MedianlonJ<-jitter_coords[,1]
 	Quantiles$MedianlatJ<-jitter_coords[,2]
+	}
+	} else {
+	Quantiles$MedianlonJ<-Quantiles$Medianlon
+	Quantiles$MedianlatJ<-Quantiles$Medianlat
 	}
 	names(Quantiles)<-gsub("\\s","", names(Quantiles))
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
