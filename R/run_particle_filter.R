@@ -651,7 +651,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Directions<-Trans
   for (i in 1:length(Trans)) {
     Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
-    Directions[[i]]$values<-sapply(Movement_Points, FUN=dir_fun)
+    Directions[[i]]$values<-apply(Movement_Points, 1, FUN=dir_fun)
   }
   cat("   estimating mean directions\n")
   Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats:::circ.mean(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)*180/pi))
