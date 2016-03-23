@@ -312,7 +312,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	# 
 	#=================================================================
 	#AB.distance<-weighted.mean(in.Data$Spatial$tmp$Distance[Results.stack[,(ncol(Results.stack)-1):ncol(Results.stack)]], Weights.stack[,ncol(Weights.stack)])
-	AB.distance<-weighted.mean(	sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)]*Current.Weights)
+	AB.distance<-weighted.mean(	sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)])
 
 	AC.distance2<-	weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)]*Current.Weights)	
 	
