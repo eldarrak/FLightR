@@ -328,7 +328,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	# the AB ones wil have folowing..
 	#BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
 	dir_fun<-function(x) {
-	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], type="abdali")
+	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
 	}
 	
 	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, dir_fun)
