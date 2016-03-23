@@ -326,10 +326,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	resample <- function(x, ...) x[sample.int(length(x), ...)]
 	# the AB ones wil have folowing..
 	#BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
-	dir_fun<-function(x) {
-	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
-	}
-	
+
 	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, dir_fun)
 	
 	BA.moved<-which(!is.na(BA.dir))
@@ -844,3 +841,7 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Rows<- suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights)))
     return(results.stack[Rows,])
 }
+	dir_fun<-function(x) {
+	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
+	}
+	
