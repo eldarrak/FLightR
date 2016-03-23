@@ -640,7 +640,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Distances<-Trans
   dist.fun<-function(x) {
    #in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
-    sp::spDists(in.Data$Spatial$Grid[matrix(c(x%/%1e5, x%%1e5), ncol=2), c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE)
+    sp::spDists(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
   }
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
