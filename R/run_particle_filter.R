@@ -20,9 +20,8 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nPartic
     all.out$Results$LL<-vector(mode = "double")
 	
   if (parallel) {
-	if (is.null(cpus)) cpus=detectCores()-1
-    cat("creating cluster with", cpus, "threads\n")
-    mycl <- parallel:::makeCluster(cpus, type=cluster.type)
+    cat("creating cluster with", threads, "threads\n")
+    mycl <- parallel:::makeCluster(threads, type=cluster.type)
     parallel:::clusterSetRNGStream(mycl)
     ### we don' need to send all parameters to node. so keep it easy..
     #parallel:::clusterEvalQ(mycl, library("circular")) 
@@ -31,7 +30,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nPartic
 
   }	else mycl=NA
 
-    Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<-pf.run.parallel.SO.resample(in.Data=all.out, threads=threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
     #All.results.mat<-return.matrix.from.char(Res$All.results)
@@ -153,7 +152,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   }
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
   # this dunction is doing main job. it works on the secondary master
   ### to make algorhytm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
@@ -179,7 +178,7 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   #if (!is.null(Parameters$in.Data$Spatial$tmp$dAzimuths)) Parameters$in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths)
   if (parallel) {
     if (length(existing.cluster)==1) {
-      mycl <- parallel:::makeCluster(cpus, type=cluster.type)
+      mycl <- parallel:::makeCluster(threads, type=cluster.type)
       parallel:::clusterSetRNGStream(mycl)
       ### we don' need to send all parameters to node. so keep it easy..
       # cleaning dataset
