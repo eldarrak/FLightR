@@ -91,9 +91,8 @@ Within the function run.particle.filter, the following parameters can be preset:
 ```{r, eval = F}
 
 nParticles=1e6
-Threads= detectCores()-1
 a= Sys.time()
-Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
+Result<-run.particle.filter(all.in, save.Res=F, threads=-1,
                 nParticles=nParticles, known.last=TRUE,
 		precision.sd=25, save.memory=T, k=NA,
 		parallel=T,  plot=T, prefix="pf",
