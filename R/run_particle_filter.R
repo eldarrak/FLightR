@@ -20,8 +20,8 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nPartic
     all.out$Results$LL<-vector(mode = "double")
 	
   if (parallel) {
-    cat("creating cluster with", threads, "threads\n")
-    mycl <- parallel:::makeCluster(threads, type=cluster.type)
+    cat("creating cluster with", Threads, "threads\n")
+    mycl <- parallel:::makeCluster(Threads, type=cluster.type)
     parallel:::clusterSetRNGStream(mycl)
     ### we don' need to send all parameters to node. so keep it easy..
     #parallel:::clusterEvalQ(mycl, library("circular")) 
@@ -30,7 +30,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nPartic
 
   }	else mycl=NA
 
-    Res<-pf.run.parallel.SO.resample(in.Data=all.out, threads=threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<-pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
     #All.results.mat<-return.matrix.from.char(Res$All.results)
