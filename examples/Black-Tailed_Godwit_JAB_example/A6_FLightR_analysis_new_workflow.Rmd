@@ -67,9 +67,10 @@ Calibration<-make.calibration(Proc.data, Calibration.periods)
 ```
 
 ## Spatial extent
-Set up a spatial grid (50 X 50 km on default) and limit the ...Set the boundaries..???????
+Set up a spatial grid (50 X 50 km on default) `left`, `right`. `bottom` and `top` are specific boundaries for your bounding box. `distance.from.land.allowed.to.use` should be vector with length of two, first number is negative distance allowed to use while over land, and second is distance from land allowed to use while over water.
+`distance.from.land.allowed.to.stay` should be vector with length of two, first number is negative distance where bird is allowed to be stationary, and second is distance from land allowed to fly over during twilight while over water.
 ```{r, eval = F}
-Grid<-make.grid(left=-14, bottom=30, right=13, top=57)
+Grid<-make.grid(left=-14, bottom=30, right=13, top=57, distance.from.land.allowed.to.use=c(-Inf, Inf), distance.from.land.allowed.to.stay=c(-Inf, Inf))
 ```
 ## Create proposal
 
