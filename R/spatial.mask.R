@@ -5,19 +5,28 @@ make.grid<-function(left=-180, bottom=-90,
                     right=180, top=90,
 					distance.from.land.allowed.to.use=c(-Inf,Inf),
 					distance.from.land.allowed.to.stay=c(-Inf, Inf), plot=TRUE, return.distances=FALSE) {
-   # N is passed to the regularCoordinates function.. n=200 means distance of 50 km between points
    bb<-c(left, bottom, right, top)
    Points<-FLightR::Points
    
    if (distance.from.land.allowed.to.stay[1]> -25) distance.from.land.allowed.to.stay[1]<- -25
    if (distance.from.land.allowed.to.stay[2]<25) distance.from.land.allowed.to.stay[2]<- 25
-    All.Points.Focus<-Points[Points[,1]>=left &
+
+   if (left<right) {
+      All.Points.Focus<-Points[Points[,1]>=left &
                   Points[,1]<=right & 
                   Points[,2]>=bottom &
                   Points[,2]<=top &
 				  Points[,3]<distance.from.land.allowed.to.use[2] &
 				  Points[,3]>distance.from.land.allowed.to.use[1],]
-
+    } else {
+      All.Points.Focus<-(Points[Points[,1]>=left |
+                  Points[,1]<=right) & 
+                  Points[,2]>=bottom &
+                  Points[,2]<=top &
+				  Points[,3]<distance.from.land.allowed.to.use[2] &
+				  Points[,3]>distance.from.land.allowed.to.use[1],]
+	
+	}
     Stay<-as.numeric(All.Points.Focus[,3] > distance.from.land.allowed.to.stay[1]) & as.numeric(All.Points.Focus[,3]<distance.from.land.allowed.to.stay[2])
     Grid<-cbind(All.Points.Focus[,1:2], Stay)
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
