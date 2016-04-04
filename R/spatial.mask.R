@@ -19,7 +19,7 @@ make.grid<-function(left=-180, bottom=-90,
 				  Points[,3]<distance.from.land.allowed.to.use[2] &
 				  Points[,3]>distance.from.land.allowed.to.use[1],]
     } else {
-      All.Points.Focus<-(Points[Points[,1]>=left |
+      All.Points.Focus<-Points[(Points[,1]>=left |
                   Points[,1]<=right) & 
                   Points[,2]>=bottom &
                   Points[,2]<=top &
