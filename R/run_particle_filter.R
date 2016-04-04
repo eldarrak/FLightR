@@ -119,7 +119,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	#Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
 	Dists.distr<- sp::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=T)
 	
-    Dists.probs<-dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
+    Dists.probs<-truncnorm::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
     #  library(fields)
     # dists
@@ -753,7 +753,7 @@ mu.sigma.truncnorm<-function(x, a=45, b=500) {
 # this is used optionally
   if (length(unique(x))>1) {
     tr.norm<-function(prm) {
-      sum(-log(truncnorm:::dtruncnorm(as.numeric(x),a=a,b=b,mean=prm[1],sd=prm[2])))
+      sum(-log(truncnorm::dtruncnorm(as.numeric(x),a=a,b=b,mean=prm[1],sd=prm[2])))
     }
     Res=try(optim(c(mean(x),sd(x)), tr.norm, method="BFGS"))
     #if (class(Res)=="try-error") Res=try(optim(c(mean(x),sd(x)), tr.norm,method="SANN"))
