@@ -112,70 +112,14 @@ Now your results are saved in your work directory as an RData object.
 ### Plot a simple map
 ```{r, eval = F}
 
-par(mfrow=c(1,1))
-par(mar=c(4,4,3,1),las=1,mgp=c(2.25,1,0))
+map.FLightR.ggmap(Result)
 
-#--------------------------------------------------------
-# we can plot either mean or median.
-
-Mean_coords<-cbind(Result$Results$Quantiles$Meanlon, Result$Results$Quantiles$Meanlat)
-if (is.null(Result$Results$Quantiles$MedianlatJ)) {
-	Median_coords<-cbind(Result$Results$Quantiles$Medianlon, Result$Results$Quantiles$Medianlat)
-} else {
-	Median_coords<-cbind(Result$Results$Quantiles$MedianlonJ, Result$Results$Quantiles$MedianlatJ)
-}
-plot(Median_coords, type = "n",ylab="Latitude",xlab="Longitude")
-library(maptools)
-data(wrld_simpl)
-plot(wrld_simpl, add = T, col = "grey95", border="grey70")
-lines(Median_coords, col = "darkgray", cex = 0.1)
-points(Median_coords, pch = 16, cex = 0.75, col = "darkgray")
-lines(Mean_coords, col = "blue", cex = 0.1)
-points(Mean_coords, pch = 16, cex = 0.75, col = "blue")
-box()
 ```
 ### Plot lon lat graph
 ```{r, eval = F}
-Quantiles<-Result$Results$Quantiles
-par(mfrow=c(2,1))
-par(mar=c(2,4,3,1),cex=1)
- Sys.setlocale("LC_ALL", "English")  
 
-#Longitude
-plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grey(0.1),pch=16,
-     ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
-	 Quantiles$UCI.lon )), type="n")
+plot.lon.lat(Result)
 
-
-polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
-         col=grey(0.9), border=grey(0.5))
-
-polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
-         col=grey(0.7), border=grey(0.5))
-
-lines(Quantiles$Medianlon~Quantiles$time, col=grey(0.1),lwd=2)
-
-
-abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
-abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
-
-#Latitude
-par(mar=c(3,4,1,1))
-
-plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grey(0.1),
-     pch=16,ylab="Latitude",xlab="",lwd=2,
-	 ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
-
-polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
-           col=grey(0.9), border=grey(0.5))
-
-polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
-           col=grey(0.7), border=grey(0.5))
-
-lines(Quantiles$Medianlat~Quantiles$time, col=grey(0.1),lwd=2)
-
-abline(v=as.POSIXct("2013-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
-abline(v=as.POSIXct("2014-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
 ```
 ## Migration schedules
 We can extract departure arrival estimates from the results we have got. 
