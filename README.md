@@ -14,6 +14,10 @@ to install the package try:
 ```
 ---------------
 ## NB
+Version 0.3.9 has got two major changes:
+1. Workflow was completely rewtitten and simplified. Updated workflow is [here](https://github.com/eldarrak/FLightR/blob/0.3.9/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis_new_workflow.Rmd)
+2. New version does not require lots of RAM, but it became slower.
+
 Very important changes were made for version 0.3.6
 Just contact me if results come out strange.
 
