@@ -31,11 +31,11 @@ make.grid<-function(left=-180, bottom=-90,
     Grid<-cbind(All.Points.Focus[,1:2], Stay)
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
-	plot(Grid, type="n")
-    map('state',add=TRUE, lwd=1,  col=grey(0.5))
-    map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
-    points(Grid[,1:2], pch=".", col="grey", cex=2) 
-    points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
+        plot(Grid, type="n")
+        map('state',add=TRUE, lwd=1,  col=grey(0.5))
+        map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+        points(Grid[,1:2], pch=".", col="grey", cex=2) 
+        points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
 	}	
 	attr(Grid,'left') <- left
 	attr(Grid,'bottom') <- bottom

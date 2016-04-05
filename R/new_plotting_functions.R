@@ -1,6 +1,6 @@
 
 
-map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL) {
+map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto") {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
@@ -40,8 +40,26 @@ library(ggmap)
 	# combine location with map options
 	if (is.null(map.options)) map.options<-list()
 	if (is.null(map.options$location)) map.options$location<-location
-	if (is.null(map.options$zoom)) map.options$zoom=4
+	if (is.null(map.options$zoom) & is.numeric(zoom)) map.options$zoom=zoom
 	if (is.null(map.options$col)) map.options$col="bw"
+	
+    if (zoom=="auto") {
+
+	    for (zoom_cur in (2:10)) {
+		   map.options$zoom=zoom_cur
+		   background <-do.call(ggmap::get_map, map.options)
+		   if (!(
+		     location[1]>attr(background, 'bb')[2] &
+			 location[2]>attr(background, 'bb')[1] &
+			 location[3]<attr(background, 'bb')[4] &
+			 location[4]<attr(background, 'bb')[3] )) {
+	       break
+	       }
+        }
+	    map.options$zoom=zoom_cur-1
+    }
+	
+	
 	
     background <-do.call(ggmap::get_map, map.options)
 	
