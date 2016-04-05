@@ -5,36 +5,32 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F) {
+run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
+   if (!is.null(cpus)) {
+      warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
+      threads<-cpus
+   }
+   
+   Possible.threads=detectCores()
+   if (threads<=0) Threads=max(Possible.threads+threads, 1)
+   if (threads>0) Threads=min(Possible.threads,threads)
 
 	all.out$Results<-list()
     all.out$Results$SD<-vector(mode = "double")
     all.out$Results$LL<-vector(mode = "double")
 	
-	cat("preestimating distances and angles")
-	
-	all.out$Spatial$tmp<-list(Distance=spDists(all.out$Spatial$Grid[,1:2], longlat=T))
-
-	get.angles<-function(Grid) {
-		return(apply(Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=Grid, to=x)))))
-	}
-	all.out$Spatial$tmp$Azimuths<-get.angles(all.out$Spatial$Grid)
-	cat("  ... Done\n")
-
-	
   if (parallel) {
-	if (is.null(cpus)) cpus=detectCores()-1
-    cat("creating cluster with", cpus, "threads\n")
-    mycl <- parallel:::makeCluster(cpus, type=cluster.type)
+    cat("creating cluster with", Threads, "threads\n")
+    mycl <- parallel:::makeCluster(Threads, type=cluster.type)
     parallel:::clusterSetRNGStream(mycl)
     ### we don' need to send all parameters to node. so keep it easy..
-    parallel:::clusterEvalQ(mycl, library("circular")) 
-    parallel:::clusterEvalQ(mycl, library("truncnorm")) 
+    #parallel:::clusterEvalQ(mycl, library("circular")) 
+    #parallel:::clusterEvalQ(mycl, library("truncnorm")) 
 	parallel:::clusterEvalQ(mycl, library("FLightR")) 
 
   }	else mycl=NA
 
-    Res<-pf.run.parallel.SO.resample(in.Data=all.out, cpus=cpus, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<-pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
     #All.results.mat<-return.matrix.from.char(Res$All.results)
@@ -54,7 +50,7 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
       all.out.old<-all.out
-      all.out<-get.coordinates.PF(Res$Points, all.out)
+      all.out<-get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
       Movement.parameters<-estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
@@ -113,19 +109,26 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   
   resample <- function(x, ...) x[sample.int(length(x), ...)]
   
+  #if (!is.null(in.Data$Spatial$tmp$dDistance))in.Data$Spatial$tmp$Distance<-attach.big.matrix(in.Data$Spatial$tmp$dDistance)
+  #if (!is.null(in.Data$Spatial$tmp$dAzimuths))in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(in.Data$Spatial$tmp$dAzimuths)
+  
   if (x[[3]]>0) {
 	# here is the addition of clever mask
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
-    Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
-    Dists.probs<-dtruncnorm(Dists.distr, a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
+	#Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
+	Dists.distr<- sp::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=T)
+	
+    Dists.probs<-truncnorm::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
     #  library(fields)
     # dists
     #image.plot(as.image(Dists.probs, x=in.Data$Spatial$Grid, nrow=50, ncol=50))
     #
     if (Current.Proposal$Kappa>0) {
-      Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
+      #Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
+      Angles.dir<-maptools::gzAzimuth(from=in.Data$Spatial$Grid[,c(1,2)], to=in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], type="abdali")
+	  
       Angles.probs<-as.numeric(suppressWarnings(circular:::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
       Angles.probs[is.na(Angles.probs)]<-0
     }
@@ -149,22 +152,14 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   }
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
   # this dunction is doing main job. it works on the secondary master
   ### to make algorhytm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
   if (sink2file & RStudio) sink()
   #### if save.rle=T function will save a out.rle object in out.rle.RData file in working directory BUT to make it work There have to be out.rle column in Main.Index that will contain true for the twilights where results needed.
   ####
-  require("parallel")
-  require("circular")
-  require("maptools")
   data("wrld_simpl", package="maptools")
-  require("truncnorm")
-  require("circular")
-  require("bit")
-  require("geosphere")
-  
   
   if (any(in.Data$Spatial$Grid[,3]!=1)) { 
 	smart.filter=TRUE
@@ -177,20 +172,26 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
   in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
   in.Data.short$Spatial$Behav.mask<-NULL
   in.Data.short$Spatial$Phys.Mat<-NULL
+  
   Parameters<-list(in.Data=in.Data.short, a=a, b=b)
+  #if (!is.null(Parameters$in.Data$Spatial$tmp$dDistance)) Parameters$in.Data$Spatial$tmp$Distance<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance)
+  #if (!is.null(Parameters$in.Data$Spatial$tmp$dAzimuths)) Parameters$in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths)
   if (parallel) {
     if (length(existing.cluster)==1) {
-      mycl <- parallel:::makeCluster(cpus, type=cluster.type)
+      mycl <- parallel:::makeCluster(threads, type=cluster.type)
       parallel:::clusterSetRNGStream(mycl)
       ### we don' need to send all parameters to node. so keep it easy..
       # cleaning dataset
-      parallel:::clusterEvalQ(mycl, library("circular")) 
-      parallel:::clusterEvalQ(mycl, library("truncnorm")) 
+      #parallel:::clusterEvalQ(mycl, library("circular")) 
+      #parallel:::clusterEvalQ(mycl, library("truncnorm")) 
     }
     else {
       mycl<-existing.cluster
     }
     parallel:::clusterExport(mycl, "Parameters", envir=environment())
+	#if (!is.null(in.Data$Spatial$tmp$dDistance))  {parallel:::clusterEvalQ(mycl, {Parameters$in.Data$Spatial$tmp$Distance <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dDistance);1})
+	#}
+	#if (!is.null(in.Data$Spatial$tmp$dAzimuths))  parallel:::clusterEvalQ(mycl, { Parameters$in.Data$Spatial$tmp$Azimuths <- attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths);1})
   }
   
   
@@ -280,9 +281,14 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
     if (!is.na(k) & Time.Period >1) {
       get.directional.weights<-function(in.Data, Last.Last.Particles, Last.Particles, New.Particles, k, parallel, mycl, D.kappa) {
         #===================================
-        Prev.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
-        New.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
-        FromTo=cbind(Prev.Dirs, New.Dirs)
+        #Prev.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
+		
+        Prev.Dirs<-apply(matrix(c(Last.Last.Particles, Last.Particles), ncol=2), 1, dir_fun, in.Data)/180*pi
+		
+        #New.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
+        New.Dirs<-apply(matrix(c(Last.Particles, New.Particles), ncol=2), 1, dir_fun, in.Data)/180*pi
+		
+        FromTo=matrix(c(Prev.Dirs, New.Dirs), ncol=2)
         if (parallel) {Angles.probs<-parallel:::parApply(mycl, FromTo, 1, my.dvonmises, mykap=k)
         } else {
           Angles.probs<-apply(FromTo,1, FUN=function(x, k) as.numeric(suppressWarnings(circular:::dvonmises(x[[2]], mu=x[[1]], kappa=k))), k=k)
@@ -312,10 +318,12 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	# so we need to pick up particles that moved..
 	# 
 	#=================================================================
-	AB.distance<-weighted.mean(
-	in.Data$Spatial$tmp$Distance[Results.stack[,(ncol(Results.stack)-1):ncol(Results.stack)]], Weights.stack[,ncol(Weights.stack)])
-	#AC.distance<-	weighted.mean(in.Data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Current.Weights)
-	AC.distance2<-	weighted.mean(in.Data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Weights.stack[,ncol(Weights.stack)]*Current.Weights)
+	#AB.distance<-weighted.mean(in.Data$Spatial$tmp$Distance[Results.stack[,(ncol(Results.stack)-1):ncol(Results.stack)]], Weights.stack[,ncol(Weights.stack)])
+	AB.distance<-weighted.mean(	sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)])
+
+	AC.distance2<-	weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)]*Current.Weights)	
+	
+	#in.Data$Spatial$tmp$Distance[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)], Weights.stack[,ncol(Weights.stack)]*Current.Weights)
 	cat("AB.distance:", round(AB.distance, 2), "\n")
 	#cat("AC.distance:", round(AC.distance, 2), "\n")
 	cat("AC.distance2:", round(AC.distance2, 2), "\n")
@@ -324,11 +332,15 @@ pf.run.parallel.SO.resample<-function(in.Data, cpus=2, nParticles=1e6, known.las
 	if (AB.distance>50) { # go for angles only if disctances are high!
 	resample <- function(x, ...) x[sample.int(length(x), ...)]
 	# the AB ones wil have folowing..
-	BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
+	#BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
+
+	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, dir_fun, in.Data)
+	
 	BA.moved<-which(!is.na(BA.dir))
 	BA.mean<-mean.circular(circular(resample(BA.dir[BA.moved], replace=T,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=T)
-	#cat(BA.mean)
-	BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
+	#cat(BA.mean)	#BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
+	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, dir_fun, in.Data)
+	
 	BC.moved<-which(!is.na(BC.dir))
 	BC.mean<-mean.circular(circular(resample(BC.dir[BC.moved], replace=T, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=T)
 	#cat(BC.mean)
@@ -545,7 +557,7 @@ return.matrix.from.char<-function(Res.txt) {
 }
 
 
-get.coordinates.PF<-function(Points, in.Data) {
+get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
   library("aspace")
   # this function will extract point coordinates from the output matrix.. 
   # the question is do we need only mean and sd or also median and quantiles?
@@ -585,11 +597,16 @@ get.coordinates.PF<-function(Points, in.Data) {
 
 	###########
 	# doing jitter first
+	if (add.jitter) {
 	cat("adding jitter to medians\n")
 	jitter_coords<-get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
 	Quantiles$MedianlonJ<-jitter_coords[,1]
 	Quantiles$MedianlatJ<-jitter_coords[,2]
+	}
+	} else {
+	Quantiles$MedianlonJ<-Quantiles$Medianlon
+	Quantiles$MedianlatJ<-Quantiles$Medianlat
 	}
 	names(Quantiles)<-gsub("\\s","", names(Quantiles))
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
@@ -630,7 +647,8 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   #####   let's try to get distance distribution:
   Distances<-Trans
   dist.fun<-function(x) {
-    in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
+   #in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
+    sp::spDists(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
   }
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
@@ -639,11 +657,9 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   #ok, now we want to get directions
   
   Directions<-Trans
-  direct.fun<-function(x) {
-    in.Data$Spatial$tmp$Azimuths[x%/%1e5, x%%1e5]
-  }
   for (i in 1:length(Trans)) {
-    Directions[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) direct.fun(x))
+    Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
+    Directions[[i]]$values<-apply(Movement_Points, 1, FUN=dir_fun, in.Data)
   }
   cat("   estimating mean directions\n")
   Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats:::circ.mean(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)*180/pi))
@@ -737,7 +753,7 @@ mu.sigma.truncnorm<-function(x, a=45, b=500) {
 # this is used optionally
   if (length(unique(x))>1) {
     tr.norm<-function(prm) {
-      sum(-log(truncnorm:::dtruncnorm(x,a=a,b=b,mean=prm[1],sd=prm[2])))
+      sum(-log(truncnorm::dtruncnorm(as.numeric(x),a=a,b=b,mean=prm[1],sd=prm[2])))
     }
     Res=try(optim(c(mean(x),sd(x)), tr.norm, method="BFGS"))
     #if (class(Res)=="try-error") Res=try(optim(c(mean(x),sd(x)), tr.norm,method="SANN"))
@@ -778,6 +794,7 @@ coords.aeqd.jitter <- function(coords, r, n)
 get.coords.jitter<-function(in.Data) {
 	Distance<-in.Data$Spatial$tmp$Distance
 	if (is.null(Distance)) Distance=spDists(in.Data$Spatial$Grid[,1:2], longlat=T)
+	Distance<-Distance[,1]
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
@@ -826,7 +843,12 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
-  Weights<-dnorm(in.Data$Spatial$tmp$Distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
+  #Weights<-dnorm(in.Data$Spatial$tmp$Distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
+  Weights<-dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], longlat=TRUE), mean=0, sd=precision.sd)
   Rows<- suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights)))
     return(results.stack[Rows,])
 }
+	dir_fun<-function(x, in.Data) {
+	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
+	}
+	

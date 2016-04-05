@@ -1,6 +1,96 @@
 # data_preparation functions
 
+plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
+   Calibration.period<-data.frame(
+         calibration.start=as.POSIXct("1900-01-01"),
+		 calibration.stop=as.POSIXct("2050-01-01"),
+		 lon=location[1], lat=location[2])
+   if (log.light.borders=='auto') log.light.borders<-Proc.data$log.light.borders
+   if (log.irrad.borders=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
+		 
+   calibration.parameters<-get.calibration.parameters(Calibration.period,
+         Proc.data, model.ageing=F, 
+		 log.light.borders=log.light.borders,
+		 log.irrad.borders=log.irrad.borders, 
+		 plot.each = FALSE, plot.final = FALSE)
+    plot.slopes(calibration.parameters$All.slopes)
+
+}
+
+
+make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE) {
+   Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-"1900-01-01"
+   Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-"2100-01-01"
+   calibration.parameters<-get.calibration.parameters(
+         Calibration.periods, Proc.data,
+          model.ageing=model.ageing,
+		  log.light.borders=Proc.data$log.light.borders,
+		  log.irrad.borders=Proc.data$log.irrad.borders)
+
+   if (length(calibration.parameters$calib_outliers)>0) {
+      Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
+      FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
+      Proc.data<-process.twilights(Proc.data$FLightR.data$Data, 
+         Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
+         measurement.period=Proc.data$measurement.period, saving.period=Proc.data$measurement.period,
+         impute.on.boundaries=Proc.data$impute.on.boundaries)
+         calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, 
+         model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
+         log.irrad.borders=Proc.data$log.irrad.borders)
+         plot.slopes(calibration.parameters$All.slopes)
+   }
+   Calibration=create.calibration(calibration.parameters$All.slopes,
+                 Proc.data,
+				 Proc.data$FLightR.data,
+				 log.light.borders=Proc.data$log.light.borders, log.irrad.borders=Proc.data$log.irrad.borders,
+				 ageing.model=calibration.parameters$ageing.model,
+				 location=NA)
+   Calibration$Calibration.periods<-Calibration.periods
+   return(Calibration)
+   }
+
+
+make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.1, Direction=0,Kappa=0, M.mean=300, M.sd=500) {
+if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+if (length(Direction)>1) stop("Direction has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+if (length(Kappa)>1) stop("Kappa has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+if (length(M.mean)>1) stop("M.mean has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+if (length(M.sd)>1) stop("M.sd has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+
+Processed.light<-make.processed.light.object(Proc.data$FLightR.data)
+
+Index.tab<-create.proposal(Processed.light, start=start, Grid=Grid)
+Index.tab$Decision<-Decision # prob of migration
+Index.tab$Direction<- Direction # direction 0 - North
+Index.tab$Kappa<-Kappa # distr concentration 0 means even
+Index.tab$M.mean<- M.mean # distance mu
+Index.tab$M.sd<- M.sd # distance sd
+
+all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=end)
+
+all.in$Calibration<-Calibration
+all.in$Data<-Proc.data$FLightR.data
+
+#------
+# add spatial ll
+Possible.threads=detectCores()
+if (threads<=0) Threads=max(Possible.threads+threads, 1)
+if (threads>0) Threads=min(Possible.threads,threads)
+
+Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
+        Proc.data$Twilight.log.light.mat.dusk,
+    Proc.data$Twilight.time.mat.dawn,
+    Proc.data$Twilight.log.light.mat.dawn,
+    threads=Threads, calibration=all.in$Calibration)
+all.in$Spatial$Phys.Mat<-Phys.Mat
+return(all.in)
+}
+
+
+   
+   
 ##############
+# these functions appeared before FLightR 0.3.8
 # process.data
 process.twilights<-function(All.p, Filtered_tw, measurement.period=60, saving.period=NULL, impute.on.boundaries=FALSE) {
 # this function just prepares data for the next steps..
@@ -368,7 +458,7 @@ return(Res)
 }
 
 
-create.calibration<-function( All.slopes, Proc.data, FLightR.data, start, log.light.borders, log.irrad.borders, ageing.model=NULL) {
+create.calibration<-function( All.slopes, Proc.data, FLightR.data, location, log.light.borders, log.irrad.borders, ageing.model=NULL) {
 # Now we create 'parameters' object that will have all the details about the calibration
 Parameters<-All.slopes$Parameters # LogSlope # 
 Parameters$measurement.period<-Proc.data$measurement.period 
@@ -377,7 +467,7 @@ Parameters$log.light.borders<-log.light.borders # these are the boundaries in wh
 Parameters$min.max.values<-c(min(FLightR.data$Data$light), max(FLightR.data$Data$light))
 Parameters$log.irrad.borders=log.irrad.borders
 Parameters$impute.on.boundaries=Proc.data$impute.on.boundaries
-Parameters$start=start
+Parameters$location=location
 
 Parameters$LogSlope_1_minute<-Parameters$LogSlope
  if (is.null(ageing.model)) {
@@ -553,11 +643,14 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	output$Spatial$Behav.mask<-as.integer(Grid[,3])
 
 	output$Spatial$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
-
+    
+	output$Spatial$start.location<-start
 	if (!is.na(stop[1]) ) {
-	output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
+	   output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
+	   output$Spatial$stop.location<-stop
 	} else {
-	output$Spatial$stop.point<-NA
+	   output$Spatial$stop.point<-NA
+	   output$Spatial$stop.location<-NA
 	}
 	
 	#output$Spatial$tmp<-list(Distance=spDists(Grid[,1:2], longlat=T))
