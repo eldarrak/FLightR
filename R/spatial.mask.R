@@ -37,6 +37,12 @@ make.grid<-function(left=-180, bottom=-90,
     points(Grid[,1:2], pch=".", col="grey", cex=2) 
     points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
 	}	
+	attr(Grid,'left') <- left
+	attr(Grid,'bottom') <- bottom
+	attr(Grid,'right') <- right
+	attr(Grid,'top') <- top
+	attr(Grid,'distance.from.land.allowed.to.use') <- distance.from.land.allowed.to.use
+	attr(Grid,'distance.from.land.allowed.to.stay') <- distance.from.land.allowed.to.stay
     return(Grid)
 	}
 
