@@ -106,7 +106,6 @@ save(Result, file="Result.bltg.ageing.model.noOD.RData")
 ```
 Now your results are saved in your work directory as an RData object.
 
-#Below is old workflow that will be updated soon
 ## Plotting the results
 
 ### Plot a simple map
@@ -121,6 +120,8 @@ map.FLightR.ggmap(Result)
 plot.lon.lat(Result)
 
 ```
+#Below is old workflow that will be updated soon
+
 ## Migration schedules
 We can extract departure arrival estimates from the results we have got. 
 First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at Lat 2&deg;
