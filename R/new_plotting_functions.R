@@ -74,3 +74,75 @@ library(ggmap)
 	do.call(ggsave, save.options)
 	}
 	
+
+plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
+   Quantiles<-Result$Results$Quantiles
+   if (scheme[1]=="horizontal") {
+      par(mfrow=c(1,2)) 
+   } else {
+      par(mfrow=c(2,1)) 
+   }
+ 
+   par(mar=c(2,4,3,1),cex=1)
+   Sys.setlocale("LC_ALL", "English")  
+
+   #------here I have create the equinox dates..
+   Years<-unique(format(Quantiles$time, format="%Y"))
+   eq<-c(as.POSIXct(paste(Years, "-09-22 00:00:00 GMT", sep="")), as.POSIXct(paste(Years, "-03-20 12:00:00 GMT", sep="")))
+   eq<-eq[eq>min(Quantiles$time) & eq<max(Quantiles$time)]
+   #-------
+   
+   #------- vert grid
+   
+   Vert_grid<-seq(as.POSIXct("2000-01-01"), as.POSIXct("2030-01-01"), by="month")
+   Vert_grid<-Vert_grid[Vert_grid>=min(Quantiles$time) & Vert_grid<=max(Quantiles$time)]
+  
+   #Longitude
+   plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grey(0.1),pch=16,
+      ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
+      Quantiles$UCI.lon )), type="n", axes=F)
+   axis(2)
+   axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
+   box()
+
+   #################
+   # add vertical lines for the first day of every month
+   
+   abline(v=Vert_grid, col=grey(0.5), lty=2)
+   abline(h=seq(-180, 180, by=10), col=grey(0.5), lty=2)
+   
+   abline(v=eq, col=2, lwd=2, lty=1)
+  
+
+   polygon(x=c(Quantiles$time, rev(Quantiles$time)), 
+      y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
+      col=grey(0.9), border=grey(0.5))
+
+   polygon(x=c(Quantiles$time, rev(Quantiles$time)),
+   y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
+   col=grey(0.7), border=grey(0.5))
+
+   lines(Quantiles$Medianlon~Quantiles$time, col=grey(0.1),lwd=2)
+   
+
+   #Latitude
+   par(mar=c(3,4,1,1))
+   
+   plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grey(0.1),
+     pch=16,ylab="Latitude",xlab="",lwd=2,
+     ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
+
+   abline(v=Vert_grid, col=grey(0.5), lty=2)
+   abline(h=seq(-80, 80, by=10), col=grey(0.5), lty=2)
+
+   abline(v=eq, col=2, lwd=2, lty=1)
+
+   polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
+           col=grey(0.9), border=grey(0.5))
+
+   polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
+           col=grey(0.7), border=grey(0.5))
+
+   lines(Quantiles$Medianlat~Quantiles$time, col=grey(0.1),lwd=2)
+
+}
