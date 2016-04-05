@@ -11,24 +11,24 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
    detected<-get.tag.type(TAGS.twilights)
 
    if (is.null(detected)) {
-      if (log.light.borders=='auto') stop("Unrecognized tag type, please supply log.light.borders\n")
-      if (log.irrad.borders=='auto') stop("Unrecognized tag type, please supply log.irrad.borders\n")
+      if (log.light.borders[1]=='auto') stop("Unrecognized tag type, please supply log.light.borders\n")
+      if (log.irrad.borders[1]=='auto') stop("Unrecognized tag type, please supply log.irrad.borders\n")
       if (sum(saves==c("max", "mean"))==2) stop("Unrecognized tag type, please supply either tell me what was tag saving - max or mean over saving period\n")
    } else {
       if (detected$log_tranformed) TAGS.twilights$light<-exp(TAGS.twilights$light)
       if(detected$tagtype=="Intigeo_Mode_1") {
-	     if (log.light.borders=='auto') log.light.borders<-c(1.5, 9)
-	     if (log.irrad.borders=='auto') log.irrad.borders<-c(-3,3)
+	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 9)
+	     if (log.irrad.borders==[1]'auto') log.irrad.borders<-c(-3,3)
 	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
 	  }
       if(detected$tagtype=="Intigeo_Mode_4") {
-	     if (log.light.borders=='auto') log.light.borders<-c(1.5, 7)
-	     if (log.irrad.borders=='auto') log.irrad.borders<-c(-3,3)
+	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 7)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
 	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
       }
       if(detected$tagtype=="mk") {
-	     if (log.light.borders=='auto') log.light.borders<-log(c(2, 63)) 
-	     if (log.irrad.borders=='auto') log.irrad.borders<-c(-5.75,1.5)
+	     if (log.light.borders[1]=='auto') log.light.borders<-log(c(2, 63)) 
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-5.75,1.5)
 	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
       }
    }

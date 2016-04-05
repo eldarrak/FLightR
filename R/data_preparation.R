@@ -5,8 +5,8 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
          calibration.start=as.POSIXct("1900-01-01"),
 		 calibration.stop=as.POSIXct("2050-01-01"),
 		 lon=location[1], lat=location[2])
-   if (log.light.borders=='auto') log.light.borders<-Proc.data$log.light.borders
-   if (log.irrad.borders=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
+   if (log.light.borders[1]=='auto') log.light.borders<-Proc.data$log.light.borders
+   if (log.irrad.borders[1]=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
 		 
    calibration.parameters<-get.calibration.parameters(Calibration.period,
          Proc.data, model.ageing=F, 
