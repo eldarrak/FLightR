@@ -18,7 +18,7 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
       if (detected$log_tranformed) TAGS.twilights$light<-exp(TAGS.twilights$light)
       if(detected$tagtype=="Intigeo_Mode_1") {
 	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 9)
-	     if (log.irrad.borders==[1]'auto') log.irrad.borders<-c(-3,3)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
 	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
 	  }
       if(detected$tagtype=="Intigeo_Mode_4") {
