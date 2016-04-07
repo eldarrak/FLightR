@@ -1,7 +1,7 @@
 Package: FLightR
 Type: Package
 Title: SSM for solar geolocation
-Version: 0.3.9
+Version: 0.4.0
 Date: 201-03-23
 Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contribution of Anatoly Saveliev and Julia Karagicheva
 Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
