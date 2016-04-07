@@ -14,3 +14,24 @@ BAStags2TAGS <- function(raw, twl, threshold) {
   return(out)
  }
 BAStag2TAGS <- BAStags2TAGS
+
+GeoLight2TAGS<-function (raw, gl_twl) {
+   names(raw) <- c("datetime", "light")
+   raw$twilight<-0
+   twl <- data.frame(datetime = as.POSIXct(c(gl_twl$tFirst, 
+      gl_twl$tSecond), "UTC"), twilight = c(gl_twl$type, ifelse(gl_twl$type == 
+      1, 2, 1)))
+   twl <- twl[!duplicated(twl$datetime),]
+   twl <- twl[order(twl[, 1]), ]
+   twl$light <- approx(x = raw$datetime, y = raw$light, xout = twl$datetime)$y
+
+   tmp01 <- merge(raw, twl, all.y = T, all.x = T)
+
+   out <- data.frame(datetime = tmp01[,1], light = tmp01[,2],
+                    twilight = tmp01[,3],
+                    interp = FALSE, excluded = FALSE)
+  out$interp[out$twilight>0] <- TRUE
+  out<-out[order(out[,1]),]
+  out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
+  return(out)
+   }
