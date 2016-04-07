@@ -11,6 +11,7 @@ Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. a
 ## Install package
 We used FLightR 0.3.6 version, so you might want to install it if you want to get exactly the same results.
 
+**NB: Updated workflow for FLightR >= 0.3.9 is [here](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis_new_workflow.Rmd)**
 ```{r, eval = F}
 library(devtools)
 install_github("eldarrak/FLightR@0.3.6") # note the version
