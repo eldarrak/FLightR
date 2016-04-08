@@ -588,8 +588,13 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	Quantiles<-c()
 	CIntervals<-c()
 	for (i in 1:length(Points)) {
-	Quantiles<-rbind(Quantiles, c(summary(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),2]), Mode=in.Data$Spatial$Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),1]), Mode=in.Data$Spatial$Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
-	CIntervals<-rbind(CIntervals, c(quantile(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),2], probs = c(0.025, 0.975)), quantile(in.Data$Spatial$Grid[inverse.rle(Points[[i]]),1], probs = c(0.025, 0.975))))
+	cur_Grid<-in.Data$Spatial$Grid
+	cur_Grid[,1]<-ifelse(cur_Grid[,1]<0, 360+in.Data$Spatial$Grid[,1], in.Data$Spatial$Grid[,1])
+	Mode_cur<-	cur_Grid[Points[[100]]$values[which.max(Points[[100]]$lengths)],1]
+	
+	cur_Grid[,1]<-ifelse(cur_Grid[,1]<Mode_cur-180, cur_Grid[,1]+360, cur_Grid[,1])
+	Quantiles<-rbind(Quantiles, c(summary(cur_Grid[inverse.rle(Points[[i]]),2]), Mode=cur_Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(cur_Grid[inverse.rle(Points[[i]]),1]), Mode=cur_Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
+	CIntervals<-rbind(CIntervals, c(quantile(cur_Grid[inverse.rle(Points[[i]]),2], probs = c(0.025, 0.975)), quantile(cur_Grid[inverse.rle(Points[[i]]),1], probs = c(0.025, 0.975))))
 	}
 	Quantiles<-as.data.frame(Quantiles)
 	names(Quantiles)[1:6]<-paste(names(Quantiles)[1:6], "lat", sep="")
