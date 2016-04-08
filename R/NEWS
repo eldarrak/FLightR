@@ -13,4 +13,5 @@
 # ver 0.3.5 Nove 2015 correction in time - positions match
 # ver 0.3.6 03 Dec 2015 new boundaries for Intigeo tags, changes in black-tailed godwit examples many bug fixes
 # ver. 0.3.8 bigMemory and new workflow
-# ver. 0.3.9 no preestimated distances and angles - attempt to save memory on large spatial extents.
+# ver. 0.3.9 no preestimated distances and angles - attempt to save memory on large spatial extents, new workflow
+# ver. 0.4.0 solving dateline isssues for ploitting
