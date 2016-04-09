@@ -96,9 +96,11 @@ library(ggmap)
 	
 	p<-ggmap::ggmap(background, maprange=T)
 	if (plot.cloud) {
-	 p<-p+stat_density2d(data=data.frame(Points), aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) +
-     scale_fill_gradient(low = "green", high = "red") +
-     scale_alpha(range = c(0.00, 0.25), guide = FALSE) 
+	
+	 p<-p+stat_density2d(data=data.frame(Points), aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
+	 
+	 p<-p+ scale_fill_gradient(low = "green", high = "red") 
+	 p<-p+ scale_alpha(range = c(0.00, 0.25), guide = FALSE) 
      }
 	 p<-p+coord_map(projection="mercator", 
      xlim=c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon),
@@ -106,14 +108,18 @@ library(ggmap)
      theme(legend.position = "none", axis.title = element_blank(), text = element_text(size = 12))
     
     # here I plot track for selected dates
+	
+	Points2plot<-data.frame(lat=Result$Results$Quantiles$Medianlat,lon=Result$Results$Quantiles$Medianlon)
+	if (overdateline )Points2plot[,2]=Points2plot[,2]-360
+	
     if (is.null(dates)) {
-        p<-p+ geom_path(data=data.frame(lat=Result$Results$Quantiles$Medianlat,lon=Result$Results$Quantiles$Medianlon),aes(x=lon,y=lat),  colour=grey(0.3))+
-        geom_point(data=data.frame(lat=Result$Results$Quantiles$Medianlat,lon=Result$Results$Quantiles$Medianlon), shape="+",  colour=grey(0.3))
+        p<-p+ geom_path(data=Points2plot,aes(x=lon,y=lat),  colour=grey(0.3))
+		p<-p+  geom_point(data=Points2plot, shape="+",  colour=grey(0.3))
 	} else {
 	   for (segment in 1:nrow(dates)) {
 	      cur_twilights<-which(Result$Results$Quantiles$time>=dates[segment,1] & Result$Results$Quantiles$time<=dates[segment,2])
-          p<-p+ geom_path(data=data.frame(lat=Result$Results$Quantiles$Medianlat[cur_twilights],lon=Result$Results$Quantiles$Medianlon[cur_twilights]),aes(x=lon,y=lat),  colour=grey(0.3))+
-          geom_point(data=data.frame(lat=Result$Results$Quantiles$Medianlat[cur_twilights],lon=Result$Results$Quantiles$Medianlon[cur_twilights]), shape="+",  colour=grey(0.3))
+          p<-p+ geom_path(data=Points2plot[cur_twilights,],aes(x=lon,y=lat),  colour=grey(0.3))+
+          geom_point(data=Points2plot[cur_twilights,], shape="+",  colour=grey(0.3))
 	   }
 	}
 	plot(p)
