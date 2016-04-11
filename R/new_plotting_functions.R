@@ -96,7 +96,7 @@ library(ggmap)
 	
 	p<-ggmap::ggmap(background, maprange=T)
 	if (plot.cloud) {
-	
+	 #if (overdateline) Points[,1]<-ifelse(Points[,1]>0, Points[,1]-360, Points[,1])
 	 p<-p+stat_density2d(data=data.frame(Points), aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
 	 
 	 p<-p+ scale_fill_gradient(low = "green", high = "red") 
