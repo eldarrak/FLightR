@@ -115,7 +115,10 @@ return(Outliers1_c)
 
 
 detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.outlier.proportion=0.2, simple.version=F) {
-
+if (!requireNamespace("tsoutliers", quietly = TRUE)) {
+    stop("Pkg tsoutliers needed for this function to work. Please install it.",
+      call. = FALSE)
+  }
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 

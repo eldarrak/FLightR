@@ -1,6 +1,6 @@
 
 
-map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto") {
+map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
@@ -95,6 +95,7 @@ library(ggmap)
     background <-do.call(ggmap::get_map, map.options)
 	
 	p<-ggmap::ggmap(background, maprange=T)
+
 	if (plot.cloud) {
 	 #if (overdateline) Points[,1]<-ifelse(Points[,1]>0, Points[,1]-360, Points[,1])
 	 p<-p+stat_density2d(data=data.frame(Points), aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
@@ -127,6 +128,7 @@ library(ggmap)
     if (is.null(save.options)) save.options<-list()
 	if (is.null(save.options$filename)) save.options$filename<-"FLightR.map.pdf"
 	do.call(ggsave, save.options)
+	if (return.ggobj) return(p)
 	}
 	
 
@@ -201,3 +203,4 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
    lines(Quantiles$Medianlat~Quantiles$time, col=grey(0.1),lwd=2)
 
 }
+
