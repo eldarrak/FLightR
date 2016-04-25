@@ -31,6 +31,5 @@ Imports:
 	ggmap
 Suggests:
     tsoutliers
-
 License: GNU GPL v3.0
 ByteCompile: true
