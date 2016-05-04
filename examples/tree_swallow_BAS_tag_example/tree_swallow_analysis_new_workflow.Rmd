@@ -58,6 +58,12 @@ b-a
 save(Result, file="TRES.749.0.4.0.new.boundaries.RData")
 
 
+map.FLightR.ggmap(Result)
+
+
+
+
+
 all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=start)
 
 all.in$Calibration<-Calibration

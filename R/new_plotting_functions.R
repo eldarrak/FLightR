@@ -111,7 +111,7 @@ library(ggmap)
     # here I plot track for selected dates
 	
 	Points2plot<-data.frame(lat=Result$Results$Quantiles$Medianlat,lon=Result$Results$Quantiles$Medianlon)
-	if (overdateline )Points2plot[,2]=Points2plot[,2]-360
+	if (overdateline | max(Points2plot[,2]>attr(background, "bb")$ur.lon)) Points2plot[,2]=Points2plot[,2]-360
 	
     if (is.null(dates)) {
         p<-p+ geom_path(data=Points2plot,aes(x=lon,y=lat),  colour=grey(0.3))
