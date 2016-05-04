@@ -66,9 +66,9 @@ library(ggmap)
 		   map.options$zoom=zoom_cur
 		   background <-do.call(ggmap::get_map, map.options)
 		   bb<-attr(background, 'bb')
+	      if (overdateline) {
 		   bb[2]<-ifelse(bb[2]< (-180), bb[2]+360, bb[2])
 		   bb[4]<-ifelse(bb[4]< (-180), bb[4]+360, bb[4])
-	      if (overdateline) {
 
 		   if (!(
 		     location[1]<bb[2] &

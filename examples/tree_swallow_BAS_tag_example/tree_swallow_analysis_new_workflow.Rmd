@@ -1,0 +1,213 @@
+
+# Tree swallow BAS tag geolocator analysis
+This file is UPDATED supplementart material for the FLightR paper:
+*A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity*, Movement ecology (2015). http://dx.doi.org/10.1186/s40462-015-0062-5.
+I have updated it for FLightR >= 0.4.0
+## Install package and read data
+```{r}
+require(devtools)
+install_github("eldarrak/FLightR@0.4.0") # note the version
+require(FLightR)
+```
+###Download data from GitHub
+For now I will assume that one use the TAGS service (http://tags.animalmigration.org) and saved light-twilight data from there. Below we download data in the TAGS outpur format
+```{r}
+download.file(
+ "https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/tree_swallow_BAS_tag_example/749.csv",
+ "749.csv")
+
+Proc.data<-get.tags.data("749.csv")
+light.borders<-c(4, 61)
+log.light.borders<-log(light.borders)
+log.irrad.borders<-c(-6.5, 4)
+
+
+Proc.data<-get.tags.data('749.csv', log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, end.date='2012-05-13')
+
+plot.slopes.by.location(Proc.data=Proc.data, location=c(-80.46,	42.62))
+
+abline(v=as.POSIXct("2012-04-11")) # fine
+abline(v=as.POSIXct("2011-07-13")) # fine
+```
+I will use both calibration periods  - one in the beginning and another in the end. Now we create a data.frame where each line is one of the calibration periods. and the columns are start, end, x, y.
+
+```{r}
+
+Calibration.periods<-data.frame(
+        calibration.start=as.POSIXct(c(NA, "2012-04-11")),
+        calibration.stop=as.POSIXct(c("2011-07-13", NA)),
+        lon=-80.46, lat=42.62) #use c() also for the geographic coordinates, if you have more than one calibration location (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+print(Calibration.periods)
+
+Calibration<-make.calibration(Proc.data, Calibration.periods, model.ageing=TRUE)
+
+Grid<-make.grid(left=-92, bottom=15, right=-70, top=45, distance.from.land.allowed.to.use=c(-Inf, Inf), distance.from.land.allowed.to.stay=c(-Inf, Inf))
+
+all.in<-make.prerun.object(Proc.data, Grid, start=c(-80.46, 42.625), Calibration=Calibration)
+
+nParticles=1e6
+a= Sys.time()
+Result<-run.particle.filter(all.in, save.Res=F, threads=-1,
+                nParticles=nParticles, known.last=TRUE,
+		precision.sd=25, save.memory=T, k=NA,
+		parallel=T,  plot=T, prefix="pf",
+		extend.prefix=T, cluster.type="SOCK",
+		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F)
+b= Sys.time()
+b-a
+save(Result, file="TRES.749.0.4.0.new.boundaries.RData")
+
+
+all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=start)
+
+all.in$Calibration<-Calibration
+all.in$Data<-FLightR.data
+```
+Now we estimate likelihoods for every point of the grid at every twilight.
+
+```{r}
+# the next step might have some time
+# with the current example it takes about 5 min at 24 core workstation
+
+Threads= detectCores()-1
+Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
+                              Proc.data$Twilight.log.light.mat.dusk,
+							  Proc.data$Twilight.time.mat.dawn,
+							  Proc.data$Twilight.log.light.mat.dawn,
+							  threads=Threads, calibration=all.in$Calibration)
+
+all.in$Spatial$Phys.Mat<-Phys.Mat
+
+```
+Doing some preliminary checks now:
+First, we plot likelihood surface for a sample twilight
+```{r}
+t=10
+my.golden.colors <- colorRampPalette(c("white","#FF7100"))
+
+image.plot(as.image(all.in$Spatial$Phys.Mat[,t], x=all.in$Spatial$Grid[,1:2],nrow=60, ncol=60),
+				   col=my.golden.colors(64), main=paste("twilight number",t ))			
+library(maps)
+map('world', add=T)
+map('state', add=T)
+abline(v=start[1])
+abline(h=start[2])			
+```
+And second we mutiply likelihoods by each other and see where the results is going to be.
+
+```{r}
+my.golden.colors <- colorRampPalette(c("white","#FF7100"))
+
+#if (FALSE) {
+par(mfrow=c(3,3), ask=T)
+for (t in seq(1,dim(all.in$Spatial$Phys.Mat)[2], by=30)) {
+# ok now I want to see how stable my estimates are.
+image.plot(as.image(apply(all.in$Spatial$Phys.Mat[,t:(t+30)],1,  FUN=prod),
+           x=all.in$Spatial$Grid[,1:2], nrow=60, ncol=60),
+		   col=my.golden.colors(64), main=paste("twilight number", t))
+library(maps)
+map('world', add=T)
+map('state', add=T)
+abline(v=start[1])
+abline(h=start[2])
+}
+#}
+
+dev.off()
+```
+## Main run
+For the main run you might want to select:
+   1. nParticles 1e4 - is for test is 1e6 is for the main run
+   2. known.last select TRUE if you know that in the end of data collection tag was in a known place
+   3. check.outliers - additional on a fly outliers selection. Normally shoud be chosen as TRUE.
+   
+```{r}
+Threads= detectCores()-1
+a= Sys.time()
+Result<-run.particle.filter(all.in, save.Res=F, cpus=min(Threads,6),
+                            nParticles=1e6, known.last=TRUE,
+							precision.sd=25, save.memory=T, k=NA,
+							parallel=T,  plot=T, prefix="pf",
+							extend.prefix=T, cluster.type="SOCK",
+							a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=T)
+b= Sys.time()
+b-a
+save(Result, file="Result.ageing.model.-5.75.1.5.RData")
+
+```
+This is it. Now we can do some plotting.
+First, plot a map:
+```{r}
+
+par(mfrow=c(1,1))
+par(mar=c(4,4,3,1),las=1,mgp=c(2.25,1,0))
+
+#--------------------------------------------------------
+# we can plot either mean or median.
+
+Mean_coords<-cbind(Result$Results$Quantiles$Meanlon, Result$Results$Quantiles$Meanlat)
+if (is.null(Result$Results$Quantiles$MedianlatJ)) {
+	Median_coords<-cbind(Result$Results$Quantiles$Medianlon, Result$Results$Quantiles$Medianlat)
+} else {
+	Median_coords<-cbind(Result$Results$Quantiles$MedianlonJ, Result$Results$Quantiles$MedianlatJ)
+}
+plot(Median_coords, type = "n",ylab="Latitude",xlab="Longitude")
+library(maptools)
+data(wrld_simpl)
+plot(wrld_simpl, add = T, col = "grey95", border="grey70")
+lines(Median_coords, col = "darkgray", cex = 0.1)
+points(Median_coords, pch = 16, cex = 0.75, col = "darkgray")
+lines(Mean_coords, col = "blue", cex = 0.1)
+points(Mean_coords, pch = 16, cex = 0.75, col = "blue")
+```
+And now longitudes and latitudes separately
+```{r}
+Quantiles<-Result$Results$Quantiles[1:length(Result$Indices$Matrix.Index.Table$Real.time),]
+Quantiles$Time<-Result$Indices$Matrix.Index.Table$Real.time
+
+par(mfrow=c(2,1))
+par(mar=c(2,4,3,1),cex=1)
+ Sys.setlocale("LC_ALL", "English")  
+
+#Longitude
+plot(Quantiles$Medianlon~Quantiles$Time, las=1,col=grey(0.1),pch=16,
+     ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
+	 Quantiles$UCI.lon )), type="n")
+
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
+         col=grey(0.9), border=grey(0.5))
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
+         col=grey(0.7), border=grey(0.5))
+
+lines(Quantiles$Medianlon~Quantiles$Time, col=grey(0.1),lwd=2)
+
+
+abline(v=as.POSIXct("2011-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+
+#Latitude
+par(mar=c(3,4,1,1))
+
+plot(Quantiles$Medianlat~Quantiles$Time, las=1,col=grey(0.1),
+     pch=16,ylab="Latitude",xlab="",lwd=2,
+	 ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
+           col=grey(0.9), border=grey(0.5))
+
+polygon(x=c(Quantiles$Time, rev(Quantiles$Time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
+           col=grey(0.7), border=grey(0.5))
+
+lines(Quantiles$Medianlat~Quantiles$Time, col=grey(0.1),lwd=2)
+
+abline(v=as.POSIXct("2011-09-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+abline(v=as.POSIXct("2012-03-22 21:34:30 EDT"), col=1, lwd=1, lty=2)
+```
+This is it... There are of cours many more things one could do with the data but we are not going to do.
+Let me know what else you would like to see..
+
+
+
+
