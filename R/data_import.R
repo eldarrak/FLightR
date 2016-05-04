@@ -27,8 +27,8 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
 	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
       }
       if(detected$tagtype=="mk") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-log(c(2, 63)) 
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-5.75,1.5)
+	     if (log.light.borders[1]=='auto') log.light.borders<-log(c(4, 61)) 
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,4)
 	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
       }
    }
