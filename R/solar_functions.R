@@ -113,7 +113,7 @@ elevation.GeoLight<-function(lon, lat, solarFLightR) {
 }
 
 
-solar<-function(gmt, mode=c("tripEstimation", "GeoLight")) {
+solar.FLightR<-function(gmt, mode=c("tripEstimation", "GeoLight")) {
 if (mode[1]=="tripEstimation") {
 	solar.tripEstimation(gmt)
 	} else {
@@ -121,7 +121,7 @@ if (mode[1]=="tripEstimation") {
 	}
 }
 
-elevation<-function(lon, lat, sun, mode=c("tripEstimation", "GeoLight")) {
+elevation.FLightR<-function(lon, lat, sun, mode=c("tripEstimation", "GeoLight")) {
 if (mode[1]=="tripEstimation") {
 	elevation.tripEstimation(lon, lat, sun)
 	} else {
