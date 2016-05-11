@@ -58,7 +58,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
-		Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+		Twilight.solar.vector<-solar.FLightR(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
 		
@@ -211,7 +211,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
         stop("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 		
 	if (is.null(Twilight.solar.vector))  {
-	Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
+	Twilight.solar.vector<-solar.FLightR(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
 	}    
 	Probability = 0
     Data <- check.boundaries(x, Twilight.solar.vector = Twilight.solar.vector, 
@@ -265,9 +265,9 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
 check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=F, Twilight.time.vector=NULL) {
 # this function...
 	if (is.null(Twilight.solar.vector))  {
-	Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
+	Twilight.solar.vector<-solar.FLightR(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
 	}
-	Elevs<-elevation(x[[1]], x[[2]], Twilight.solar.vector)
+	Elevs<-elevation.FLightR(x[[1]], x[[2]], Twilight.solar.vector)
 	LogIrrad<-log(get.Irradiance(Elevs*pi/180)+1e-20)
 	LogLight<-Twilight.log.light.vector
 	if (verbose) {

@@ -520,7 +520,7 @@ cat("   Estimating solar angles\n")
 cat("Time...")
 Time<-as.POSIXct(Track[,3], tz="gmt", origin="1970-01-01")
 cat("Solar...")
-S<-solar(Time)
+S<-solar.FLightR(Time)
 Track.row<-1:dim(Track)[1]
 cat("Angles...")
 Angles<-sapply(Track.row,  FUN=function(x) { elevation(Track[x,1], Track[x, 2], lapply(S, "[", i=x))})
@@ -735,7 +735,7 @@ get.time.correction.function<-function(parameters, measurement.period=60, saving
 To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2]) #
 All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, short.run=F, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
 
-Solar<-solar(as.POSIXct(All.slope.runs$gmt, tz="UTC", origin="1970-01-01"))
+Solar<-solar.FLightR(as.POSIXct(All.slope.runs$gmt, tz="UTC", origin="1970-01-01"))
 All.slope.runs$cosSolarDec<-Solar$cosSolarDec
 #save(All.slope.runs, file="All.slope.runs_time_correction_600.RData")
 
