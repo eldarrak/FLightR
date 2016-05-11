@@ -26,7 +26,8 @@ Depends:
 	snow,
 	Rcpp,
 	RcppArmadillo,
-	ggmap
+	ggmap,
+	ggsn
 Suggests:
     tsoutliers
 License: GNU GPL v3.0
