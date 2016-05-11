@@ -204,3 +204,213 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
 }
 
+
+get_buffer<-function(coords, r){
+  p = SpatialPoints(matrix(coords, ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
+  aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+                    p@coords[[2]], p@coords[[1]])
+  projected <- spTransform(p, CRS(aeqd))
+  buffered <- gBuffer(projected, width=r, byid=TRUE)
+  buffer_lonlat <- spTransform(buffered, CRS=p@proj4string)
+  return(buffer_lonlat)
+  }
+  
+get_gunion_r<-function(Result) {
+    Distances=  spDists(Result$Spatial$Grid[1:which.min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=T)
+    # ok, distances go up to 51.2.. the next step is 62.. 
+    # so if I round them 
+    Selected_dist<-unique(sort(round(Distances/10)*10))[2]
+    r<-Selected_dist*0.85*1000
+	return(r)
+  }
+  
+get_time_spent_buffer<-function(Result, dates, percentile=0.5, r=NULL) {
+# r in meters.. 
+	 if (is.null(dates)) {
+	     twilights.index<-1:length(Result$Results$Points.rle)
+	 } else {
+	    if (is.numeric(dates) & length(dates)==1) {
+		  twilights.index<-dates
+		} else {
+	      twilights.index<-c()
+	      for (segment in 1:nrow(dates)) {
+			twilights.index<-c(twilights.index, which(Result$Results$Quantiles$time>=dates[segment,1] & Result$Results$Quantiles$time<=dates[segment,2]))
+	        }
+			if (length(twilights.index)==0) stop("dates do not overlap with the track time span!")
+		}
+	  }
+	 
+         Points_rle<-Result$Results$Points.rle[twilights.index]
+         All.Points<-rep(0, nrow(Result$Spatial$Grid))
+         for (twilight in 1:length(twilights.index)) {
+             All.Points[Points_rle[[twilight]]$values]<-All.Points[Points_rle[[twilight]]$values] + Points_rle[[twilight]]$lengths
+         }
+		 
+  nParticles<- sum(Result$Results$Points.rle[[1]]$lengths)
+  
+  Order<-order(All.Points, decreasing=TRUE)
+  
+  Order_rle<-rle(All.Points[Order]) # 
+  
+  Cum_probs<-cumsum(Order_rle$values/nParticles/length(twilights.index))
+  
+  #Percentile=percentile
+  tmp<-which(Cum_probs<=percentile)
+  if (length(tmp)==0) { 
+  Selected_rle<-1 # if there is no such bin - return the most likely one
+  #return(ceiling(min(Cum_probs)*100)/100)
+  } else {
+  Selected_rle<-max(which(Cum_probs<=percentile))
+  }
+  #Points<-which(All.Points/nParticles/length(twilights.index)>percentile)
+  Points<-Order[1:sum(Order_rle$lengths[1:Selected_rle])]
+ 
+  #if (length(Points)==0) { 
+       #warning("bird dod not spend ", percentile, " of time in any point:\n     maximum time spent in on grid cell is ", floor(max(All.Points/nParticles/length(twilights.index))*100)/100, "\n")
+
+  
+  
+  # so this is the area where bird spent almost all the time (95%)
+  # how should we show it?
+  # yeah it could be some kind of a polygon or 
+  # if will combind points by distance
+  #  
+  
+  Points_selected<-(1:length(All.Points))[Points]
+ if (is.null(r)) {
+     r=get_gunion_r(Result)
+     }
+  #Now I want to create a spatial buffers around points with this radius
+  
+  #spoints = SpatialPoints(Result$Spatial$Grid[Points_selected,1:2], proj4string= CRS("+proj=longlat +datum=WGS84"))
+  
+  Buffers<-apply(matrix(Result$Spatial$Grid[Points_selected,1:2], ncol=2), 1, get_buffer, r=r)
+   Buff_comb<-Buffers[[1]] 
+   if (length(Buffers)>1) {
+   for (i in 2:length(Buffers)) {
+       Buff_comb<-gUnion(Buff_comb, Buffers[[i]])
+  }
+  }
+  Buff_comb_simpl<-gSimplify(Buff_comb, tol=0.01, topologyPreserve=T)
+  return(list(Buffer=Buff_comb_simpl, nPoints=length(Points)))
+  }
+
+
+plot_time_coverage<-function(Result, dates, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=TRUE) {
+
+
+if (is.null(color.palette)) color.palette <- colorRampPalette(rev(c("#edf8fb",
+                                    "#b3cde3",
+									"#8c96c6",
+									"#88419d")))
+# percentiles select area where bird spend at least xx percent of it's time
+percentiles<-sort(percentiles)
+
+r=get_gunion_r(Result)
+
+#--------------
+# Now I want to figure out minimum percentile plossible
+
+res_buffers<-c()
+nPoints<-c()
+for (percentile in percentiles) {
+res_cur<- get_time_spent_buffer(Result, dates, percentile, r)
+res_buffers<-c(res_buffers, res_cur$Buffer)
+nPoints<-c(nPoints, res_cur$nPoints)
+}
+
+# Now I want to take only the upper levels from identical nPoints
+Index_not_dupl<-(1:length(percentiles))[!duplicated(nPoints)]
+
+#-----------------#
+# and now we want to plot it
+
+if (is.null(background)) {
+
+# combine location with map options
+	if (is.null(map.options)) map.options<-list()
+	#if (is.null(map.options$location)) map.options$location<-location
+	if (is.null(map.options$zoom) & is.numeric(zoom)) map.options$zoom=zoom
+	if (is.null(map.options$col)) map.options$col="bw"
+	
+	location<-as.vector(extent(res_buffers[[length(res_buffers)]]))[c(1,3,2,4)]
+    background <-do.call(ggmap::get_map, map.options)
+    if (is.null(map.options$location)) map.options$location<-location
+
+	if (zoom=="auto") {
+
+	for (zoom_cur in (2:10)) {
+	map.options$zoom=zoom_cur
+	
+	background <-do.call(ggmap::get_map, map.options)
+	if (!(
+	location[1]>attr(background, 'bb')[2] &
+	location[2]>attr(background, 'bb')[1] &
+	location[3]<attr(background, 'bb')[4] &
+	location[4]<attr(background, 'bb')[3] )) {
+	break
+	}
+    }
+	map.options$zoom=zoom_cur-1
+    }
+	
+	background <-do.call(ggmap::get_map, map.options)
+    }
+    geom_polygon.options.external=geom_polygon.options
+	
+	p<-ggmap::ggmap(background)
+	#p<-ggmap::ggmap(background, extent = "normal", maprange=FALSE)
+	#p<-ggmap::ggmap(background, extent = "normal")
+	
+	Colors<-color.palette(length(res_buffers))
+	
+	for (i in length(res_buffers):1) {
+	
+	buff_cur<-res_buffers[[i]]
+	
+	if (is.null(geom_polygon.options)) geom_polygon.options=list()
+	if (is.null(geom_polygon.options$alpha)) geom_polygon.options$alpha=0.5
+	    
+    geom_path.options<-list()
+    geom_path.options$color<- geom_polygon.options$color
+	if (is.null(geom_path.options$color)) geom_path.options$color =ifelse(use.palette, Colors[i], '#756bb1')
+
+	if (is.null(geom_polygon.options$fill)) geom_polygon.options$fill =geom_path.options$color
+
+	geom_path.options$size<- geom_polygon.options$size
+	if (is.null(geom_path.options$size)) geom_path.options$size=2
+		
+	geom_path.options$size<- geom_polygon.options$size
+	if (is.null(geom_path.options$size)) geom_path.options$size=2
+
+	geom_path.options$alpha=0.8
+	
+	geom_path.options$linetype<- geom_polygon.options$linetype
+	geom_polygon.options$linetype=0
+	
+	geom_polygon.options$mapping=aes(x=long, y=lat, group=group)
+	geom_path.options$mapping=geom_polygon.options$mapping
+	
+	geom_polygon.options$data=buff_cur
+	geom_path.options$data=geom_polygon.options$data
+	p<-p+do.call(ggplot2::geom_polygon, geom_polygon.options)
+	p<-p+do.call(ggplot2::geom_path, geom_path.options)
+	
+	geom_polygon.options=geom_polygon.options.external
+	
+	}
+    if (plot) print(p)
+	if (add.scale.bar) {
+	BB<-attr(background, 'bb')
+    scale_data_frame<-data.frame(lat=as.numeric(BB[1, c(1, 3)]), long=as.numeric(BB[1,c(2,4)]))
+	p=p+scalebar(dist=25, dd2km = TRUE, model = 'WGS84', location='topright', y.min=as.numeric(BB[1, 1])+(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05, y.max=as.numeric(BB[1, 3])-(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05, x.min=as.numeric(BB[1, 2])-(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05, x.max=as.numeric(BB[1, 4])+(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05)
+    }	
+	if (save) {
+	   if (is.null(save.options))  save.options=list()
+	   if (is.null(save.options$filename)) save.options$filename<-"time_coverage.png"
+	   save.options$plot <-p
+	   save.options$dpi <-600
+	   tmp<-do.call(ggplot2::ggsave, save.options)
+	}
+	return(list(res_buffers=res_buffers, p=p))
+}
