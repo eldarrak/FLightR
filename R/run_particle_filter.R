@@ -5,7 +5,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
       threads<-cpus
@@ -60,14 +60,14 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nPartic
 	  
 	all.out$Results<-list(
 
-        Final.Means=cbind(all.out$Results$Final.Means[-1,],
+        #Final.Means=cbind(all.out$Results$Final.Means[-1,],
 		time=all.out$Indices$Matrix.Index.Table$time),
 		Quantiles=cbind(all.out$Results$Quantiles[-1,],
 		time=all.out$Indices$Matrix.Index.Table$time),
 		Movement.results=all.out$Results$Movement.results,
 		outliers=all.out$Results$outliers,
 		LL=all.out$Results$LL,
-		SD=all.out$Results$LL,
+		SD=all.out$Results$SD,
 		Points.rle=all.out$Results$Points.rle[-1],
 		Transitions.rle=all.out$Results$Transitions.rle,
 		tmp.results=all.out$Results$tmp.results)
@@ -77,13 +77,13 @@ run.particle.filter<-function(all.out, save.Res=T, cpus=NULL, threads=-1,nPartic
     #rm(All.results.mat)
     # plotting resuls
     if (plot) {
-      plot(CENTRE.y~CENTRE.x, type="p", data=all.out$Results$Final.Means, pch=3, col="blue", main="mean poistions")
+      plot(Meanlon~Meanlat, type="p", data=all.out$Results$Quantiles, pch=3, col="blue", main="mean poistions")
       #if (all.out$EMIter>1 & !is.null(all.out$Results$Final.Means)) {
       #  points(CENTRE.y~CENTRE.x, type="p", data=all.out.old$Results$Final.Means, pch=3, col="red")
       #  lines(CENTRE.y~CENTRE.x, data=all.out.old$Results$Final.Means, col="red")
       #}
-      points(CENTRE.y~CENTRE.x, type="p", data=all.out$Results$Final.Means, pch=3, col="blue")
-      lines(CENTRE.y~CENTRE.x, data=all.out$Results$Final.Means, col="blue")
+      points(Meanlon~Meanlat, type="p", data=all.out$Results$Quantiles, pch=3, col="blue")
+      lines(Meanlon~Meanlat, data=all.out$Results$Quantiles, col="blue")
       data("wrld_simpl", package="maptools")
       plot(wrld_simpl, add=T)
     }
@@ -558,21 +558,21 @@ return.matrix.from.char<-function(Res.txt) {
 
 
 get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
-  library("aspace")
+  #library("aspace")
   # this function will extract point coordinates from the output matrix.. 
   # the question is do we need only mean and sd or also median and quantiles?
   # I will start from mean and SD
   #plot(c(min(in.Data$Spatial$Grid[,1]),max(in.Data$Spatial$Grid[,1])), c(min(in.Data$Spatial$Grid[,2]),max(in.Data$Spatial$Grid[,2])), type="n")
-  log <- capture.output({
-    Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[inverse.rle(Points[[1]]),1:2])
-   
-  for (i in 2:length(Points)) {
-    Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[inverse.rle(Points[[i]]), 1:2])
+  #log <- capture.output({
+  #  Means=aspace:::calc_box(id=1,  points=in.Data$Spatial$Grid[inverse.rle(Points[[1]]),1:2])
+  # 
+  #for (i in 2:length(Points)) {
+  #  Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[inverse.rle(Points[[i]]), 1:2])
     #plot_box(plotnew=F, plotpoints=F)
-  }
-	})
+  #}
+	#})
    if (length(in.Data$Results)==0) in.Data$Results<-list()
-  in.Data$Results$Final.Means<-Means
+  #in.Data$Results$Final.Means<-Means
   
   #############
   # new part for medians

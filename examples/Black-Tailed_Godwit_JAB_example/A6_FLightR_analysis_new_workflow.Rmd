@@ -97,12 +97,9 @@ Within the function run.particle.filter, the following parameters can be preset:
 
 nParticles=1e6
 a= Sys.time()
-Result<-run.particle.filter(all.in, save.Res=F, threads=-1,
-                nParticles=nParticles, known.last=TRUE,
-		precision.sd=25, save.memory=T, k=NA,
-		parallel=T,  plot=T, prefix="pf",
-		extend.prefix=T, cluster.type="SOCK",
-		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F)
+Result<-run.particle.filter(all.in, threads=-1,
+            nParticles=nParticles, known.last=TRUE,
+		    precision.sd=25, check.outliers=F)
 b= Sys.time()
 b-a
 save(Result, file="Result.bltg.ageing.model.noOD.RData")

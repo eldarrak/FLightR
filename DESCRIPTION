@@ -21,7 +21,6 @@ Depends:
     truncnorm,
     parallel,
     bit,
-    aspace,
     rgdal,
     CircStats,
 	snow,
