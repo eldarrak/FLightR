@@ -61,7 +61,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	all.out$Results<-list(
 
         #Final.Means=cbind(all.out$Results$Final.Means[-1,],
-		time=all.out$Indices$Matrix.Index.Table$time),
+		#time=all.out$Indices$Matrix.Index.Table$time),
 		Quantiles=cbind(all.out$Results$Quantiles[-1,],
 		time=all.out$Indices$Matrix.Index.Table$time),
 		Movement.results=all.out$Results$Movement.results,
