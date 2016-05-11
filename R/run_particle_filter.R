@@ -77,13 +77,13 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     #rm(All.results.mat)
     # plotting resuls
     if (plot) {
-      plot(Meanlon~Meanlat, type="p", data=all.out$Results$Quantiles, pch=3, col="blue", main="mean poistions")
+      plot(Meanlat~Meanlon, type="p", data=all.out$Results$Quantiles, pch=3, col="blue", main="mean poistions")
       #if (all.out$EMIter>1 & !is.null(all.out$Results$Final.Means)) {
       #  points(CENTRE.y~CENTRE.x, type="p", data=all.out.old$Results$Final.Means, pch=3, col="red")
       #  lines(CENTRE.y~CENTRE.x, data=all.out.old$Results$Final.Means, col="red")
       #}
-      points(Meanlon~Meanlat, type="p", data=all.out$Results$Quantiles, pch=3, col="blue")
-      lines(Meanlon~Meanlat, data=all.out$Results$Quantiles, col="blue")
+      points(Meanlat~Meanlon, type="p", data=all.out$Results$Quantiles, pch=3, col="blue")
+      lines(Meanlat~Meanlon, data=all.out$Results$Quantiles, col="blue")
       data("wrld_simpl", package="maptools")
       plot(wrld_simpl, add=T)
     }
