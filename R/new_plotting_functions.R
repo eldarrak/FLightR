@@ -224,7 +224,7 @@ get_gunion_r<-function(Result) {
 	return(r)
   }
   
-get_time_spent_buffer<-function(Result, dates, percentile=0.5, r=NULL) {
+get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 # r in meters.. 
 	 if (is.null(dates)) {
 	     twilights.index<-1:length(Result$Results$Points.rle)
@@ -296,8 +296,7 @@ get_time_spent_buffer<-function(Result, dates, percentile=0.5, r=NULL) {
   }
 
 
-plot_time_coverage<-function(Result, dates, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=TRUE) {
-
+plot_time_coverage<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=TRUE) {
 
 if (is.null(color.palette)) color.palette <- colorRampPalette(rev(c("#edf8fb",
                                     "#b3cde3",
