@@ -331,8 +331,8 @@ if (is.null(background)) {
 	#if (is.null(map.options$location)) map.options$location<-location
 	if (is.null(map.options$zoom) & is.numeric(zoom)) map.options$zoom=zoom
 	if (is.null(map.options$col)) map.options$col="bw"
-	print(str(extent(res_buffers[[length(res_buffers)]])))
-	location<-as.vector(extent(res_buffers[[length(res_buffers)]]))[c(1,3,2,4)]
+	Extent<-extent(res_buffers[[length(res_buffers)]])
+	location<-c(Extent@xmin, Extent@ymin, Extent@xmax, Extent@ymax)
     background <-do.call(ggmap::get_map, map.options)
     if (is.null(map.options$location)) map.options$location<-location
 
