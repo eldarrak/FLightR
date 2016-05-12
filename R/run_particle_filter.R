@@ -5,7 +5,7 @@
 # run_particle.filter.R
 # functions used during the main run
 
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="SOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="PSOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
       threads<-cpus
@@ -153,7 +153,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   }
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="SOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
   # this dunction is doing main job. it works on the secondary master
   ### to make algorhytm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
