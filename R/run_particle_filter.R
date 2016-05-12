@@ -41,9 +41,9 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 
   }	else mycl=NA
     if (parallel) {
-    tryCatch(Res<-FLightR:::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers), finally = stopCluster(mycl))
+    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers), finally = stopCluster(mycl))
 	} else {	
-    Res<-FLightR:::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
 	}
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
@@ -52,7 +52,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp.results<-Res$Results$tmp.results
     # Part 2a. Estimating log likelihood
-    LL<-FLightR:::get.LL.PF(all.out, Res$Points)
+    LL<- get.LL.PF(all.out, Res$Points)
     cat("+----------------------------------+\n")
     cat("|     estimated negative Log Likelihood is",  LL, "\n")
     cat("+----------------------------------+\n")
@@ -64,8 +64,8 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
       all.out.old<-all.out
-      all.out<-FLightR:::get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
-      Movement.parameters<-FLightR:::estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
+      all.out<- get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
+      Movement.parameters<- estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
@@ -676,7 +676,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Directions<-Trans
   for (i in 1:length(Trans)) {
     Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
-    Directions[[i]]$values<-apply(Movement_Points, 1, FUN=FLightR:::dir_fun, in.Data)
+    Directions[[i]]$values<-apply(Movement_Points, 1, FUN= dir_fun, in.Data)
   }
   cat("   estimating mean directions\n")
   Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats:::circ.mean(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)*180/pi))
@@ -699,7 +699,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   
   ## 
     if (estimatetruncnorm) {
-  Mean.and.Sigma<-lapply(Distances, FUN=function(x) FLightR:::mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
+  Mean.and.Sigma<-lapply(Distances, FUN=function(x)  mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
   #}
   Mean.Dists<-sapply(Mean.and.Sigma, "[[", i=1)
   cat("   estimating dists SD\n")
@@ -815,7 +815,7 @@ get.coords.jitter<-function(in.Data) {
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
-	tmp<-try(apply(coords, 1, FLightR:::coords.aeqd.jitter, r=JitRadius, n=1 ))
+	tmp<-try(apply(coords, 1,  coords.aeqd.jitter, r=JitRadius, n=1 ))
 	jitter_coords<-NULL
 	if (class(tmp)!="try-error") {
 	jitter_coords<-t(sapply(tmp, coordinates))
@@ -846,7 +846,7 @@ get.LL.PF<-function(in.Data, data) {
 pf.par.internal<-function(x, Current.Proposal) {
   # this simple function is needed to save I/0 during parallel run. Being executed at a slave it creates inoput for the next function taking Current proposal from the slave and Parameters from the master
   new.Parameters<-c(x=list(x), get("Parameters"), Current.Proposal=list(Current.Proposal))
-  Res<-do.call(FLightR:::generate.points.dirs, new.Parameters)
+  Res<-do.call( generate.points.dirs, new.Parameters)
   return(Res)
 }
 
