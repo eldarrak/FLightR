@@ -7,6 +7,13 @@
 
 #' Run Particle Filter
 #' 
+#' \code{run.particle.filter} 
+#'
+#' This is the main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} nd produces a result object that can be used for plotiing.
+#' @param all.out An object created by \code{\link{make.prerun.object}}.
+#' @param threads An amount of threads to use while running in parallel. default is -1.
+#' @return Result object.
+
 run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="PSOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
