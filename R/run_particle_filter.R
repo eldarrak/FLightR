@@ -262,7 +262,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     else {
       cat(" initial diversity is ", nSeq)
       #New.Points<-clusterApplyLB(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
-      New.Points<-parallel:::clusterApply(mycl, Last.State.List,  FLightR::pf.par.internal, Current.Proposal)
+      New.Points<-parallel:::clusterApply(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
 	  cat("  Done\n")
     }
     #=======================================================
@@ -296,13 +296,13 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
         #===================================
         #Prev.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
 		
-        Prev.Dirs<-apply(matrix(c(Last.Last.Particles, Last.Particles), ncol=2), 1, FLightR::dir_fun, in.Data)/180*pi
+        Prev.Dirs<-apply(matrix(c(Last.Last.Particles, Last.Particles), ncol=2), 1, dir_fun, in.Data)/180*pi
 		
         #New.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
-        New.Dirs<-apply(matrix(c(Last.Particles, New.Particles), ncol=2), 1, FLightR::dir_fun, in.Data)/180*pi
+        New.Dirs<-apply(matrix(c(Last.Particles, New.Particles), ncol=2), 1, dir_fun, in.Data)/180*pi
 		
         FromTo=matrix(c(Prev.Dirs, New.Dirs), ncol=2)
-        if (parallel) {Angles.probs<-parallel:::parApply(mycl, FromTo, 1, FLightR::flightr.dvonmises, mykap=k)
+        if (parallel) {Angles.probs<-parallel:::parApply(mycl, FromTo, 1, flightr.dvonmises, mykap=k)
         } else {
           Angles.probs<-apply(FromTo,1, FUN=function(x, k) as.numeric(suppressWarnings(circular:::dvonmises(x[[2]], mu=x[[1]], kappa=k))), k=k)
         }
@@ -347,12 +347,12 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	# the AB ones wil have folowing..
 	#BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
 
-	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, FLightR::dir_fun, in.Data)
+	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, dir_fun, in.Data)
 	
 	BA.moved<-which(!is.na(BA.dir))
 	BA.mean<-mean.circular(circular(resample(BA.dir[BA.moved], replace=T,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=T)
 	#cat(BA.mean)	#BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
-	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, FLightR::dir_fun, in.Data)
+	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, dir_fun, in.Data)
 	
 	BC.moved<-which(!is.na(BC.dir))
 	BC.mean<-mean.circular(circular(resample(BC.dir[BC.moved], replace=T, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=T)
@@ -521,7 +521,7 @@ if (is.na(ESS)) {
       #  All.results<-paste(All.results, Results.stack[,1], sep=".")
       #}
       # save transitions
-      Trans[[Time.Period-L]]<-FLightR::get.transition.rle(Results.stack[,1], Results.stack[,2])
+      Trans[[Time.Period-L]]<-get.transition.rle(Results.stack[,1], Results.stack[,2])
       # clean Results.stack
       Results.stack<-Results.stack[,-1]
       # clean Weights.stack
@@ -534,7 +534,7 @@ cat("******************\n")
   # now we need to add final point!
   
   if (known.last) {
-    Results.stack<-FLightR::pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, last.particles=Results.stack[,ncol(Results.stack)])
+    Results.stack<-pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, last.particles=Results.stack[,ncol(Results.stack)])
   }
   
   if (!is.list(Points)) Points<-vector(mode = "list")
@@ -552,7 +552,7 @@ cat("******************\n")
     if (rest<Length) {
       # save transitions
       #Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
-      Trans[[length(Trans)+1]]<-FLightR::get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
+      Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
     }
   }
   if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
@@ -616,7 +616,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	# doing jitter first
 	if (add.jitter) {
 	cat("adding jitter to medians\n")
-	jitter_coords<-FLightR::get.coords.jitter(in.Data)
+	jitter_coords<-get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
 	Quantiles$MedianlonJ<-jitter_coords[,1]
 	Quantiles$MedianlatJ<-jitter_coords[,2]
