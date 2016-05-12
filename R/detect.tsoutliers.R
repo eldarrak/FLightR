@@ -137,12 +137,12 @@ if (!is.null(Threads)) {
 	cat("estimating dusk errors projection on equator\n")
 	
 	Dusks<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
-	Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x))
+	tryCatch(Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x)), finally = stopCluster(mycl))
 	
 	cat("estimating dawn errors projection on equator\n")
 	
 	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dawn)[2])
-	Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x))
+	tryCatch(Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x)), finally = stopCluster(mycl))
 	stopCluster(mycl)
 
 } else {
