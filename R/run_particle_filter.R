@@ -14,6 +14,7 @@
 #' @param threads An amount of threads to use while running in parallel. default is -1.
 #' @return Result object.
 
+#' @export
 run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="PSOCK", a=45, b=500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
@@ -40,9 +41,9 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 
   }	else mycl=NA
     if (parallel) {
-    tryCatch(Res<-pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers), finally = stopCluster(mycl))
+    tryCatch(Res<-FLightR::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers), finally = stopCluster(mycl))
 	} else {	
-    Res<-pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<-FLightR::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
 	}
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
@@ -51,7 +52,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp.results<-Res$Results$tmp.results
     # Part 2a. Estimating log likelihood
-    LL<-get.LL.PF(all.out, Res$Points)
+    LL<-FLightR::get.LL.PF(all.out, Res$Points)
     cat("+----------------------------------+\n")
     cat("|     estimated negative Log Likelihood is",  LL, "\n")
     cat("+----------------------------------+\n")
@@ -63,8 +64,8 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
       all.out.old<-all.out
-      all.out<-get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
-      Movement.parameters<-estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
+      all.out<-FLightR::get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
+      Movement.parameters<-FLightR::estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
@@ -108,7 +109,6 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
   cat("DONE!\n")
   return(all.out)
 }
-
 
 generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   # this function is needed to generate new points - it works as from input point Index and biological proposal
@@ -256,13 +256,13 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     if (nSeq==1 | (!parallel)) {
       #cat("non.parallel\n")
       #New.Points<-t(lapply(Last.State, 1, pf.par.internal, Current.Proposal))			
-      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
+      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(FLightR::generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
       #New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
     }
     else {
       cat(" initial diversity is ", nSeq)
       #New.Points<-clusterApplyLB(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
-      New.Points<-parallel:::clusterApply(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
+      New.Points<-parallel:::clusterApply(mycl, Last.State.List,  FLightR::pf.par.internal, Current.Proposal)
 	  cat("  Done\n")
     }
     #=======================================================
@@ -296,13 +296,13 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
         #===================================
         #Prev.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Last.Particles, Last.Particles)]/180*pi
 		
-        Prev.Dirs<-apply(matrix(c(Last.Last.Particles, Last.Particles), ncol=2), 1, dir_fun, in.Data)/180*pi
+        Prev.Dirs<-apply(matrix(c(Last.Last.Particles, Last.Particles), ncol=2), 1, FLightR::dir_fun, in.Data)/180*pi
 		
         #New.Dirs<-in.Data$Spatial$tmp$Azimuths[cbind(Last.Particles,New.Particles)]/180*pi
-        New.Dirs<-apply(matrix(c(Last.Particles, New.Particles), ncol=2), 1, dir_fun, in.Data)/180*pi
+        New.Dirs<-apply(matrix(c(Last.Particles, New.Particles), ncol=2), 1, FLightR::dir_fun, in.Data)/180*pi
 		
         FromTo=matrix(c(Prev.Dirs, New.Dirs), ncol=2)
-        if (parallel) {Angles.probs<-parallel:::parApply(mycl, FromTo, 1, my.dvonmises, mykap=k)
+        if (parallel) {Angles.probs<-parallel:::parApply(mycl, FromTo, 1, FLightR::flightr.dvonmises, mykap=k)
         } else {
           Angles.probs<-apply(FromTo,1, FUN=function(x, k) as.numeric(suppressWarnings(circular:::dvonmises(x[[2]], mu=x[[1]], kappa=k))), k=k)
         }
@@ -347,12 +347,12 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	# the AB ones wil have folowing..
 	#BA.dir<-in.Data$Spatial$tmp$Azimuths[Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1)]]
 
-	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, dir_fun, in.Data)
+	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, FLightR::dir_fun, in.Data)
 	
 	BA.moved<-which(!is.na(BA.dir))
 	BA.mean<-mean.circular(circular(resample(BA.dir[BA.moved], replace=T,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=T)
 	#cat(BA.mean)	#BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
-	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, dir_fun, in.Data)
+	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, FLightR::dir_fun, in.Data)
 	
 	BC.moved<-which(!is.na(BC.dir))
 	BC.mean<-mean.circular(circular(resample(BC.dir[BC.moved], replace=T, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=T)
@@ -521,7 +521,7 @@ if (is.na(ESS)) {
       #  All.results<-paste(All.results, Results.stack[,1], sep=".")
       #}
       # save transitions
-      Trans[[Time.Period-L]]<-get.transition.rle(Results.stack[,1], Results.stack[,2])
+      Trans[[Time.Period-L]]<-FLightR::get.transition.rle(Results.stack[,1], Results.stack[,2])
       # clean Results.stack
       Results.stack<-Results.stack[,-1]
       # clean Weights.stack
@@ -534,7 +534,7 @@ cat("******************\n")
   # now we need to add final point!
   
   if (known.last) {
-    Results.stack<-pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, last.particles=Results.stack[,ncol(Results.stack)])
+    Results.stack<-FLightR::pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, last.particles=Results.stack[,ncol(Results.stack)])
   }
   
   if (!is.list(Points)) Points<-vector(mode = "list")
@@ -552,7 +552,7 @@ cat("******************\n")
     if (rest<Length) {
       # save transitions
       #Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
-      Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
+      Trans[[length(Trans)+1]]<-FLightR::get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
     }
   }
   if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
@@ -563,11 +563,10 @@ cat("******************\n")
   return(list(Points=Points, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results)))
 }
 
-
-return.matrix.from.char<-function(Res.txt) {
+#return.matrix.from.char<-function(Res.txt) {
   #this function is needed to get matrix from character vector
-  return(t(sapply(strsplit(Res.txt, "\\."), as.integer)))
-}
+#  return(t(sapply(strsplit(Res.txt, "\\."), as.integer)))
+#}
 
 
 get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
@@ -617,7 +616,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	# doing jitter first
 	if (add.jitter) {
 	cat("adding jitter to medians\n")
-	jitter_coords<-get.coords.jitter(in.Data)
+	jitter_coords<-FLightR::get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
 	Quantiles$MedianlonJ<-jitter_coords[,1]
 	Quantiles$MedianlatJ<-jitter_coords[,2]
@@ -677,7 +676,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Directions<-Trans
   for (i in 1:length(Trans)) {
     Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
-    Directions[[i]]$values<-apply(Movement_Points, 1, FUN=dir_fun, in.Data)
+    Directions[[i]]$values<-apply(Movement_Points, 1, FUN=FLightR::dir_fun, in.Data)
   }
   cat("   estimating mean directions\n")
   Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats:::circ.mean(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)*180/pi))
@@ -700,7 +699,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   
   ## 
     if (estimatetruncnorm) {
-  Mean.and.Sigma<-lapply(Distances, FUN=function(x) mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
+  Mean.and.Sigma<-lapply(Distances, FUN=function(x) FLightR::mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
   #}
   Mean.Dists<-sapply(Mean.and.Sigma, "[[", i=1)
   cat("   estimating dists SD\n")
@@ -816,7 +815,7 @@ get.coords.jitter<-function(in.Data) {
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
-	tmp<-try(apply(coords, 1, coords.aeqd.jitter, r=JitRadius, n=1 ))
+	tmp<-try(apply(coords, 1, FLightR::coords.aeqd.jitter, r=JitRadius, n=1 ))
 	jitter_coords<-NULL
 	if (class(tmp)!="try-error") {
 	jitter_coords<-t(sapply(tmp, coordinates))
@@ -847,12 +846,12 @@ get.LL.PF<-function(in.Data, data) {
 pf.par.internal<-function(x, Current.Proposal) {
   # this simple function is needed to save I/0 during parallel run. Being executed at a slave it creates inoput for the next function taking Current proposal from the slave and Parameters from the master
   new.Parameters<-c(x=list(x), get("Parameters"), Current.Proposal=list(Current.Proposal))
-  Res<-do.call(generate.points.dirs, new.Parameters)
+  Res<-do.call(FLightR::generate.points.dirs, new.Parameters)
   return(Res)
 }
 
 
-my.dvonmises<-function(x, mykap) {
+flightr.dvonmises<-function(x, mykap) {
   return(as.numeric(suppressWarnings(circular:::dvonmises(x[[2]], mu=x[[1]], kappa=mykap))))}
 
   
@@ -866,7 +865,8 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Rows<- suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights)))
     return(results.stack[Rows,])
 }
-	dir_fun<-function(x, in.Data) {
+
+dir_fun<-function(x, in.Data) {
 	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
-	}
+}
 	
