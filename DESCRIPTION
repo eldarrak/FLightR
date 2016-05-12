@@ -19,7 +19,6 @@ Depends:
     forecast,
     circular,
     truncnorm,
-	snow,
     parallel,
     bit,
     rgdal,
