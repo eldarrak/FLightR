@@ -20,13 +20,14 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     all.out$Results$LL<-vector(mode = "double")
 	
   if (parallel) {
-    cat("creating cluster with", Threads, "threads\n")
+    cat("creating cluster with", Threads, "threads")
     mycl <- parallel:::makeCluster(Threads, type=cluster.type)
     parallel:::clusterSetRNGStream(mycl)
     ### we don' need to send all parameters to node. so keep it easy..
     #parallel:::clusterEvalQ(mycl, library("circular")) 
     #parallel:::clusterEvalQ(mycl, library("truncnorm")) 
 	parallel:::clusterEvalQ(mycl, library("FLightR")) 
+	cat('   Done\n')
 
   }	else mycl=NA
 
