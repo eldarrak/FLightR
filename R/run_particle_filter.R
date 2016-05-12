@@ -41,9 +41,9 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 
   }	else mycl=NA
     if (parallel) {
-    tryCatch(Res<-FLightR::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers), finally = stopCluster(mycl))
+    tryCatch(Res<-FLightR:::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers), finally = stopCluster(mycl))
 	} else {	
-    Res<-FLightR::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<-FLightR:::pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
 	}
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
@@ -52,7 +52,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp.results<-Res$Results$tmp.results
     # Part 2a. Estimating log likelihood
-    LL<-FLightR::get.LL.PF(all.out, Res$Points)
+    LL<-FLightR:::get.LL.PF(all.out, Res$Points)
     cat("+----------------------------------+\n")
     cat("|     estimated negative Log Likelihood is",  LL, "\n")
     cat("+----------------------------------+\n")
@@ -64,8 +64,8 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       cat("estimating results object\n")
       all.out.old<-all.out
-      all.out<-FLightR::get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
-      Movement.parameters<-FLightR::estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
+      all.out<-FLightR:::get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
+      Movement.parameters<-FLightR:::estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
@@ -130,9 +130,9 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
 	#Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
-	Dists.distr<- sp::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=T)
+	Dists.distr<- sp:::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=T)
 	
-    Dists.probs<-truncnorm::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
+    Dists.probs<-truncnorm:::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
     #  library(fields)
     # dists
@@ -140,7 +140,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     #
     if (Current.Proposal$Kappa>0) {
       #Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
-      Angles.dir<-maptools::gzAzimuth(from=in.Data$Spatial$Grid[,c(1,2)], to=in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], type="abdali")
+      Angles.dir<-maptools:::gzAzimuth(from=in.Data$Spatial$Grid[,c(1,2)], to=in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], type="abdali")
 	  
       Angles.probs<-as.numeric(suppressWarnings(circular:::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
       Angles.probs[is.na(Angles.probs)]<-0
@@ -676,7 +676,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Directions<-Trans
   for (i in 1:length(Trans)) {
     Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
-    Directions[[i]]$values<-apply(Movement_Points, 1, FUN=FLightR::dir_fun, in.Data)
+    Directions[[i]]$values<-apply(Movement_Points, 1, FUN=FLightR:::dir_fun, in.Data)
   }
   cat("   estimating mean directions\n")
   Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats:::circ.mean(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)*180/pi))
@@ -699,7 +699,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   
   ## 
     if (estimatetruncnorm) {
-  Mean.and.Sigma<-lapply(Distances, FUN=function(x) FLightR::mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
+  Mean.and.Sigma<-lapply(Distances, FUN=function(x) FLightR:::mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
   #}
   Mean.Dists<-sapply(Mean.and.Sigma, "[[", i=1)
   cat("   estimating dists SD\n")
@@ -770,7 +770,7 @@ mu.sigma.truncnorm<-function(x, a=45, b=500) {
 # this is used optionally
   if (length(unique(x))>1) {
     tr.norm<-function(prm) {
-      sum(-log(truncnorm::dtruncnorm(as.numeric(x),a=a,b=b,mean=prm[1],sd=prm[2])))
+      sum(-log(truncnorm:::dtruncnorm(as.numeric(x),a=a,b=b,mean=prm[1],sd=prm[2])))
     }
     Res=try(optim(c(mean(x),sd(x)), tr.norm, method="BFGS"))
     #if (class(Res)=="try-error") Res=try(optim(c(mean(x),sd(x)), tr.norm,method="SANN"))
@@ -815,7 +815,7 @@ get.coords.jitter<-function(in.Data) {
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
-	tmp<-try(apply(coords, 1, FLightR::coords.aeqd.jitter, r=JitRadius, n=1 ))
+	tmp<-try(apply(coords, 1, FLightR:::coords.aeqd.jitter, r=JitRadius, n=1 ))
 	jitter_coords<-NULL
 	if (class(tmp)!="try-error") {
 	jitter_coords<-t(sapply(tmp, coordinates))
@@ -846,7 +846,7 @@ get.LL.PF<-function(in.Data, data) {
 pf.par.internal<-function(x, Current.Proposal) {
   # this simple function is needed to save I/0 during parallel run. Being executed at a slave it creates inoput for the next function taking Current proposal from the slave and Parameters from the master
   new.Parameters<-c(x=list(x), get("Parameters"), Current.Proposal=list(Current.Proposal))
-  Res<-do.call(FLightR::generate.points.dirs, new.Parameters)
+  Res<-do.call(FLightR:::generate.points.dirs, new.Parameters)
   return(Res)
 }
 
@@ -861,7 +861,7 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
   #Weights<-dnorm(in.Data$Spatial$tmp$Distance[Final.points.modeled, Final.point.real], mean=0, sd=precision.sd)
-  Weights<-dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], longlat=TRUE), mean=0, sd=precision.sd)
+  Weights<-dnorm(  sp:::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], longlat=TRUE), mean=0, sd=precision.sd)
   Rows<- suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights)))
     return(results.stack[Rows,])
 }
