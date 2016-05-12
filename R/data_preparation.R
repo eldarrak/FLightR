@@ -1,5 +1,5 @@
 # data_preparation functions
-
+#' @export
 plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
    Calibration.period<-data.frame(
          calibration.start=as.POSIXct("1900-01-01"),
@@ -17,7 +17,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 
 }
 
-
+#' @export
 make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE) {
    Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-"1900-01-01"
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-"2100-01-01"
@@ -66,7 +66,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE) {
    return(Calibration)
    }
 
-
+#' @export
 make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.1, Direction=0,Kappa=0, M.mean=300, M.sd=500) {
 if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
 if (length(Direction)>1) stop("Direction has to have length of 1, to sepcify it per twilight, change it in the result object of this function")

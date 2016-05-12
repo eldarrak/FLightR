@@ -1,7 +1,7 @@
 #######################
 # here are the functions that read data
 
-
+#' @export
 get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
  # measurement.period should be set to saving period for swiss tags
    TAGS.twilights<-read.csv(filename, stringsAsFactors =F)
@@ -113,7 +113,7 @@ get.tag.type<-function(TAGS.twilights) {
 }
 
 
-
+#' @export
 convert.lux.to.tags<-function(file, log=F, log.light.borders=c(1,10)) {
 	# the function takes the current (2015)
 	# .lux format and converts it to .csv format that

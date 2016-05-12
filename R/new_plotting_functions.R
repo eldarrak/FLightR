@@ -1,5 +1,5 @@
 
-
+#' @export
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
@@ -131,7 +131,7 @@ library(ggmap)
 	if (return.ggobj) return(p)
 	}
 	
-
+#' @export
 plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
    Quantiles<-Result$Results$Quantiles
    if (scheme[1]=="horizontal") {
@@ -298,7 +298,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
   return(list(Buffer=Buff_comb_simpl, nPoints=length(Points)))
   }
 
-
+#' @export
 plot_time_coverage<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
 if (is.null(color.palette)) color.palette <- colorRampPalette(rev(c("#edf8fb",

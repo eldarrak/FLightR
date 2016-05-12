@@ -1,6 +1,7 @@
 # this function creates a spatial mask
 # the main feture is that it will search for any land in the ditance of xx meters, 
 
+#' @export
 make.grid<-function(left=-180, bottom=-90,
                     right=180, top=90,
 					distance.from.land.allowed.to.use=c(-Inf,Inf),
