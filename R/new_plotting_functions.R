@@ -226,6 +226,9 @@ get_gunion_r<-function(Result) {
   
 get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 # r in meters.. 
+# dates could be either NULL - for plotting all available dates,
+# or numeric with length of one - to plot a specific twilight by number (row number in Quantiles)
+# or data.frame with two columns - one for the first date in period and one for the last date in period.
 	 if (is.null(dates)) {
 	     twilights.index<-1:length(Result$Results$Points.rle)
 	 } else {
@@ -296,7 +299,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
   }
 
 
-plot_time_coverage<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=TRUE) {
+plot_time_coverage<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
 if (is.null(color.palette)) color.palette <- colorRampPalette(rev(c("#edf8fb",
                                     "#b3cde3",
@@ -400,9 +403,20 @@ if (is.null(background)) {
 	}
     if (plot) print(p)
 	if (add.scale.bar) {
+	if (is.null(scalebar.options)) scalebar.options=list()
 	BB<-attr(background, 'bb')
-    scale_data_frame<-data.frame(lat=as.numeric(BB[1, c(1, 3)]), long=as.numeric(BB[1,c(2,4)]))
-	p=p+scalebar(dist=25, dd2km = TRUE, model = 'WGS84', location='topright', y.min=as.numeric(BB[1, 1])+(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05, y.max=as.numeric(BB[1, 3])-(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05, x.min=as.numeric(BB[1, 2])-(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05, x.max=as.numeric(BB[1, 4])+(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05)
+
+	if (is.null(scalebar.options$dist)) scalebar.options$dist=max(((abs(as.numeric(BB[1, 4])-as.numeric(BB[1, 2]))*100*0.1)%/%25)*25, 25)
+	
+	scalebar.options$dd2km <- TRUE
+	scalebar.options$model <- 'WGS84'
+	if (is.null(scalebar.options$location)) scalebar.options$location <- 'topright'
+	scalebar.options$y.min=as.numeric(BB[1, 1])+(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05
+	scalebar.options$y.max=as.numeric(BB[1, 3])-(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05
+	scalebar.options$x.min=as.numeric(BB[1, 2])-(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05
+	scalebar.options$x.max=as.numeric(BB[1, 4])+(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05
+	
+	p=p+do.call(ggsn::scalebar, scalebar.options)
     }	
 	if (save) {
 	   if (is.null(save.options))  save.options=list()
