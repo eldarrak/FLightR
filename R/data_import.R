@@ -1,8 +1,22 @@
-#######################
-# here are the functions that read data
+#' The function reads the data frame with detected twilight events into the FlightR. 
+
+#' @Usage
+get.tags.data (filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("max", "mean", "auto"), measurement.period=NULL,  impute.on.boundaries=FALSE)
+
+#' @param Filename the name of the file which the data are to be read from. File is supposed ot be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file (see file). Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL. (For the supported URL schemes, see the ‘URLs’ section of the help for url.)
+#' @parma start.date date of beginning of relevant data collection in POSICct format.
+#' @param end.date date of end of relevant data collection in POSICct format.
+#' @param log.light.borders Numeric vector with length of 2 for minimum and maximum log(light) levels to use. Alternatively character value 'auto', that will allow FLightR to assign these values according to detected tag type.
+#' @ param log.irrad.borders Numeric vector with length of 2 for minimum and maximum log(irradiance) values to use. Alternatively character value 'auto', that will allow FLightR to assign these values according to detected tag type.
+#' @param saves character values informing FLightR if min or max values were used by logger.
+#' @param measurement.period Value in seconds defining how often tag was measuring light levels. If NULL value will be taken from known values for detected tag type.
+#' @ param impute.on.boundaries logical, if FLightR should approximate valeues at boundaries. Set it to TRUE only if you have vary few active poitns at each twilight, e.g if tag was saving every 10 minutes or so.
+
+#' Function returns an object, which is to be further processed with the FlightR. The object contains (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data).
+
 
 #' @export
-get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
+get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("auto", "max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
  # measurement.period should be set to saving period for swiss tags
    TAGS.twilights<-read.csv(filename, stringsAsFactors =F)
 
@@ -13,23 +27,23 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
    if (is.null(detected)) {
       if (log.light.borders[1]=='auto') stop("Unrecognized tag type, please supply log.light.borders\n")
       if (log.irrad.borders[1]=='auto') stop("Unrecognized tag type, please supply log.irrad.borders\n")
-      if (sum(saves==c("max", "mean"))==2) stop("Unrecognized tag type, please supply either tell me what was tag saving - max or mean over saving period\n")
+      if (length(saves)==3 | saves[1]=='auto') stop("Unrecognized tag type, please  tell FLightR what was tag saving - max or mean over saving period\n")
    } else {
       if (detected$log_tranformed) TAGS.twilights$light<-exp(TAGS.twilights$light)
       if(detected$tagtype=="Intigeo_Mode_1") {
 	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 9)
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
-	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
+	     if (saves[1] =='auto') saves<-"max"
 	  }
       if(detected$tagtype=="Intigeo_Mode_4") {
 	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 7)
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
-	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
+	     if (saves[1] =='auto') saves<-"max"
       }
       if(detected$tagtype=="mk") {
 	     if (log.light.borders[1]=='auto') log.light.borders<-log(c(4, 61)) 
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,4)
-	     if (sum(saves==c("max", "mean"))==2) saves<-"max"
+	     if (saves[1] =='auto') saves<-"max"
       }
    }
 
