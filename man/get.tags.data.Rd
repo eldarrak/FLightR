@@ -24,7 +24,7 @@ get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
 
 \item{impute.on.boundaries}{logical, if FLightR should approximate valeues at boundaries. Set it to TRUE only if you have vary few active poitns at each twilight, e.g if tag was saving every 10 minutes or so.}
 
-\item{Filename}{the name of the file which the data are to be read from. File is supposed ot be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file (see file). Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL. (For the supported URL schemes, see the ‘URLs’ section of the help for url.)}
+\item{Filename}{the name of the file which the data are to be read from. File is supposed ot be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file (see file). Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL. For the supported URL schemes, see the ‘URLs’ section of the help for url.}
 }
 \description{
 The function reads the data frame with detected twilight events into the FlightR.
