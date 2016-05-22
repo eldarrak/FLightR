@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_import.R
 \name{get.tags.data}
 \alias{get.tags.data}
-\title{The function reads the data frame with detected twilight events into the FlightR.}
+\title{Reads the data frame with detected twilight events into the FlightR.}
 \usage{
 get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
   log.light.borders = "auto", log.irrad.borders = "auto",
@@ -10,9 +10,11 @@ get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
   impute.on.boundaries = FALSE)
 }
 \arguments{
-\item{start.date}{date of beginning of relevant data collection in POSICct format.}
+\item{filename}{the name of the file which the data are to be read from. File is supposed ot be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file (see file). Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL. For the supported URL schemes, see the ‘URLs’ section of the help for url.}
 
-\item{end.date}{date of end of relevant data collection in POSICct format.}
+\item{start.date}{date of beginning of relevant data collection in POSIXct format.}
+
+\item{end.date}{date of end of relevant data collection in POSIXct format.}
 
 \item{log.light.borders}{Numeric vector with length of 2 for minimum and maximum log(light) levels to use. Alternatively character value 'auto', that will allow FLightR to assign these values according to detected tag type.}
 
@@ -23,11 +25,9 @@ get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
 \item{measurement.period}{Value in seconds defining how often tag was measuring light levels. If NULL value will be taken from known values for detected tag type.}
 
 \item{impute.on.boundaries}{logical, if FLightR should approximate valeues at boundaries. Set it to TRUE only if you have vary few active poitns at each twilight, e.g if tag was saving every 10 minutes or so.}
-
-\item{Filename}{the name of the file which the data are to be read from. File is supposed ot be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file (see file). Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL. For the supported URL schemes, see the ‘URLs’ section of the help for url.}
 }
 \description{
-The function reads the data frame with detected twilight events into the FlightR.
+Reads the data frame with detected twilight events into the FlightR.
 }
 \details{
 Function returns an object, which is to be further processed with the FlightR. The object contains (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data).
