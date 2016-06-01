@@ -472,7 +472,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (plot) {
 		Coef<-try(coef(lm(Res[,1]~Res[,2])))
 		if (class(Coef)!='try-error') {
-		    plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
+		    plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
 		    print(Coef)
 		} else {
 		   plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
@@ -480,7 +480,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		   points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
 		   par(ask = T)
 	    if (class(Coef)!='try-error') {
-		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
+		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
 		} else {
 		   plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
 		}
