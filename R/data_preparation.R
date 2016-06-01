@@ -45,7 +45,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          Calibration.periods, Proc.data,
           model.ageing=model.ageing,
 		  log.light.borders=Proc.data$log.light.borders,
-		  log.irrad.borders=Proc.data$log.irrad.borders
+		  log.irrad.borders=Proc.data$log.irrad.borders,
 		  plot.each= plot.each, plot.final= plot.final)
 
    if (length(calibration.parameters$calib_outliers)>0) {
