@@ -473,8 +473,12 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (verbose) print(Res)
 	# and now we want to return 
 	if (plot) {
-		Coef<-coef(lm(Res[,1]~Res[,2]))
-		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]))
+		Coef<-try(coef(lm(Res[,1]~Res[,2])))
+		if (class(Coef!='try-error')) {
+		    plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]))
+		} else {
+		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"))
+		}
 		points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
 		print(Coef)
 		par(ask = T)
