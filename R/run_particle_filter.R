@@ -555,7 +555,7 @@ cat("******************\n")
       Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
     }
   }
-  if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
+  #if (parallel)   parallel:::clusterEvalQ(mycl, rm(Parameters)) 
   #if (length(existing.cluster)==1) parallel:::stopCluster(cl = mycl)
   if (sink2file) sink()
   tmp.results<-list(AB.distance=in.Data$AB.distance, AC.distance2=in.Data$AC.distance2, Dif.ang=in.Data$Dif.ang)
