@@ -102,7 +102,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
       plot(wrld_simpl, add=T)
     }
     gc()
-  if (parallel) parallel:::stopCluster(cl =mycl)
+  #if (parallel) parallel:::stopCluster(cl =mycl)
   
   all.out$Spatial$tmp<-NULL
   
