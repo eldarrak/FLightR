@@ -41,7 +41,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE) {
    Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-"1900-01-01"
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-"2100-01-01"
-   calibration.parameters<-get.calibration.parameters(
+   calibration.parameters<-FLightR:::get.calibration.parameters(
          Calibration.periods, Proc.data,
           model.ageing=model.ageing,
 		  log.light.borders=Proc.data$log.light.borders,
@@ -53,22 +53,22 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
       Proc.data<-process.twilights(Proc.data$FLightR.data$Data, 
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
-         measurement.period=Proc.data$measurement.period, saving.period=Proc.data$measurement.period,
+         measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
-         calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, 
+         calibration.parameters<-FLightR:::get.calibration.parameters(Calibration.periods, Proc.data, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders)
-         plot.slopes(calibration.parameters$All.slopes)
+         FLightR:::plot.slopes(calibration.parameters$All.slopes)
    }
    # second time search for outliers..
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
-      Proc.data<-process.twilights(Proc.data$FLightR.data$Data, 
+      Proc.data<-FLightR:::process.twilights(Proc.data$FLightR.data$Data, 
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
-         measurement.period=Proc.data$measurement.period, saving.period=Proc.data$measurement.period,
+         measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
-         calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data, 
+         calibration.parameters<-FLightR:::get.calibration.parameters(Calibration.periods, Proc.data, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders)
          plot.slopes(calibration.parameters$All.slopes)
@@ -77,7 +77,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    
    
    
-   Calibration=create.calibration(calibration.parameters$All.slopes,
+   Calibration=FLightR:::create.calibration(calibration.parameters$All.slopes,
                  Proc.data,
 				 Proc.data$FLightR.data,
 				 log.light.borders=Proc.data$log.light.borders, log.irrad.borders=Proc.data$log.irrad.borders,
