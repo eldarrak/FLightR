@@ -1,0 +1,2 @@
+# these files are supplementary materials to 
+Karagicheva J., Saveliev A., Piersma, T., Rakhimberdiev E. 2016 FLightR: An R package for reconstructing animal paths from solar geolocation loggers. In prep.
