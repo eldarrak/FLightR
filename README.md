@@ -39,5 +39,5 @@ Vignette for the package is still to come :(
 I am also slowly developing [wiki pages for the package] (https://github.com/eldarrak/FLightR/wiki)
 
 -------------
-Discussion web forum for solar geolocation is available at [ornithologyexchange](http://ornithologyexchange.org/forums/forum/259-geolocator-discussion-support/). Ask there if you need help with the FLightR _per se_ on with solar geolocation in general.
+Discussion web forum for solar geolocation is available at [ornithologyexchange](http://ornithologyexchange.org/forums/forum/259-geolocator-discussion-support/). Ask there if you need help with the FLightR _per se_ or with solar geolocation in general.
 
