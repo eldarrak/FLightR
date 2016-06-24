@@ -24,7 +24,7 @@ Just contact me if results come out strange.
 
 ##Examples of packages use:
 
-1.  [new (>=0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis_new_workflow.Rmd)
+1.  [new (>=0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/0.4.0/examples/Black-Tailed_Godwit_FLightR_vignette/A6_FLightR_analysis_new_workflow.Rmd)
 2.  [old (<0.3.9) workflow for tree swallow example with BAS tag](https://github.com/eldarrak/FLightR/blob/master/examples/tree_swallow_BAS_tag_example/tree_swallow_analysis.Rmd)
 3.  [old (<0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis.Rmd)
 
@@ -32,7 +32,7 @@ Do not know what the difference between BAS and Intigeo is? In short intigeo are
 
 -------------
 
-Help files and vignette for the package are still to come :(
+Vignette for the package is still to come :(
 
 -------------
 
