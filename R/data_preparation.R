@@ -80,7 +80,6 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
 		 Proc.data$Twilight.log.light.mat.dusk<-Proc.data_tmp$Twilight.log.light.mat.dusk
 		 Proc.data$Twilight.log.light.mat.dawn<-Proc.data_tmp$Twilight.log.light.mat.dawn
-
    }   
    
    
