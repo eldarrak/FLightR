@@ -50,7 +50,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
-      FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
+      FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
       Proc.data<-FLightR:::process.twilights(Proc.data$FLightR.data$Data, 
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
@@ -63,7 +63,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    # second time search for outliers..
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
-      FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<3600)]<-1
+      FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
       Proc.data<-FLightR:::process.twilights(Proc.data$FLightR.data$Data, 
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
@@ -330,8 +330,7 @@ if (is.null(calibration.type)) calibration.type="parametric.slope"
 cat("calibration method used:", calibration.type, "\n")
 
 Calib.data.all$fTwilight<-Calib.data.all$fDay
-#Calib.data.all<-Calib.data.all[-which(Calib.data.all$fTwilight%in% c(191, 222, 249, 250)),]
-# Calib.data.all<-Calib.data.all[-which(Calib.data.all$fTwilight%in% c( 222)),]
+
 #============================
 # we should do some outlier tests...
 cur.data<-Calib.data.all
@@ -499,7 +498,7 @@ All.slopes.int<-All.slopes
 
 All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
 
-calib_outliers<-All.slopes.int$Slopes$Time[which(abs(log(All.slopes.int$Slopes$Slope)-mean(log(All.slopes.int$Slopes$Slope), na.rm=T))>3*sd(log(All.slopes.int$Slopes$Slope), na.rm=TRUE))]
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(All.slopes.int$Slopes$logSlope-mean(All.slopes.int$Slopes$logSlope, na.rm=T))>3*sd(All.slopes.int$Slopes$logSlope, na.rm=TRUE))]
 
 Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
 }
