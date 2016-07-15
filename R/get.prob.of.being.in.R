@@ -2,6 +2,7 @@
 # These functions extract from results probabilities of being inside a specific set of the grid points and also dates for these probabilities
 # first version added 11-05-2015
 
+#' @export
 get.prob.of.being.in<-function(Result, Index ) {
 Prob.of.being.in<-c()
 
@@ -30,7 +31,7 @@ if (length(Transitions) ==0 ) {
 	}
 }
 
-
+#' @export
 find.times.distribution<-function(Prob.of.being.in, time, plot=F) {
 # let's start from 0.5 
 quantiles=c(0.025, 0.25, 0.5, 0.75, 0.975)

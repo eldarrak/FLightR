@@ -3,11 +3,11 @@
 
 get.equatorial.max<-function(Proc.data, calibration, dusk=T, Twilight.ID, center=NULL) {
 if (dusk) {
-Twilight.solar.vector<-solar(as.POSIXct(Proc.data$Twilight.time.mat.dusk[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+Twilight.solar.vector<-solar.FLightR(as.POSIXct(Proc.data$Twilight.time.mat.dusk[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
 Twilight.log.light.vector<-Proc.data$Twilight.log.light.mat.dusk[c(1:24, 26:49), Twilight.ID]
 Twilight.time.vector=Proc.data$Twilight.time.mat.dusk[c(1:24, 26:49), Twilight.ID]
 } else {
-Twilight.solar.vector<-solar(as.POSIXct(Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+Twilight.solar.vector<-solar.FLightR(as.POSIXct(Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
 Twilight.log.light.vector<-Proc.data$Twilight.log.light.mat.dawn[c(1:24, 26:49), Twilight.ID]
 Twilight.time.vector=Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.ID]
 }
@@ -113,9 +113,12 @@ abline(v=Outliers1$ind[Outliers1$type=="TC"], col="brown")
 return(Outliers1_c)
 }
 
-
+#' @export
 detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.outlier.proportion=0.2, simple.version=F) {
-
+if (!requireNamespace("tsoutliers", quietly = TRUE)) {
+    stop("Pkg tsoutliers needed for this function to work. Please install it.",
+      call. = FALSE)
+  }
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
 
@@ -134,12 +137,12 @@ if (!is.null(Threads)) {
 	cat("estimating dusk errors projection on equator\n")
 	
 	Dusks<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
-	Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x))
+	tryCatch(Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x)), finally = stopCluster(mycl))
 	
 	cat("estimating dawn errors projection on equator\n")
 	
 	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dawn)[2])
-	Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x))
+	tryCatch(Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x)), finally = stopCluster(mycl))
 	stopCluster(mycl)
 
 } else {

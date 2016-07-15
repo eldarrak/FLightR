@@ -1,12 +1,13 @@
 # this function creates a spatial mask
 # the main feture is that it will search for any land in the ditance of xx meters, 
 
+#' @export
 make.grid<-function(left=-180, bottom=-90,
                     right=180, top=90,
 					distance.from.land.allowed.to.use=c(-Inf,Inf),
-					distance.from.land.allowed.to.stay=c(-Inf, Inf), plot=TRUE, return.distances=FALSE) {
+					distance.from.land.allowed.to.stay=c(-Inf, Inf), plot=TRUE, return.distances=FALSE, probability.of.staying=0.5) {
    bb<-c(left, bottom, right, top)
-   Points<-FLightR::Points
+   Points<-FLightR:::Points
    
    if (distance.from.land.allowed.to.stay[1]> -25) distance.from.land.allowed.to.stay[1]<- -25
    if (distance.from.land.allowed.to.stay[2]<25) distance.from.land.allowed.to.stay[2]<- 25
@@ -29,6 +30,7 @@ make.grid<-function(left=-180, bottom=-90,
 	}
     Stay<-as.numeric(All.Points.Focus[,3] > distance.from.land.allowed.to.stay[1]) & as.numeric(All.Points.Focus[,3]<distance.from.land.allowed.to.stay[2])
     Grid<-cbind(All.Points.Focus[,1:2], Stay)
+	Grid[,3][Grid[,3]==0]<-probability.of.staying
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
         plot(Grid, type="n")

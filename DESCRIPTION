@@ -1,11 +1,13 @@
 Package: FLightR
 Type: Package
-Title: SSM for solar geolocation
+Title: template fit SSM for solar geolocation
 Version: 0.4.0
-Date: 201-03-23
-Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contribution of Anatoly Saveliev and Julia Karagicheva
+Date: 2016-05-11
+Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contributions of Anatoly
+    Saveliev and Julia Karagicheva
 Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
-Description: The scope of the package is to position animal using data from solar geolocation tags
+Description: The scope of the package is to position animal using data from
+    solar geolocation tags
 URL: http://github.com/eldarrak/FLightR
 BugReports: http://github.com/eldarrak/FLightR/issues
 Depends:
@@ -16,18 +18,19 @@ Depends:
     geosphere,
     raster,
     fields,
-    tsoutliers,
     forecast,
     circular,
     truncnorm,
     parallel,
     bit,
-    aspace,
     rgdal,
     CircStats,
-	snow,
-	Rcpp,
-	RcppArmadillo,
-	ggmap
+    Rcpp,
+    RcppArmadillo,
+    ggmap,
+    ggsn
+Suggests:
+    tsoutliers
 License: GNU GPL v3.0
 ByteCompile: true
+RoxygenNote: 5.0.1

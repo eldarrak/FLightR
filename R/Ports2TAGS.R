@@ -1,3 +1,4 @@
+#' @export
 BAStags2TAGS <- function(raw, twl, threshold) {
   # function by Simeon
   names(raw) <- c("Twilight", "Light")
@@ -13,8 +14,11 @@ BAStags2TAGS <- function(raw, twl, threshold) {
   out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
   return(out)
  }
+
+#' @export
 BAStag2TAGS <- BAStags2TAGS
 
+#' @export
 GeoLight2TAGS<-function (raw, gl_twl) {
    names(raw) <- c("datetime", "light")
    raw$twilight<-0

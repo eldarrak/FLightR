@@ -22,18 +22,24 @@ mycl <- parallel:::makeCluster(threads)
     tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
 
 #====================
+tryCatch( {
 cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	 All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
+	All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
 		 	
 cat("estimating dawns\n")
 	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		 All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
-stopCluster(mycl)
-
+	All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
+	
+	}, finally = stopCluster(mycl))
+	
+    #if(!is.null(mycl)) {
+    #   parallel::stopCluster(mycl)
+    #   mycl <- c()
+    #}
 cat("processing results\n")
 All.probs.dusk.tmp<-All.probs.dusk
 All.probs.dawn.tmp<-All.probs.dawn
@@ -58,7 +64,7 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
-		Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+		Twilight.solar.vector<-solar.FLightR(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
 		
@@ -211,7 +217,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
         stop("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 		
 	if (is.null(Twilight.solar.vector))  {
-	Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
+	Twilight.solar.vector<-solar.FLightR(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
 	}    
 	Probability = 0
     Data <- check.boundaries(x, Twilight.solar.vector = Twilight.solar.vector, 
@@ -265,9 +271,9 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
 check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), dusk=T, impute.on.boundaries=F, Twilight.time.vector=NULL) {
 # this function...
 	if (is.null(Twilight.solar.vector))  {
-	Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
+	Twilight.solar.vector<-solar.FLightR(as.POSIXct(Twilight.time.vector, tz="gmt", origin="1970-01-01"))
 	}
-	Elevs<-elevation(x[[1]], x[[2]], Twilight.solar.vector)
+	Elevs<-elevation.FLightR(x[[1]], x[[2]], Twilight.solar.vector)
 	LogIrrad<-log(get.Irradiance(Elevs*pi/180)+1e-20)
 	LogLight<-Twilight.log.light.vector
 	if (verbose) {
@@ -466,19 +472,24 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	Res<-cbind(Res, Elevs[NotZero])
 
 	}
-	
-	
-	
-	
+
 	if (verbose) print(Res)
 	# and now we want to return 
 	if (plot) {
-		Coef<-coef(lm(Res[,1]~Res[,2]))
-		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]))
-		points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
-		print(Coef)
-		par(ask = T)
-		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]))
+		Coef<-try(coef(lm(Res[,1]~Res[,2])))
+		if (class(Coef)!='try-error') {
+		    plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
+		    print(Coef)
+		} else {
+		   plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
+		}
+		   points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
+		   par(ask = T)
+	    if (class(Coef)!='try-error') {
+		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
+		} else {
+		   plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
+		}
 		par(ask=F)
 		if (Coef[1]<(-6)) warning("check twilight at around ", as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), " it had strange shading\n")
 

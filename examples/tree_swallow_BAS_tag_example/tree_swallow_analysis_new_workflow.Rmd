@@ -1,0 +1,65 @@
+
+# Tree swallow BAS tag geolocator analysis
+This file is UPDATED supplementary material for the FLightR paper:
+*A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity*, Movement ecology (2015). http://dx.doi.org/10.1186/s40462-015-0062-5.
+I have updated it for FLightR >= 0.4.0
+if you want to see detailed explanation of what is going on check it in the [godwit example](https://github.com/eldarrak/FLightR/blob/0.3.9/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis_new_workflow.Rmd)
+## Install package and read data
+```{r}
+require(devtools)
+install_github("eldarrak/FLightR@0.4.0") # note the version
+require(FLightR)
+
+download.file(
+ "https://raw.githubusercontent.com/eldarrak/FLightr/master/examples/tree_swallow_BAS_tag_example/749.csv",
+ "749.csv")
+
+Proc.data<-get.tags.data("749.csv")
+
+Proc.data<-get.tags.data('749.csv', log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, end.date='2012-05-13')
+
+plot.slopes.by.location(Proc.data=Proc.data, location=c(-80.46,	42.62))
+
+abline(v=as.POSIXct("2012-04-11")) # fine
+abline(v=as.POSIXct("2011-07-13")) # fine
+```
+I will use both calibration periods  - one in the beginning and another in the end. Now we create a data.frame where each line is one of the calibration periods. and the columns are start, end, x, y.
+
+```{r}
+
+Calibration.periods<-data.frame(
+        calibration.start=as.POSIXct(c(NA, "2012-04-11")),
+        calibration.stop=as.POSIXct(c("2011-07-13", NA)),
+        lon=-80.46, lat=42.62) #use c() also for the geographic coordinates, if you have more than one calibration location (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+print(Calibration.periods)
+
+Calibration<-make.calibration(Proc.data, Calibration.periods, model.ageing=TRUE)
+
+Grid<-make.grid(left=-92, bottom=15, right=-70, top=45, distance.from.land.allowed.to.use=c(-Inf, Inf), distance.from.land.allowed.to.stay=c(-Inf, Inf))
+
+all.in<-make.prerun.object(Proc.data, Grid, start=c(-80.46, 42.625), Calibration=Calibration)
+
+nParticles=1e6
+a= Sys.time()
+Result<-run.particle.filter(all.in, save.Res=F, threads=-1,
+                nParticles=nParticles, known.last=TRUE,
+		precision.sd=25, save.memory=T, k=NA,
+		parallel=T,  plot=T, prefix="pf",
+		extend.prefix=T, cluster.type="SOCK",
+		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=TRUE)
+b= Sys.time()
+b-a
+save(Result, file="TRES.749.0.4.0.new.boundaries.RData")
+
+
+map.FLightR.ggmap(Result)
+
+plot.lon.lat(Result)
+````
+
+This is it... There are of cours many more things one could do with the data but we are not going to do.
+Let me know what else you would like to see..
+
+
+
+

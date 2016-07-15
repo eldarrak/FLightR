@@ -5,7 +5,7 @@
 -->
 # Intigeo tag on a Bar tailed godwit analysis example
 # FLightR analysis
-This is a new workflow for FLightR>=0.3.9 based on the original Appendix A6 to 
+This is a new workflow for FLightR>=0.4.0 based on the original Appendix A6 to 
 Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
 
 ## Install package
@@ -13,7 +13,7 @@ We used FLightR 0.3.9 version, so you might want to install it if you want to ge
 
 ```{r, eval = F}
 library(devtools)
-install_github("eldarrak/FLightR@0.3.9") # note the version
+install_github("eldarrak/FLightR@0.4.0") # note the version
 # or just latest one
 #install_github("eldarrak/FLightR")
 library(FLightR)
@@ -72,7 +72,9 @@ Calibration<-make.calibration(Proc.data, Calibration.periods)
 Set up a spatial grid (50 X 50 km on default) `left`, `right`. `bottom` and `top` are specific boundaries for your bounding box. `distance.from.land.allowed.to.use` should be vector with length of two, first number is negative distance allowed to use while over land, and second is distance from land allowed to use while over water.
 `distance.from.land.allowed.to.stay` should be vector with length of two, first number is negative distance where bird is allowed to be stationary, and second is distance from land allowed to fly over during twilight while over water.
 ```{r, eval = F}
-Grid<-make.grid(left=-14, bottom=30, right=13, top=57, distance.from.land.allowed.to.use=c(-Inf, Inf), distance.from.land.allowed.to.stay=c(-Inf, Inf))
+Grid<-make.grid(left=-14, bottom=30, right=13, top=57,
+   distance.from.land.allowed.to.use=c(-Inf, Inf),
+   distance.from.land.allowed.to.stay=c(-Inf, Inf))
 ```
 ## Create proposal
 
@@ -95,12 +97,9 @@ Within the function run.particle.filter, the following parameters can be preset:
 
 nParticles=1e6
 a= Sys.time()
-Result<-run.particle.filter(all.in, save.Res=F, threads=-1,
-                nParticles=nParticles, known.last=TRUE,
-		precision.sd=25, save.memory=T, k=NA,
-		parallel=T,  plot=T, prefix="pf",
-		extend.prefix=T, cluster.type="SOCK",
-		a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F)
+Result<-run.particle.filter(all.in, threads=-1,
+            nParticles=nParticles, known.last=TRUE,
+		    precision.sd=25, check.outliers=F)
 b= Sys.time()
 b-a
 save(Result, file="Result.bltg.ageing.model.noOD.RData")
