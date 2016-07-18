@@ -47,7 +47,11 @@ library(ggmap)
 				max(Result$Results$Quantiles$Medianlat[twilights.index]))
 	}		
 	# there could be problems here if the dateline is passed. I will add check for it later.
+	
 	center_lon<-mean(c(location[1], location[3]))
+	
+	if (overdateline) mean(c(location[1], location[3]+360))-360
+	
 	center_lat<-mean(c(location[2], location[4]))
 	
 	if (center_lon>180 ) center_lon<-center_lon-360
