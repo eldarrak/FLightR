@@ -50,7 +50,7 @@ library(ggmap)
 	
 	center_lon<-mean(c(location[1], location[3]))
 	
-	if (overdateline) mean(c(location[1], location[3]+360))-360
+	if (overdateline) center_lon<-mean(c(location[1], location[3]+360))-360
 	
 	center_lat<-mean(c(location[2], location[4]))
 	
