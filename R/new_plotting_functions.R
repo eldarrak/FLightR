@@ -35,9 +35,9 @@ library(ggmap)
 	
 	if (overdateline) {
 	location<-cbind(
-	            max(Result$Results$Quantiles$Medianlon[twilights.index]),
-                min(Result$Results$Quantiles$Medianlat[twilights.index]),
-				min(Result$Results$Quantiles$Medianlon[twilights.index]),
+	            min(Result$Results$Quantiles$Medianlon[twilights.index][Result$Results$Quantiles$Medianlon[twilights.index]>0]),
+				min(Result$Results$Quantiles$Medianlat[twilights.index]),
+				max(Result$Results$Quantiles$Medianlon[twilights.index][Result$Results$Quantiles$Medianlon[twilights.index]<0]),
 				max(Result$Results$Quantiles$Medianlat[twilights.index]))
 	} else {			
 	location<-cbind(
@@ -51,6 +51,8 @@ library(ggmap)
 	center_lon<-mean(c(location[1], location[3]))
 	
 	if (overdateline) center_lon<-mean(c(location[1], location[3]+360))-360
+	
+	if (center_lon < (-180)) center_lon<-center_lon+360
 	
 	center_lat<-mean(c(location[2], location[4]))
 	
