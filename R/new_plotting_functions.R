@@ -136,7 +136,23 @@ library(ggmap)
 	
 #' @export
 plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
+
    Quantiles<-Result$Results$Quantiles
+   
+   
+   	# check whether Grid was over dateline:
+	overdateline<-ifelse(attr(Result$Spatial$Grid, 'left')>	attr(Result$Spatial$Grid, 'right'), TRUE, FALSE)
+
+   
+   if (overdateline) {
+   
+   Quantiles$Medianlon[Quantiles$Medianlon<0]<-Quantiles$Medianlon[Quantiles$Medianlon<0]+360
+   Quantiles$LCI.lon[Quantiles$LCI.lon<0]<-Quantiles$LCI.lon[Quantiles$LCI.lon<0]+360
+   Quantiles$UCI.lon[Quantiles$UCI.lon<0]<-Quantiles$UCI.lon[Quantiles$UCI.lon<0]+360
+   Quantiles$TrdQu.lon[Quantiles$TrdQu.lon<0]<-Quantiles$TrdQu.lon[Quantiles$TrdQu.lon<0]+360
+   Quantiles$FstQu.lon[Quantiles$FstQu.lon<0]<-Quantiles$FstQu.lon[Quantiles$FstQu.lon<0]+360
+   
+    }
    if (scheme[1]=="horizontal") {
       par(mfrow=c(1,2)) 
    } else {
@@ -169,7 +185,7 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
    # add vertical lines for the first day of every month
    
    abline(v=Vert_grid, col=grey(0.5), lty=2)
-   abline(h=seq(-180, 180, by=10), col=grey(0.5), lty=2)
+   abline(h=seq(-180, 360, by=10), col=grey(0.5), lty=2)
    
    abline(v=eq, col=2, lwd=2, lty=1)
   
