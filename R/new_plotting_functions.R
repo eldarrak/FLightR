@@ -71,14 +71,17 @@ library(ggmap)
 		   background <-do.call(ggmap::get_map, map.options)
 		   bb<-attr(background, 'bb')
 	      
+		   bb[2]<-ifelse(bb[2]< (-180), bb[2]+360, bb[2])
+		   bb[4]<-ifelse(bb[4]< (-180), bb[4]+360, bb[4])
+		  
 		if (bb[4]<bb[2]) {
            isinbb<-(location[1] >= bb[2] || location[1] <= bb[4]) & (location[3] >= bb[2] || location[3] <= bb[4])
         } else {
 	       isinbb<-(location[1] >= bb[2] && location[1] <= bb[4]) & (location[3] >= bb[2] && location[3] <= bb[4])
 	    }
 	  
-	    if (isinbb) break
-		  
+	    if (!isinbb) break
+	
 
         }
 	    map.options$zoom=zoom_cur-1
