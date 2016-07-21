@@ -446,3 +446,15 @@ if (is.null(background)) {
 	}
 	return(list(res_buffers=res_buffers, p=p))
 }
+
+# function below is at the development stage..
+plot.likelihood<-function(object, date=NULL, twilight.number=NULL) {
+my.golden.colors <- colorRampPalette(c("white","#FF7100"))
+
+image.plot(as.image(object$Spatial$Phys.Mat[,twilight.number], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
+                   col=my.golden.colors(64), main=paste("twilight number",twilight.number ))          
+library(maps)
+map('world', add=T)
+map('state', add=T)
+ 
+}

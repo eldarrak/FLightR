@@ -864,7 +864,8 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Weights<-dnorm(  sp:::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], longlat=TRUE), mean=0, sd=precision.sd)
   Rows<- try(suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights))))
   if (class(Rows) == 'try-error') {
-    cat('final smoothing failed!\n')
+    cat('final smoothing failed, error data saved to the working directory - smoothing.error.RData!\n')
+	save(last.particles, Weights, file='smoothing.error.RData')
     return(results.stack)
 	} else {
     return(results.stack[Rows,])
