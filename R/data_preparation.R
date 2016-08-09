@@ -442,7 +442,7 @@ points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slop
 points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
 lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
 #invisible()
-par(old.par)
+#par(old.par)
 }
 
 
