@@ -32,7 +32,7 @@ Proc.data<-get.tags.data("A3_TAGS_format.csv")
  
 ##Calibration
 
-All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters, which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. A "roof top" treatment of a tag (getting a perod of records from a tag put in an open place, before deployment)is a recommended source of calibration data.
+All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. A "roof top" treatment of a tag (getting a perod of records from a tag put in an open place, before deployment) is a recommended source of calibration data.
 
 For the data recorded by a deployed on an animal tag, the exact period of its stay in a known location is usually not known, but it can be estimated from the data. For this, we obtain and plot calibration slopes for sunsets and sunrises for every day of the tracking period, based on the assumption that the tag remained in the same calibration location all the time. 
 
@@ -69,6 +69,7 @@ Calibration<-make.calibration(Proc.data, Calibration.periods)
 ```
 
 ## Spatial extent
+
 Set up a spatial grid (50 X 50 km on default) `left`, `right`. `bottom` and `top` are specific boundaries for your bounding box. `distance.from.land.allowed.to.use` should be vector with length of two, first number is negative distance allowed to use while over land, and second is distance from land allowed to use while over water.
 `distance.from.land.allowed.to.stay` should be vector with length of two, first number is negative distance where bird is allowed to be stationary, and second is distance from land allowed to fly over during twilight while over water.
 ```{r, eval = F}
@@ -88,7 +89,7 @@ all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Ca
 At this stage, coordinates are calculated (coordinates, behavior, stationarity).
 Within the function run.particle.filter, the following parameters can be preset: 
 
- -number of particles (1e4 is recommended for test and 1e6 for the analysis)
+ -nParticles number of particles (1e4 is recommended for test and 1e6 for the analysis)
  -known.last = TRUE if you know that in the end of data collection tag was in a known place (FALSE is the default option)
  -check.outliers = TRUE, for the "on a fly" discard of outliers (only recommended if you wish to obtain a beautiful and smooth visualisation of a track). 
 
@@ -119,10 +120,14 @@ map.FLightR.ggmap(Result)
 ```{r, eval = F}
 
 plot.lon.lat(Result)
-
 ```
-#Below is old workflow that will be updated soon
 
+### Plot utilization distribution
+```{r, eval = F}
+plot.util.distr(Result, 
+    dates=data.frame(as.POSIXct('2013-12-01'), as.POSIXct('2014-01-31')),
+    add.scale.bar=TRUE, percentiles=0.5)
+```
 ## Migration schedules
 We can extract departure arrival estimates from the results we have got. 
 First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at Lat 2&deg;
