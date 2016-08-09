@@ -13,20 +13,20 @@
 
 #' @export
 plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
+   old.par <- par(no.readonly = TRUE) 
    Calibration.period<-data.frame(
          calibration.start=as.POSIXct("1900-01-01"),
 		 calibration.stop=as.POSIXct("2050-01-01"),
 		 lon=location[1], lat=location[2])
    if (log.light.borders[1]=='auto') log.light.borders<-Proc.data$log.light.borders
    if (log.irrad.borders[1]=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
-		 
+   par()<-old.par()
    calibration.parameters<-get.calibration.parameters(Calibration.period,
          Proc.data, model.ageing=F, 
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
 		 plot.each = FALSE, plot.final = FALSE)
     plot.slopes(calibration.parameters$All.slopes)
-
 }
 
 
