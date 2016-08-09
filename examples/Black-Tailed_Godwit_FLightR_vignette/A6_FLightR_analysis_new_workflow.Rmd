@@ -5,15 +5,15 @@
 -->
 # Intigeo tag on a Bar tailed godwit analysis example
 # FLightR analysis
-This is a new workflow for FLightR>=0.4.0 based on the original Appendix A6 to 
+This is a new workflow for FLightR>=0.4.1 based on the original Appendix A6 to 
 Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 000: 000-000.
 
 ## Install package
-We used FLightR 0.4.0 version, so you might want to install it if you want to get exactly the same results.
+We used FLightR 0.4.1 version, so you might want to install it if you want to get exactly the same results.
 
 ```{r, eval = F}
 library(devtools)
-install_github("eldarrak/FLightR@0.4.0") # note the version
+install_github("eldarrak/FLightR@0.4.1") # note the version
 # or just latest one
 #install_github("eldarrak/FLightR")
 library(FLightR)
