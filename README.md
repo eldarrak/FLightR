@@ -32,11 +32,22 @@ Do not know what the difference between BAS and Intigeo is? In short intigeo are
 
 -------------
 
-Vignette for the package is still to come :(
+Vignette for the package is coming very soon,
 
 -------------
 
-I am also slowly developing [wiki pages for the package] (https://github.com/eldarrak/FLightR/wiki)
+I am also developing [wiki pages for the package] (https://github.com/eldarrak/FLightR/wiki)
+
+-------------
+##References
+
+1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25.
+
+2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596.
+
+3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3.
+
+4. Karagicheva, J., Saveliev A., Piersma, T. & Rakhimberdiev E. FLightR: An R package for reconstructing animal paths from solar geolocation loggers - almost submitted :-)
 
 -------------
 Discussion web forum for solar geolocation is available at [ornithologyexchange](http://ornithologyexchange.org/forums/forum/259-geolocator-discussion-support/). Ask there if you need help with the FLightR _per se_ or with solar geolocation in general.
