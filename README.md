@@ -16,7 +16,7 @@ to install the package try:
 ## NB
 Version 0.3.9 has got two major changes:
 
-1. Workflow was completely rewtitten and simplified. Updated workflow is [here](https://github.com/eldarrak/FLightR/blob/0.4.0/examples/Black-Tailed_Godwit_FLightR_vignette/A6_FLightR_analysis_new_workflow.Rmd)
+1. Workflow was completely rewtitten and simplified. Updated workflow is [here](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_FLightR_vignette/A6_FLightR_analysis_new_workflow.Rmd)
 2. New version does not require lots of RAM, but it became slower.
 
 Very important changes were made for version 0.3.6
@@ -24,7 +24,7 @@ Just contact me if results come out strange.
 
 ##Examples of packages use:
 
-1.  [new (>=0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/0.4.0/examples/Black-Tailed_Godwit_FLightR_vignette/A6_FLightR_analysis_new_workflow.Rmd)
+1.  [new (>=0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_FLightR_vignette/A6_FLightR_analysis_new_workflow.Rmd)
 2.  [old (<0.3.9) workflow for tree swallow example with BAS tag](https://github.com/eldarrak/FLightR/blob/master/examples/tree_swallow_BAS_tag_example/tree_swallow_analysis.Rmd)
 3.  [old (<0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis.Rmd)
 
@@ -41,11 +41,11 @@ I am also developing [wiki pages for the package] (https://github.com/eldarrak/F
 -------------
 ##References
 
-1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25.
+1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25. [Check it](http://movementecologyjournal.biomedcentral.com/articles/10.1186/s40462-015-0062-5)
 
-2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596.
+2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596. [Check it](http://onlinelibrary.wiley.com/doi/10.1111/jav.00891/abstract)
 
-3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3.
+3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3. [Check it](http://www.waderstudygroup.org/article/7919/)
 
 4. Karagicheva, J., Saveliev A., Piersma, T. & Rakhimberdiev E. FLightR: An R package for reconstructing animal paths from solar geolocation loggers - almost submitted :-)
 
