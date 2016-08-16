@@ -275,11 +275,11 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   #Prev.Weights<-rep(1, nParticles) 
   ResampleCount<-0
   steps.from.last<-2
-
-  for (Time.Period in 1:nrow(in.Data$Indices$Main.Index)) {
+  total_length<-nrow(in.Data$Indices$Main.Index)
+  for (Time.Period in 1:total_length) {
     steps.from.last=steps.from.last+1
 
-	cat("\n\n##########################\n     Time.Period", Time.Period, "\n")
+	cat("\n\n##########################\n     Time.Period", Time.Period, "of", total_length, "\n")
     #cat("prep. data:")
     Current.Proposal<-in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],]
     #=======================================
