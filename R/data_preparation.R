@@ -8,7 +8,8 @@
 #' @param location vector with langitude and latitude of calibration location (degrees).
 #' @param log.light.borders Numeric vector with length of 2 for minimum and maximum log(light) levels to use. Default value 'auto', will take these values from the Proc.data object.
 #' @param log.irrad.borders Numeric vector with length of 2 for minimum and maximum log(irradiance) values to use. Default value 'auto', will take these values from the Proc.data object.
-#' The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
+#' @details The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
+
 #' All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
 
 #' @export
@@ -595,6 +596,10 @@ All.Days<-seq(min(min(processed.light$Final.dusk$Data$gmt), min(processed.light$
 ## Probabilty.of.migration
 All.Days.extended<-seq(min(All.Days)-86400, max(All.Days)+86400, by="days")
 
+# ver 0.4.2
+# correct twilights for polar periods..
+   start[2]<-min(abs(start[2]), 66) * sign(start[2])
+
 # these are all potential twilights that we would have for the start point...
 Potential.twilights<-sort(c(sunriset(matrix(start, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], sunriset(matrix(start, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
 # now we need to add dask or dawn to it..
@@ -609,7 +614,7 @@ Index.tab<-data.frame(Date=Potential.twilights)
 if (First.twilight=="dusk") {
 	Index.tab$Dusk<-rep(c(T,F), times=length(All.Days.extended))
 } else {
-		Index.tab$Dusk<-rep(c(F,T), times=length(All.Days.extended))
+	Index.tab$Dusk<-rep(c(F,T), times=length(All.Days.extended))
 }
 
 Index.tab$Curr.mat<-NA # this will be NA if no data and row number if there are..
