@@ -598,14 +598,15 @@ All.Days.extended<-seq(min(All.Days)-86400, max(All.Days)+86400, by="days")
 
 # ver 0.4.2
 # correct twilights for polar periods..
-   start[2]<-min(abs(start[2]), 66) * sign(start[2])
+   start_no_polar<-start_no_polar
+   start_no_polar[2]<-min(abs(start_no_polar[2]), 66) * sign(start_no_polar[2])
 
 # these are all potential twilights that we would have for the start point...
-Potential.twilights<-sort(c(sunriset(matrix(start, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], sunriset(matrix(start, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
+Potential.twilights<-sort(c(sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
 # now we need to add dask or dawn to it..
-Sunrise<-sunriset(matrix(start, nrow=1), Potential.twilights[1], direction="sunrise", POSIXct.out=TRUE)[,2]
+Sunrise<-sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunrise", POSIXct.out=TRUE)[,2]
 Sunrises<-c(Sunrise-(3600*24), Sunrise, Sunrise+(3600*24))
-Sunset<-sunriset(matrix(start, nrow=1), Potential.twilights[1], direction="sunset", POSIXct.out=TRUE)[,2]
+Sunset<-sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunset", POSIXct.out=TRUE)[,2]
 Sunsets<-c(Sunset-(3600*24), Sunset, Sunset+(3600*24))
 First.twilight<-ifelse(which.min(c(min(abs(difftime(Sunrises,Potential.twilights[1], units="mins"))), min(abs(difftime(Sunsets,Potential.twilights[1], units="mins")))))==1, "dawn", "dusk")
 
