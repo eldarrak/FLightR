@@ -598,7 +598,7 @@ All.Days.extended<-seq(min(All.Days)-86400, max(All.Days)+86400, by="days")
 
 # ver 0.4.2
 # correct twilights for polar periods..
-   start_no_polar<-start_no_polar
+   start_no_polar<-start
    start_no_polar[2]<-min(abs(start_no_polar[2]), 66) * sign(start_no_polar[2])
 
 # these are all potential twilights that we would have for the start point...
