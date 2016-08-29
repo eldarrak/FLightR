@@ -14,7 +14,7 @@ run.particle.filter(all.out, cpus = NULL, threads = -1,
 \arguments{
 \item{all.out}{An object created by \code{\link{make.prerun.object}}.}
 
-\item{cpus}{another way to cspecify  threads}
+\item{cpus}{another way to specify  \code{threads}}
 
 \item{threads}{An amount of threads to use while running in parallel. default is -1.}
 

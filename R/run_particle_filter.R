@@ -6,7 +6,7 @@
 #' Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotiing etc.
 #' @param all.out An object created by \code{\link{make.prerun.object}}.
 #' @param threads An amount of threads to use while running in parallel. default is -1.
-#' @param cpus another way to cspecify  threads
+#' @param cpus another way to specify  \code{threads}
 #' @param nParticles  total amount of particles to be used with the run. 10 000 (1e4) is recommended for the preliminary run and 1 000 000 (1e6) for the final
 #' @param known.last Set to FALSE if your bird was not at a known place during last twilight in the data
 #' @param precision.sd if \code{known.last} then what is the precision of this information. Will be used to resample particles prportionally to their ditance from the known last point with probability \code{P = dnorm(0, precision.sd)}
