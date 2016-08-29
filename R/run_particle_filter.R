@@ -1,7 +1,3 @@
-# for the version 0.2.4
-# decided to work on the resampling - I want to go to rle immediately inside the run
-# as it looks like the most time package needs to just sort the vary long character vectors..
-
 # run_particle.filter.R
 # functions used during the main run
 
@@ -12,8 +8,23 @@
 #' This is the main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} nd produces a result object that can be used for plotiing.
 #' @param all.out An object created by \code{\link{make.prerun.object}}.
 #' @param threads An amount of threads to use while running in parallel. default is -1.
-#' @return Result object.
-
+#' @return FLightR object, containing output and extracted results. It is a list with the following elements 
+#' \describe{
+#'    \item{Indices}{List with prior infomration and indices}
+#'    \item{Spatial}{Spatial data - Grid, Mask, spatial likelihood}
+#'    \item{Calibration}{all calibration parameters}
+#'    \item{Data}{original data}
+#'    \item{Results}{The main results object. Main components of it are
+#'       \describe{ 
+#'       \item{Quantiles} {dataframe containing results on locations. Each line corresponds to a twilight}
+#'       \item{Movement.results} {dataframe containing all the movement results, Note - time at line n means time of the end of transition between n and n-1}
+#'       \item{outliers} {id of twilights excluded by online outlier detection tool}
+#'       \item{LL} {negative loglikelihood}
+#'       \item{Points.rle} {run length encoding object with posterior distribution for every twilight. Note that numbers of points correspond to line numbers in \code{$Spatial$Grid}}
+#'       \item{Transitions.rle} {run length encoding object with all the transitions}
+#'        }
+#'   }
+#'   }
 #' @export
 run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
    if (!is.null(cpus)) {
