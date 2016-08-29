@@ -1,6 +1,22 @@
 # this function creates a spatial mask
 # the main feture is that it will search for any land in the ditance of xx meters, 
 
+
+#' makes spatial grid
+#' 
+#' This function makes a rectangular grid with use defined boudnaries and probabilities of being stationary.
+#' @param left - left boundary in degrees (-180 <= left <= 180)
+#' @param bottom - lower boundary in degrees (-90 <= bottom <= 90)
+#' @param right - right boundary in degrees (-180 <= right <= 180)
+#' @param top - top boundary in degrees (-90 <= right <= 90)
+#' @param distance.from.land.allowed.to.use - define how far from the shoreland animal could occur. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity
+#' @param distance.from.water.allowed.to.stay - define how far from the shoreland animal could stay stationary between twilights. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity
+#' @param return.distances - return distances to the shoreline
+#' @param probability.of.staying - assigned probability value for grid cells that do not satisfy \code{distance.from.water.allowed.to.stay}
+#' plot show a plot of final grid.
+#' @return dataframe with coordinates(lon and lat) and \code{probability.of.staying}
+#' @author Eldar Rakhimberdiev
+#' 
 #' @export
 make.grid<-function(left=-180, bottom=-90,
                     right=180, top=90,
