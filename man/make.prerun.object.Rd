@@ -15,7 +15,7 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 
 \item{start}{release location (lat, lon).}
 
-\item{end}{end of the track location. Will use 'start' by default. Use NA in case of unknown end point.}
+\item{end}{end of the track location. Will use \code{start} by default. Use NA in case of unknown end point.}
 
 \item{Calibration}{Calibration object created by \code{\link{make.calibration}}.}
 
@@ -23,7 +23,16 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 
 \item{Decision}{prior for migration probability values from 0 to 1 are allowed}
 
-\item{Direction}{Direction prior for direction of migration (in degrees)}
+\item{Direction}{Direction prior for direction of migration (in degrees) with 0 pointing to the North}
+
+\item{Kappa}{concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prioir for direction for all the track, so is not recommended to be changed}
+
+\item{M.mean}{Prior for mean distance travelled between consequtive twilights, km}
+
+\item{M.sd}{Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution}
+}
+\value{
+Object to be uses in the \code{\link{run.partilce.filter}}
 }
 \description{
 This function is one step before \code{\link{run.particle.filter}}. It combines data, calibration, spatial extent and movement priors and estimates spatial likelihoods that used later in the particle filter.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_preparation.R
 \name{plot.slopes.by.location}
 \alias{plot.slopes.by.location}
-\title{plots slopes for a known location}
+\title{plots log of observed vesus expected slope by time for a known location}
 \usage{
 plot.slopes.by.location(Proc.data, location, log.light.borders = "auto",
   log.irrad.borders = "auto")
