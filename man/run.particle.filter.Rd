@@ -25,13 +25,13 @@ FLightR object, containing output and extracted results. It is a list with the f
    \item{Calibration}{all calibration parameters}
    \item{Data}{original data}
    \item{Results}{The main results object. Main components of it are
-      \describe{ 
-      \item{Quantiles} {dataframe containing results on locations. Each line corresponds to a twilight}
-      \item{Movement.results} {dataframe containing all the movement results, Note - time at line n means time of the end of transition between n and n-1}
-      \item{outliers} {id of twilights excluded by online outlier detection tool}
-      \item{LL} {negative loglikelihood}
-      \item{Points.rle} {run length encoding object with posterior distribution for every twilight. Note that numbers of points correspond to line numbers in \code{$Spatial$Grid}}
-      \item{Transitions.rle} {run length encoding object with all the transitions}
+      \describe{
+      \item{Quantiles}{dataframe containing results on locations. Each line corresponds to a twilight}
+      \item{Movement.results}{dataframe containing all the movement results, Note - time at line n means time of the end of transition between n and n-1}
+      \item{outliers}{id of twilights excluded by online outlier detection tool}
+      \item{LL}{negative loglikelihood}
+      \item{Points.rle}{run length encoding object with posterior distribution for every twilight. Note that numbers of points correspond to line numbers in \code{$Spatial$Grid}}
+      \item{Transitions.rle}{run length encoding object with all the transitions}
        }
   }
   }
