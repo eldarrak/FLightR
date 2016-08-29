@@ -19,8 +19,8 @@ run.particle.filter(all.out, cpus = NULL, threads = -1,
 }
 \value{
 FLightR object, containing output and extracted results. It is a list with the following elements 
-\describe{
-   \item{Indices}{List with prior infomration and indices}
+\itemize{
+   \item{Indices}{List with prior information and indices}
    \item{Spatial}{Spatial data - Grid, Mask, spatial likelihood}
    \item{Calibration}{all calibration parameters}
    \item{Data}{original data}
@@ -29,7 +29,7 @@ FLightR object, containing output and extracted results. It is a list with the f
       \item{Quantiles}{dataframe containing results on locations. Each line corresponds to a twilight}
       \item{Movement.results}{dataframe containing all the movement results, Note - time at line n means time of the end of transition between n and n-1}
       \item{outliers}{id of twilights excluded by online outlier detection tool}
-      \item{LL}{negative loglikelihood}
+      \item{LL}{-Log likelihood}
       \item{Points.rle}{run length encoding object with posterior distribution for every twilight. Note that numbers of points correspond to line numbers in \code{$Spatial$Grid}}
       \item{Transitions.rle}{run length encoding object with all the transitions}
        }
@@ -41,5 +41,8 @@ FLightR object, containing output and extracted results. It is a list with the f
 }
 \details{
 This is the main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} nd produces a result object that can be used for plotiing.
+}
+\author{
+Eldar Rakhimberdiev
 }
 

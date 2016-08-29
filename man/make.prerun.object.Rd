@@ -2,8 +2,7 @@
 % Please edit documentation in R/data_preparation.R
 \name{make.prerun.object}
 \alias{make.prerun.object}
-\title{combines data, calibration and sets up priors
-This function is one step before \code{\link{run.particle.filter}}. It combines data, calibration, spatial extent and movement priors and estimates spatial likelihoods that used later in the particle filter.}
+\title{combines data, calibration and sets up priors}
 \usage{
 make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
   threads = -1, Decision = 0.1, Direction = 0, Kappa = 0,
@@ -27,7 +26,9 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 \item{Direction}{Direction prior for direction of migration (in degrees)}
 }
 \description{
-combines data, calibration and sets up priors
 This function is one step before \code{\link{run.particle.filter}}. It combines data, calibration, spatial extent and movement priors and estimates spatial likelihoods that used later in the particle filter.
+}
+\author{
+Eldar Rakhimberdiev
 }
 
