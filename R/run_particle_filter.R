@@ -3,13 +3,27 @@
 
 #' Run Particle Filter
 #' 
-#' \code{run.particle.filter} 
-#'
-#' This is the main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} nd produces a result object that can be used for plotiing.
+#' Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotiing etc.
 #' @param all.out An object created by \code{\link{make.prerun.object}}.
 #' @param threads An amount of threads to use while running in parallel. default is -1.
+#' @param cpus another way to cspecify  threads
+#' @param nParticles  total amount of particles to be used with the run. 10 000 (1e4) is recommended for the preliminary run and 1 000 000 (1e6) for the final
+#' @param known.last Set to FALSE if your bird was not at a known place during last twilight in the data
+#' @param precision.sd if \code{known.last} then what is the precision of this information. Will be used to resample particles prportionally to their ditance from the known last point with probability \code{P = dnorm(0, precision.sd)}
+#' @param behav.mask.low.value Probability value that will be used instead of 0 in the behavioural mask. If set to 1 behavioural mask will not be active anymore
+#' @param k Kappa parameter from vonMises distribution. Default is NA, otherwise will generate particles in a direction of a previous transitions with kappa = k
+#' @param parallel Should function create a cluster and run in parallel?
+#' @param plot Should function plot preliminary map in the end of the run?
+#' @param cluster.type see help to package parallel for details
+#' @param a minimum distance that is used in the movement model - left boundary for truncated normal distribtuon of ditances moved between twilights. Default is 45 for as default grid has a minimum ditance of 50 km.
+#' @param b Maximum distance allowed to fly between two consequtive twilights
+#' @param L how many consequitive particles to resample
+#' @param adaptive.resampling Above what level of ESS resampling should be skipped
+#' @param check.outliers switches ON the online outlier routine 
+#' @param sink2file will write run details in a file instead of showing on the screen
+#' @param add.jitter will add spatial jitter inside a grid cell for the median estiamtes
 #' @return FLightR object, containing output and extracted results. It is a list with the following elements 
-#' \itemize{
+#' 
 #'    \item{Indices}{List with prior information and indices}
 #'    \item{Spatial}{Spatial data - Grid, Mask, spatial likelihood}
 #'    \item{Calibration}{all calibration parameters}
@@ -24,10 +38,10 @@
 #'       \item{Transitions.rle}{run length encoding object with all the transitions}
 #'        }
 #'   }
-#'   }
+#'
 #' @author Eldar Rakhimberdiev
 #' @export
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, save.memory=T, k=NA, parallel=T, plot=T, prefix="pf", extend.prefix=T, max.kappa=100, min.SD=25, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, k=NA, parallel=T, plot=T, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
       threads<-cpus
@@ -177,16 +191,15 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   }
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=1, parallel=T, plot=T, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
-  # this dunction is doing main job. it works on the secondary master
-  ### to make algorhytm work in a fast mode w/o directional proposal use k=NA
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=T, plot=T, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
+  ### to make algorhythm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
   if (sink2file & RStudio) sink()
   #### if save.rle=T function will save a out.rle object in out.rle.RData file in working directory BUT to make it work There have to be out.rle column in Main.Index that will contain true for the twilights where results needed.
   ####
   data("wrld_simpl", package="maptools")
   
-  if (any(in.Data$Spatial$Grid[,3]!=1)) { 
+  if (any(in.Data$Spatial$Behav.mask!=1)) { 
 	smart.filter=TRUE
 	cat("smart filter is ON\n")
 	} else {
@@ -223,7 +236,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   #########################################
   # part from the main function
   
-  in.Data$Spatial$Behav.mask[in.Data$Spatial$Behav.mask==0]<-behav.mask.low.value
+  in.Data$Spatial$Behav.mask[in.Data$Spatial$Behav.mask<behav.mask.low.value]<-behav.mask.low.value
   in.Data$Spatial$Phys.Mat<-in.Data$Spatial$Phys.Mat*in.Data$Spatial$Behav.mask
   #=========================================
   # get value for density for angles
@@ -333,7 +346,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	# here we should introduce clever mask..
 	# this will be something like that
 	Index.Stable<-which(New.Particles == Results.stack[,ncol(Results.stack)])
-	Current.Weights[Index.Stable]<-Current.Weights[Index.Stable]*in.Data$Spatial$Grid[New.Particles,3]
+	Current.Weights[Index.Stable]<-Current.Weights[Index.Stable]*in.Data$Spatial$Behav.mask[New.Particles]
 	}
 	#=======================================================
 	# now I want to add 3.3
