@@ -1,6 +1,14 @@
+#' Function to write down twilights annotated in BAStag or twGeos packages data in so-called tags format
+#'
+#' this function converts combines twilights detected in BAStag ot twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
+#' @param raw original data - dataframe with two columns first column must contain time and second measured light levels
+#' @param twl twilights object from \code{preprocess.light} function
+#' @param threshold threshold value used for twilight definition in \code{preprocess.light}
+#' @param filename if not NULL data.frame in TAGS format will be returned
+#' @return \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
+#' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
-BAStags2TAGS <- function(raw, twl, threshold) {
-  # function by Simeon
+BAStag2TAGS <- function(raw, twl, threshold, filename=NULL) {
   names(raw) <- c("Twilight", "Light")
   twl$Light <- threshold
   
@@ -12,14 +20,22 @@ BAStags2TAGS <- function(raw, twl, threshold) {
   out$interp[out$twilight>0] <- TRUE
   out<-out[order(out[,1]),]
   out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
-  return(out)
+  if (!is.null(filename)) {
+  write.csv(out, file=paste(strsplit('tmp.csv', '.csv')[[1]][1], "csv", sep=''), quote=FALSE, row.names=FALSE)
+  return(NULL)
+  } else { return(out)}
  }
 
+#' Function to write down twilights annotated in GeoLight package data in so-called tags format
+#'
+#' this function converts combines twilights detected in BAStag ot twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
+#' @param raw original data - dataframe with two columns first column must contain time and second measured light levels
+#' @param gl_twl twilights object from GeoLight
+#' @param filename if not NULL data.frame in TAGS format will be returned
+#' @return \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
+#' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
-BAStag2TAGS <- BAStags2TAGS
-
-#' @export
-GeoLight2TAGS<-function (raw, gl_twl) {
+GeoLight2TAGS<-function (raw, gl_twl, filename=NULL) {
    names(raw) <- c("datetime", "light")
    raw$twilight<-0
    twl <- data.frame(datetime = as.POSIXct(c(gl_twl$tFirst, 
@@ -37,5 +53,8 @@ GeoLight2TAGS<-function (raw, gl_twl) {
   out$interp[out$twilight>0] <- TRUE
   out<-out[order(out[,1]),]
   out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
-  return(out)
+    if (!is.null(filename)) {
+  write.csv(out, file=paste(strsplit('tmp.csv', '.csv')[[1]][1], "csv", sep=''), quote=FALSE, row.names=FALSE)
+  return(NULL)
+  } else { return(out)}
    }

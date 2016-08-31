@@ -114,7 +114,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @param Kappa concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prioir for direction for all the track, so is not recommended to be changed
 #' @param M.mean Prior for mean distance travelled between consequtive twilights, km
 #' @param M.sd Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution
-#' @return Object to be uses in the \code{\link{run.partilce.filter}}
+#' @return Object to be uses in the \code{\link{run.particle.filter}}
 
 #' @author Eldar Rakhimberdiev
 

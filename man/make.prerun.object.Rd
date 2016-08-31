@@ -32,7 +32,7 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 \item{M.sd}{Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution}
 }
 \value{
-Object to be uses in the \code{\link{run.partilce.filter}}
+Object to be uses in the \code{\link{run.particle.filter}}
 }
 \description{
 This function is one step before \code{\link{run.particle.filter}}. It combines data, calibration, spatial extent and movement priors and estimates spatial likelihoods that used later in the particle filter.
