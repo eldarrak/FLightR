@@ -10,7 +10,7 @@
 #' @param zoom Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.
 #' @param return.ggobj Should ggobj be returned for subsequent checks and/or replotting
 #' return either NULL or ggplot2 class object
-#' @export
+#' @export map.FLightR.ggmap
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
@@ -151,7 +151,7 @@ library(ggmap)
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param scheme either 'vertical' or 'horizontal' layouts
 #' return NULL
-#' @export
+#' @export plot.lon.lat
 plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
    Quantiles<-Result$Results$Quantiles
@@ -356,7 +356,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #'         \item{res_buffers}{spatial buffers for defined probability values}
 #'         \item{p}{\code{\link[ggplot2]{ggplot}} object}
 #' @author Eldar Rakhimberdiev
-#' @export
+#' @export plot.util.distr
 plot.util.distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
 if (is.null(color.palette)) color.palette <- colorRampPalette(rev(c("#edf8fb",

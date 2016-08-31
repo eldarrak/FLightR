@@ -12,7 +12,7 @@
 #' All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
 #'
 #' @author Eldar Rakhimberdiev
-#' @export
+#' @export plot.slopes.by.location
 plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
    old.par <- par(no.readonly = TRUE) 
    Calibration.period<-data.frame(
