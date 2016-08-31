@@ -2,7 +2,6 @@
 # These functions extract from results probabilities of being inside a specific set of the grid points and also dates for these probabilities
 # first version added 11-05-2015
 
-#' @export
 get.prob.of.being.in<-function(Result, Index ) {
 Prob.of.being.in<-c()
 
@@ -31,8 +30,17 @@ if (length(Transitions) ==0 ) {
 	}
 }
 
+#' extracts times of arrival and departure to/from spatial extent
+#'
+#' Idea of this functions is to extract schedules for known location
+#' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
+#' @param Spatial.Index Row numbers for spatial grid (\code{Result$Spatial$Grid}) to estimate schedules for.
+#' @return dataframe with columns for 0.025, 0.25, 0.5, 0.75, 0.975 probability of line crossing and rows for every crossing.
+#' @author Eldar Rakhimberdiev
 #' @export
-find.times.distribution<-function(Prob.of.being.in, time, plot=F) {
+find.times.distribution<-function(Result, Spatial.Index) {
+Prob.of.being.in<-get.prob.of.being.in(Result, Spatial.Index)
+time<-Result$Indices$Matrix.Index.Table$time
 # let's start from 0.5 
 quantiles=c(0.025, 0.25, 0.5, 0.75, 0.975)
 
