@@ -22,12 +22,12 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
    if (log.light.borders[1]=='auto') log.light.borders<-Proc.data$log.light.borders
    if (log.irrad.borders[1]=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
    par(old.par)
-   calibration.parameters<-get.calibration.parameters(Calibration.period,
+   suppressWarningscalibration.parameters<-get.calibration.parameters(Calibration.period,
          Proc.data, model.ageing=F, 
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
-		 plot.each = FALSE, plot.final = FALSE)
-    plot.slopes(calibration.parameters$All.slopes)
+		 plot.each = FALSE, plot.final = FALSE))
+    suppressWarnings(plot.slopes(calibration.parameters$All.slopes))
 }
 
 
