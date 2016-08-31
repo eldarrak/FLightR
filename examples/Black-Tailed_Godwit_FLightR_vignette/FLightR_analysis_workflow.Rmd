@@ -136,10 +136,7 @@ Index<-which(Result$Spatial$Grid[,1]>(2))
 ```
 And now I estimate probabilities if being in the area for each twilight:
 ```{r, eval = F}
-Prob.of.being.in.NL<-get.prob.of.being.in(Result, Index)
-
-Times.NL=find.times.distribution(Prob.of.being.in.NL,Result$Indices$Matrix.Index.Table$time)
-
+Times.NL=find.times.distribution(Result,Index)
 Times.NL
 ```
 
