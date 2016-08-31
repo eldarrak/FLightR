@@ -1,4 +1,15 @@
-
+#' plots result over map
+#'
+#' plots track over map with probability cloud. Can plot only part of the track if dates are specified
+#' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
+#' @param dates either NULL if all twilights should be included or data.frame with first colum - start of the period and second end of the period. Each line represents a new period
+#' @param plot.cloud Shlould probability cloud be plotted? If TRUE cloud is estimated by \code{\link[ggplot2]{stat_density2d}}
+#' @param map.options options passed to \code{\link[ggmap]{get_map}}, note that \code{zoom} option is defined separately
+#' @param plot.options plotting options. Not defined yet!
+#' @param save.options ptions passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.
+#' @param zoom Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.
+#' @param return.ggobj Should ggobj be returned for subsequent checks and/or replotting
+#' return either NULL or ggplot2 class object
 #' @export
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
@@ -133,7 +144,13 @@ library(ggmap)
 	do.call(ggsave, save.options)
 	if (return.ggobj) return(p)
 	}
-	
+
+#' plots result by longitude and latitude
+#'
+#' This function plots result by latitude and longitude in either vertical or horizontal layout
+#' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
+#' @param scheme either 'vertical' or 'horizontal' layouts
+#' return NULL
 #' @export
 plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
@@ -317,6 +334,28 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
   return(list(Buffer=Buff_comb_simpl, nPoints=length(Points)))
   }
 
+#' plots resulting track over map with uncertainty shown by spave utilisation distribution
+#' 
+#' May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration
+#' 
+#' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
+#' @param dates Use NULL if all twilights will be used for plotting, one integer if specific twilight should be plotted (line number in Result$Results$Quantiles). Use data.frame with first colum - start of the period and second - end of the period and each line represents a new period to plot specific periods, e.g. wintering or migration.
+#' @param map.options options passed to \code{\link[ggmap]{get_map}}, note that \code{zoom} option is defined separately
+#' @param percentiles Probability breaks for utilisation distribution
+#' @param zoom Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.
+#' @param geom_polygon.options passed to \code{\link[ggplot2]{geom_polygon}}
+#' @param save.options ptions passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.
+#' @param color.palette colors for probability contours. Either NULL or \code{\link[grDevices]{colorRampPalette}} object
+#' @param use.palette should the same colors be used for polygon boundaries as for polygon filling?
+#' @param background if provided will be used as a background. Must be created by \code{link[ggmap]{get_map}}
+#' @param plot should function produce a plot?
+#' @param save should function save results with \code{\link[ggplot2]{ggsave}}?
+#' @param add.scale.bar will add scalebar with the \code{\link[ggsn]{scalebar}}
+#' @param scalebar.options options passed to \code{\link[ggsn]{scalebar}}
+#' @return list with two parts 
+#'         \item{res_buffers}{spatial buffers for defined probability values}
+#'         \item{p}{\code{\link[ggplot2]{ggplot}} object}
+#' @author Eldar Rakhimberdiev
 #' @export
 plot.util.distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
