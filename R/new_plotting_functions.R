@@ -194,7 +194,7 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
    plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grey(0.1),pch=16,
       ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
       Quantiles$UCI.lon )), type="n", axes=F)
-   axis(2)
+   axis(2, las=1)
    axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
    box()
 
@@ -223,8 +223,10 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
    
    plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grey(0.1),
      pch=16,ylab="Latitude",xlab="",lwd=2,
-     ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n")
-
+     ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n", axes=F)
+   axis(2, las=1)
+   axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
+   box()
    abline(v=Vert_grid, col=grey(0.5), lty=2)
    abline(h=seq(-80, 80, by=10), col=grey(0.5), lty=2)
 
