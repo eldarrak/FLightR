@@ -147,6 +147,8 @@ library(ggmap)
 	}
 	
 	if (!is.null(seasonal.donut.location)) {
+       Xrange<-c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon)
+       Yrange<-c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat))
        d<-seasonal_donut()  
        g = ggplotGrob(d)
 
@@ -498,7 +500,8 @@ if (is.null(background)) {
 	scalebar.options$x.max=as.numeric(BB[1, 4])+(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05
 	
 	p=p+do.call(ggsn::scalebar, scalebar.options)
-    }	
+	}
+	
 	if (save) {
 	   if (is.null(save.options))  save.options=list()
 	   if (is.null(save.options$filename)) save.options$filename<-"time_coverage.png"
