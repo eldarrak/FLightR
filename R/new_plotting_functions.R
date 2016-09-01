@@ -11,7 +11,7 @@
 #' @param return.ggobj Should ggobj be returned for subsequent checks and/or replotting
 #' return either NULL or ggplot2 class object
 #' @export map.FLightR.ggmap
-map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE) {
+map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
@@ -133,8 +133,14 @@ library(ggmap)
 	} else {
 	   for (segment in 1:nrow(dates)) {
 	      cur_twilights<-which(Result$Results$Quantiles$time>=dates[segment,1] & Result$Results$Quantiles$time<=dates[segment,2])
-          p<-p+ geom_path(data=Points2plot[cur_twilights,],aes(x=lon,y=lat),  colour=grey(0.3))+
-          geom_point(data=Points2plot[cur_twilights,], shape="+",  colour=grey(0.3))
+          p<-p+ geom_path(data=Points2plot[cur_twilights,],aes(x=lon,y=lat),  colour=grey(0.3))
+		  if (seasonal.colors) {
+		  Seasonal_palette<-colorRampPalette(hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
+          Days<-as.integer(format(Result$Results$Quantiles$time[cur_twilights], "%j"))
+		  p<-p+geom_point(data=Points2plot[cur_twilights,], shape=21,  colour=grey(0.3), bg=Seasonal_palette(365)[Days])
+		  } else {
+		  p<-p+geom_point(data=Points2plot[cur_twilights,], shape="+",  colour=grey(0.3))
+		  }
 	   }
 	}
 	plot(p)
