@@ -150,11 +150,11 @@ library(ggmap)
        d<-seasonal_donut()  
        g = ggplotGrob(d)
 
-    if (location=='bottomleft') {
+    if (seasonal.donut.location=='bottomleft') {
         p<-p + inset(grob = g, xmin = Xrange[1], xmax = Xrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymin = Yrange[1], ymax = Yrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]))
     }
 
-    if (location=='topleft') {
+    if (seasonal.donut.location=='topleft') {
         p<-p + inset(grob = g, xmin = Xrange[1], xmax = Xrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymin = Yrange[2]-seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymax = Yrange[2])
     }
     }
