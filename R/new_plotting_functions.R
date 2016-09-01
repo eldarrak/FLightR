@@ -131,10 +131,11 @@ library(ggmap)
 	    cur_twilights<-1:length(Result$Results$Quantiles$time)
 		Total_segments<-1
 	} else {
+	   cur_twilights<-which(Result$Results$Quantiles$time>=dates[segment,1] & Result$Results$Quantiles$time<=dates[segment,2])
 	   Total_segments<-nrow(dates)
+	
 	}
 	for (segment in 1:Total_segments) {
-	   cur_twilights<-which(Result$Results$Quantiles$time>=dates[segment,1] & Result$Results$Quantiles$time<=dates[segment,2])
        p<-p+ geom_path(data=Points2plot[cur_twilights,],aes(x=lon,y=lat),  colour=grey(0.3))
 	   if (seasonal.colors) {
 		  Seasonal_palette<-colorRampPalette(hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
