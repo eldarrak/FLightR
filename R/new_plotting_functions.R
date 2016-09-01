@@ -148,7 +148,7 @@ library(ggmap)
 	
 	if (!is.null(seasonal.donut.location)) {
        Xrange<-c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon)
-       Yrange<-c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat))
+       Yrange<-c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat)
        d<-seasonal_donut()  
        g = ggplotGrob(d)
 
