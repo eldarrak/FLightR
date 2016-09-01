@@ -9,6 +9,9 @@
 #' @param save.options ptions passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.
 #' @param zoom Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.
 #' @param return.ggobj Should ggobj be returned for subsequent checks and/or replotting
+#' @param seasonal.colors if true points of the track will have seasonal colors
+#' @param seasonal.donut.location if NULL - no color wheel placed, otherwise select one of 'bottomleft', 'bottomright', 'topleft'
+#' @param seasonal.donut.proportion how much of X axis should color wheel occupy.
 #' return either NULL or ggplot2 class object
 #' @export map.FLightR.ggmap
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5) {
