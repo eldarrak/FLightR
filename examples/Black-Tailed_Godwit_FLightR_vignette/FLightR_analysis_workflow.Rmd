@@ -21,11 +21,10 @@ library(FLightR)
 ##Defining twilights and data input
 The analysis of geolocation data typically begins with defining twilight events (sunrises and sunsets). There is no such function implemented in the FlightR. We therefore recommend to use appropriate functions from TAGs, BAStag or GeoLight for this purpose.
 
-In the [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) we show how to define twilights with [BAStag package] (https://github.com/SWotherspoon/BAStag). To practice defining twilights yourself, the raw light-level data obtained from the tag in a lux format(as you get it from the Migrate Technology Ltd geolocators). You can also download the [.csv] with pre-defined twilight events (https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv) file from the directory and process these data:
+In the [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) we show how to define twilights with [BAStag package] (https://github.com/SWotherspoon/BAStag). To practice defining twilights yourself, the raw light-level data obtained from the tag in a lux format(as you get it from the Migrate Technology Ltd geolocators). You can also download the [.csv] with pre-defined twilight events (https://git.io/vrJgv) file from the directory and process these data:
 ```{r, eval=FALSE, tidy=FALSE}
 download.file(
- "https://raw.githubusercontent.com/eldarrak/FLightR/master/examples/Black-Tailed_Godwit_JAB_example/A3_TAGS_format.csv",
- "A3_TAGS_format.csv")
+ "https://git.io/vrJgv", "A3_TAGS_format.csv")
 
 Proc.data<-get.tags.data("A3_TAGS_format.csv")
 ```
@@ -58,7 +57,9 @@ The next step is to create a data.frame, in which a separate line is designated 
 Calibration.periods<-data.frame(
         calibration.start=as.POSIXct(c(NA, "2014-05-05")),
         calibration.stop=as.POSIXct(c("2013-08-20", NA)),
-        lon=5.43, lat=52.93) #use c() also for the geographic coordinates, if you have more than one calibration location (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+        lon=5.43, lat=52.93) 
+		#use c() also for the geographic coordinates, if you have more than one calibration location
+		# (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
 print(Calibration.periods)
 ```
 
@@ -139,5 +140,3 @@ And now I estimate probabilities if being in the area for each twilight:
 Times.NL=find.times.distribution(Result,Index)
 Times.NL
 ```
-
-This is it so far... There are of course many more things one could do with the data and we plan to show them in the other manuscripts.
