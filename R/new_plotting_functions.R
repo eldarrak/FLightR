@@ -146,7 +146,7 @@ library(ggmap)
 	   }
 	}
 	
-	if (!is.null(seasonal.donut.location) {
+	if (!is.null(seasonal.donut.location)) {
        d<-seasonal_donut()  
        g = ggplotGrob(d)
 
