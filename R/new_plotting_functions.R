@@ -11,7 +11,7 @@
 #' @param return.ggobj Should ggobj be returned for subsequent checks and/or replotting
 #' return either NULL or ggplot2 class object
 #' @export map.FLightR.ggmap
-map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE) {
+map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
@@ -145,6 +145,19 @@ library(ggmap)
 		  p<-p+geom_point(data=Points2plot[cur_twilights,], shape="+",  colour=grey(0.3))
 	   }
 	}
+	
+	if (!is.null(seasonal.donut.location) {
+       d<-seasonal_donut()  
+       g = ggplotGrob(d)
+
+    if (location=='bottomleft') {
+        p<-p + inset(grob = g, xmin = Xrange[1], xmax = Xrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymin = Yrange[1], ymax = Yrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]))
+    }
+
+    if (location=='topleft') {
+        p<-p + inset(grob = g, xmin = Xrange[1], xmax = Xrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymin = Yrange[2]-seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymax = Yrange[2])
+    }
+    }
 	plot(p)
 	
     if (is.null(save.options)) save.options<-list()
@@ -496,6 +509,33 @@ if (is.null(background)) {
 	return(list(res_buffers=res_buffers, p=p))
 }
 
+
+ 
+seasonal_donut<-function() {
+   pie.data<-data.frame(group=as.factor(c(1:12)), value=rep(1,12))  
+   pie.data$fraction = pie.data$value / sum(pie.data$value)
+   pie.data$ymax = cumsum(pie.data$fraction)
+   pie.data$ymin = c(0, head(pie.data$ymax, n = -1))
+   
+   donut<-ggplot(data = pie.data, aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
+      geom_rect(colour = "grey30", show.legend = FALSE) +
+      coord_polar(theta = "y", start=pi) +
+      xlim(c(0, 2)) +
+      theme_bw() + 
+	  theme(plot.background = element_rect(fill = "transparent" ,colour = NA))+
+	  theme(panel.background = element_blank())+
+	  theme(panel.grid=element_blank()) +
+      theme(axis.text=element_blank()) +
+      theme(axis.ticks=element_blank()) +
+      theme(panel.border=element_blank()) +
+	  scale_fill_manual(values=c(Seasonal_palette(13)))+
+      geom_text(aes(x = 1.5, y = ((ymin+ymax)/2), label = group), colour=grey(0.99), size=5) +
+      xlab("") +
+      ylab("") 
+	  return(donut)
+}
+
+
 # function below is at the development stage..
 plot.likelihood<-function(object, date=NULL, twilight.number=NULL) {
 my.golden.colors <- colorRampPalette(c("white","#FF7100"))
@@ -507,3 +547,5 @@ map('world', add=T)
 map('state', add=T)
  
 }
+
+
