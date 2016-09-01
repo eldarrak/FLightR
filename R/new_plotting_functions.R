@@ -159,6 +159,10 @@ library(ggmap)
     if (seasonal.donut.location=='topleft') {
         p<-p + inset(grob = g, xmin = Xrange[1], xmax = Xrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymin = Yrange[2]-seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymax = Yrange[2])
     }
+	if (seasonal.donut.location=='bottomright') {
+        p<-p + inset(grob = g, xmin = Xrange[2]-seasonal.donut.proportion*(Yrange[2]-Yrange[1]), xmax = Xrange[2]), ymin = Yrange[1], ymax = Yrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]))
+    }
+
     }
 	plot(p)
 	
