@@ -65,7 +65,6 @@ The data.frame contains as many rows as many distinct calibration periods there 
 
 For the data recorded by a deployed on an animal tag, the exact period of its stay in a known location is usually not known, but it can be estimated from the data. For this, we obtain and plot calibration slopes for sunsets and sunrises for every day of the tracking period, based on the assumption that the tag remained in the same calibration location all the time. 
 
-add calibration location as x,y
 ```{r, eval = F}
 plot.slopes.by.location(Proc.data=Proc.data, location=c(5.43, 52.93))
 ```
@@ -81,7 +80,11 @@ In this example, we have two calibration periods (in the same location), in the 
 
 Note, that if there are more than one calibration locations, the procedure above has to be repeated for each of the locations. 
 
-The next step is to create a data.frame, in which a separate line is designated for each of the calibration periods. The columns are: (1) start of the calibration period, (2) end of the calibration period, (3) longitude of the calibration location and, (4) latitude of the calibration location.
+The next step is to create a data.frame, in which a separate line is designated for each of the calibration periods. The columns are: 
+* start of the calibration period,
+* end of the calibration period,
+* longitude of the calibration location and,
+* latitude of the calibration location.
 
 ```{r, eval = F}
 Calibration.periods<-data.frame(
