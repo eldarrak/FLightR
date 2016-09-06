@@ -99,8 +99,8 @@ print(Calibration.periods)
 Using the created data frame with the calibration periods and locations and the object with light data and twilight events (Proc.data), we estimate calibration parameters for each of the periods and make a calibration object. This object will be used for the calculation of geographic positions later on...
 ```{r, eval = F}
 Calibration<-make.calibration(Proc.data, Calibration.periods)
-#Use model.ageing=TRUE, if you wish to account for opacification of the tag's shell. Note, this is only possible, if there are more than one calibration periods.
 ```
+Use `model.ageing=TRUE`, if you wish to account for opacification of the tag's shell. Note, this is only possible, if there are more than one calibration periods.
 
 ## Spatial extent
 
