@@ -54,7 +54,7 @@ Proc.data<-get.tags.data("example_TAGS_format.csv")
 
 All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. A "roof top" treatment of a tag (getting a perod of records from a tag put in an open place, before deployment) is a recommended source of calibration data.
 
-### Define calibration periods
+### Find calibration periods
 The calibration parameters are based on the data recorded during calibration periods. For this, the user needs to create a data frame called ‘Calibration.periods’, in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
 * `calibration.start` (POSIXct format)
 * `calibration.stop` (POSIXct format)
