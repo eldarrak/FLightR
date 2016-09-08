@@ -54,7 +54,6 @@ Proc.data<-get.tags.data("example_TAGS_format.csv")
 
 All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. A "roof top" treatment of a tag (getting a perod of records from a tag put in an open place, before deployment) is a recommended source of calibration data.
 
-### Find calibration periods
 The calibration parameters are based on the data recorded during calibration periods. For this, the user needs to create a data frame called ‘Calibration.periods’, in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
 * `calibration.start` (POSIXct format)
 * `calibration.stop` (POSIXct format)
@@ -62,7 +61,26 @@ The calibration parameters are based on the data recorded during calibration per
 * `lat` (numeric)
 The data.frame contains as many rows as many distinct calibration periods there are in the track. 
 
+```{r, eval = F}
+Calibration.periods<-data.frame(
+        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+        lon=5.43, lat=52.93) 
+		#use c() also for the geographic coordinates, if you have more than one calibration location
+		# (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+print(Calibration.periods)
+```
+In this example, we have two calibration periods (in the same location), in the beginning and at the end of the track. This is a common case, as the birds are oftentimes recaptured at the same location, where they were tagged. 
 
+When multiple calibration locations are available, each of them has to be processed with the function `plot.slopes.by.location`.  In this case, in the ‘Calibration periods’ data frame, each row should refer to one calibration period. Compiling the data frame with multiple calibration locations, use `c()` also for the geographic coordinates (e. g., `lon=c(5.43, 6.00), lat=c(52.93,52.94)`).
+
+Using the created data frame with the calibration periods and locations and the object with light data and twilight events (Proc.data), we estimate calibration parameters for each of the periods and make a calibration object. This object will be used for the calculation of geographic positions later on...
+```{r, eval = F}
+Calibration<-make.calibration(Proc.data, Calibration.periods)
+```
+Use `model.ageing=TRUE`, if you wish to account for opacification of the tag's shell. Note, this is only possible, if there are more than one calibration periods.
+
+### Find calibration periods
 For the data recorded by a deployed on an animal tag, the exact period of its stay in a known location is usually not known, but it can be estimated from the data. For this, we obtain and plot calibration slopes for sunsets and sunrises for every day of the tracking period, based on the assumption that the tag remained in the same calibration location all the time. 
 
 ```{r, eval = F}
@@ -76,32 +94,6 @@ Play with `abline()` to find the proper boundaries for the calibration.
 abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 ```
-In this example, we have two calibration periods (in the same location), in the beginning and at the end of the track. This is a common case, as the birds are oftentimes recaptured at the same location, where they were tagged. 
-
-When multiple calibration locations are available, each of them has to be processed with the function `plot.slopes.by.location`.  In this case, in the ‘Calibration periods’ data frame, each row should refer to one calibration period. Compiling the data frame with multiple calibration locations, use `c()` also for the geographic coordinates (e. g., `lon=c(5.43, 6.00), lat=c(52.93,52.94)`).
-
-
-The next step is to create a data.frame, in which a separate line is designated for each of the calibration periods. The columns are: 
-* start of the calibration period,
-* end of the calibration period,
-* longitude of the calibration location and,
-* latitude of the calibration location.
-
-```{r, eval = F}
-Calibration.periods<-data.frame(
-        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
-        lon=5.43, lat=52.93) 
-		#use c() also for the geographic coordinates, if you have more than one calibration location
-		# (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
-print(Calibration.periods)
-```
-
-Using the created data frame with the calibration periods and locations and the object with light data and twilight events (Proc.data), we estimate calibration parameters for each of the periods and make a calibration object. This object will be used for the calculation of geographic positions later on...
-```{r, eval = F}
-Calibration<-make.calibration(Proc.data, Calibration.periods)
-```
-Use `model.ageing=TRUE`, if you wish to account for opacification of the tag's shell. Note, this is only possible, if there are more than one calibration periods.
 
 ## Spatial extent
 
