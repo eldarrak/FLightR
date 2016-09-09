@@ -8,12 +8,12 @@
 #' @return \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
 #' @details TAGS format is a dataframe with columns:
 #'    
-#'    \item{\code{datetime}}{date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z}
-#'   \item{\code{light}}{light value measured by tag}
-#'   \item{\code{twilight}}{assigned by the software numeric indication of whether the record belongs to sunrise (1), sunset (2) or none of those (0)}
-#'   \item{\code{excluded}}{indication of whether a twilight was excluded during manual inspection (logical, \code{TRUE | FALSE})}
-#'   \item{\code{interp}}{indication of whether the light value at twilight was interpolated (logical, \code{TRUE | FALSE})}
-#' The fields \code{\code{excluded}} and \code{interp} may have values of \code{TRUE} only for \code{twilight > 0}. 
+#'    \item{datetime}{date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z}
+#'   \item{light}{light value measured by tag}
+#'   \item{twilight}{assigned by the software numeric indication of whether the record belongs to sunrise (1), sunset (2) or none of those (0)}
+#'   \item{excluded}{indication of whether a twilight was excluded during manual inspection (logical, \code{TRUE | FALSE})}
+#'   \item{interp}{indication of whether the light value at twilight was interpolated (logical, \code{TRUE | FALSE})}
+#' The fields \code{excluded} and \code{interp} may have values of \code{TRUE} only for \code{twilight > 0}. 
 #' 
 #' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
