@@ -1,11 +1,19 @@
-#' Function to write down twilights annotated in BAStag or twGeos packages data in so-called tags format
+#' Function to write down twilights annotated in BAStag package data in so-called TAGS format
 #'
-#' this function converts combines twilights detected in BAStag ot twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
+#' this function converts combines twilights detected in BAStag with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
 #' @param raw original data - dataframe with two columns first column must contain time and second measured light levels
 #' @param twl twilights object from \code{preprocess.light} function
 #' @param threshold threshold value used for twilight definition in \code{preprocess.light}
 #' @param filename if not NULL data.frame in TAGS format will be returned
 #' @return \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
+#' @details TAGS format is a dataframe with columns:
+#'    \item{\code{datetime}}{date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z}
+#'   \item{\code{light}}{light value measured by tag}
+#'   \item{\code{twilight}}{assigned by the software numeric indication of whether the record belongs to sunrise (1), sunset (2) or none of those (0)}
+#'   \item{\code{excluded}}{indication of whether a twilight was excluded during manual inspection (logical, \code{TRUE | FALSE})}
+#'   \item{\code{interp}}{indication of whether the light value at twilight was interpolated (logical, \code{TRUE | FALSE})}
+#' The fields \code{\code{excluded}} and \code{interp} may have values of \code{TRUE} only for \code{twilight > 0}. 
+#' 
 #' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
 BAStag2TAGS <- function(raw, twl, threshold, filename=NULL) {
@@ -26,7 +34,36 @@ BAStag2TAGS <- function(raw, twl, threshold, filename=NULL) {
   } else { return(out)}
  }
 
-#' Function to write down twilights annotated in GeoLight package data in so-called tags format
+#' Function to write down twilights annotated in twGeos package data in so-called TAGS format
+#'
+#' this function converts combines twilights detected in twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
+#' @param raw original data - dataframe with two columns first column must contain time and second measured light levels
+#' @param twl twilights object from \code{preprocess.light} function
+#' @param threshold threshold value used for twilight definition in \code{preprocess.light}
+#' @param filename if not NULL data.frame in TAGS format will be returned
+#' @return \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
+#' @author Eldar Rakhimberdiev & Simeon Lisovski
+#' @export
+twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
+  names(raw) <- c("Twilight", "Light")
+  twl$Light <- threshold
+  
+  tmp01 <- merge(raw, twl, all.y = T, all.x = T)
+  out <- data.frame(datetime = tmp01[,1], light = tmp01[,2],
+                    twilight = ifelse(tmp01$Rise==TRUE & !is.na(tmp01$Rise), 1,
+                                      ifelse(tmp01$Rise==FALSE & !is.na(tmp01$Rise), 2, 0)),
+                    interp = FALSE, excluded = ifelse(tmp01$Deleted & !is.na(tmp01$Deleted), TRUE, FALSE))
+  out$interp[out$twilight>0] <- TRUE
+  out<-out[order(out[,1]),]
+  out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
+  if (!is.null(filename)) {
+  write.csv(out, file=paste(strsplit('tmp.csv', '.csv')[[1]][1], "csv", sep=''), quote=FALSE, row.names=FALSE)
+  return(NULL)
+  } else { return(out)}
+ }
+ 
+
+#' Function to write down twilights annotated in GeoLight package data in so-called TAGS format
 #'
 #' this function converts combines twilights detected in BAStag ot twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
 #' @param raw original data - dataframe with two columns first column must contain time and second measured light levels
