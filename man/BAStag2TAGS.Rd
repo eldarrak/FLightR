@@ -2,7 +2,7 @@
 % Please edit documentation in R/Ports2TAGS.R
 \name{BAStag2TAGS}
 \alias{BAStag2TAGS}
-\title{Function to write down twilights annotated in BAStag or twGeos packages data in so-called tags format}
+\title{Function to write down twilights annotated in BAStag package data in so-called TAGS format}
 \usage{
 BAStag2TAGS(raw, twl, threshold, filename = NULL)
 }
@@ -19,7 +19,16 @@ BAStag2TAGS(raw, twl, threshold, filename = NULL)
 \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
 }
 \description{
-this function converts combines twilights detected in BAStag ot twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
+this function converts combines twilights detected in BAStag with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
+}
+\details{
+TAGS format is a dataframe with columns:
+   \item{\code{datetime}}{date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z}
+  \item{\code{light}}{light value measured by tag}
+  \item{\code{twilight}}{assigned by the software numeric indication of whether the record belongs to sunrise (1), sunset (2) or none of those (0)}
+  \item{\code{excluded}}{indication of whether a twilight was excluded during manual inspection (logical, \code{TRUE | FALSE})}
+  \item{\code{interp}}{indication of whether the light value at twilight was interpolated (logical, \code{TRUE | FALSE})}
+The fields \code{\code{excluded}} and \code{interp} may have values of \code{TRUE} only for \code{twilight > 0}.
 }
 \author{
 Eldar Rakhimberdiev & Simeon Lisovski

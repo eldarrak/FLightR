@@ -2,7 +2,7 @@
 % Please edit documentation in R/Ports2TAGS.R
 \name{GeoLight2TAGS}
 \alias{GeoLight2TAGS}
-\title{Function to write down twilights annotated in GeoLight package data in so-called tags format}
+\title{Function to write down twilights annotated in GeoLight package data in so-called TAGS format}
 \usage{
 GeoLight2TAGS(raw, gl_twl, filename = NULL)
 }
