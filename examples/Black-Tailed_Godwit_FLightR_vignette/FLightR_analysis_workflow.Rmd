@@ -35,9 +35,7 @@ The TAGS formatted file can be downloaded as Appendix A3 to Rakhimberdiev et al.
 download.file('https://git.io/vrJgv', 'example_TAGS_format.csv')
 
 ```
-TAGS online service (http://tags.animalmigration.org) saves data in the TAGS format, while from the R packages GeoLight and BAStag or twGeos the annotated twilights need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS` and `BAStag2TAGS`) can be used.
-
-The function `get.tags.data` reads comma separated file in TAGS format, detects tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed an object, containing 
+TAGS online service (http://tags.animalmigration.org) saves data in the TAGS format, while from the R packages GeoLight and BAStag or twGeos the annotated twilights need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used. The function `get.tags.data` reads comma separated file in TAGS format, detects tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed an object, containing 
 
 1. the recorded light data,
 2. the detected twilight events,
@@ -95,7 +93,7 @@ abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 ```
 
-## Spatial extent
+## 3. Spatial extent
 
 Set up a spatial grid (50 X 50 km on default) `left`, `right`. `bottom` and `top` are specific boundaries for your bounding box. `distance.from.land.allowed.to.use` should be vector with length of two, first number is negative distance allowed to use while over land, and second is distance from land allowed to use while over water.
 `distance.from.land.allowed.to.stay` should be vector with length of two, first number is negative distance where bird is allowed to be stationary, and second is distance from land allowed to fly over during twilight while over water.
@@ -106,14 +104,14 @@ Grid<-make.grid(left=-14, bottom=30, right=13, top=57,
 ```
 The resulting grid is a matrix with the columns: `lon` (longitude), `lat` (latitude) and `Stay` (probability of stay). The grid cells, which the bird presumably cannot use (e.g. locations over land for a marine fish), are excluded from the data, while the locations at which an animal cannot be stationary are given a low probability of stay. Using masks can side track model estimation to the local minima, so we recommend to initially run model without a mask, enable them for the second run and visually compare the results, to see if the model converges to a similar track.
 
-## Create proposal
+## 4. Create proposal
 
 Here we create a complex object, which will be used in the main run. It incorporates all the objects, created at earlier steps: the light data with the detected twilight events (Proc.data), the spatial parameters (Grid), geographic coordinates of the initial location, where the tracking has started (start), and the calibration parameters (Calibration).
 
 ```{r, eval = F}
 all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
 ```
-## Run particle filter
+## 5. Run particle filter
 
 At this stage, results are calculated (coordinates, behavior, stationarity).
 Within the `run.particle.filter`, the following parameters can be defined: 
@@ -136,7 +134,7 @@ save(Result, file="Result.bltg.ageing.model.noOD.RData")
 ```
 Now your results are saved in your work directory as an RData object.
 
-## Migration schedules
+## 6. Migration schedules
 
 We can extract departure arrival estimates from the results we have got. 
 First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at 2&deg latitude;
@@ -148,7 +146,7 @@ And now we estimate probabilities if being in the area for each twilight:
 Times.NL=find.times.distribution(Result,Index)
 Times.NL
 ```
-## Plotting the results
+## 7. Plotting the results
 
 ### Plot a simple map
 ```{r, eval = F}
