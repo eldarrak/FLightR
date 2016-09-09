@@ -23,6 +23,7 @@ this function converts combines twilights detected in BAStag with raw data and w
 }
 \details{
 TAGS format is a dataframe with columns:
+   
    \item{\code{datetime}}{date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z}
   \item{\code{light}}{light value measured by tag}
   \item{\code{twilight}}{assigned by the software numeric indication of whether the record belongs to sunrise (1), sunset (2) or none of those (0)}
