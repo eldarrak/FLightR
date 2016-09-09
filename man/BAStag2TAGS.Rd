@@ -22,7 +22,7 @@ BAStag2TAGS(raw, twl, threshold, filename = NULL)
 this function converts combines twilights detected in BAStag with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
 }
 \details{
-TAGS format is a dataframe with columns:
+TAGS format is a dataframe with columns
    
    \item{datetime}{date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z}
   \item{light}{light value measured by tag}

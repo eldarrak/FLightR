@@ -6,7 +6,7 @@
 #' @param threshold threshold value used for twilight definition in \code{preprocess.light}
 #' @param filename if not NULL data.frame in TAGS format will be returned
 #' @return \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
-#' @details TAGS format is a dataframe with columns:
+#' @details TAGS format is a dataframe with columns
 #'    
 #'    \item{datetime}{date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z}
 #'   \item{light}{light value measured by tag}
