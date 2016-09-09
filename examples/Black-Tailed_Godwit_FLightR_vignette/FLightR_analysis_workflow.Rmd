@@ -26,8 +26,8 @@ The FLightR works with ‘TAGS’ format containing annotated twilight data. Thi
 * `datetime` – date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z;
 * `light` – light value measured by tag;
 * `twilight` – assigned by the software numeric indication of whether the record belongs to sunrise (1), sunset (2) or none of those (0);
-* `excluded` –indication of whether a twilight was excluded during manual inspection (logical, `TRUE /FALSE`);
-* `interp` - indication of whether the light value at twilight was interpolated (logical, `TRUE /FALSE`). 
+* `excluded` – indication of whether a twilight was excluded during manual inspection (logical, `TRUE | FALSE`);
+* `interp` - indication of whether the light value at twilight was interpolated (logical, `TRUE | FALSE`). 
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
 
 The TAGS formatted file can be downloaded as Appendix A3 to Rakhimberdiev et al. 2016 or from the authors’ GitHub page: 
