@@ -6,6 +6,7 @@
 # FLightR analysis example of Black tailed godwit geolocator
 # 
 This is a FLightR>=0.4.2 example with the data from 
+
 Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.
 
 ## Install package
