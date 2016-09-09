@@ -13,7 +13,7 @@ twGeos2TAGS(raw, twl, threshold, filename = NULL)
 
 \item{threshold}{threshold value used for twilight definition in \code{preprocess.light}}
 
-\item{filename}{if not NULL data.frame in TAGS format will be returned}
+\item{filename}{if NULL data.frame in TAGS format will be returned otherwise .csv file in TAGS format will be written}
 }
 \value{
 \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.

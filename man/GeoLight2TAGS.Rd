@@ -11,7 +11,7 @@ GeoLight2TAGS(raw, gl_twl, filename = NULL)
 
 \item{gl_twl}{twilights object from GeoLight}
 
-\item{filename}{if not NULL data.frame in TAGS format will be returned}
+\item{filename}{if NULL data.frame in TAGS format will be returned otherwise .csv file in TAGS format will be written}
 }
 \value{
 \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
@@ -34,6 +34,6 @@ The fields \code{excluded} and \code{interp} may have values of \code{TRUE} only
 Eldar Rakhimberdiev & Simeon Lisovski
 }
 \seealso{
-\code{\link{BAStag2TAGS}} and \code{\link{BAStag2TAGS}}
+\code{\link{twGeos2TAGS}} and \code{\link{BAStag2TAGS}}
 }
 
