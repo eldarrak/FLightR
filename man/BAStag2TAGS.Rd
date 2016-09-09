@@ -35,4 +35,7 @@ The fields \code{excluded} and \code{interp} may have values of \code{TRUE} only
 \author{
 Eldar Rakhimberdiev & Simeon Lisovski
 }
+\seealso{
+\code{\link{twGeos2TAGS}} and \code{\link{GeoLight2TAGS}}
+}
 
