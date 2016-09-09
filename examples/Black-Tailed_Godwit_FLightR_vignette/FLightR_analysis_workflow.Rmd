@@ -137,7 +137,7 @@ Now your results are saved in your work directory as an RData object.
 ## 6. Migration schedules
 
 We can extract departure arrival estimates from the results we have got. 
-First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at 2&deg latitude;
+First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at 2&deg; latitude;
 ```{r, eval = F}
 Index<-which(Result$Spatial$Grid[,1]>(2))
 ```
