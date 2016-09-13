@@ -922,7 +922,8 @@ get_ZI_distances<-function(Result) {
     DistancesZI<-c()
   
     for (i in 1:length(Result$Results$Transitions.rle)) {
-	   Inverse<-inverse.rle(Distances[[i]]), c(0.25, 0.5, 0.75))
+	   Inverse<-inverse.rle(Distances[[i]]), c(0.25, 0.5, 0.75)
+       DistancesZI<-rbind(DistancesZI,   c(quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
     }
   
     DistancesZI<-cbind(Departure=as.POSIXct(c(NA,Result$Results$Movement.results$time[-length(Result$Results$Movement.results$time)]), origin=c('1970-01-01'), tz='UTC'), Arrival= as.POSIXct(as.numeric(Result$Results$Movement.results$time), tz='UTC', origin='1970-01-01'), as.data.frame(DistancesZI))
