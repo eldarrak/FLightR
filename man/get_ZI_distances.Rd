@@ -17,6 +17,5 @@ This function estimate distances with all zeros from stationary periods. This me
 }
 \author{
 Eldar Rakhimberdiev
-export
 }
 

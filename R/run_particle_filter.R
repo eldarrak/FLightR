@@ -912,7 +912,7 @@ dist.fun<-function(x) {
 #' @return a data frame containing median and quartiles for the distances and also departure and arrival time
 #'
 #' @author Eldar Rakhimberdiev
-#' export
+#' @export
 get_ZI_distances<-function(Result) {   
      Distances<-Result$Results$Transitions.rle
    for (i in 1:length(Result$Results$Transitions.rle)) {
