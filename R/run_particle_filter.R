@@ -922,7 +922,7 @@ get_ZI_distances<-function(Result) {
     DistancesZI<-c()
   
     for (i in 1:length(Result$Results$Transitions.rle)) {
-	   Inverse<-inverse.rle(Distances[[i]]), c(0.25, 0.5, 0.75)
+	   Inverse<-inverse.rle(Distances[[i]], c(0.25, 0.5, 0.75))
        DistancesZI<-rbind(DistancesZI,   c(quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
     }
   
