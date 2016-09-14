@@ -47,7 +47,7 @@ I am also developing [wiki pages for the package] (https://github.com/eldarrak/F
 
 3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3. [Check it](http://www.waderstudygroup.org/article/7919/)
 
-4. Rakhimberdiev, E.Saveliev A., Piersma, T. & Rakhimberdiev E., Karagicheva, J. FLightR: An R package for reconstructing animal paths from solar geolocation loggers - submitted
+4. Rakhimberdiev, E.Saveliev A., Piersma, T. & Karagicheva, J. FLightR: An R package for reconstructing animal paths from solar geolocation loggers - submitted
 
 -------------
 Discussion web forum for solar geolocation is available at [ornithologyexchange](http://ornithologyexchange.org/forums/forum/259-geolocator-discussion-support/). Ask there if you need help with the FLightR _per se_ or with solar geolocation in general.
