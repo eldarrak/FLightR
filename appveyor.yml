@@ -26,6 +26,9 @@ on_failure:
 on_success:
   - Rscript -e 'covr::codecov()'
   
+environment:
+    USE_RTOOLS: true
+
 artifacts:
   - path: '*.Rcheck\**\*.log'
     name: Logs
