@@ -522,6 +522,7 @@ if (is.null(background)) {
 
  
 seasonal_donut<-function() {
+   Seasonal_palette<-colorRampPalette(hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
    pie.data<-data.frame(group=as.factor(c(1:12)), value=rep(1,12))  
    pie.data$fraction = pie.data$value / sum(pie.data$value)
    pie.data$ymax = cumsum(pie.data$fraction)
