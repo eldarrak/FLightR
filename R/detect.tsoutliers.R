@@ -61,7 +61,9 @@ tsoutliers.test <- function(x,plot=FALSE)
 }
 
 detect.outliers<-function(Lons, plot=T, max.outlier.proportion=0.2) {
-require('tsoutliers')
+  if (!requireNamespace("tsoutliers", quietly = TRUE)) {
+    stop("tsoutliers needed for this function to work. Please install it.",
+      call. = FALSE)
 
 .Lons.ts<-ts(Lons)
 .Lons.ts<<-.Lons.ts
