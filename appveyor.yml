@@ -14,6 +14,7 @@ install:
 
 build_script:
   - travis-tool.sh install_deps
+  - travis-tool.sh github_package jimhester/covr
 
 test_script:
   - travis-tool.sh run_tests
@@ -22,6 +23,9 @@ on_failure:
   - 7z a failure.zip *.Rcheck\*
   - appveyor PushArtifact failure.zip
 
+after_success:
+  - Rscript -e 'covr::codecov()'
+  
 artifacts:
   - path: '*.Rcheck\**\*.log'
     name: Logs

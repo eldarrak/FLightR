@@ -1,6 +1,6 @@
 [![Travis-CI Build Status](https://travis-ci.org/eldarrak/FLightR.svg?branch=master)](https://travis-ci.org/eldarrak/FLightR)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/eldarrak/FLightR?branch=master&svg=true)](https://ci.appveyor.com/project/eldarrak/FLightR)
-
+[![Coverage Status](https://codecov.io/github/eldarrak/flightr/coverage.svg?branch=master)](https://codecov.io/github/eldarrak/flightr?branch=master)
 
 FLightR
 =======
