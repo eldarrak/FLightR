@@ -30,3 +30,4 @@ Depends:
 License: GNU GPL v3.0
 ByteCompile: true
 RoxygenNote: 5.0.1
+Suggests: covr
