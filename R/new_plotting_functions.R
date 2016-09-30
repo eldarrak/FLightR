@@ -546,16 +546,28 @@ seasonal_donut<-function() {
 	  return(donut)
 }
 
+#' plot likelihood surface over map
+#'
+#' plots specific likelihood surface over map
+#' @param object either output from \code{\link{run.particle.filter}} or \code{\link{run.particle.filter}}
+#' @param date either NULL or a date (possibly with time) closest to the twilight you wan tto be plotted
+#' @param twilight.index number of likelohood surface to be plotted 
+#' @export plot.likelihood
+plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
+   my.golden.colors <- colorRampPalette(c("white","#FF7100"))
+   if (!is.null(date)) {
+      date<-as.POSIXct(date, tz='UTC')
+      twilight.index<-which.min(abs(object$Indices$Matrix.Index.Table$time-date))
+	}
 
-# function below is at the development stage..
-plot.likelihood<-function(object, date=NULL, twilight.number=NULL) {
-my.golden.colors <- colorRampPalette(c("white","#FF7100"))
-
-image.plot(as.image(object$Spatial$Phys.Mat[,twilight.number], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
-                   col=my.golden.colors(64), main=paste("twilight number",twilight.number ))          
-library(maps)
-map('world', add=T)
-map('state', add=T)
+	  
+   image.plot(as.image(object$Spatial$Phys.Mat[,twilight.index], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
+                   col=my.golden.colors(64), main=paste("twilight number",twilight.index, format(object$Indices$Matrix.Index.Table$time[twilight.index], tz='UTC')))          
+   library(maptools)
+   data(wrld_simpl)
+   plot(wrld_simpl, add=T)
+   #maps::map('world', add=T)
+   #maps::map('state', add=T)
  
 }
 
