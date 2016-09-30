@@ -549,6 +549,7 @@ seasonal_donut<-function() {
 #' plot likelihood surface over map
 #'
 #' plots specific likelihood surface over map
+#' @details function plots likelihoods before particle filter run, so these are pure results of calibrations without any movement model
 #' @param object either output from \code{\link{run.particle.filter}} or \code{\link{run.particle.filter}}
 #' @param date either NULL or a date (possibly with time) closest to the twilight you wan tto be plotted
 #' @param twilight.index number of likelohood surface to be plotted 

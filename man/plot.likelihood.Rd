@@ -16,4 +16,7 @@ plot.likelihood(object, date = NULL, twilight.index = NULL)
 \description{
 plots specific likelihood surface over map
 }
+\details{
+function plots likelihoods before particle filter run, so these are pure results of calibrations without any movement model
+}
 
