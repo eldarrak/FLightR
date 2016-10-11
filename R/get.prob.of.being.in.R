@@ -51,7 +51,6 @@ Q3<-find.time(Prob.of.being.in, time, quantiles[3], plot=F)
 Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=F)
 Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=F)
 
-Q.75=if(Q1[sapply(Q3, FUN=function(x) which.min(abs(x - Q1)))]
 # find pairs for each in Q3
 Res<-data.frame(Q.025=Q1[sapply(Q3, FUN=function(x) which.min(abs(x - Q1)))], 
 		Q.25=Q2[sapply(Q3, FUN=function(x) which.min(abs(x - Q2)))],
