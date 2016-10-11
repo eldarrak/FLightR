@@ -66,22 +66,27 @@ find.times.distribution<-function(Result, Spatial.Index) {
 
    for (i in 1:length(Q.50)) {
       Q1_cur<-Q1.5[Q1.5<=Q3[i]]
+	  if (i>1) Q1_cur<-Q1_cur[Q1_cur>Q3[i-1]]
       if (length(Q1_cur)>0) {
 	     Res$Q.025[i]<-Q1_cur[length(Q1_cur)]
       }
 	  
       Q2_cur<-Q2.4[Q2.4<=Q3[i]]
+	  if (i>1) Q2_cur<-Q2_cur[Q2_cur>Q3[i-1]]
       if (length(Q2_cur)>0) {
 	     Res$Q.25[i]<-Q2_cur[length(Q2_cur)]
       }	  
 
 	  Q4_cur<-Q2.4[Q2.4>=Q3[i]]
+	  if (i<length(Q.50)) Q4_cur<-Q4_cur[Q4_cur<Q3[i+1]]
       if (length(Q4_cur)>0) {
 	     Res$Q.75[i]<-Q4_cur[1]
       }	
 	  
  	  Q5_cur<-Q1.5[Q1.5>=Q3[i]]
+	  if (i<length(Q.50)) Q5_cur<-Q5_cur[Q5_cur<Q3[i+1]]
       if (length(Q5_cur)>0) {
+	  
 	     Res$Q.975[i]<-Q5_cur[1]
       }	 
    } 
