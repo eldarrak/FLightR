@@ -311,43 +311,9 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 		}
 	  }
 	 cat('function will plot', length(twilights.index), 'twilights\n')
-         Points_rle<-Result$Results$Points.rle[twilights.index]
-         All.Points<-rep(0, nrow(Result$Spatial$Grid))
-         for (twilight in 1:length(twilights.index)) {
-             All.Points[Points_rle[[twilight]]$values]<-All.Points[Points_rle[[twilight]]$values] + Points_rle[[twilight]]$lengths
-         }
-		 
-  nParticles<- sum(Result$Results$Points.rle[[1]]$lengths)
-  
-  Order<-order(All.Points, decreasing=TRUE)
-  
-  Order_rle<-rle(All.Points[Order]) # 
-  
-  Cum_probs<-cumsum(Order_rle$values/nParticles/length(twilights.index))
-  
-  #Percentile=percentile
-  tmp<-which(Cum_probs<=percentile)
-  if (length(tmp)==0) { 
-  Selected_rle<-1 # if there is no such bin - return the most likely one
-  #return(ceiling(min(Cum_probs)*100)/100)
-  } else {
-  Selected_rle<-max(which(Cum_probs<=percentile))
-  }
-  #Points<-which(All.Points/nParticles/length(twilights.index)>percentile)
-  Points<-Order[1:sum(Order_rle$lengths[1:Selected_rle])]
- 
-  #if (length(Points)==0) { 
-       #warning("bird dod not spend ", percentile, " of time in any point:\n     maximum time spent in on grid cell is ", floor(max(All.Points/nParticles/length(twilights.index))*100)/100, "\n")
 
+  Points_selected<-get_utilisation_points(Result, twilights.index, percentile)
   
-  
-  # so this is the area where bird spent almost all the time (95%)
-  # how should we show it?
-  # yeah it could be some kind of a polygon or 
-  # if will combind points by distance
-  #  
-  
-  Points_selected<-(1:length(All.Points))[Points]
  if (is.null(r)) {
      r=get_gunion_r(Result)
      }
@@ -572,4 +538,36 @@ plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
  
 }
 
+get_points_distribution<-function(Result, twilights.index) {
+    Points_rle<-Result$Results$Points.rle[twilights.index]
+	All.Points<-rep(0, nrow(Result$Spatial$Grid))
+	for (twilight in 1:length(twilights.index)) {
+        All.Points[Points_rle[[twilight]]$values]<-All.Points[Points_rle[[twilight]]$values] + Points_rle[[twilight]]$lengths
+    }
+	return(All.Points)	 
+}
 
+
+get_utilisation_points<-function(Result, twilights.index, percentile) { 
+  
+  All.Points<-get_points_distribution(Result, twilights.index)
+  Order<-order(All.Points, decreasing=TRUE)
+ 
+  Order_rle<-rle(All.Points[Order]) # 
+  
+  nParticles<- sum(Result$Results$Points.rle[[1]]$lengths)
+  
+  Cum_probs<-cumsum(Order_rle$values/nParticles/length(twilights.index))
+  
+  tmp<-which(Cum_probs<=percentile)
+  if (length(tmp)==0) { 
+     Selected_rle<-1 # if there is no such bin - return the most likely one
+  } else {
+     Selected_rle<-max(which(Cum_probs<=percentile))
+  }
+  Points<-Order[1:sum(Order_rle$lengths[1:Selected_rle])]
+
+  Points_selected<-(1:length(All.Points))[Points]
+  return(Points_selected) 
+}
+ 
