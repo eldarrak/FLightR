@@ -52,11 +52,11 @@ Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=F)
 Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=F)
 
 # find pairs for each in Q3
-Res<-data.frame(Q.025=as.POSIXct(Q1[sapply(Q3, FUN=function(x) which.min(abs(x - Q1)))], origin='1970-01-01'), 
-		Q.25=as.POSIXct(Q2[sapply(Q3, FUN=function(x) which.min(abs(x - Q2)))], origin='1970-01-01'),
-		Q.50=as.POSIXct(Q3,origin='1970-01-01'),
-		Q.75=as.POSIXct(ifelse(!is.na(Q4), Q4[sapply(Q3, FUN=function(x) which.min(abs(x - Q4)))],NA), origin='1970-01-01'),  
-		Q.975=as.POSIXct(ifelse(!is.na(Q5) ,Q5[sapply(Q3, FUN=function(x) which.min(abs(x - Q5)))], NA),origin='1970-01-01'))
+Res<-data.frame(Q.025=as.POSIXct(Q1[sapply(Q3, FUN=function(x) which.min(abs(x - Q1)))], origin='1970-01-01', tz="UTC"), 
+		Q.25=as.POSIXct(Q2[sapply(Q3, FUN=function(x) which.min(abs(x - Q2)))], origin='1970-01-01', tz="UTC"),
+		Q.50=as.POSIXct(Q3,origin='1970-01-01', tz="UTC"),
+		Q.75=as.POSIXct(ifelse(!is.na(Q4), Q4[sapply(Q3, FUN=function(x) which.min(abs(x - Q4)))],NA), origin='1970-01-01', tz="UTC"),  
+		Q.975=as.POSIXct(ifelse(!is.na(Q5) ,Q5[sapply(Q3, FUN=function(x) which.min(abs(x - Q5)))], NA),origin='1970-01-01', tz="UTC"))
 	return(Res)
 	}
 
