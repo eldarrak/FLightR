@@ -21,7 +21,7 @@ abline(h= prob.cutoff, col="red")
 }
 Transitions= which(sign(P[-length(P)]* P[-1])==-1)
 if (length(Transitions) ==0 ) { 
-	warning("bird has never crossed the boundary of the region!")
+	#warning("bird has never crossed the boundary of the region!")
 	    return(NA)
 	} else {
 		Crossing_time=time[Transitions] + (time[Transitions+1] - time[Transitions])* 
@@ -40,23 +40,49 @@ if (length(Transitions) ==0 ) {
 #' @author Eldar Rakhimberdiev
 #' @export
 find.times.distribution<-function(Result, Spatial.Index) {
-Prob.of.being.in<-get.prob.of.being.in(Result, Spatial.Index)
-time<-Result$Indices$Matrix.Index.Table$time
-# let's start from 0.5 
-quantiles=c(0.025, 0.25, 0.5, 0.75, 0.975)
+   Prob.of.being.in<-get.prob.of.being.in(Result, Spatial.Index)
+   time<-Result$Indices$Matrix.Index.Table$time
+   # let's start from 0.5 
+   quantiles=c(0.025, 0.25, 0.5, 0.75, 0.975)
 
-Q1<-find.time(Prob.of.being.in, time, quantiles[1], plot=F)
-Q2<-find.time(Prob.of.being.in, time, quantiles[2], plot=F)
-Q3<-find.time(Prob.of.being.in, time, quantiles[3], plot=F)
-Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=F)
-Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=F)
+   Q1<-find.time(Prob.of.being.in, time, quantiles[1], plot=F)
+   Q2<-find.time(Prob.of.being.in, time, quantiles[2], plot=F)
+   Q3<-find.time(Prob.of.being.in, time, quantiles[3], plot=F)
+   Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=F)
+   Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=F)
+   
+   if (is.na(Q3[1])) {
+      return(NA)
+   } else {
+   Q.50<-as.POSIXct(Q3,origin='1970-01-01', tz="UTC")
+      
+   Res<-data.frame(Q.025=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
+                   Q.25=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
+                   Q50=Q.50,
+				   Q.75=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
+				   Q.975=as.POSIXct(NA, origin='1970-01-01', tz="UTC"))
 
-# find pairs for each in Q3
-Res<-data.frame(Q.025=as.POSIXct(Q1[sapply(Q3, FUN=function(x) which.min(abs(x - Q1)))], origin='1970-01-01', tz="UTC"), 
-		Q.25=as.POSIXct(Q2[sapply(Q3, FUN=function(x) which.min(abs(x - Q2)))], origin='1970-01-01', tz="UTC"),
-		Q.50=as.POSIXct(Q3,origin='1970-01-01', tz="UTC"),
-		Q.75=as.POSIXct(ifelse(!is.na(Q4), Q4[sapply(Q3, FUN=function(x) which.min(abs(x - Q4)))],NA), origin='1970-01-01', tz="UTC"),  
-		Q.975=as.POSIXct(ifelse(!is.na(Q5) ,Q5[sapply(Q3, FUN=function(x) which.min(abs(x - Q5)))], NA),origin='1970-01-01', tz="UTC"))
-	return(Res)
-	}
+   for (i in 1:length(Q.50)) {
+      Q1_cur<-Q1[Q1<=Q3[i]]
+      if (length(Q1_cur)>0) {
+	     Res$Q.025[i]<-Q1_cur[length(Q1_cur)]
+      }
+	  
+      Q2_cur<-Q2[Q2<=Q3[i]]
+      if (length(Q2_cur)>0) {
+	     Res$Q.25[i]<-Q2_cur[length(Q2_cur)]
+      }	  
 
+	  Q4_cur<-Q4[Q4>=Q3[i]]
+      if (length(Q4_cur)>0) {
+	     Res$Q.75[i]<-Q4_cur[1]
+      }	
+	  
+ 	  Q5_cur<-Q5[Q5>=Q3[i]]
+      if (length(Q5_cur)>0) {
+	     Res$Q.975[i]<-Q5_cur[1]
+      }	 
+   } 
+   return(Res)
+   }
+}
