@@ -65,22 +65,22 @@ find.times.distribution<-function(Result, Spatial.Index) {
 				   Q.975=as.POSIXct(NA, origin='1970-01-01', tz="UTC"))
 
    for (i in 1:length(Q.50)) {
-      Q1_cur<-Q1[Q1<=Q3[i]]
+      Q1_cur<-Q1.5[Q1.5<=Q3[i]]
       if (length(Q1_cur)>0) {
 	     Res$Q.025[i]<-Q1_cur[length(Q1_cur)]
       }
 	  
-      Q2_cur<-Q2[Q2<=Q3[i]]
+      Q2_cur<-Q2.4[Q2.4<=Q3[i]]
       if (length(Q2_cur)>0) {
 	     Res$Q.25[i]<-Q2_cur[length(Q2_cur)]
       }	  
 
-	  Q4_cur<-Q4[Q4>=Q3[i]]
+	  Q4_cur<-Q2.4[Q2.4>=Q3[i]]
       if (length(Q4_cur)>0) {
 	     Res$Q.75[i]<-Q4_cur[1]
       }	
 	  
- 	  Q5_cur<-Q5[Q5>=Q3[i]]
+ 	  Q5_cur<-Q1.5[Q1.5>=Q3[i]]
       if (length(Q5_cur)>0) {
 	     Res$Q.975[i]<-Q5_cur[1]
       }	 
