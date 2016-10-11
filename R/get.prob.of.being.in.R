@@ -50,8 +50,8 @@ find.times.distribution<-function(Result, Spatial.Index) {
    Q3<-find.time(Prob.of.being.in, time, quantiles[3], plot=F)
    Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=F)
    Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=F)
-   Q1.5<-c(Q1, Q2)
-   Q2.4<-c(Q2, Q4)
+   Q1.5<-sort(c(Q1, Q5))
+   Q2.4<-sort(c(Q2, Q4))
    
    if (is.na(Q3[1])) {
       return(NA)
