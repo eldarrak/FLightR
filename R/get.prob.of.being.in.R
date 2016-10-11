@@ -60,7 +60,7 @@ find.times.distribution<-function(Result, Spatial.Index) {
       
    Res<-data.frame(Q.025=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
                    Q.25=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
-                   Q50=Q.50,
+                   Q.50=Q.50,
 				   Q.75=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
 				   Q.975=as.POSIXct(NA, origin='1970-01-01', tz="UTC"))
 
