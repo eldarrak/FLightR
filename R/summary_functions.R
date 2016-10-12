@@ -118,7 +118,7 @@ get_stationary_stats<-function(Result, twilights.index) {
 get_ZI_distances<-function(Result) {   
      Distances<-Result$Results$Transitions.rle
    for (i in 1:length(Result$Results$Transitions.rle)) {
-       Distances[[i]]$values<-	sapply(Result$Results$Transitions.rle[[i]]$values, FUN=function(x) dist.fun(x), Result)
+       Distances[[i]]$values<-	sapply(Result$Results$Transitions.rle[[i]]$values, FUN=function(x) dist.fun(x, Result))
     }
  
     DistancesZI<-c()
