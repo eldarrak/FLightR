@@ -20,12 +20,10 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    for (period in 1:nrow(Potential_stat_periods)) {
       cur_period<-Potential_stat_periods[period,1]:Potential_stat_periods[period,2]
       cur_period<-cur_period[cur_period>0]
-      Quantiles<-rbind(Quantiles,get_stationary_stats(Result,cur_period))
+      Quantiles<-rbind(Quantiles, get_stationary_stats(Result,cur_period))
       Schedules<-rbind(Schedules, get_time_boundaries(Result, cur_period, 0.95))
    }
-
    ZIDist<-get_ZI_distances(Result) 
-
    # ok, now we look only at the distances between the periods..
    Potential_movement_periods<-data.frame(start=Potential_stat_periods$end[-nrow(Potential_stat_periods)]+1, end=Potential_stat_periods$start[-1])
    Distance_Moved<-c()
@@ -109,3 +107,28 @@ get_stationary_stats<-function(Result, twilights.index) {
    return(Quantiles)
    }
    
+#' Estimate distances moved between twilights
+#' 
+#' This function estimate distances with all zeros from stationary periods. This means many of the resulting movements will have 0 as the distance
+#' @param Result An object created by \code{\link{run.particle.filter}}.
+#' @return a data frame containing median and quartiles for the distances and also departure and arrival time
+#'
+#' @author Eldar Rakhimberdiev
+#' @export
+get_ZI_distances<-function(Result) {   
+     Distances<-Result$Results$Transitions.rle
+   for (i in 1:length(Result$Results$Transitions.rle)) {
+       Distances[[i]]$values<-	sapply(Result$Results$Transitions.rle[[i]]$values, FUN=function(x) dist.fun(x), Result)
+    }
+ 
+    DistancesZI<-c()
+  
+    for (i in 1:length(Result$Results$Transitions.rle)) {
+	   Inverse<-inverse.rle(Distances[[i]], c(0.25, 0.5, 0.75))
+       DistancesZI<-rbind(DistancesZI,   c(quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
+    }
+  
+    DistancesZI<-cbind(Departure=as.POSIXct(c(NA,Result$Results$Movement.results$time[-length(Result$Results$Movement.results$time)]), origin=c('1970-01-01'), tz='UTC'), Arrival= as.POSIXct(as.numeric(Result$Results$Movement.results$time), tz='UTC', origin='1970-01-01'), as.data.frame(DistancesZI))
+
+	return(DistancesZI)
+}

@@ -901,32 +901,6 @@ dir_fun<-function(x, in.Data) {
 	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
 }
 	
-dist.fun<-function(x) {
+dist.fun<-function(x, Result) {
     sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
-}
-
-#' Estimate distances moved between twilights
-#' 
-#' This function estimate distances with all zeros from stationary periods. This means many of the resulting movements will have 0 as the distance
-#' @param Result An object created by \code{\link{run.particle.filter}}.
-#' @return a data frame containing median and quartiles for the distances and also departure and arrival time
-#'
-#' @author Eldar Rakhimberdiev
-#' @export
-get_ZI_distances<-function(Result) {   
-     Distances<-Result$Results$Transitions.rle
-   for (i in 1:length(Result$Results$Transitions.rle)) {
-       Distances[[i]]$values<-	sapply(Result$Results$Transitions.rle[[i]]$values, FUN=function(x) dist.fun(x))
-    }
- 
-    DistancesZI<-c()
-  
-    for (i in 1:length(Result$Results$Transitions.rle)) {
-	   Inverse<-inverse.rle(Distances[[i]], c(0.25, 0.5, 0.75))
-       DistancesZI<-rbind(DistancesZI,   c(quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
-    }
-  
-    DistancesZI<-cbind(Departure=as.POSIXct(c(NA,Result$Results$Movement.results$time[-length(Result$Results$Movement.results$time)]), origin=c('1970-01-01'), tz='UTC'), Arrival= as.POSIXct(as.numeric(Result$Results$Movement.results$time), tz='UTC', origin='1970-01-01'), as.data.frame(DistancesZI))
-
-	return(DistancesZI)
 }
