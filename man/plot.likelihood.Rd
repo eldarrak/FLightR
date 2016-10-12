@@ -7,7 +7,7 @@
 plot.likelihood(object, date = NULL, twilight.index = NULL)
 }
 \arguments{
-\item{object}{either output from \code{\link{run.particle.filter}} or \code{\link{run.particle.filter}}}
+\item{object}{either output from \code{\link{make.prerun.object}} or \code{\link{run.particle.filter}}}
 
 \item{date}{either NULL or a date (possibly with time) closest to the twilight you wan tto be plotted}
 
