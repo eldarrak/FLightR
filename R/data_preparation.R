@@ -562,7 +562,7 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
 	return(Out)
 }
 
-create.calibration<-function( All.slopes, Proc.data, FLightR.data, location, log.light.borders, log.irrad.borders, ageing.model=NULL) {
+create.calibration<-function( All.slopes, Proc.data, FLightR.data, location, log.light.borders, log.irrad.borders, ageing.model=NULL, likelihood.correction=TRUE) {
 # Now we create 'parameters' object that will have all the details about the calibration
 Parameters<-All.slopes$Parameters # LogSlope # 
 Parameters$measurement.period<-Proc.data$measurement.period 
