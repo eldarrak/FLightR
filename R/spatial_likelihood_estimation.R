@@ -1,7 +1,7 @@
 # spatial_likelihood_estiamtion.R
 
 
-get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL ) {
+get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL, likelihood.correction=TRUE ) {
 
 # let's say we have to submit all boundaries inside tha calibration object..
 
@@ -27,12 +27,12 @@ cat("estimating dusks\n")
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
+	All.probs.dusk<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 		 	
 cat("estimating dawns\n")
 	 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-	All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries)
+	All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 	
 	}, finally = stopCluster(mycl))
 	
@@ -60,7 +60,7 @@ return(Phys.Mat)
 }
 
 
-get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Grid, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=F) {
+get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Grid, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=F, likelihood.correction=TRUE) {
  
 		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
 		
@@ -75,16 +75,16 @@ get.prob.surface<-function(Twilight.ID, dusk=T, Twilight.time.mat, Twilight.log.
 			}
 		
 		if (return.slopes) {
-		Current.probs<-	apply(Grid, 1, get.current.slope.prob, Twilight.solar.vector=Twilight.solar.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)	
+		Current.probs<-	apply(Grid, 1, get.current.slope.prob, Twilight.solar.vector=Twilight.solar.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=T, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries, likelihood.correction=likelihood.correction)	
 			} else {
-		Current.probs<-	apply(Grid, 1, get.current.slope.prob, Twilight.solar.vector=Twilight.solar.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries)
+		Current.probs<-	apply(Grid, 1, get.current.slope.prob, Twilight.solar.vector=Twilight.solar.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, return.slopes=F, Twilight.time.vector=Twilight.time.vector,  Calib.param= Calib.param, delta=delta, time_correction=time_correction, calibration=calibration, impute.on.boundaries=impute.on.boundaries, likelihood.correction=likelihood.correction)
 		}
 		return(Current.probs)
 	}
 
 			
 			
-get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, Twilight.time.vector=NULL,  delta=0, dusk=T, x=NULL) {
+get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, Twilight.time.vector=NULL,  delta=0, dusk=T, x=NULL, likelihood.correction=TRUE) {
 		# check for the intercept
 		sum=0
 			
@@ -108,36 +108,13 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 
 		#test.Slope<-rnorm(1000, coef.coef[2], sqrt(coef.vcov[4]))
 		if (slope.sd==0) {
-		test.Slope=coef.coef[2]
-		
+      		test.Slope=coef.coef[2]
 		} else {
-		
-	
-		test.Slope<-rnorm(1000, coef.coef[2], slope.sd)
+     		test.Slope<-rnorm(1000, coef.coef[2], slope.sd)
 		}
-		#-----------
-		# here is an experimental correction to integrate out 
-		# influence of the intercept
-		#test.Slope=test.Slope+1.230660 -coef.coef[1]*0.405351 + coef.coef[1]^2*0.032388
-		# this should always work is spectrum opacity of the tag does not change
-		# end of experimental correction
-		#-----------
-				#lnorm.Slopes.fun<-function(x, Calib.param) {
-				#	x=x[x>0]
-					#return(dnorm(log(x), 0.2, 0.415))
-				#	return(dnorm(log(x), Calib.param[1], Calib.param[2]))
-				#}
-				#sum<-sum(lnorm.Slopes.fun(test.Slope, Calib.param))/1000
-				#sum<-mean(dlnorm(test.Slope, Calib.param[1], Calib.param[2]))
-				#sum<-mean(dlnorm(test.Slope, Calib.param[1]+(Calib.param[2]^2)/2, Calib.param[2]))
-		# ==========================
-		# change for 5.0
-		# addition of the GAM correction..
-		# we will measure not Calib.param, but 
-		# f(Calib.param[1], Lat, time)
 		if (is.null(time_correction)) {	
 
-			if (is.null(calibration)) {
+		if (is.null(calibration)) {
 			time_correction=Calib.param[1] # this is the only place where I use calib.param...
 			} else {
 			#------------------------------
@@ -148,6 +125,14 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 		}
 
 		Expected.mean<-time_correction
+		
+	###########################################
+        #LL correction fgoes in here	
+		if (!is.null(likelihood.correction)) {
+           if(is.null(calibration$c_fun)) warning('you must supply new calibration with calibration correction function!\n') 
+		} else {
+		test.Slope<-test.Slope-calibration$c_fun(slope.sd)
+		}
 		
 		if (is.null(delta)) {
 		if (length(formals(calibration$lat_correction_fun))==1) {
@@ -184,6 +169,7 @@ get.probs.lm<-function(Model, plot=F, calibration=NULL, time_correction=NULL, Ca
 		if (return.slopes) 	Probability<-c(Probability, coef.coef[2], Model$stderr[2])
 		return(Probability)
 		}
+
 			
 get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=F, Twilight.time.vector=NULL,  delta=0, dusk=T) {
 
@@ -212,7 +198,7 @@ get.probs.nonparam.slope<-function(Slopes, plot=F, calibration=NULL, time_correc
 		}
 		
 
-get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,   Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, return.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = F) {
+get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector = NULL,   Twilight.log.light.vector, plot = F, verbose = F, log.light.borders = log(c(2, 64)), log.irrad.borders = c(-9, 1.5), dusk = T, use.intercept = F, return.slopes = F, Twilight.time.vector = NULL, delta = 0, time_correction = NULL, Calib.param = NULL, impute.on.boundaries = F, likelihood.correction=TRUE) {
     if (is.null(time_correction) & is.null(Twilight.solar.vector)) 
         stop("either time_correction or Twilight.solar.vector should be provided to get.current.slope.prob!")
 		
@@ -239,7 +225,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
                   calibration = calibration, time_correction = time_correction, 
                   Calib.param = Calib.param, return.slopes = return.slopes, 
                   delta = delta, Twilight.time.vector = Twilight.time.vector, 
-                  dusk = dusk, x=x)
+                  dusk = dusk, x=x, likelihood.correction=likelihood.correction)
             }
             if (calibration$Parameters$calibration.type == "nonparametric.slope") {
                 Slopes <- diff(LogLight)/diff(LogIrrad)

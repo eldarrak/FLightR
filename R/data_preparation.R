@@ -119,7 +119,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @author Eldar Rakhimberdiev
 
 #' @export
-make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.1, Direction=0,Kappa=0, M.mean=300, M.sd=500) {
+make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.1, Direction=0,Kappa=0, M.mean=300, M.sd=500, likelihood.correction=TRUE) {
 if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
 if (length(Direction)>1) stop("Direction has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
 if (length(Kappa)>1) stop("Kappa has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
@@ -150,7 +150,7 @@ Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
         Proc.data$Twilight.log.light.mat.dusk,
     Proc.data$Twilight.time.mat.dawn,
     Proc.data$Twilight.log.light.mat.dawn,
-    threads=Threads, calibration=all.in$Calibration)
+    threads=Threads, calibration=all.in$Calibration, likelihood.correction=likelihood.correction)
 all.in$Spatial$Phys.Mat<-Phys.Mat
 return(all.in)
 }
@@ -526,6 +526,41 @@ Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
 return(Res)
 }
 
+make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_mean_range=c(-3, 7), cur_sd_range=c(0,1), npoints=300, plot=FALSE, likelihood.correction=TRUE) {
+   require(mgcv)
+   Res<-c()
+   for (i in 1:npoints) {
+   	  cat('\rsimulation:  ', round(i/npoints*100), '%', sep='')
+      cur_mean<-runif(300, cur_mean_range[1], cur_mean_range[2])
+	  cur_sd<-runif(1, cur_sd_range[1], cur_sd_range[2])
+      Cur_max_real<- optimize(f=function(x) 
+	        mean(dlnorm(rnorm(200000,x , cur_sd),calib_log_mean, calib_log_sd)),
+			interval=cur_mean_range, maximum = TRUE)$maximum
+      Res<-rbind(Res, cbind(calib_log_mean, calib_log_sd, cur_sd, cur_mean_max=Cur_max_real))
+   }
+   Res<-as.data.frame(Res)
+   Res$Corr <- exp(Res$calib_log_mean)-Res$cur_mean_max
+   cat('\r estimating correction function...')
+   MvExp<-gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
+   # now we check for the outliers..
+   Resid<-resid(MvExp$lme, type='normalized')
+   Outliers<-NULL
+   Outliers<-which(abs(Resid)>3*sd(Resid))
+   if (length(Outliers)>0) {
+      Res<-Res[-Outliers,]
+      MvExp<-gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
+   }
+   XX<-seq(cur_sd_range[1], cur_sd_range[2], by=0.01)
+   c_fun<-approxfun(predict(MvExp$gam, newdata=data.frame(cur_sd=XX)) ~XX)
+
+   if (plot) {
+      plot(Res[,4]~Res[,3], pch='+', ylab='cur_mean', xlab='cur_sd')
+      lines(exp(Res$calib_log_mean[1])-predict(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
+	  }
+	Out<-list(c_fun=c_fun, Res=Res)
+	cat('\r')
+	return(Out)
+}
 
 create.calibration<-function( All.slopes, Proc.data, FLightR.data, location, log.light.borders, log.irrad.borders, ageing.model=NULL) {
 # Now we create 'parameters' object that will have all the details about the calibration
@@ -546,8 +581,11 @@ lat_correction_fun<-function(x, y, z) return(0)
 time_correction_fun= function(x, y) return(0)
 lat_correction_fun<-eval(parse(text=paste("function (x,y) return(",  coef(ageing.model)[1], "+", coef(ageing.model)[2], "* (y-",ageing.model$Time.start," ))")))
 }
-
-Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun)
+c_fun=NULL
+if (likelihood.correction) {
+   c_fun=make_likelihood_correction_function(Parameters$LogSlope[1], Parameters$LogSlope[2])$c_fun
+}
+Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun, c_fun=c_fun)
 
 return(Calibration)
 }
