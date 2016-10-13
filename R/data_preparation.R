@@ -23,7 +23,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
    if (log.irrad.borders[1]=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
    par(old.par)
    calibration.parameters<-suppressWarnings(get.calibration.parameters(Calibration.period,
-         Proc.data, model.ageing=F, 
+         Proc.data, model.ageing=FALSE, 
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
 		 plot.each = FALSE, plot.final = FALSE))
@@ -202,7 +202,7 @@ return(Res)
 
 
 
-get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=F) {
+get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=FALSE) {
 	# function from Ekstrom 2007
 	erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
 	## (see Abramowitz and Stegun 29.2.29)
@@ -223,7 +223,7 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=F) {
 }
 
 
-logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=T, plot.final=T,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=T, impute.on.boundaries=F) {
+logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=TRUE, plot.final=TRUE,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=TRUE, impute.on.boundaries=FALSE) {
 	# =================
 	# in this function I'll add a new lnorm calibration...
 	#
@@ -247,11 +247,11 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	Twilight.log.light.mat.Calib.dusk<-Twilight.log.light.mat.Calib.dusk[-25,]
 	# let's try to create Calib.data.all first!!
 	Calib.data.dawn<-data.frame()
-	if (plot.each) par(ask=F)
+	if (plot.each) par(ask=FALSE)
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
 cat("checking dawn", dawn, "\n" )
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
-		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot.each, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=F, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
+		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot.each, verbose=FALSE,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=FALSE, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
 		cat ("dawn", dawn, "was excluded from the calibration\n")
 		} else {
@@ -265,7 +265,7 @@ cat("checking dawn", dawn, "\n" )
 cat("checking dusk", dusk, "\n" )
 
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
-		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot.each, verbose=F,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=T,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
+		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot.each, verbose=FALSE,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=TRUE,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
 #print(str(Data)	)
 		if (length(Data)==0) {
 		cat ("dusk", dusk, "was excluded from the calibration\n")
@@ -325,7 +325,7 @@ cat("checking dusk", dusk, "\n" )
 }
 
 # ok now we need template.calibration.function..
-logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=F, plot.each=T, plot.final=T, impute.on.boundaries=F) {
+logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=FALSE, plot.each=TRUE, plot.final=TRUE, impute.on.boundaries=FALSE) {
 	
 	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot.each=plot.each, plot.final=plot.final,impute.on.boundaries=impute.on.boundaries)
 	
@@ -344,7 +344,7 @@ logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log
 
 	
 
-get.calib.param<-function(Calib.data.all, plot=F, calibration.type=NULL) {
+get.calib.param<-function(Calib.data.all, plot=FALSE, calibration.type=NULL) {
 
 if (is.null(calibration.type)) calibration.type="parametric.slope"
 cat("calibration method used:", calibration.type, "\n")
@@ -412,7 +412,7 @@ Intercept=c(Intercept, coef(Lm)[1])
 Sigma<-c(Sigma, summary(Lm)$sigma)
 Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
 Time<-c(Time,ifelse(cur.data$type[cur.data$fTwilight==i][1]=="Dusk", max(cur.data$Time[cur.data$fTwilight==i]), min(cur.data$Time[cur.data$fTwilight==i])))
-Elevs=c(Elevs, mean(cur.data$Elevs[cur.data$fTwilight==i], na.rm=T))
+Elevs=c(Elevs, mean(cur.data$Elevs[cur.data$fTwilight==i], na.rm=TRUE))
 Day=c(Day, cur.data$Day[cur.data$fTwilight==i][1])
 # nonparametric slope estimation
 
@@ -435,7 +435,7 @@ if (plot) hist(log(cur.slope$slope))
 
 cur.slope.int<-cur.slope[is.finite(log(cur.slope$slope)),]
 
-Parameters<-list(Intercept=c(mean(cur.slope.int$Intercept, na.rm=T), sd(cur.slope.int$Intercept, na.rm=T)), LogSlope=c(mean(log(cur.slope.int$slope), na.rm=T), sd(log(cur.slope.int$slope), na.rm=T)), LogSigma=c(mean(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)])), sd(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope.int$sd, na.rm=T), calibration.type=calibration.type)
+Parameters<-list(Intercept=c(mean(cur.slope.int$Intercept, na.rm=TRUE), sd(cur.slope.int$Intercept, na.rm=TRUE)), LogSlope=c(mean(log(cur.slope.int$slope), na.rm=TRUE), sd(log(cur.slope.int$slope), na.rm=TRUE)), LogSigma=c(mean(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)])), sd(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope.int$sd, na.rm=TRUE), calibration.type=calibration.type)
 
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
@@ -458,7 +458,7 @@ lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slope
 }
 
 
-get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=T, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5), plot.each=F, plot.final=T, calibration.type=NULL) {
+get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=TRUE, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5), plot.each=FALSE, plot.final=TRUE, calibration.type=NULL) {
 
 # ageing.model this option should be used only in case there are two periods of calibration or there is one but very long.
 if (nrow(Calibration.periods)==1 & model.ageing) warning("you have only one calibration period ageing estimation is unreliable and should be turned ot F!!!")
@@ -502,7 +502,7 @@ Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn[,Dawn.c
 
 Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
-All.slopes<-get.calib.param(Calib.data.all, plot=F, calibration.type=calibration.type)
+All.slopes<-get.calib.param(Calib.data.all, plot=FALSE, calibration.type=calibration.type)
 
 All.slopes$Slopes$logSlope<-log(All.slopes$Slopes$Slope)
 
@@ -519,7 +519,7 @@ All.slopes.int<-All.slopes
 
 All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
 
-calib_outliers<-All.slopes.int$Slopes$Time[which(abs(All.slopes.int$Slopes$logSlope-mean(All.slopes.int$Slopes$logSlope, na.rm=T))>3*sd(All.slopes.int$Slopes$logSlope, na.rm=TRUE))]
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(All.slopes.int$Slopes$logSlope-mean(All.slopes.int$Slopes$logSlope, na.rm=TRUE))>3*sd(All.slopes.int$Slopes$logSlope, na.rm=TRUE))]
 
 Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
 }
@@ -530,7 +530,8 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    require(mgcv)
    Res<-c()
    for (i in 1:npoints) {
-   	  cat('\rsimulation:  ', round(i/npoints*100), '%', sep='')
+   	  cat('\r simulation:  ', round(i/npoints*100), '%', sep='')
+	  cat('\r\n')
       cur_mean<-runif(300, cur_mean_range[1], cur_mean_range[2])
 	  cur_sd<-runif(1, cur_sd_range[1], cur_sd_range[2])
       Cur_max_real<- optimize(f=function(x) 
@@ -540,7 +541,9 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    }
    Res<-as.data.frame(Res)
    Res$Corr <- exp(Res$calib_log_mean)-Res$cur_mean_max
-   cat('\r estimating correction function...')
+   cat('\r  estimating correction function...')
+   cat('\r\n')
+
    MvExp<-gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
    # now we check for the outliers..
    Resid<-resid(MvExp$lme, type='normalized')
@@ -558,7 +561,7 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
       lines(exp(Res$calib_log_mean[1])-predict(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
 	  }
 	Out<-list(c_fun=c_fun, Res=Res)
-	cat('\r')
+	cat('\r\n')
 	return(Out)
 }
 
@@ -598,7 +601,7 @@ correct.hours<-function(datetime) {
 	cor <- rep(NA, 24)
 	for(i in 0:23){
 		cor[i+1] <- max(abs((c(hours[1],hours)+i)%%24 - 
-		            (c(hours,hours[length(hours)])+i)%%24),na.rm=T)
+		            (c(hours,hours[length(hours)])+i)%%24),na.rm=TRUE)
 	}
 	hours <- (hours + (which.min(round(cor,2)))-1)%%24
 	return(hours)
@@ -662,9 +665,9 @@ First.twilight<-ifelse(which.min(c(min(abs(difftime(Sunrises,Potential.twilights
 Index.tab<-data.frame(Date=Potential.twilights)
 
 if (First.twilight=="dusk") {
-	Index.tab$Dusk<-rep(c(T,F), times=length(All.Days.extended))
+	Index.tab$Dusk<-rep(c(TRUE,FALSE), times=length(All.Days.extended))
 } else {
-	Index.tab$Dusk<-rep(c(F,T), times=length(All.Days.extended))
+	Index.tab$Dusk<-rep(c(FALSE,TRUE), times=length(All.Days.extended))
 }
 
 Index.tab$Curr.mat<-NA # this will be NA if no data and row number if there are..
@@ -675,24 +678,24 @@ Index.tab$time<-as.POSIXct(NA, tz="GMT")
 # !!!! this will not work if bird will move for over 12 time zones!!!
 # Dusk
 for (i in 1:length(processed.light$Final.dusk$Data$gmt)) {
-	Row2write<-which.min(abs(difftime(processed.light$Final.dusk$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==T], units="mins")))
-	Index.tab$time[Index.tab$Dusk==T][Row2write]<-processed.light$Final.dusk$Data$gmt[i]
-	Index.tab$Real.time[Index.tab$Dusk==T][Row2write]<-processed.light$Final.dusk$Data$gmt.adj[i]
-	Index.tab$Curr.mat[Index.tab$Dusk==T][Row2write]<-i
+	Row2write<-which.min(abs(difftime(processed.light$Final.dusk$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==TRUE], units="mins")))
+	Index.tab$time[Index.tab$Dusk==TRUE][Row2write]<-processed.light$Final.dusk$Data$gmt[i]
+	Index.tab$Real.time[Index.tab$Dusk==TRUE][Row2write]<-processed.light$Final.dusk$Data$gmt.adj[i]
+	Index.tab$Curr.mat[Index.tab$Dusk==TRUE][Row2write]<-i
 }
 
 # Dawn
 for (i in 1:length(processed.light$Final.dawn$Data$gmt)) {
-	Row2write<-which.min(abs(difftime(processed.light$Final.dawn$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==F], units="mins")))
-	Index.tab$time[Index.tab$Dusk==F][Row2write]<-processed.light$Final.dawn$Data$gmt[i]
-	Index.tab$Real.time[Index.tab$Dusk==F][Row2write]<-processed.light$Final.dawn$Data$gmt.adj[i]
-	Index.tab$Curr.mat[Index.tab$Dusk==F][Row2write]<-i
+	Row2write<-which.min(abs(difftime(processed.light$Final.dawn$Data$gmt[i], Index.tab$Date[Index.tab$Dusk==FALSE], units="mins")))
+	Index.tab$time[Index.tab$Dusk==FALSE][Row2write]<-processed.light$Final.dawn$Data$gmt[i]
+	Index.tab$Real.time[Index.tab$Dusk==FALSE][Row2write]<-processed.light$Final.dawn$Data$gmt.adj[i]
+	Index.tab$Curr.mat[Index.tab$Dusk==FALSE][Row2write]<-i
 }
 # cutting empty ends..
 while (is.na(Index.tab$Curr.mat[1])) Index.tab<-Index.tab[-1,]
 while (is.na(Index.tab$Curr.mat[nrow(Index.tab)])) Index.tab<-Index.tab[-nrow(Index.tab),]
 Index.tab$Point<-NA
-First.Point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
+First.Point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=TRUE))
 Index.tab$Point[1]<-First.Point
 #
 # I decided that Curr.mat is not needed anymore
@@ -711,8 +714,8 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	# the main feature is that it can account for missing data..
 	Index.tab.old<-Index.tab
 	Index.tab$proposal.index<-NA
-	Index.tab$proposal.index[Index.tab$Dusk==T]<-"Dusk"
-	Index.tab$proposal.index[Index.tab$Dusk==F]<-"Dawn"
+	Index.tab$proposal.index[Index.tab$Dusk==TRUE]<-"Dusk"
+	Index.tab$proposal.index[Index.tab$Dusk==FALSE]<-"Dawn"
 	
 	Missed.twilights<-which(is.na(Index.tab$Curr.mat))
 	
@@ -754,18 +757,18 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 
 	output$Spatial$Behav.mask<-as.integer(Grid[,3])
 
-	output$Spatial$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=T))
+	output$Spatial$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=TRUE))
     
 	output$Spatial$start.location<-start
 	if (!is.na(stop[1]) ) {
-	   output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=T))
+	   output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=TRUE))
 	   output$Spatial$stop.location<-stop
 	} else {
 	   output$Spatial$stop.point<-NA
 	   output$Spatial$stop.location<-NA
 	}
 	
-	#output$Spatial$tmp<-list(Distance=spDists(Grid[,1:2], longlat=T))
+	#output$Spatial$tmp<-list(Distance=spDists(Grid[,1:2], longlat=TRUE))
 
 	#get.angles<-function(all.arrays.object) {
 	#	return(apply(all.arrays.object$Spatial$Grid, 1, FUN=function(x) as.integer(round(gzAzimuth(from=all.arrays.object$Spatial$Grid, to=x)))))
