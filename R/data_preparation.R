@@ -531,7 +531,7 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    Res<-c()
    for (i in 1:npoints) {
    	  cat('\r simulation:  ', round(i/npoints*100), '%', sep='')
-	  cat('\r\n')
+	  cat('\r')
       cur_mean<-runif(300, cur_mean_range[1], cur_mean_range[2])
 	  cur_sd<-runif(1, cur_sd_range[1], cur_sd_range[2])
       Cur_max_real<- optimize(f=function(x) 
@@ -542,7 +542,7 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    Res<-as.data.frame(Res)
    Res$Corr <- exp(Res$calib_log_mean)-Res$cur_mean_max
    cat('\r  estimating correction function...')
-   cat('\r\n')
+   cat('\r')
 
    MvExp<-gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
    # now we check for the outliers..
@@ -561,7 +561,7 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
       lines(exp(Res$calib_log_mean[1])-predict(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
 	  }
 	Out<-list(c_fun=c_fun, Res=Res)
-	cat('\r\n')
+	cat('\r')
 	return(Out)
 }
 
