@@ -26,9 +26,17 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    ZIDist<-get_ZI_distances(Result) 
    # ok, now we look only at the distances between the periods..
    Potential_movement_periods<-data.frame(start=Potential_stat_periods$end[-nrow(Potential_stat_periods)]+1, end=Potential_stat_periods$start[-1])
+   if (rev(Potential_stat_periods$end)[1]<Total_length) {
+      Potential_movement_periods<-rbind(Potential_movement_periods, cbind(start=rev(Potential_stat_periods$end)[1], end=Total_length))
+      Quantiles<-rbind(Quantiles, NA)
+	  Quantiles$Meanlon[nrow(Quantiles)]<- rev(Result$Results$Quantiles$Meanlon)[1]
+	  Quantiles$Meanlat[nrow(Quantiles)]<- rev(Result$Results$Quantiles$Meanlat)[1]
+      Schedules<-rbind(Schedules, NA)
+   }
+   
    Distance_Moved<-c()
    for (i in 1:nrow(Potential_movement_periods)) {
-      Distance_Moved<-c(Distance_Moved, sum(ZIDist[Potential_movement_periods$start[i]:Potential_stat_periods$end[i], 6]))
+      Distance_Moved<-c(Distance_Moved, sum(ZIDist[Potential_movement_periods$start[i]:Potential_movement_periods$end[i], 6]))
    }
    Quantiles$Distance.Moved<-c(0, Distance_Moved)
    Quantiles$Cumul.Distance.Moved<-cumsum(Quantiles$Distance.Moved)
