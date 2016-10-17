@@ -20,10 +20,10 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    for (period in 1:nrow(Potential_stat_periods)) {
       cur_period<-Potential_stat_periods[period,1]:Potential_stat_periods[period,2]
       cur_period<-cur_period[cur_period>0]
-      Quantiles<-rbind(Quantiles, get_stationary_stats(Result,cur_period))
-      Schedules<-rbind(Schedules, get_time_boundaries(Result, cur_period, 0.95))
+      Quantiles<-rbind(Quantiles, FLightR:::get_stationary_stats(Result,cur_period))
+      Schedules<-rbind(Schedules, FLightR:::get_time_boundaries(Result, cur_period, 0.95))
    }
-   ZIDist<-get_ZI_distances(Result) 
+   ZIDist<-FLightR:::get_ZI_distances(Result) 
    # ok, now we look only at the distances between the periods..
    Potential_movement_periods<-data.frame(start=Potential_stat_periods$end[-nrow(Potential_stat_periods)]+1, end=Potential_stat_periods$start[-1])
    Distance_Moved<-c()
@@ -33,6 +33,16 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Quantiles$Distance.Moved<-c(0, Distance_Moved)
    Quantiles$Cumul.Distance.Moved<-cumsum(Quantiles$Distance.Moved)
 
+   # another approach would be just to take locations and estimate movements from them
+   Distance2<-c()
+   for (period in 2:nrow(Quantiles)) {
+      Longitudes<-c(Quantiles$Meanlon[period-1], Result$Results$Quantiles$Meanlon[Potential_movement_periods$start[period-1]:Potential_movement_periods$end[period-1]], Quantiles$Meanlon[period])
+      Latitudes<-c(Quantiles$Meanlat[period-1], Result$Results$Quantiles$Meanlat[Potential_movement_periods$start[period-1]:Potential_movement_periods$end[period-1]], Quantiles$Meanlat[period])
+	  Distance2<-c(Distance2, sum(sp::spDists(cbind(Longitudes, Latitudes), longlat=TRUE, segments=TRUE)))
+   }
+   Distance2cumulative<-cumsum(Distance2)
+   Quantiles$Distance2<-Distance2
+   Quantiles$Distance2cumulative<-Distance2cumulative
    Res<-list(Stationary.periods=cbind(Quantiles, Schedules), Potential_stat_periods=Potential_stat_periods, Potential_movement_periods=Potential_movement_periods)
    # summary
    Duration<-diff(c(Result$Indices$Matrix.Index.Table$time[1], rev(Result$Indices$Matrix.Index.Table$time)[1]))
@@ -124,7 +134,7 @@ get_ZI_distances<-function(Result) {
     DistancesZI<-c()
   
     for (i in 1:length(Result$Results$Transitions.rle)) {
-	   Inverse<-inverse.rle(Distances[[i]], c(0.25, 0.5, 0.75))
+	   Inverse<-inverse.rle(Distances[[i]])
        DistancesZI<-rbind(DistancesZI,   c(quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
     }
   
