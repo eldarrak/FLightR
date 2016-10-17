@@ -50,9 +50,9 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Total_sites<-nrow(Res$Potential_stat_periods)
    
    cat('\n\n\nFLightR used',round(Duration), attr(Duration, 'units'), 'from', format(Result$Indices$Matrix.Index.Table$time[1], format='%d-%b-%Y'), 'to', format(rev(Result$Indices$Matrix.Index.Table$time)[1], format='%d-%b-%Y') , 'with', Total_twilights, 'twilights\n')
-   cat('During this time tag moved approximately', round(max(Res$Stationary.periods$Cumul.Distance.Moved)), 'km with', nrow(Res$Stationary.periods), 'statiuonary periods from which', length(which(Res$Potential_stat_periods$Duration>30)), 'were longer than two weeks\n')
+   cat('During this time tag moved approximately', round(max(Res$Stationary.periods$Distance2cumulative)), 'km with', nrow(Res$Stationary.periods), 'statiuonary periods from which', length(which(Res$Potential_stat_periods$Duration>30)), 'were longer than two weeks\n')
    cat('\n\n Detected statonary periods (without any merging!):\n')
-   print(Res$Stationary.periods[,c(4,7, 12,15,21, 22, 25, 30)])
+   print(Res$Stationary.periods[,c(4,7, 12,15,23, 24, 27, 32)])
    return(Res)
    }
 
