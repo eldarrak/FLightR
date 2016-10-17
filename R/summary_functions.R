@@ -20,10 +20,10 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    for (period in 1:nrow(Potential_stat_periods)) {
       cur_period<-Potential_stat_periods[period,1]:Potential_stat_periods[period,2]
       cur_period<-cur_period[cur_period>0]
-      Quantiles<-rbind(Quantiles, FLightR:::get_stationary_stats(Result,cur_period))
-      Schedules<-rbind(Schedules, FLightR:::get_time_boundaries(Result, cur_period, 0.95))
+      Quantiles<-rbind(Quantiles, get_stationary_stats(Result,cur_period))
+      Schedules<-rbind(Schedules, get_time_boundaries(Result, cur_period, 0.95))
    }
-   ZIDist<-FLightR:::get_ZI_distances(Result) 
+   ZIDist<-get_ZI_distances(Result) 
    # ok, now we look only at the distances between the periods..
    Potential_movement_periods<-data.frame(start=Potential_stat_periods$end[-nrow(Potential_stat_periods)]+1, end=Potential_stat_periods$start[-1])
    Distance_Moved<-c()
