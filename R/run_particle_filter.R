@@ -41,7 +41,7 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.00, k=NA, parallel=T, plot=T, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=F, sink2file=F, add.jitter=FALSE) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, parallel=TRUE, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE) {
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
       threads<-cpus
@@ -67,9 +67,9 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 
   }	else mycl=NA
     if (parallel) {
-    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers), finally = stopCluster(mycl))
+    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers), finally = stopCluster(mycl))
 	} else {	
-    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=F, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=F, check.outliers=check.outliers)
+    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers)
 	}
     # Part 2. Creating matrix of results.
     #cat("creating results matrix \n")
@@ -125,7 +125,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
       points(Meanlat~Meanlon, type="p", data=all.out$Results$Quantiles, pch=3, col="blue")
       lines(Meanlat~Meanlon, data=all.out$Results$Quantiles, col="blue")
       data("wrld_simpl", package="maptools")
-      plot(wrld_simpl, add=T)
+      plot(wrld_simpl, add=TRUE)
     }
     gc()
   #if (parallel) parallel:::stopCluster(cl =mycl)
@@ -156,7 +156,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
 	#Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
-	Dists.distr<- sp:::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=T)
+	Dists.distr<- sp:::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=TRUE)
 	
     Dists.probs<-truncnorm:::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
@@ -183,7 +183,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     } else {
       Biol.proposal<-Dists.probs*Angles.probs
     }
-    pos.biol<-suppressWarnings(sample.int(length(Biol.proposal), size=x[[3]], replace=T, prob=Biol.proposal))
+    pos.biol<-suppressWarnings(sample.int(length(Biol.proposal), size=x[[3]], replace=TRUE, prob=Biol.proposal))
     # ok, now we want to return more complicated stuff - final indices!
     return(resample(as.integer(c(pos.biol, rep(x[[1]],(x[[2]]-x[[3]]))))))
   } else {
@@ -191,11 +191,11 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   }
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=T, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=T, plot=T, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=F, L=25, adaptive.resampling=0.5, RStudio=F, check.outliers=F) {
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE) {
   ### to make algorhythm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
   if (sink2file & RStudio) sink()
-  #### if save.rle=T function will save a out.rle object in out.rle.RData file in working directory BUT to make it work There have to be out.rle column in Main.Index that will contain true for the twilights where results needed.
+  #### if save.rle=TRUE function will save a out.rle object in out.rle.RData file in working directory BUT to make it work There have to be out.rle column in Main.Index that will contain true for the twilights where results needed.
   ####
   data("wrld_simpl", package="maptools")
   
@@ -270,7 +270,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	  #in.Data$BC.mean<-c()
   }
   
-  propagate.particles<-function(Last.Particles, Current.Proposal, parallel=T, Parameters, mycl) {
+  propagate.particles<-function(Last.Particles, Current.Proposal, parallel=TRUE, Parameters, mycl) {
     Order.vector<-order(Last.Particles)
     Particles.rle<-intrle(as.integer(Last.Particles[Order.vector]))
     if (is.null(Particles.rle)) 	Particles.rle<-rle(as.integer(Last.Particles[Order.vector]))
@@ -375,12 +375,12 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, dir_fun, in.Data)
 	
 	BA.moved<-which(!is.na(BA.dir))
-	BA.mean<-mean.circular(circular(resample(BA.dir[BA.moved], replace=T,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=T)
+	BA.mean<-mean.circular(circular(resample(BA.dir[BA.moved], replace=TRUE,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=TRUE)
 	#cat(BA.mean)	#BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
 	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, dir_fun, in.Data)
 	
 	BC.moved<-which(!is.na(BC.dir))
-	BC.mean<-mean.circular(circular(resample(BC.dir[BC.moved], replace=T, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=T)
+	BC.mean<-mean.circular(circular(resample(BC.dir[BC.moved], replace=TRUE, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=TRUE)
 	#cat(BC.mean)
 	dif.ang<-function(x,y) {
 	# this function provides the minimum angle between two angles..
@@ -605,7 +605,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
   # 
   #for (i in 2:length(Points)) {
   #  Means[i,]=aspace:::calc_box(id=i,  points=in.Data$Spatial$Grid[inverse.rle(Points[[i]]), 1:2])
-    #plot_box(plotnew=F, plotpoints=F)
+    #plot_box(plotnew=FALSE, plotpoints=FALSE)
   #}
 	#})
    if (length(in.Data$Results)==0) in.Data$Results<-list()
@@ -669,7 +669,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 }
 
 
-estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=F, existing.cluster=NULL, estimatetruncnorm=F, nParticles=1e6) {
+estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=FALSE, existing.cluster=NULL, estimatetruncnorm=FALSE, nParticles=1e6) {
   mycl=existing.cluster
   
   # old name update.proposal.PF
@@ -835,7 +835,7 @@ coords.aeqd.jitter <- function(coords, r, n)
 # wrapper for jitter
 get.coords.jitter<-function(in.Data) {
 	Distance<-in.Data$Spatial$tmp$Distance
-	if (is.null(Distance)) Distance=spDists(in.Data$Spatial$Grid[,1:2], longlat=T)
+	if (is.null(Distance)) Distance=spDists(in.Data$Spatial$Grid[,1:2], longlat=TRUE)
 	Distance<-Distance[,1]
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this

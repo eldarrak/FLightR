@@ -23,7 +23,7 @@ BAStag2TAGS <- function(raw, twl, threshold, filename=NULL) {
   names(raw) <- c("Twilight", "Light")
   twl$Light <- threshold
   
-  tmp01 <- merge(raw, twl, all.y = T, all.x = T)
+  tmp01 <- merge(raw, twl, all.y = TRUE, all.x = TRUE)
   out <- data.frame(datetime = tmp01[,1], light = tmp01[,2],
                     twilight = ifelse(tmp01$Rise==TRUE & !is.na(tmp01$Rise), 1,
                                       ifelse(tmp01$Rise==FALSE & !is.na(tmp01$Rise), 2, 0)),
@@ -62,7 +62,7 @@ twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
   names(raw) <- c("Twilight", "Light")
   twl$Light <- threshold
   
-  tmp01 <- merge(raw, twl, all.y = T, all.x = T)
+  tmp01 <- merge(raw, twl, all.y = TRUE, all.x = TRUE)
   out <- data.frame(datetime = tmp01[,1], light = tmp01[,2],
                     twilight = ifelse(tmp01$Rise==TRUE & !is.na(tmp01$Rise), 1,
                                       ifelse(tmp01$Rise==FALSE & !is.na(tmp01$Rise), 2, 0)),
@@ -107,7 +107,7 @@ GeoLight2TAGS<-function (raw, gl_twl, filename=NULL) {
    twl <- twl[order(twl[, 1]), ]
    twl$light <- approx(x = raw$datetime, y = raw$light, xout = twl$datetime)$y
 
-   tmp01 <- merge(raw, twl, all.y = T, all.x = T)
+   tmp01 <- merge(raw, twl, all.y = TRUE, all.x = TRUE)
 
    out <- data.frame(datetime = tmp01[,1], light = tmp01[,2],
                     twilight = tmp01[,3],

@@ -1,7 +1,7 @@
 #simulations_functions.R
 # these functions were used right befre the 0.2.1 version so they should work
 
-get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), min.max.values=c(0,64), Grid, start, ask=F, slopes.only=F, delta=NULL, short.run=F, measurement.period=60, saving.period=NULL, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL, GeoLight=F) {
+get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), min.max.values=c(0,64), Grid, start, ask=FALSE, slopes.only=FALSE, delta=NULL, short.run=FALSE, measurement.period=60, saving.period=NULL, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL, GeoLight=FALSE) {
 #========================================
 if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
@@ -45,7 +45,7 @@ try(unlink(File.name))
 # new trick - let's try to load the real track
 cat("   GeoLight step\n")
 
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=T, ask=F, LightThreshold=3)
+tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3)
 
 #save(tw, file="tw.sim.no.move.RData")
 #load("tw.sim.no.move.RData")
@@ -63,7 +63,7 @@ print(table(GLtab[,3]))
  if (abs(diff(table(GLtab[,3])))>5 & ask) {
 cat ("more than 5 twilights were detected incorrectly.. please do the selection by hand\n")
 try(dev.off())
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=T, ask=T, LightThreshold=3, nsee=1000)
+tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=TRUE, LightThreshold=3, nsee=1000)
 save(tw, file=paste("tw.Lat", start[2], "attempt1.RData" , sep="."))
 GLtab   <- tw[[2]]
 } else {
@@ -77,8 +77,8 @@ GLtab[Index[Index%%2==0],3]<-round(mean(GLtab[Index[Index%%2==0],3]))
 #==============================================================
 # here is a brunch for geolight
 if(GeoLight) {
-GLtab_shifted <- twilightCalc(Track$gmt, Track$light, allTwilights=T, ask=F, LightThreshold=3, maxLight=saving.period/60)[[2]]
-Elevation<-getElevation(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, known.coord=start, plot=F)
+GLtab_shifted <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3, maxLight=saving.period/60)[[2]]
+Elevation<-getElevation(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, known.coord=start, plot=FALSE)
 positionsGeoLight <- coord(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, degElevation=Elevation)
 positionsGeoLight<-as.data.frame(positionsGeoLight)
 positionsGeoLight$tFirst<-GLtab_shifted$tFirst
@@ -113,7 +113,6 @@ Track.new<-rbind(Track.new, data.frame(gmt= Filtered_tw$datetime, light=Filtered
 
 All.p<-Track.new[order(Track.new$gmt),]
 
-#All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
 rownames(All.p)<-1:nrow(All.p)
 
 
@@ -122,7 +121,6 @@ rownames(All.p)<-1:nrow(All.p)
 # NOW we need to add a stupid old part that will just create for the all out.object..
 #processing dusk
 raw.Y.dusk<-correct.hours(Filtered_tw$datetime[Filtered_tw$type==2])
-#Dusk.segments<-get.discontinuities(as.numeric(Filtered_tw$datetime[Filtered_tw$type==2]), raw.Y.dusk , plot=T, p.level=0.001)
 
 #######################################################
 raw.X.dusk<-as.numeric(Filtered_tw$datetime[Filtered_tw$type==2])
@@ -131,13 +129,11 @@ Result.Dusk<-make.result.list(Data, raw.X.dusk, raw.Y.dusk)
 
 raw.Y.dawn<-correct.hours(Filtered_tw$datetime[Filtered_tw$type==1])
 
-#Dawn.segments<-get.discontinuities(Filtered_tw$datetime[Filtered_tw$type==1], raw.Y.dawn, p.level=0.005, plot=T)
 #######################################################################
 
 raw.X.dawn<-as.numeric(Filtered_tw$datetime[Filtered_tw$type==1])
 
 Result.Dawn<-make.result.list(Data, raw.X.dawn, raw.Y.dawn)
-#Result.Dawn<-run.segmented.lnorm.loess(Data, raw.X.dawn, raw.Y.dawn,  Segments=Dawn.segments, span.correction=15, dusk=F, window.size=9, cpus=1, maxiter=100, use.first.interval=T, plot=T)
 
 Result.all<-list(Final.dusk=Result.Dusk, Final.dawn=Result.Dawn)
 ####
@@ -184,12 +180,12 @@ Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 #Lnorm.param.estimation[1]<-Lnorm.param.estimation[1]+(Lnorm.param.estimation[1]^2+exp(Parameters$LogSigma)^2)/2
 #============================
 # before going gor the simulation I would probably like to go for a simple estimation in just one point as this could help us a lot!
-do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twilight.log.light.mat, return.slopes=F,  Calib.param, log.irrad.borders, verbose=F, log.light.borders=log(c(2,64))) {
+do.linear.regresion<-function(Twilight.ID, start, dusk=TRUE, Twilight.time.mat, Twilight.log.light.mat, return.slopes=FALSE,  Calib.param, log.irrad.borders, verbose=FALSE, log.light.borders=log(c(2,64))) {
 #=========================================================================
 
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
 		Twilight.time.vector=Twilight.time.mat[c(1:24, 26:49), Twilight.ID]
-		Data<-check.boundaries(start, Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector)
+		Data<-check.boundaries(start, Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.vector, plot=FALSE, verbose=verbose,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=dusk, Twilight.time.vector=Twilight.time.vector)
 		Res<-c(NA, NA)
 		if (dim(Data)[1]>1) {
 		LogLight<-Data[,1]
@@ -211,11 +207,11 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twi
 
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 
-		Slopes.dusk<-sapply(Twilight.vector, FUN=do.linear.regresion, start=start, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, log.irrad.borders=log.irrad.borders, log.light.borders=log.light.borders)
+		Slopes.dusk<-sapply(Twilight.vector, FUN=do.linear.regresion, start=start, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, log.irrad.borders=log.irrad.borders, log.light.borders=log.light.borders)
 		
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
 
-		Slopes.dawn<-sapply(Twilight.vector, FUN=do.linear.regresion, start=start, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,log.irrad.borders=log.irrad.borders, log.light.borders=log.light.borders)
+		Slopes.dawn<-sapply(Twilight.vector, FUN=do.linear.regresion, start=start, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE,log.irrad.borders=log.irrad.borders, log.light.borders=log.light.borders)
 
 	All.probs.dusk<-c()
 	All.probs.dawn<-c()
@@ -227,12 +223,10 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=T, Twilight.time.mat, Twi
 		#cat("detected dawn",dim(Twilight.time.mat.dawn)[2] ,"\n")
 	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
  
-		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid,log.light.borders=log.light.borders, calibration=calibration)
-		 #All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, Calib.param=Lnorm.param, log.irrad.borders=log.irrad.borders, delta=delta, Grid=cbind(0,38), return.slopes=T)
+		 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, Calib.param=Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid,log.light.borders=log.light.borders, calibration=calibration)
 	
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, Calib.param=Parameters$LogSlope,log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid,  log.light.borders=log.light.borders, calibration=calibration)
-		#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F,Calib.param=Lnorm.param,log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid)
+		All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, Calib.param=Parameters$LogSlope,log.irrad.borders=log.irrad.borders, delta=delta, Grid=Grid,  log.light.borders=log.light.borders, calibration=calibration)
 # ok, what should we do now?
 # first I'd found a maximum of the probabilities for each day and comapre it with the means 
 
@@ -270,7 +264,7 @@ if (GeoLight) all.out$positionsGeoLight<-positionsGeoLight
 }
 
 
-get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50) , plot=T) {
+get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=FALSE, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50) , plot=TRUE) {
 To.run.initial<-To.run
 Lat.initial<-Lat
 All.slope.runs<-c()
@@ -310,7 +304,7 @@ Track<-simulate.track(measurement.period=measurement.period, saving.period=savin
 # estimation
 #====================================
 # this is the estimation part, so it should be after the generation part..
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=T, ask=F, LightThreshold=3)
+tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3)
 
 # now we want to solve the equation for every day..
 GLtab   <- tw[[2]] # Table to proceed with GeoLight
@@ -344,7 +338,6 @@ Track.new<-rbind(Track.new, data.frame(gmt= Filtered_tw$datetime, light=Filtered
 
 All.p<-Track.new[order(Track.new$gmt),]
 
-#All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
 rownames(All.p)<-1:nrow(All.p)
 
 Proc.data<-process.twilights(All.p, Filtered_tw, measurement.period=measurement.period, saving.period=saving.period)
@@ -378,14 +371,10 @@ for (Twilight.ID in Twilight.vector) {
 	Lat<-Track$Lat[Row[Filtered_tw$type==2][Twilight.ID]]
 	Grid<-cbind(Lon, Lat)
 	
-	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Grid=Grid, delta=0, log.light.borders=log.light.borders))
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, return.slopes=TRUE, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Grid=Grid, delta=0, log.light.borders=log.light.borders))
 	#print(str(Prob.surf))
 	All.probs.dusk<-cbind(All.probs.dusk, Prob.surf)
  }
-
-	#	 All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, cor.model=Gam2, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=T, correct.points=correct.points, return.slopes=T, log.irrad.borders=c(-100, 100))
-#	cat("minimum dusk duration:", min(All.probs.dusk[4,]), "\n" )
-
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
 
 	All.probs.dawn<-c()
@@ -394,16 +383,12 @@ for (Twilight.ID in Twilight.vector) {
 	Lat<-Track$Lat[Row[Filtered_tw$type==1][Twilight.ID]]
 	#print(Grid)
 	Grid<-cbind(Lon, Lat)
-	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, return.slopes=T, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Grid=Grid, delta=0, log.light.borders=log.light.borders))
+	Prob.surf<-try(get.prob.surface(Twilight.ID=Twilight.ID, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, return.slopes=TRUE, log.irrad.borders=log.irrad.borders, Calib.param=Parameters$LogSlope, Grid=Grid, delta=0, log.light.borders=log.light.borders))
 	#print(str(Prob.surf))
 	All.probs.dawn<-cbind(All.probs.dawn, Prob.surf)
 	}
-	#All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, cor.model=Gam2, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=F, correct.points=correct.points, return.slopes=T, log.irrad.borders=c(-100, 100))
-#cat("minimum dawn duration:", min(All.probs.dawn[4,]), "\n" )
-# ok, what should we do now?
-# first I'd found a maximum of the probabilities for each day and comapre it with the means 
 
-# ok now we need to bring the slopes back to scale...
+	# ok now we need to bring the slopes back to scale...
 
 All.slopes.dusk<-t(All.probs.dusk[2:3,])
 All.slopes.dawn<-t(All.probs.dawn[2:3,])
@@ -451,7 +436,7 @@ All.slope.runs<-rbind(All.slope.runs, All.slopes)
 if (plot)  {
 par(mfrow=c(1,2))
 plot((All.slope.runs$Slope)~All.slope.runs$Slope.ideal)
-mean((All.slope.runs$Slope), na.rm=T)
+mean((All.slope.runs$Slope), na.rm=TRUE)
 
 plot(Slope~Lat, data=All.slope.runs)
 }
@@ -461,7 +446,7 @@ return(All.slope.runs)
 # and now we want to save that... 
 
 
-simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=F, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59", plot=T) {
+simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=FALSE, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59", plot=TRUE) {
 # important here is that min and max values may be different from light.borders.
 # and it is actually better to make them different if there is enough point to make an estimation...
 
@@ -494,7 +479,7 @@ Track$Day<-inverse.rle(Rle)
 # ok now we have everything we need to add corrdinates, slopes and sd
 #=============================
 print(To.run)
-Index<-sample.int(nrow(To.run), max(Track$Day), replace=T)
+Index<-sample.int(nrow(To.run), max(Track$Day), replace=TRUE)
 
 
 tmpRle<-Rle
@@ -596,7 +581,7 @@ return(Track)
 # we just make a general wrapper that runs the whole thing at each latitude and then combines results...
 
 
-get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=F, measurement.period=60, saving.period=600, short.run=T, calibration=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0,64), log.irrad.borders=c(-15, 50)) {
+get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=FALSE, measurement.period=60, saving.period=600, short.run=TRUE, calibration=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0,64), log.irrad.borders=c(-15, 50)) {
 # so this function will have to return 1 0 or -1
 
 Grid<-as.matrix(expand.grid(start[1], seq(start[2]-8, start[2]+8, 0.5)))
@@ -606,8 +591,8 @@ Track<-cbind(start[1], start[2], Time.seq)
 
 Parameters=calibration$Parameters
 Parameters$LogSigma=c(log(Sigma), 0.0)
-all.out<-get.shifts(Track=Track, Grid=Grid, start=start, Parameters=Parameters, log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders, slopes.only=F, delta=delta, short.run=short.run, measurement.period=measurement.period, saving.period=saving.period, calibration=calibration)
-Real.Sigma<-mean(all.out$Slopes[,2], na.rm=T)
+all.out<-get.shifts(Track=Track, Grid=Grid, start=start, Parameters=Parameters, log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders, slopes.only=FALSE, delta=delta, short.run=short.run, measurement.period=measurement.period, saving.period=saving.period, calibration=calibration)
+Real.Sigma<-mean(all.out$Slopes[,2], na.rm=TRUE)
 # and now we need to get resulting value
 
 Diff<-try(all.out$Spatial$Grid[which.max(apply(all.out$Phys.Mat[,1:(dim(all.out$Phys.Mat)[2])],1,  FUN=prod)),2]-start[2])
@@ -624,7 +609,7 @@ if (return.all.out) {return(all.out)
 } else {return(Res)}
 }
 
-get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, measurement.period=60, saving.period=600, short.run=T, repeats=3, random.delta=T, fast=F, calibration=NULL, log.light.borders=log(c(2,64)), log.irrad.borders, min.max.values=c(0,64)) {
+get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, measurement.period=60, saving.period=600, short.run=TRUE, repeats=3, random.delta=TRUE, fast=FALSE, calibration=NULL, log.light.borders=log(c(2,64)), log.irrad.borders, min.max.values=c(0,64)) {
 	if (random.delta) {
 		if (fast) {
 			Deltas<-rep(runif(5, deltalim[1], deltalim[2]), repeats)
@@ -643,7 +628,7 @@ return(Res)
 }
 
 # and now the next on that will iterate Sigma
-get.deltas.main<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigmas=seq(0, 0.8, 0.1), measurement.period=60, saving.period=600, short.run=T, repeats=3, random.delta=T, fast=F, calibration=NULL, log.light.borders=log(c(2,64)),  log.irrad.borders=c(-15, 50), min.max.values=c(0,60)) {
+get.deltas.main<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigmas=seq(0, 0.8, 0.1), measurement.period=60, saving.period=600, short.run=TRUE, repeats=3, random.delta=TRUE, fast=FALSE, calibration=NULL, log.light.borders=log(c(2,64)),  log.irrad.borders=c(-15, 50), min.max.values=c(0,60)) {
 
 Res<-c()
 for (i in Sigmas) {
@@ -665,7 +650,7 @@ return(Res)
 }
 
 
-get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), measurement.period=60, saving.period=600, short.run=T, threads=2, log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), repeats=1, random.delta=T, calibration=NULL, fast=F, min.max.values=c(0, 64)) {
+get.deltas.parallel<-function(deltalim=c(-0.2, 0.2), limits=c(-65,65), points=20, Sigmas=seq(0, 0.8, 0.1), measurement.period=60, saving.period=600, short.run=TRUE, threads=2, log.light.borders=log(c(2,64)), log.irrad.borders=c(-15, 50), repeats=1, random.delta=TRUE, calibration=NULL, fast=FALSE, min.max.values=c(0, 64)) {
 
 if (is.character(measurement.period)) measurement.period=get("measurement.period")
 if (is.character(saving.period)) saving.period=get("saving.period")
@@ -705,7 +690,7 @@ Coords<-cbind(0, Lats)
 # ver 0.3 from 04.08.2015
 
 
-get.1.minute.parameters<-function(initial=NULL, parameters, position, start.time, end.time, print=T) {
+get.1.minute.parameters<-function(initial=NULL, parameters, position, start.time, end.time, print=TRUE) {
 # this stupid brute force function will just etimate what should be the parameter values on a 1 minute scale..
 if (is.null(initial))initial=parameters$LogSlope
 if (print) print(initial)
@@ -718,11 +703,11 @@ Time.seq<-seq(from=start.time-7200
 Time.seq.saving<-seq(from=start.time-7200
 , to=end.time+7200, by=parameters$saving.period)
 To.run.cur=data.frame(Slope.ideal=initial[1],SD.ideal=initial[2])
-All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=parameters$measurement.period, saving.period=parameters$saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=parameters$log.light.borders, min.max.values=parameters$min.max.values, log.irrad.borders=parameters$log.irrad.borders, plot=F)
+All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position[2], measurement.period=parameters$measurement.period, saving.period=parameters$saving.period, Time.seq=Time.seq, Time.seq.saving=Time.seq.saving, Lon=position[1], log.light.borders=parameters$log.light.borders, min.max.values=parameters$min.max.values, log.irrad.borders=parameters$log.irrad.borders, plot=FALSE)
 
 #########
 # LL
-LL=log((mean(All.slope.runs$Slope, na.rm=T)-parameters$LogSlope[1])^2+(sd(All.slope.runs$Slope, na.rm=T)-parameters$LogSlope[2])^2)
+LL=log((mean(All.slope.runs$Slope, na.rm=TRUE)-parameters$LogSlope[1])^2+(sd(All.slope.runs$Slope, na.rm=TRUE)-parameters$LogSlope[2])^2)
 cat("\n\n   ############## LL:", LL, "\n\n")
 return(LL)
 }
@@ -733,7 +718,7 @@ get.time.correction.function<-function(parameters, measurement.period=60, saving
 # as far as we do not provide time the slope function will runf for the whole year.
 
 To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2]) #
-All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, short.run=F, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
+All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, short.run=FALSE, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
 
 Solar<-solar.FLightR(as.POSIXct(All.slope.runs$gmt, tz="UTC", origin="1970-01-01"))
 All.slope.runs$cosSolarDec<-Solar$cosSolarDec
@@ -765,7 +750,7 @@ require(parallel)
 if (mode=="trial") {
 	deltalim=c(0.15, 0.16)
 	cat("deltalim set to ", deltalim, "\n")
-	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,  random.delta=T, calibration=calibration, min.max.values=min.max.values)
+	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,  random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 	Res<-as.data.frame(Res)
 	print(str(Res))
 	names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
@@ -774,7 +759,7 @@ if (mode=="trial") {
 }
 if (mode=="brute") {
 # real run
-Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
+Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 #=======
 # !!! idealy there should be a check that will make sure that active variation occured at the deltalim specified
 #=======
@@ -813,7 +798,7 @@ if (mode=="smart") {
 
 	Points<-ifelse(threads<7, 7, threads) # how many repeats to run..
 
-	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
+	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 	Res_min_lat<-as.data.frame(Res_min_lat)
 	names(Res_min_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res_min_lat$cosLat<-cos(Res_min_lat$Lat/180*pi)
@@ -824,7 +809,7 @@ if (mode=="smart") {
 	#plot(Delta~Diff, data=Res_min_lat)
 	require(mgcv)
 	Gam_min<-gam(Delta~s(Diff, k=3), data=Res_min_lat)
-	Predict_min<-predict(Gam_min, se.fit=T, newdata=data.frame(Diff=0))
+	Predict_min<-predict(Gam_min, se.fit=TRUE, newdata=data.frame(Diff=0))
 	
 	
 	cat("    Done!")	
@@ -836,7 +821,7 @@ if (mode=="smart") {
 
 	
  cat("...estimating compensation at latitude 65")
-	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
+	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 	Res_max_lat<-as.data.frame(Res_max_lat)
 	names(Res_max_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res_max_lat<-Res_max_lat[Res_max_lat$Diff>-8 & Res_max_lat$Diff<8,]
@@ -845,7 +830,7 @@ if (mode=="smart") {
 	cat("    Done!")	
 
 	Gam_max<-gam(Delta~s(Diff, k=3), data=Res_max_lat)
-	Predict_max<-predict(Gam_max, se.fit=T, newdata=data.frame(Diff=0))
+	Predict_max<-predict(Gam_max, se.fit=TRUE, newdata=data.frame(Diff=0))
 
 	
 	cat("estimated delta for 65 degrees N is" , round(Predict_max$fit,3),  "+-"  , round(Predict_max$se.fit,3), "\n")
@@ -859,7 +844,7 @@ if (mode=="smart") {
  	plot(Delta~Diff, data=Res_max_lat)
 	points(Delta~Diff, data=Res_min_lat, col="red")
 	Gam_max<-gam(Delta~s(Diff, k=3), data=Res_max_lat)
-	Predict_max<-predict(Gam_max, se.fit=T, newdata=data.frame(Diff=0))
+	Predict_max<-predict(Gam_max, se.fit=TRUE, newdata=data.frame(Diff=0))
 	
 	# ok and now we want at least  to take a diap from min to max and focus there..
 	
@@ -867,16 +852,14 @@ if (mode=="smart") {
 	
 	
 	##################
-	# checking for -65
-	#Res_minus_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(-65,-65), points=Points, Sigmas=sigma, interval=saving.period, short.run=T, threads=threads, log.irrad.borders=c(-50, 50), random.delta=T, calibration=calibration)
-	
+	# checking for -65	
 	# ok now we have to go for the full run in a new boundaries...
 	
 	cat("doing the full run \n")
 	
 	Points<-(50%/%threads)*threads # how many repeats to run..
 	
-	Res<-get.deltas.parallel(deltalim=deltalim_corrected, limits=c(-65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=T, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=T, calibration=calibration, min.max.values=min.max.values)
+	Res<-get.deltas.parallel(deltalim=deltalim_corrected, limits=c(-65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 
 	cat(" ... done!")
 	Res<-as.data.frame(Res)
@@ -914,7 +897,7 @@ return(RES)
 # they are not wrapped yet though..
 
 
-simulate.and.prepare.track<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=T, min.max.values=c(0, 64),log.light.borders=log(c(2,64)),Lat, first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59") {
+simulate.and.prepare.track<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=TRUE, min.max.values=c(0, 64),log.light.borders=log(c(2,64)),Lat, first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59") {
 
 # for this we will have to create a To.run.object...
 To.run<-data.frame(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2], Latitude=Lat) #
@@ -949,7 +932,7 @@ try(unlink(File.name))
 # new trick - let's try to load the real track
 cat("   GeoLight step\n")
 
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=T, ask=F, LightThreshold=log.light.borders[1]+1)
+tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=log.light.borders[1]+1)
 GLtab   <- tw[[2]] # Table to proceed with GeoLight
 cat("automatically detected twilight:\n")
 print(table(GLtab[,3]))
@@ -1016,7 +999,7 @@ Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 }
 
 
-get.grid.of.tracks<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=T, min.max.values=c(0, 64), log.light.borders=log(c(2,64)),   Lats, cluster=NULL, first.date="2010-01-01 00:00:00",last.date="2010-03-20 23:59:59") {
+get.grid.of.tracks<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=TRUE, min.max.values=c(0, 64), log.light.borders=log(c(2,64)),   Lats, cluster=NULL, first.date="2010-01-01 00:00:00",last.date="2010-03-20 23:59:59") {
 if (!is.null(cluster)) {
 	require(parallel)
 	#if (threads==-1) threads= detectCores()-1 # selecting all -1 available cores...
@@ -1041,9 +1024,9 @@ get.diff<-function(prepared.data, calibration, min.max.values=c(1, 1150), log.li
 	Grid<-as.matrix(expand.grid(0, seq(prepared.data$Lat-10, prepared.data$Lat+10, 0.5)))
 	Grid<-cbind(Grid, 1)
 
-	All.probs.dusk<-sapply(prepared.data$Dusk$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dusk$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dusk$Twilight.time.mat, dusk=T, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Grid=Grid,log.light.borders=log.light.borders, calibration=calibration)
+	All.probs.dusk<-sapply(prepared.data$Dusk$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dusk$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dusk$Twilight.time.mat, dusk=TRUE, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Grid=Grid,log.light.borders=log.light.borders, calibration=calibration)
 	
-	All.probs.dawn<-sapply(prepared.data$Dawn$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dawn$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dawn$Twilight.time.mat, dusk=F, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Grid=Grid,  log.light.borders=log.light.borders, calibration=calibration)
+	All.probs.dawn<-sapply(prepared.data$Dawn$Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=prepared.data$Dawn$Twilight.log.light.mat, Twilight.time.mat=prepared.data$Dawn$Twilight.time.mat, dusk=FALSE, Calib.param=calibration$Parameters$LogSlope, log.irrad.borders=log.irrad.borders, delta=prepared.data$delta, Grid=Grid,  log.light.borders=log.light.borders, calibration=calibration)
 
 	Phys.Mat<-c()
 	for (i in 1:nrow(prepared.data$Filtered_tw)) {
@@ -1082,9 +1065,9 @@ if (!is.null(cluster)) {
 	return(Diffs)
 	}
 
-diffs.ll<-function(diffs, log=T) {
+diffs.ll<-function(diffs, log=TRUE) {
 # least squares
-ifelse(log, log(max(-1e70,mean(diffs^2, na.rm=T))), max(-1e70,mean(diffs^2, na.rm=T)))
+ifelse(log, log(max(-1e70,mean(diffs^2, na.rm=TRUE))), max(-1e70,mean(diffs^2, na.rm=TRUE)))
 }
 
 test.deltas.old<-function(params, Tracks, Spline, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
@@ -1096,7 +1079,7 @@ Tracks <- lapply(Tracks, FUN=function(x) {names(x)[length(x)]="delta"; return(x)
 Diffs<-get.all.diffs(Tracks, calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, cluster=cluster)
 plot(Diffs~sapply(Tracks, "[[", i=3))
 print(Diffs)
-Res<-diffs.ll(Diffs, log=F)
+Res<-diffs.ll(Diffs, log=FALSE)
 cat("LL:", Res, "\n")
 return(Res)
 }
@@ -1106,10 +1089,7 @@ test.deltas<-function(params, Tracks, Spline, calibration, min.max.values=c(1, 1
 # this function should send a spline as a calibration function..
 # params are parameters for delta...
 print(params)
-#deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.
 
-#lat_correction_fun<-approxfun(y= bs(abs((-85:85)), knots=c(21, 42), degree=3, Boundary.knots=c(0,85), intercept=T)%*%params, x=-85:85)
-#lat_correction_fun<-approxfun(y= cbind(1, c(-85:85)^2,c (-85:85)^4)%*%params, x=-85:85)
 lat_correction_fun<-approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/180*pi),cos(3*c(-85:85)/180*pi))%*%params, x=-85:85)
 
 # trying to add knots..
@@ -1120,7 +1100,7 @@ par(mfrow=c(1,2))
 plot(lat_correction_fun(-85:85)~ c(-85:85))
 
 plot(Diffs~sapply(Tracks, "[[", i=3))
-Res<-diffs.ll(Diffs, log=F)
+Res<-diffs.ll(Diffs, log=FALSE)
 cat("LL:", Res, "\n")
 return(Res)
 }
@@ -1131,11 +1111,7 @@ test.deltas3<-function(params, Tracks, calibration, min.max.values=c(1, 1150), l
 print(params)
 #deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.
 
-#lat_correction_fun<-approxfun(y= bs((-85:85), knots=c(-42, -21, 0, 21, 42), degree=3, Boundary.knots=c(-85,85), intercept=T)%*%params, x=-85:85)
-lat_correction_fun<-approxfun(y= bs((-85:85), degree=5, Boundary.knots=c(-85,85), intercept=T)%*%params, x=-85:85)
-#lat_correction_fun<-approxfun(y= cbind(1, c(-85:85)^2,c (-85:85)^4)%*%params, x=-85:85)
-#lat_correction_fun<-approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/180*pi),cos(3*c(-85:85)/180*pi))%*%params, x=-85:85)
-
+lat_correction_fun<-approxfun(y= bs((-85:85), degree=5, Boundary.knots=c(-85,85), intercept=TRUE)%*%params, x=-85:85)
 # trying to add knots..
 calibration$lat_correction_fun=lat_correction_fun
 
@@ -1148,7 +1124,7 @@ par(mfrow=c(1,2))
 plot(lat_correction_fun(-85:85)~ c(-85:85))
 plot(Diffs~sapply(Tracks, "[[", i=3))
 points(Diffs_cor~sapply(Tracks, "[[", i=3)[Diff_index], col="red", pch="+")
-Res<-diffs.ll(Diffs_cor, log=F)
+Res<-diffs.ll(Diffs_cor, log=FALSE)
 cat("LL:", Res, "\n")
 return(Res)
 }

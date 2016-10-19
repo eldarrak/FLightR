@@ -13,7 +13,7 @@
 #' @export
 get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("auto", "max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
  # measurement.period should be set to saving period for swiss tags
-   TAGS.twilights<-read.csv(filename, stringsAsFactors =F)
+   TAGS.twilights<-read.csv(filename, stringsAsFactors =FALSE)
 
    # now we have to find tag type and figure out whether data were logtransformed..
 
@@ -122,13 +122,13 @@ get.tag.type<-function(TAGS.twilights) {
 }
 
 
-convert.lux.to.tags<-function(file, log=F, log.light.borders=c(1,10)) {
+convert.lux.to.tags<-function(file, log=FALSE, log.light.borders=c(1,10)) {
 	# the function takes the current (2015)
 	# .lux format and converts it to .csv format that
 	# TAGS service accepts
-	warning("\n\nwe have figured out that TAGS service is rounding data, so log=T will produce wrong rounding on upload\n\nsetting log to FALSE\n")
-	log=F
-	Dat<-read.csv(file, skip=20, sep="\t", stringsAsFactors =F)
+	warning("\n\nwe have figured out that TAGS service is rounding data, so log=TRUE will produce wrong rounding on upload\n\nsetting log to FALSE\n")
+	log=FALSE
+	Dat<-read.csv(file, skip=20, sep="\t", stringsAsFactors =FALSE)
 	names(Dat)<-c("datetime", "light")
 	Dat$datetime<-as.POSIXct(Dat$datetime, tz="UTC", format="%d/%m/%Y %H:%M:%S")
 
@@ -144,7 +144,7 @@ convert.lux.to.tags<-function(file, log=F, log.light.borders=c(1,10)) {
 	}
 	}
 	# now I need to save as csv...
-	write.csv(Dat_new, file=paste(unlist(strsplit(file, ".lux")), "csv", sep="."), quote = F, row.names=F) 
+	write.csv(Dat_new, file=paste(unlist(strsplit(file, ".lux")), "csv", sep="."), quote =FALSE, row.names=FALSE) 
 	cat("Success!\n")
 	cat("file", paste(unlist(strsplit(file, ".lux")), "csv", sep="."), "\nwas saved to", getwd(), "\n")
 	return(NULL)
@@ -162,7 +162,7 @@ read.tags.light.twilight<-function(lig.raw, start.date=NULL, end.date=NULL) {
 
 	## and also I want to exclude the interpolated and excluded afterwards points
 		
-	lig<-lig.raw[-which(lig.raw$interp==T),]
+	lig<-lig.raw[-which(lig.raw$interp==TRUE),]
 
 ##########################################################################
 ##Convert the datetime/light fields into the format that FLightR works on##
@@ -177,7 +177,7 @@ read.tags.light.twilight<-function(lig.raw, start.date=NULL, end.date=NULL) {
 ##Save that date/light file so it can be read in later##
 ########################################################
 	tmpname<-tempfile(fileext = ".csv")
-	write.table(lig.new, file=tmpname, sep="," , row.names = F, col.names = F,  quote = F)
+	write.table(lig.new, file=tmpname, sep="," , row.names = FALSE, col.names =FALSE,  quote=FALSE)
 	Data<-geologger.read.data(file=tmpname)
 	unlink(x=tmpname)
 #########################################################
@@ -211,7 +211,7 @@ Filtered_tw$excluded=0
 
 All.p<-Data$d[order(Data$d$gmt),]
 
-#All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
+#All.p<-All.p[!duplicated(All.p[,2:3], fromLast=TRUE),]
 rownames(All.p)<-1:nrow(All.p)
 Res<-list(Data=All.p, twilights=Filtered_tw)
 return(Res)
@@ -234,7 +234,7 @@ Data<-data.frame(id=1:length(datetime), gmt=datetime, light=light, type=0)
 Data<-rbind(Data, data.frame(id=Filtered_tw$id, gmt= Filtered_tw$datetime, light=Filtered_tw$light, type=Filtered_tw$type))
 
 All.p<-Data[order(Data$gmt),]
-#All.p<-All.p[!duplicated(All.p[,2:3], fromLast=T),]
+#All.p<-All.p[!duplicated(All.p[,2:3], fromLast=TRUE),]
 rownames(All.p)<-1:nrow(All.p)
 Filtered_tw$excluded=0
 FlightR.data=list(Data=All.p, twilights=Filtered_tw)
@@ -244,7 +244,7 @@ return(FlightR.data)
 
 
 geologger.read.data<-function( file) {
-	track <- read.csv(file,header=FALSE, stringsAsFactors=F) 
+	track <- read.csv(file,header=FALSE, stringsAsFactors=FALSE) 
 	names(track)<-c('date','time','light')
 	track$datetime <- paste(track$date,track$time,sep=' ') #makes a new column called datetime with date and time concatenated together with a space between
 	track$gmt <- as.POSIXct(strptime(track$datetime,'%d/%m/%Y %H:%M:%S'),'UTC') #makes a new column called gmt with date and time data in a formate that R can work with

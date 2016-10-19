@@ -13,7 +13,7 @@ nParticles<-length(inverse.rle(Result$Results$Points.rle[[1]]))
 	return(Prob.of.being.in)
 }
 
-find.time<-function(Prob.of.being.in, time, prob.cutoff=0.95, plot=F) {
+find.time<-function(Prob.of.being.in, time, prob.cutoff=0.95, plot=FALSE) {
 P<-Prob.of.being.in-prob.cutoff
 if (plot) {
 plot(Prob.of.being.in~time, type="b", pch="+")
@@ -45,11 +45,11 @@ find.times.distribution<-function(Result, Spatial.Index) {
    # let's start from 0.5 
    quantiles=c(0.025, 0.25, 0.5, 0.75, 0.975)
 
-   Q1<-find.time(Prob.of.being.in, time, quantiles[1], plot=F)
-   Q2<-find.time(Prob.of.being.in, time, quantiles[2], plot=F)
-   Q3<-find.time(Prob.of.being.in, time, quantiles[3], plot=F)
-   Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=F)
-   Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=F)
+   Q1<-find.time(Prob.of.being.in, time, quantiles[1], plot=FALSE)
+   Q2<-find.time(Prob.of.being.in, time, quantiles[2], plot=FALSE)
+   Q3<-find.time(Prob.of.being.in, time, quantiles[3], plot=FALSE)
+   Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=FALSE)
+   Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=FALSE)
    Q1.5<-sort(c(Q1, Q5))
    Q2.4<-sort(c(Q2, Q4))
    

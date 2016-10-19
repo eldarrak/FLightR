@@ -1,7 +1,7 @@
 ############
 # detect ts outliers
 
-get.equatorial.max<-function(Proc.data, calibration, dusk=T, Twilight.ID, center=NULL) {
+get.equatorial.max<-function(Proc.data, calibration, dusk=TRUE, Twilight.ID, center=NULL) {
 if (dusk) {
 Twilight.solar.vector<-solar.FLightR(as.POSIXct(Proc.data$Twilight.time.mat.dusk[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
 Twilight.log.light.vector<-Proc.data$Twilight.log.light.mat.dusk[c(1:24, 26:49), Twilight.ID]
@@ -14,7 +14,7 @@ Twilight.time.vector=Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.I
 #ok let's now create a line at equator
 Grid<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
  if (is.null(center)) {
-	Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL, impute.on.boundaries=Proc.data$impute.on.boundaries)
+	Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=FALSE, verbose=FALSE,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
 	Grid<-cbind(seq(Grid[which.max(Current.probs1),1]
 	-5, Grid[which.max(Current.probs1),1]
@@ -24,7 +24,7 @@ Grid<-cbind(seq(-180, 180, length.out=360*2+1), 0, 1)
 	Grid<-cbind(seq(center-45, center+45, by=0.1), 0, 1)
 	Grid[,1]<-Grid[,1]%%360
 	}
-Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=F, verbose=F,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL, impute.on.boundaries=Proc.data$impute.on.boundaries)
+Current.probs1<-	apply(Grid, 1, get.current.slope.prob, calibration=calibration,  Twilight.time.vector=Twilight.time.vector, Twilight.log.light.vector=Twilight.log.light.vector, plot=FALSE, verbose=FALSE,  log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, dusk=dusk, Calib.param=calibration$Parameters$LogSlope, Twilight.solar.vector=Twilight.solar.vector, delta=NULL, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
 Final.max=Grid[which.max(Current.probs1),1]
 return(Final.max)
@@ -60,7 +60,7 @@ tsoutliers.test <- function(x,plot=FALSE)
         return(score)
 }
 
-detect.outliers<-function(Lons, plot=T, max.outlier.proportion=0.2) {
+detect.outliers<-function(Lons, plot=TRUE, max.outlier.proportion=0.2) {
   if (!requireNamespace("tsoutliers", quietly = TRUE)) {
     stop("tsoutliers needed for this function to work. Please install it.",
       call. = FALSE)
@@ -115,7 +115,7 @@ abline(v=Outliers1$ind[Outliers1$type=="TC"], col="brown")
 return(Outliers1_c)
 }
 
-detect.tsoutliers<-function(calibration, Proc.data, plot=T, Threads=NULL, max.outlier.proportion=0.2, simple.version=F) {
+detect.tsoutliers<-function(calibration, Proc.data, plot=TRUE, Threads=NULL, max.outlier.proportion=0.2, simple.version=FALSE) {
 if (!requireNamespace("tsoutliers", quietly = TRUE)) {
     stop("Pkg tsoutliers needed for this function to work. Please install it.",
       call. = FALSE)
@@ -138,12 +138,12 @@ if (!is.null(Threads)) {
 	cat("estimating dusk errors projection on equator\n")
 	
 	Dusks<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
-	tryCatch(Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x)), finally = stopCluster(mycl))
+	tryCatch(Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=TRUE, x)), finally = stopCluster(mycl))
 	
 	cat("estimating dawn errors projection on equator\n")
 	
 	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dawn)[2])
-	tryCatch(Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x)), finally = stopCluster(mycl))
+	tryCatch(Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=FALSE, x)), finally = stopCluster(mycl))
 	stopCluster(mycl)
 
 } else {
@@ -152,7 +152,7 @@ if (!is.null(Threads)) {
 	Lons=c()
 	for (i in 1:(dim(Proc.data$Twilight.time.mat.dusk)[2])) {
 	cat(i, "\n")
-	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=T, i))
+	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=TRUE, i))
 	plot(Lons)
 	}
 
@@ -163,7 +163,7 @@ if (!is.null(Threads)) {
 	Lons=c()
 	for (i in 1:(dim(Proc.data$Twilight.time.mat.dawn)[2])) {
 	cat(i, "\n")
-	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=F, i))
+	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=FALSE, i))
 	plot(Lons)
 	}
 	Lons.dawn<-Lons
@@ -226,7 +226,7 @@ if (length(Problematic.Dusks$outliers) >0| length(Problematic.Dawns$outliers)>0)
 	if (length(Problematic.Dusks$outliers) >0) {
 	cat("reestimating dusk errors projection on equator\n")
 	Dusks<-cbind(Problematic.Dusks$outliers,  ((Problematic.Dusks$center+Delta_cur_dusk)%%360)-Delta_cur_dusk)
-	Lons.dusk_short<-apply(Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=T, x[1], center=x[2]))
+	Lons.dusk_short<-apply(Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=TRUE, x[1], center=x[2]))
 	Lons.dusk_short<-((Lons.dusk_short+Delta_cur_dusk)%%360)-Delta_cur_dusk
 	Lons.dusk[Problematic.Dusks$outliers]<-Lons.dusk_short
 	}
@@ -234,7 +234,7 @@ if (length(Problematic.Dusks$outliers) >0| length(Problematic.Dawns$outliers)>0)
 	if (length(Problematic.Dawns$outliers) >0) {
 	cat("reestimating dawn errors projection on equator\n")
 	Dawns<-cbind(Problematic.Dawns$outliers, ((Problematic.Dawns$center+Delta_cur_dawn)%%360)-Delta_cur_dawn)
-	Lons.dawn_short<-apply(Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=F, x[1], center=x[2]))
+	Lons.dawn_short<-apply(Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=FALSE, x[1], center=x[2]))
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
 	Lons.dawn[Problematic.Dawns$outliers]<-Lons.dawn_short
 
@@ -247,8 +247,8 @@ cat("detecting outliers\n")
 #par(mfrow=c(2,1))
 #plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,])
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
-Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=F, max.outlier.proportion=max.outlier.proportion)
-Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=F, max.outlier.proportion=max.outlier.proportion)
+Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=FALSE, max.outlier.proportion=max.outlier.proportion)
+Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=FALSE, max.outlier.proportion=max.outlier.proportion)
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 par(mfrow=c(2,1))

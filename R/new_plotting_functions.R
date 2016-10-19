@@ -110,7 +110,7 @@ library(ggmap)
 	
     background <-do.call(ggmap::get_map, map.options)
 	
-	p<-ggmap::ggmap(background, maprange=T)
+	p<-ggmap::ggmap(background, maprange=TRUE)
 
 	if (plot.cloud) {
 	 #if (overdateline) Points[,1]<-ifelse(Points[,1]>0, Points[,1]-360, Points[,1])
@@ -223,7 +223,7 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
    #Longitude
    plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grey(0.1),pch=16,
       ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
-      Quantiles$UCI.lon )), type="n", axes=F)
+      Quantiles$UCI.lon )), type="n", axes=FALSE)
    axis(2, las=1)
    axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
    box()
@@ -253,7 +253,7 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
    
    plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grey(0.1),
      pch=16,ylab="Latitude",xlab="",lwd=2,
-     ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n", axes=F)
+     ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n", axes=FALSE)
    axis(2, las=1)
    axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
    box()
@@ -284,7 +284,7 @@ get_buffer<-function(coords, r){
   }
   
 get_gunion_r<-function(Result) {
-    Distances=  spDists(Result$Spatial$Grid[1:which.min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=T)
+    Distances=  spDists(Result$Spatial$Grid[1:which.min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=TRUE)
     # ok, distances go up to 51.2.. the next step is 62.. 
     # so if I round them 
     Selected_dist<-unique(sort(round(Distances/10)*10))[2]
@@ -328,7 +328,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
        Buff_comb<-gUnion(Buff_comb, Buffers[[i]])
   }
   }
-  Buff_comb_simpl<-gSimplify(Buff_comb, tol=0.01, topologyPreserve=T)
+  Buff_comb_simpl<-gSimplify(Buff_comb, tol=0.01, topologyPreserve=TRUE)
   return(list(Buffer=Buff_comb_simpl, nPoints=length(Points)))
   }
 
@@ -532,10 +532,7 @@ plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
                    col=my.golden.colors(64), main=paste("twilight number",twilight.index, format(object$Indices$Matrix.Index.Table$time[twilight.index], tz='UTC')))          
    library(maptools)
    data(wrld_simpl)
-   plot(wrld_simpl, add=T)
-   #maps::map('world', add=T)
-   #maps::map('state', add=T)
- 
+   plot(wrld_simpl, add=TRUE)
 }
 
 get_points_distribution<-function(Result, twilights.index) {
