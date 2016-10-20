@@ -346,7 +346,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	# here we should introduce clever mask..
 	# this will be something like that
 	Index.Stable<-which(New.Particles == Results.stack[,ncol(Results.stack)])
-	Current.Weights[Index.Stable]<-Current.Weights[Index.Stable]*in.Data$Spatial$Behav.mask[Index.Stable]
+	Current.Weights[Index.Stable]<-Current.Weights[Index.Stable]*(in.Data$Spatial$Behav.mask[New.Particles][Index.Stable])
 	}
 	#=======================================================
 	# now I want to add 3.3
