@@ -10,7 +10,12 @@
 #' @param log.irrad.borders Numeric vector with length of 2 for minimum and maximum log(irradiance) values to use. Default value 'auto', will take these values from the Proc.data object.
 #' @details The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
 #' All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
-#'
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' Proc.data<-get.tags.data(File)
+#' plot.slopes.by.location(Proc.data=Proc.data, location=c(5.43, 52.93))
+#' abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
+#' abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 #' @author Eldar Rakhimberdiev
 #' @export plot.slopes.by.location
 plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
@@ -40,7 +45,17 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #' @param model.ageing if set to TRUE, accounts for the tag ageing (with opacification of its transparent shell of a light sensor), resulting into decreasing sensitivity of the device. This option is useful only if there were several calibration periods or if calibration period was very long (~ longer than a month).
 #' @param plot.each Do you want every twilight to be plotted while processing
 #' @param plot.final Do you want final calibration graph to be plotted. On the graph you can see all the observed versus expected light levels. All slopes should be similar.
-#'
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' Proc.data<-get.tags.data(File)
+#' Calibration.periods<-data.frame(
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        lon=5.43, lat=52.93) 
+#'        #use c() also for the geographic coordinates, if you have more than one calibration location
+#'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+#' print(Calibration.periods)
+#' Calibration<-make.calibration(Proc.data, Calibration.periods)
 #' @author Eldar Rakhimberdiev
 #' @export
 make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE) {

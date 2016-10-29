@@ -21,6 +21,18 @@ make.calibration(Proc.data, Calibration.periods, model.ageing = FALSE,
 \description{
 Function estimates all nesessary parameters from the calibration data logged in a known location or locations.
 }
+\examples{
+File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+Proc.data<-get.tags.data(File)
+Calibration.periods<-data.frame(
+       calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+       calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+       lon=5.43, lat=52.93) 
+       #use c() also for the geographic coordinates, if you have more than one calibration location
+       # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+print(Calibration.periods)
+Calibration<-make.calibration(Proc.data, Calibration.periods)
+}
 \author{
 Eldar Rakhimberdiev
 }

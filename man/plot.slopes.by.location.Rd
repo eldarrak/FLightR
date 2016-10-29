@@ -23,6 +23,13 @@ The function calculates and plots calibration slopes for sunsets and sunrises fo
 The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
 All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
 }
+\examples{
+File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+Proc.data<-get.tags.data(File)
+plot.slopes.by.location(Proc.data=Proc.data, location=c(5.43, 52.93))
+abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
+abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
+}
 \author{
 Eldar Rakhimberdiev
 }
