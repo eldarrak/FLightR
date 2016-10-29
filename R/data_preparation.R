@@ -131,9 +131,25 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @param M.mean Prior for mean distance travelled between consequtive twilights, km
 #' @param M.sd Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution
 #' @return Object to be uses in the \code{\link{run.particle.filter}}
-
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' to run example fast we will cut the real data file by 2013 Aug 20
+#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+#' Calibration.periods<-data.frame(
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        lon=5.43, lat=52.93) 
+#'        #use c() also for the geographic coordinates, if you have more than one calibration location
+#'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+#' print(Calibration.periods)
+#' Calibration<-make.calibration(Proc.data, Calibration.periods)
+#' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+#'   distance.from.land.allowed.to.use=c(-Inf, Inf),
+#'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
+#'
+#' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
+#'
 #' @author Eldar Rakhimberdiev
-
 #' @export
 make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.1, Direction=0,Kappa=0, M.mean=300, M.sd=500, likelihood.correction=TRUE) {
 if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")

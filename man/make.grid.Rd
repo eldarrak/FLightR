@@ -33,6 +33,12 @@ dataframe with coordinates(lon and lat) and \code{probability.of.staying}
 \description{
 This function makes a rectangular grid with use defined boudnaries and probabilities of being stationary.
 }
+\examples{
+Grid<-make.grid(left=-14, bottom=30, right=13, top=57,
+  distance.from.land.allowed.to.use=c(-Inf, Inf),
+  distance.from.land.allowed.to.stay=c(-Inf, Inf))
+
+}
 \author{
 Eldar Rakhimberdiev
 }

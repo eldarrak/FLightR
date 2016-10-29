@@ -15,6 +15,11 @@
 #' @param probability.of.staying - assigned probability value for grid cells that do not satisfy \code{distance.from.water.allowed.to.stay}
 #' plot show a plot of final grid.
 #' @return dataframe with coordinates(lon and lat) and \code{probability.of.staying}
+#' @examples
+#' Grid<-make.grid(left=-14, bottom=30, right=13, top=57,
+#'   distance.from.land.allowed.to.use=c(-Inf, Inf),
+#'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
+#'
 #' @author Eldar Rakhimberdiev
 #' 
 #' @export
