@@ -6,7 +6,7 @@
 \usage{
 make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
   threads = -1, Decision = 0.1, Direction = 0, Kappa = 0,
-  M.mean = 300, M.sd = 500)
+  M.mean = 300, M.sd = 500, likelihood.correction = TRUE)
 }
 \arguments{
 \item{Proc.data}{Processed dat aobject created by \code{\link{get.tags.data}}.}

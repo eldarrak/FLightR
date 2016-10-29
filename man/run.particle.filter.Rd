@@ -5,10 +5,10 @@
 \title{Run Particle Filter}
 \usage{
 run.particle.filter(all.out, cpus = NULL, threads = -1,
-  nParticles = 1e+06, known.last = T, precision.sd = 25,
-  behav.mask.low.value = 0, k = NA, parallel = T, plot = T,
+  nParticles = 1e+06, known.last = TRUE, precision.sd = 25,
+  behav.mask.low.value = 0, k = NA, parallel = TRUE, plot = TRUE,
   cluster.type = "PSOCK", a = 45, b = 1500, L = 90,
-  adaptive.resampling = 0.99, check.outliers = F, sink2file = F,
+  adaptive.resampling = 0.99, check.outliers = FALSE, sink2file = FALSE,
   add.jitter = FALSE)
 }
 \arguments{

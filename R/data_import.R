@@ -10,6 +10,9 @@
 #' @param impute.on.boundaries logical, if FLightR should approximate valeues at boundaries. Set it to TRUE only if you have vary few active poitns at each twilight, e.g if tag was saving every 10 minutes or so.
 #' @return list, which is to be further processed with the FlightR.
 #' @details The returned object has many parts, the important are: (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data).
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' Proc.data<-get.tags.data(File)
 #' @export
 get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("auto", "max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
  # measurement.period should be set to saving period for swiss tags

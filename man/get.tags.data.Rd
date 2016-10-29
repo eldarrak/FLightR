@@ -35,4 +35,8 @@ Reads the data frame with detected twilight events into the FlightR
 \details{
 The returned object has many parts, the important are: (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data).
 }
+\examples{
+File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+Proc.data<-get.tags.data(File)
+}
 
