@@ -26,7 +26,8 @@ Depends:
     raster,
     fields,
     ggmap,
-    ggsn
+    ggsn,
+	mgcv
 License: GNU GPL v3.0
 ByteCompile: true
 RoxygenNote: 5.0.1

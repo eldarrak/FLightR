@@ -16,6 +16,7 @@
 #' plot.slopes.by.location(Proc.data=Proc.data, location=c(5.43, 52.93))
 #' abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 #' abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
+#'
 #' @author Eldar Rakhimberdiev
 #' @export plot.slopes.by.location
 plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
