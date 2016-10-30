@@ -89,7 +89,7 @@ all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Ca
 # here we will run only 1e4 partilces for a very short track. One should use 1e6 particles for the full run
 Result<-run.particle.filter(all.in, threads=-1,
            nParticles=1e4, known.last=TRUE,
-           precision.sd=25, check.outliers=F)
+           precision.sd=25, check.outliers=FALSE)
 
 }
 \author{
