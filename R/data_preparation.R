@@ -133,7 +133,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @return Object to be uses in the \code{\link{run.particle.filter}}
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-#' #to run example fast we will cut the real data file by 2013 Aug 20
+#' # to run example fast we will cut the real data file by 2013 Aug 20
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
 #' Calibration.periods<-data.frame(
 #'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
