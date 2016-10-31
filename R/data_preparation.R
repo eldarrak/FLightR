@@ -46,6 +46,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #' @param model.ageing if set to TRUE, accounts for the tag ageing (with opacification of its transparent shell of a light sensor), resulting into decreasing sensitivity of the device. This option is useful only if there were several calibration periods or if calibration period was very long (~ longer than a month).
 #' @param plot.each Do you want every twilight to be plotted while processing
 #' @param plot.final Do you want final calibration graph to be plotted. On the graph you can see all the observed versus expected light levels. All slopes should be similar.
+#' @param likelihood.correction will estimate correction of likelihood for the current calibration paramters. Highly recommended not to be change from TRUE
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
@@ -56,10 +57,11 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
 #' print(Calibration.periods)
-#' Calibration<-make.calibration(Proc.data, Calibration.periods)
+#' # NB Below likelihood.correction is set to FALSE for fast run! Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~ 5 min
 #' @author Eldar Rakhimberdiev
 #' @export
-make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE) {
+make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction=TRUE) {
    Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-"1900-01-01"
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-"2100-01-01"
    calibration.parameters<-FLightR:::get.calibration.parameters(
@@ -111,7 +113,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 				 Proc.data$FLightR.data,
 				 log.light.borders=Proc.data$log.light.borders, log.irrad.borders=Proc.data$log.irrad.borders,
 				 ageing.model=calibration.parameters$ageing.model,
-				 location=NA)
+				 location=NA, likelihood.correction=likelihood.correction)
    Calibration$Calibration.periods<-Calibration.periods
    return(Calibration)
    }
@@ -142,7 +144,8 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
 #' print(Calibration.periods)
-#' Calibration<-make.calibration(Proc.data, Calibration.periods) # ~5 min
+#' # NB Below likelihood.correction is set to FALSE for fast run! Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~5 min
 #' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
 #'   distance.from.land.allowed.to.use=c(-Inf, Inf),
 #'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
