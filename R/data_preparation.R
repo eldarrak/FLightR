@@ -576,7 +576,7 @@ for (i in 1:nrow(Calibration.periods)) {
    }
    Dawn.calib.days.cur<-NULL
    Dawn.calib.days.cur<-which(Proc.data$Twilight.time.mat.dawn[1,]>Calibration.periods.int$calibration.start[i] & Proc.data$Twilight.time.mat.dawn[1,] < Calibration.periods.int$calibration.stop[i] )
-   if (length(Dusk.calib.days.cur)) > 0 {
+   if (length(Dawn.calib.days.cur)) > 0 {
       Dawn.calib.days<-unique(c(Dawn.calib.days,Dawn.calib.days.cur ))
       dawn.cur=matrix(ncol=2, nrow=length(Dawn.calib.days.cur))
       dawn.cur[,1]<-Calibration.periods.int$lon[i]
