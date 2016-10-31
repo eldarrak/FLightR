@@ -565,22 +565,24 @@ Dawn.calib.days<-c()
 Positions=list(dawn=c(), dusk=c())
 #sum(apply(Calibration.periods.int, 1, FUN=function(x) x[2]-x[1]))/3600/24
 for (i in 1:nrow(Calibration.periods)) {
-Dusk.calib.days.cur<-which(Proc.data$Twilight.time.mat.dusk[1,]>Calibration.periods.int$calibration.start[i] & Proc.data$Twilight.time.mat.dusk[1,] < Calibration.periods.int$calibration.stop[i])
-Dusk.calib.days<-unique(c(Dusk.calib.days, Dusk.calib.days.cur))
-
-Dawn.calib.days.cur<-which(Proc.data$Twilight.time.mat.dawn[1,]>Calibration.periods.int$calibration.start[i] & Proc.data$Twilight.time.mat.dawn[1,] < Calibration.periods.int$calibration.stop[i] )
-Dawn.calib.days<-unique(c(Dawn.calib.days,Dawn.calib.days.cur ))
-
-	dawn.cur=matrix(ncol=2, nrow=length(Dawn.calib.days.cur))
-		dawn.cur[,1]<-Calibration.periods.int$lon[i]
-		dawn.cur[,2]<-Calibration.periods.int$lat[i]
-		#
-		dusk.cur=matrix(ncol=2, nrow=length(Dusk.calib.days.cur))
-		dusk.cur[,1]<-Calibration.periods.int$lon[i]
-		dusk.cur[,2]<-Calibration.periods.int$lat[i]
-		Positions$dawn<-rbind(Positions$dawn, dawn.cur)
-		Positions$dusk<-rbind(Positions$dusk, dusk.cur)
-
+   Dusk.calib.days.cur<-NULL
+   Dusk.calib.days.cur<-which(Proc.data$Twilight.time.mat.dusk[1,]>Calibration.periods.int$calibration.start[i] & Proc.data$Twilight.time.mat.dusk[1,] < Calibration.periods.int$calibration.stop[i])
+   if (length(Dusk.calib.days.cur)) > 0 {
+      Dusk.calib.days<-unique(c(Dusk.calib.days, Dusk.calib.days.cur))
+      dusk.cur=matrix(ncol=2, nrow=length(Dusk.calib.days.cur))
+      dusk.cur[,1]<-Calibration.periods.int$lon[i]
+      dusk.cur[,2]<-Calibration.periods.int$lat[i]
+      Positions$dusk<-rbind(Positions$dusk, dusk.cur)
+   }
+   Dawn.calib.days.cur<-NULL
+   Dawn.calib.days.cur<-which(Proc.data$Twilight.time.mat.dawn[1,]>Calibration.periods.int$calibration.start[i] & Proc.data$Twilight.time.mat.dawn[1,] < Calibration.periods.int$calibration.stop[i] )
+   if (length(Dusk.calib.days.cur)) > 0 {
+      Dawn.calib.days<-unique(c(Dawn.calib.days,Dawn.calib.days.cur ))
+      dawn.cur=matrix(ncol=2, nrow=length(Dawn.calib.days.cur))
+      dawn.cur[,1]<-Calibration.periods.int$lon[i]
+      dawn.cur[,2]<-Calibration.periods.int$lat[i]
+      Positions$dawn<-rbind(Positions$dawn, dawn.cur)
+   }
 }
 Twilight.time.mat.Calib.dusk<-Proc.data$Twilight.time.mat.dusk[,Dusk.calib.days]
 Twilight.log.light.mat.Calib.dusk<-Proc.data$Twilight.log.light.mat.dusk[,Dusk.calib.days]
