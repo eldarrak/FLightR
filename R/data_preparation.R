@@ -57,7 +57,14 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
 #' print(Calibration.periods)
-#' # NB Below likelihood.correction is set to FALSE for fast run! Leave it as default TRUE for real examples
+#' 
+#' # NB Below likelihood.correction is set to FALSE for fast run! 
+#' # Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+#' 
+#' # Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+#' 
 #' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~ 5 min
 #' @author Eldar Rakhimberdiev
 #' @export
@@ -118,6 +125,51 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    return(Calibration)
    }
 
+   
+		
+find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE) {
+
+  if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very xclose but within few thousand km!')
+   ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE) {
+   sink("tmp")
+        Calibration.period<-data.frame(
+        calibration.start=as.POSIXct(calibration.start, tz='UTC'),
+        calibration.stop=as.POSIXct(calibration.stop, tz='UTC'),
+        lon=initial.coords[1], lat=initial.coords[2])
+        #use c() also for the geographic coordinates, if you have more than one calibration location
+        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+       log.light.borders<-Proc.data$log.light.borders
+       log.irrad.borders<-Proc.data$log.irrad.borders
+       calibration.parameters<-invisible(suppressWarnings(get.calibration.parameters(Calibration.period,
+       Proc.data, model.ageing=FALSE, 
+	   log.light.borders=log.light.borders,
+	   log.irrad.borders=log.irrad.borders, 
+       plot.each = FALSE, plot.final = FALSE)))
+	if (length(calibration.parameters$calib_outliers)>0) {
+      Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
+      FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
+      Proc.data_tmp<-process.twilights(   Proc.data$FLightR.data$Data, 
+         Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
+         measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
+         impute.on.boundaries=Proc.data$impute.on.boundaries)
+      calibration.parameters<-suppressWarnings(get.calibration.parameters(Calibration.period,
+      Proc.data_tmp, model.ageing=FALSE, 
+	   log.light.borders=log.light.borders,
+	   log.irrad.borders=log.irrad.borders, 
+       plot.each = FALSE, plot.final = FALSE))
+	   
+	}   
+       if (plot) plot.slopes(calibration.parameters$All.slopes)
+	sink()
+	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], Parameters$LogSlope[2]), '\n')
+       return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
+   }
+   tryCatch(Res<-optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot), finally-try(sink()))
+   return(Res)
+ }
+ 
+
+   
 #' combines data, calibration and sets up priors
 #' 
 #' This function is one step before \code{\link{run.particle.filter}}. It combines data, calibration, spatial extent and movement priors and estimates spatial likelihoods that used later in the particle filter.
@@ -144,7 +196,12 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
 #' print(Calibration.periods)
-#' # NB Below likelihood.correction is set to FALSE for fast run! Leave it as default TRUE for real examples
+#' 
+#' # NB Below likelihood.correction is set to FALSE for fast run! 
+#' # Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+#' 
+
 #' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~5 min
 #' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
 #'   distance.from.land.allowed.to.use=c(-Inf, Inf),
@@ -562,7 +619,6 @@ return(Res)
 }
 
 make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_mean_range=c(-3, 7), cur_sd_range=c(0,1), npoints=300, plot=FALSE, likelihood.correction=TRUE) {
-   require(mgcv)
    Res<-c()
    for (i in 1:npoints) {
    	  cat('\r simulation:  ', round(i/npoints*100), '%', sep='')
@@ -579,17 +635,17 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    cat('\r  estimating correction function...')
    cat('\r')
 
-   MvExp<-gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
+   MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
    # now we check for the outliers..
    Resid<-resid(MvExp$lme, type='normalized')
    Outliers<-NULL
    Outliers<-which(abs(Resid)>3*sd(Resid))
    if (length(Outliers)>0) {
       Res<-Res[-Outliers,]
-      MvExp<-gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
+      MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
    }
    XX<-seq(cur_sd_range[1], cur_sd_range[2], by=0.01)
-   c_fun<-approxfun(predict(MvExp$gam, newdata=data.frame(cur_sd=XX)) ~XX)
+   c_fun<-stats::approxfun(predict(MvExp$gam, newdata=data.frame(cur_sd=XX)) ~XX)
 
    if (plot) {
       plot(Res[,4]~Res[,3], pch='+', ylab='cur_mean', xlab='cur_sd')
@@ -597,6 +653,7 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
 	  }
 	Out<-list(c_fun=c_fun, Res=Res)
 	cat('\r')
+	cat('\n')
 	return(Out)
 }
 

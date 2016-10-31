@@ -48,7 +48,11 @@ Calibration.periods<-data.frame(
        #use c() also for the geographic coordinates, if you have more than one calibration location
        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
 print(Calibration.periods)
-# NB Below likelihood.correction is set to FALSE for fast run! Leave it as default TRUE for real examples
+
+# NB Below likelihood.correction is set to FALSE for fast run! 
+# Leave it as default TRUE for real examples
+Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+
 Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~5 min
 Grid<-make.grid(left=0, bottom=50, right=10, top=56,
   distance.from.land.allowed.to.use=c(-Inf, Inf),
