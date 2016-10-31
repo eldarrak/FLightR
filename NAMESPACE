@@ -2,6 +2,7 @@
 
 export(BAStag2TAGS)
 export(GeoLight2TAGS)
+export(find.stationary.location)
 export(find.times.distribution)
 export(get.tags.data)
 export(get_ZI_distances)
