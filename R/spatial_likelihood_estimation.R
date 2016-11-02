@@ -128,10 +128,12 @@ get.probs.lm<-function(Model, plot=FALSE, calibration=NULL, time_correction=NULL
 		
 	###########################################
         #LL correction fgoes in here	
-		if (!likelihood.correction) {
-           if(is.null(calibration$c_fun)) warning('you must supply new calibration with calibration correction function!\n') 
+		if (likelihood.correction) {
+           if(is.null(calibration$c_fun)) {
+		   warning('you must supply new calibration with calibration correction function!\n') 
 		} else {
 		test.Slope<-test.Slope-calibration$c_fun(slope.sd)
+		}
 		}
 		
 		if (is.null(delta)) {
