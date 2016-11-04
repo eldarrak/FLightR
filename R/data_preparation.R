@@ -589,7 +589,7 @@ suggest.irrad.boundaries<-function(Calib.data.all) {
 
    Model<-lm(LogLight~LogIrrad + fDay, data=Calib.data.all)
 
-   MinLight<-floor(min(Calib.data.all$LogLight),1)
+   MinLight<-round(min(Calib.data.all$LogLight),1)
    Left.border<- -(coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 0.025) - MinLight)*coef(Model)[2]
 
    MaxLight<-round(max(Calib.data.all$LogLight),1)
