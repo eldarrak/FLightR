@@ -594,7 +594,7 @@ suggest.irrad.boundaries<-function(Calib.data.all) {
 
    MaxLight<-round(max(Calib.data.all$LogLight),1)
    Right.border<-(MaxLight- (coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 0.975))) *coef(Model)[2]
-   return(c(Left.border, Right.border)
+   return(c(Left.border, Right.border))
 }
 
 
