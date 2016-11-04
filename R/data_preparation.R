@@ -79,7 +79,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 		  log.irrad.borders=Proc.data$log.irrad.borders,
 		  plot.each= plot.each, plot.final= plot.final,
 		  suggest.irrad.borders=suggest.irrad.borders)
-
+   Proc.data$log.irrad.borders=calibration.parameters$log.irrad.borders
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
@@ -581,7 +581,7 @@ All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$log
 
 calib_outliers<-All.slopes.int$Slopes$Time[which(abs(All.slopes.int$Slopes$logSlope-mean(All.slopes.int$Slopes$logSlope, na.rm=TRUE))>3*sd(All.slopes.int$Slopes$logSlope, na.rm=TRUE))]
 
-Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
+Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes, log.irrad.borders=log.irrad.borders)
 }
 return(Res)
 }
