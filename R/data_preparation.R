@@ -32,7 +32,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
          Proc.data, model.ageing=FALSE, 
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
-		 plot.each = FALSE, plot.final = FALSE))
+		 plot.each = FALSE, plot.final = FALSE, suggest.irrad.borders=FALSE))
     suppressWarnings(plot.slopes(calibration.parameters$All.slopes))
 }
 
@@ -47,6 +47,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #' @param plot.each Do you want every twilight to be plotted while processing
 #' @param plot.final Do you want final calibration graph to be plotted. On the graph you can see all the observed versus expected light levels. All slopes should be similar.
 #' @param likelihood.correction will estimate correction of likelihood for the current calibration paramters. Highly recommended not to be change from TRUE
+#' @param suggest.irrad.borders experimental parameter! If set to TRUE faunction will try to find the best velues for the log.irrad.borders
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
@@ -68,15 +69,16 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~ 5 min
 #' @author Eldar Rakhimberdiev
 #' @export
-make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction=TRUE) {
+make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction=TRUE, suggest.irrad.borders=FALSE) {
    Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-"1900-01-01"
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-"2100-01-01"
-   calibration.parameters<-FLightR:::get.calibration.parameters(
+   calibration.parameters<-get.calibration.parameters(
          Calibration.periods, Proc.data,
           model.ageing=model.ageing,
 		  log.light.borders=Proc.data$log.light.borders,
 		  log.irrad.borders=Proc.data$log.irrad.borders,
-		  plot.each= plot.each, plot.final= plot.final)
+		  plot.each= plot.each, plot.final= plot.final,
+		  suggest.irrad.borders=suggest.irrad.borders)
 
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
@@ -85,9 +87,10 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
-         calibration.parameters<-FLightR:::get.calibration.parameters(Calibration.periods, Proc.data_tmp, 
+         calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data_tmp, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
-         log.irrad.borders=Proc.data$log.irrad.borders)
+         log.irrad.borders=Proc.data$log.irrad.borders,
+		 suggest.irrad.borders=suggest.irrad.borders)
          FLightR:::plot.slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
@@ -98,13 +101,15 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
-      Proc.data_tmp<-FLightR:::process.twilights(Proc.data$FLightR.data$Data, 
+      Proc.data_tmp<-process.twilights(Proc.data$FLightR.data$Data, 
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
-         calibration.parameters<-FLightR:::get.calibration.parameters(Calibration.periods, Proc.data_tmp, 
+         calibration.parameters<-get.calibration.parameters(
+		 Calibration.periods, Proc.data_tmp, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
-         log.irrad.borders=Proc.data$log.irrad.borders)
+         log.irrad.borders=Proc.data$log.irrad.borders,
+		 suggest.irrad.borders=suggest.irrad.borders)
          plot.slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
@@ -127,7 +132,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 
    
 #' @export		
-find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE) {
+find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, suggest.irrad.borders=FALSE) {
 
   if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very xclose but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE) {
@@ -144,11 +149,12 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
        Proc.data, model.ageing=FALSE, 
 	   log.light.borders=log.light.borders,
 	   log.irrad.borders=log.irrad.borders, 
-       plot.each = FALSE, plot.final = FALSE)))
+       plot.each = FALSE, plot.final = FALSE,
+	   suggest.irrad.borders=suggest.irrad.borders)))
 	if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
-      Proc.data_tmp<-process.twilights(   Proc.data$FLightR.data$Data, 
+      Proc.data_tmp<-process.twilights(Proc.data$FLightR.data$Data, 
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
@@ -156,7 +162,8 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
       Proc.data_tmp, model.ageing=FALSE, 
 	   log.light.borders=log.light.borders,
 	   log.irrad.borders=log.irrad.borders, 
-       plot.each = FALSE, plot.final = FALSE))
+       plot.each = FALSE, plot.final = FALSE, 
+	   suggest.irrad.borders=suggest.irrad.borders))
 	   
 	}   
        if (plot) plot.slopes(calibration.parameters$All.slopes)
@@ -358,7 +365,6 @@ cat("checking dusk", dusk, "\n" )
 
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot.each, verbose=FALSE,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=TRUE,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
-#print(str(Data)	)
 		if (length(Data)==0) {
 		cat ("dusk", dusk, "was excluded from the calibration\n")
 		} else {
@@ -366,11 +372,7 @@ cat("checking dusk", dusk, "\n" )
 		}
 	}
 	Calib.data.dusk$type<-"Dusk"
-#print(str(Calib.data.dawn))
-#print(str(Calib.data.dusk))
 	Calib.data.all<-rbind(Calib.data.dawn, Calib.data.dusk)
-	#print(str(Calib.data.all))	
-	
 	if (plot.final) {
 		plot(LogLight~LogIrrad,data=Calib.data.all, type="n")
 		for (Day in unique(Calib.data.all$Day)) {
@@ -378,59 +380,16 @@ cat("checking dusk", dusk, "\n" )
 		}
 	}
 	
-	
-		# this works in case of rare points but with slope
-	# this works in case of rare points but with slope
-	Selected.days<-rle(Calib.data.all$Day)$values[which((rle(Calib.data.all$Day)$length)>1)]
-	#==================================================
-	# this is the part for the estimation of slope when we don't have enough data.
-	# it looks like when we don't have enough points it is better just do estimate a slope value from all the slope values we have
-			
-	#m1<-lme(LogLight~LogIrrad,data=Calib.data.all[Calib.data.all$Day %in%Selected.days,],  random=~1|Day)
-
-	#m2<-lme(LogLight~LogIrrad*type,data=Calib.data.all[Calib.data.all$Day %in%Selected.days,],  random=~1|Day)
-	#Significance.of.dusk.dawn.diff=	prod(summary(m2)$tTable[3:4,5])
-
-	####
-	
 	Calib.data.all$fDay<-as.factor(Calib.data.all$Day)
-
-	#m2<-lmer(LogLight~LogIrrad+LogIrrad:as.factor(type)+fDay-1+(0+LogIrrad|fDay),data=Calib.data.all) 
-	#Significance.of.dusk.dawn.diff<-rev(summary(m2)@coefs[,2])[1]
-		
-	#==================
-	# here is the part for ver. 4.0
-	# hm.. potentially we don't really want to calibrate inside the function..
-	# so we will add this later but for now I would just do it outside..
-		
-	return(Calib.data.all)
-	#, Calib.data.all.lme=Calib.data.all.lme.no_interact, Significance.of.dusk.dawn.diff=Significance.of.dusk.dawn.diff, 
-	#calibration.slope.par=list(
-	#	Calibration.simple.slope=Calibration.simple.no_interact,
-	#	tmp.x.slope=tmp.x.RE,
-	#	calibration.slope.distr=tmp.dnorm.calib.no_interact.RE,
-	#	RE.component=RE.component), 
-	#calibration.intercept.par=list(
-	#	Parameters=Parameters, CalibrationL.LL=Optim.processed.light$value),
-	#calibration.bayesian.model=calibration.bayesian.model # this is a stored list...
 	
+	return(Calib.data.all)	
 }
 
 # ok now we need template.calibration.function..
 logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=FALSE, plot.each=TRUE, plot.final=TRUE, impute.on.boundaries=FALSE) {
 	
 	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot.each=plot.each, plot.final=plot.final,impute.on.boundaries=impute.on.boundaries)
-	
-	# for lme
-	#Calibration.simple<-summary(m1)$tTable[1,1:2]
-	#Calibration.simple<- summary(model.lm$m2)$coefficients [1,1:2]
-	#tmp.xmin<-(Calibration.simple[1]-3*Calibration.simple[2])
-	#tmp.xmax<-(Calibration.simple[1]+3*Calibration.simple[2])
-	#tmp.dx  <-(tmp.xmax-tmp.xmin)/100
-	#tmp.x   <-seq(tmp.xmin,tmp.xmax,by=tmp.dx)
-	#tmp.dnorm.calib<-dnorm(tmp.x,Calibration.simple[1],Calibration.simple[2])
-	#Dusk.Dawn.difference<-summary(model.lm$m2)$coefficients[2,]
-	#calibration<-list(calibration.simple=Calibration.simple, tmp.x=tmp.x, tmp.dnorm.calib=tmp.dnorm.calib, m1=model.lm$m1, m2=model.lm$m2 )
+
 	return(Calibration.original)
 	}
 
@@ -550,7 +509,7 @@ lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slope
 }
 
 
-get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=TRUE, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5), plot.each=FALSE, plot.final=TRUE, calibration.type=NULL) {
+get.calibration.parameters<-function(Calibration.periods, Proc.data, model.ageing=TRUE, log.light.borders=log(c(2, 63)),  log.irrad.borders=c(-7,1.5), plot.each=FALSE, plot.final=TRUE, calibration.type=NULL, suggest.irrad.borders=FALSE) {
 
 # ageing.model this option should be used only in case there are two periods of calibration or there is one but very long.
 if (nrow(Calibration.periods)==1 & model.ageing) warning("you have only one calibration period ageing estimation is unreliable and should be turned ot F!!!")
@@ -593,8 +552,13 @@ Twilight.time.mat.Calib.dawn<-Proc.data$Twilight.time.mat.dawn[,Dawn.calib.days]
 Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn[,Dawn.calib.days ]
 
 #-------------------#
+if (suggest.irrad.borders) {
+Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=c(-6,6), plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
-Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
+log.irrad.borders<-suggest.irrad.boundaries(Calib.data.all) 
+cat('!!! log.irrad.borders were updated to new values:', log.irrad.borders[1], log.irrad.borders[2], '\n')
+
+}
 
 All.slopes<-get.calib.param(Calib.data.all, plot=FALSE, calibration.type=calibration.type)
 
@@ -619,6 +583,20 @@ Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes)
 }
 return(Res)
 }
+
+
+suggest.irrad.boundaries<-function(Calib.data.all) {
+
+   Model<-lm(LogLight~LogIrrad + fDay, data=Calib.data.all)
+
+   MinLight<-floor(min(Calib.data.all$LogLight),1)
+   Left.border<- -(coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 0.025) - MinLight)*coef(Model)[2]
+
+   MaxLight<-round(max(Calib.data.all$LogLight),1)
+   Right.border<-(MaxLight- (coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 0.975))) *coef(Model)[2]
+   return(c(Left.border, Right.border)
+}
+
 
 make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_mean_range=c(-3, 7), cur_sd_range=c(0,1), npoints=300, plot=FALSE, likelihood.correction=TRUE) {
    Res<-c()
