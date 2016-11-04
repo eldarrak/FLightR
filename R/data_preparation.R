@@ -90,7 +90,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data_tmp, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders,
-		 suggest.irrad.borders=suggest.irrad.borders)
+		 suggest.irrad.borders=FALSE)
          FLightR:::plot.slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
@@ -109,7 +109,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 		 Calibration.periods, Proc.data_tmp, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders,
-		 suggest.irrad.borders=suggest.irrad.borders)
+		 suggest.irrad.borders=FALSE)
          plot.slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
@@ -585,15 +585,15 @@ return(Res)
 }
 
 
-suggest.irrad.boundaries<-function(Calib.data.all) {
+suggest.irrad.boundaries<-function(Calib.data.all, leave.out=0.01) {
 
    Model<-lm(LogLight~LogIrrad + fDay, data=Calib.data.all)
 
    MinLight<-round(min(Calib.data.all$LogLight),1)
-   Left.border<- -(coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 0.025) - MinLight)*coef(Model)[2]
+   Left.border<- -(coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], leave.out) - MinLight)*coef(Model)[2]
 
    MaxLight<-round(max(Calib.data.all$LogLight),1)
-   Right.border<-(MaxLight- (coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 0.975))) *coef(Model)[2]
+   Right.border<-(MaxLight- (coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 1-leave.out))) *coef(Model)[2]
    return(c(Left.border, Right.border))
 }
 
