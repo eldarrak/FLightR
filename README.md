@@ -50,7 +50,7 @@ I am also developing [wiki pages for the package] (https://github.com/eldarrak/F
 
 2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596. [Check it](http://onlinelibrary.wiley.com/doi/10.1111/jav.00891/abstract)
 
-3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3. [Check it](http://www.waderstudygroup.org/article/7919/)
+3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166000.svg)](https://doi.org/10.5281/zenodo.166000)
 
 4. Rakhimberdiev, E.Saveliev A., Piersma, T. & Karagicheva, J. FLightR: An R package for reconstructing animal paths from solar geolocation loggers - submitted
 
