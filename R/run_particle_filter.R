@@ -74,7 +74,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
       threads<-cpus
    }
    
-   Possible.threads=detectCores()
+   Possible.threads=parallel::detectCores()
    if (threads<=0) Threads=max(Possible.threads+threads, 1)
    if (threads>0) Threads=min(Possible.threads,threads)
 
