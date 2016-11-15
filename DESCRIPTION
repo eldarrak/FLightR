@@ -18,6 +18,7 @@ Depends:
     rgeos,
     raster,
     ggmap,
+	ggplot2,
     ggsn,
 	mgcv
 Imports:
@@ -25,7 +26,6 @@ Imports:
     CircStats,
     circular,
 	fields,
-	maps,
 	maptools,
 	parallel,
 	truncnorm
