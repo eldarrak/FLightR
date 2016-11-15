@@ -25,6 +25,7 @@ Depends:
     ggsn,
 	mgcv
 Imports:
+    CircStats,
     circular,
 	fields,
 	maptools
