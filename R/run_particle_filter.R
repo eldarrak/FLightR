@@ -182,7 +182,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	
     Dists.probs<-truncnorm::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
-    #image.plot(as.image(Dists.probs, x=in.Data$Spatial$Grid, nrow=50, ncol=50))
+    #fields::image.plot(fields::as.image(Dists.probs, x=in.Data$Spatial$Grid, nrow=50, ncol=50))
     #
     if (Current.Proposal$Kappa>0) {
       #Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
@@ -715,10 +715,10 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   }
   cat("   estimating mean directions and kappas\n")
   
-  Mean.Directions<-unlist(lapply(Directions, FUN=function(x) (circular::mle.vonmises(circular(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180))$mu*180/pi)))
+  Mean.Directions<-unlist(lapply(Directions, FUN=function(x) (circular::mle.vonmises(circular::circular(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180))$mu*180/pi)))
   #plot(Mean.Directions)
   cat("   estimating kappas\n") #CircStats::est.kappa
-  Kappas<-unlist(lapply(Directions, FUN=function(x) circular::mle.vonmises(circular(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180))$kappa))
+  Kappas<-unlist(lapply(Directions, FUN=function(x) circular::mle.vonmises(circular::circular(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180))$kappa))
   
   
   # now we want to get mean ditance

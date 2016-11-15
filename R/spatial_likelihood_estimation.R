@@ -156,7 +156,7 @@ get.probs.lm<-function(Model, plot=FALSE, calibration=NULL, time_correction=NULL
 		#if (plot) {
 		#my.golden.colors <- colorRampPalette(
 		#c("white","#FF7100"))
-		#image(list(x=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x, y=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y,
+		#fields::image(list(x=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x, y=calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y,
 		#z=matrix(dmvnorm(expand.grid(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x, calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y), coef.coef, coef.vcov), nrow = length(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$x), ncol = length(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities$y))), col=my.golden.colors(10))
 		#contour(calibration$calibration.bayesian.model$Slope.integration$MCMC.All.densities, add=TRUE)
 		#}

@@ -12,7 +12,6 @@ URL: http://github.com/eldarrak/FLightR
 BugReports: http://github.com/eldarrak/FLightR/issues
 Depends:
     R (>= 3.0.2),
-    fields,
     truncnorm,
     parallel,
     bit,
@@ -27,6 +26,7 @@ Depends:
 	mgcv
 Imports:
     circular,
+	fields,
 	maptools
 License: GNU GPL v3.0
 ByteCompile: true

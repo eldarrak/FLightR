@@ -631,7 +631,7 @@ plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
 	}
 
 	  
-   image.plot(as.image(object$Spatial$Phys.Mat[,twilight.index], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
+   fields::image.plot(fields::as.image(object$Spatial$Phys.Mat[,twilight.index], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
                    col=my.golden.colors(64), main=paste("twilight number",twilight.index, format(object$Indices$Matrix.Index.Table$time[twilight.index], tz='UTC')))          
    load("wrld_simpl", package="maptools")
    plot(wrld_simpl, add=TRUE)
