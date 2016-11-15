@@ -75,7 +75,7 @@ distance<-distance_km*1000
 Sp.All.Points.Focus<-SpatialPoints(Points, proj4string=CRS("+proj=longlat +datum=WGS84"))
 #############
 # ok, let's check 
-data(wrld_simpl)
+load("wrld_simpl", package="maptools")
 
 Potential_water<-is.na(over( spTransform(Sp.All.Points.Focus, CRS("+proj=longlat +datum=WGS84")), spTransform(wrld_simpl, CRS("+proj=longlat +datum=WGS84")))[,1])
 
@@ -114,7 +114,7 @@ get.distance.to.water<-function(Points) {
          proj4string=CRS( "+proj=longlat +datum=WGS84"))
 
   
-   data(wrld_simpl)
+   load("wrld_simpl", package="maptools")
    wrld_simpl_l <- as(wrld_simpl, 'SpatialLines')
 
    Potential_water<-is.na(over(
@@ -127,7 +127,7 @@ get.distance.to.water<-function(Points) {
    for (i in 1:nrow(Points)) {
       if (Potential_water[i]==TRUE) {
 	     Point<-Sp.All.Points.Focus[i,]
-         Distance[i]<-gDistance(spTransform(Point, CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))), spTransform(wrld_simpl_l, CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))))/1000
+         Distance[i]<-gDistance(spTransform(Point, CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))), sp::spTransform(wrld_simpl_l, CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))))/1000
          cat("\r",i)
       }
    }

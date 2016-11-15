@@ -127,11 +127,9 @@ if (is.character(calibration)) calibration=get("calibration")
 
 if (!is.null(Threads)) {
 	cat("making cluster\n")
-	require(parallel)
 	mycl <- parallel::makeCluster(Threads)
 	tmp<-parallel::clusterSetRNGStream(mycl)
     tmp<-parallel::clusterExport(mycl,c("calibration", "Proc.data"), envir=environment())
-    tmp<-parallel::clusterEvalQ(mycl, library("GeoLight")) 
 	cat("estimating dusk errors projection on equator\n")
 	
 	Dusks<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])

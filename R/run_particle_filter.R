@@ -85,9 +85,6 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     cat("creating cluster with", Threads, "threads")
     mycl <- parallel::makeCluster(Threads, type=cluster.type)
     parallel::clusterSetRNGStream(mycl)
-    ### we don' need to send all parameters to node. so keep it easy..
-    #parallel::clusterEvalQ(mycl, library("circular")) 
-    #parallel::clusterEvalQ(mycl, library("truncnorm")) 
 	parallel::clusterEvalQ(mycl, library("FLightR")) 
 	cat('   Done\n')
 
@@ -150,7 +147,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
       #}
       points(Meanlat~Meanlon, type="p", data=all.out$Results$Quantiles, pch=3, col="blue")
       lines(Meanlat~Meanlon, data=all.out$Results$Quantiles, col="blue")
-      data("wrld_simpl", package="maptools")
+      load("wrld_simpl", package="maptools")
       plot(wrld_simpl, add=TRUE)
     }
     gc()
@@ -185,8 +182,6 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	
     Dists.probs<-truncnorm::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
-    #  library(fields)
-    # dists
     #image.plot(as.image(Dists.probs, x=in.Data$Spatial$Grid, nrow=50, ncol=50))
     #
     if (Current.Proposal$Kappa>0) {
@@ -222,7 +217,6 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   if (sink2file & RStudio) sink()
   #### if save.rle=TRUE function will save a out.rle object in out.rle.RData file in working directory BUT to make it work There have to be out.rle column in Main.Index that will contain true for the twilights where results needed.
   ####
-  data("wrld_simpl", package="maptools")
   
   if (any(in.Data$Spatial$Behav.mask!=1)) { 
 	smart.filter=TRUE
@@ -245,8 +239,6 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
       parallel::clusterSetRNGStream(mycl)
       ### we don' need to send all parameters to node. so keep it easy..
       # cleaning dataset
-      #parallel::clusterEvalQ(mycl, library("circular")) 
-      #parallel::clusterEvalQ(mycl, library("truncnorm")) 
     }
     else {
       mycl<-existing.cluster
@@ -639,13 +631,6 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
   #############
   # new part for medians
   cat("estimating quantiles for positions\n")
-    #  require("bit")
-    #Points<-vector(mode = "list", length = (dim(output.matrix)[2]))
-    #cat("   extracting indices for rle\n")
-    #for (i in 1:(dim(output.matrix)[2])) {
-    #  Points[[i]]<-Rle<-bit::intrle(sort.int(output.matrix[,i], method="quick"))
-    #  if (is.null(Rle)) Points[[i]]<-rle(sort.int(output.matrix[,i], method="quick"))
-    #}
 	
 	Quantiles<-c()
 	CIntervals<-c()

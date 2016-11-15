@@ -84,7 +84,6 @@ get.probs.lm<-function(Model, plot=FALSE, calibration=NULL, time_correction=NULL
 		# check for the intercept
 		sum=0
 			
-		#require(mvtnorm)
 		coef.coef<-Model$coefficients
 		slope.sd<-Model$stderr[2]
 

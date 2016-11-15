@@ -47,9 +47,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 
 # ggsave.options is a list that will be will be directly passed to ggsave
 
-library(fields)
-library(ggmap)
-	 # select twilights to plot
+# select twilights to plot
 	 if (is.null(dates)) {
 	     twilights.index<-1:length(Result$Results$Points.rle)
 	 } else {
@@ -635,8 +633,7 @@ plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
 	  
    image.plot(as.image(object$Spatial$Phys.Mat[,twilight.index], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
                    col=my.golden.colors(64), main=paste("twilight number",twilight.index, format(object$Indices$Matrix.Index.Table$time[twilight.index], tz='UTC')))          
-   library(maptools)
-   data(wrld_simpl)
+   load("wrld_simpl", package="maptools")
    plot(wrld_simpl, add=TRUE)
 }
 

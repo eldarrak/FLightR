@@ -7,8 +7,6 @@ if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
 #Lnorm.param<-Parameters$LogSlope_1_minute
 
-require(FLightR)
-
 #===================== the new version will work with general simulation function \
 #data(file.path(wd, "LightR_development_code\\get.slopes.5.0.r"))
 
@@ -26,12 +24,6 @@ File.name<-tempfile(pattern = "sim.no.move.", tmpdir = getwd(), fileext = ".csv"
 write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
 
 ## no I wnat to work with the simulated data.
-
-require(FLightR)
-require(GeoLight)
-require(maptools)
-data(wrld_simpl)
-require(fields)
 
 cat("   reading file\n")
 
@@ -498,7 +490,6 @@ Track$SD.ideal<-inverse.rle(tmpRle)
 #======================================
 # ok now we could go for the estimation
 
-require(FLightR)
 # step 2. generating light curve.
 # Angles
 cat("   Estimating solar angles\n")
@@ -660,9 +651,8 @@ if (is.character(deltalim)) deltalim=get("deltalim")
 #Parameters=list(Intercept=c(3.71, 1.25), LogSlope=c(0.72, 0.4)),
 
 # points means number of latitudes that should be used for the run..
-require(parallel)
 # the question is what we have to download before we can run this on cluster
-mycl<-makeCluster(threads)
+mycl<-parallel::makeCluster(threads)
 Lats<-runif(points, min(limits), max(limits))
 Coords<-cbind(0, Lats)
     tmp<-parallel::clusterSetRNGStream(mycl)
@@ -736,8 +726,6 @@ get.lat.correction.function<-function(deltalim=c(-0.05, 0.35), measurement.perio
 cat("function will work in ", mode, "mode\n")
 
 if (!mode %in% c("trial", "brute", "smart")) stop ("mode could be one of - trial, brute, smart")
-require(parallel)
-
 if (mode=="trial") {
 	deltalim=c(0.15, 0.16)
 	cat("deltalim set to ", deltalim, "\n")
@@ -757,8 +745,7 @@ Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=
 Res<-as.data.frame(Res)
 names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 Res$cosLat<-cos(Res$Lat/180*pi)
-require(mgcv)
-Model.all=try(gam(Delta~te(Diff, cosLat),  data=Res)) # this look the best
+Model.all=try(mgcv::gam(Delta~te(Diff, cosLat),  data=Res)) # this look the best
 if (class(Model.all)=="try-error") {
 RES<-list(simulations=Res)	
 } else {
@@ -798,9 +785,8 @@ if (mode=="smart") {
 	Res_min_lat<-Res_min_lat[Res_min_lat$Diff>-8 & Res_min_lat$Diff<8,]
 
 	#plot(Delta~Diff, data=Res_min_lat)
-	require(mgcv)
-	Gam_min<-gam(Delta~s(Diff, k=3), data=Res_min_lat)
-	Predict_min<-predict(Gam_min, se.fit=TRUE, newdata=data.frame(Diff=0))
+	Gam_min<-mgcv::gam(Delta~s(Diff, k=3), data=Res_min_lat)
+	Predict_min<-predict.gam(Gam_min, se.fit=TRUE, newdata=data.frame(Diff=0))
 	
 	
 	cat("    Done!")	
@@ -866,8 +852,7 @@ if (mode=="smart") {
 	
 	Res.all<-rbind(Res_min_lat,Res_max_lat, Res)
 	
-	require(mgcv)
-	Model.all=try(gam(Delta~te(Diff, cosLat),  data=Res.all)) # this look the best
+	Model.all=try(mgcv::gam(Delta~te(Diff, cosLat),  data=Res.all)) # this look the best
 	if (class(Model.all)=="try-error") {
 	RES<-list(simulations=Res)	
 	} else {
@@ -906,12 +891,6 @@ File.name<-tempfile(pattern = "sim.no.move.", tmpdir = getwd(), fileext = ".csv"
 write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
 
 ## no I wnat to work with the simulated data.
-
-require(FLightR)
-require(GeoLight)
-require(maptools)
-#data(wrld_simpl)
-require(fields)
 cat("   reading file\n")
 # set wd
 Data<-geologger.read.data(file=File.name)
@@ -992,7 +971,6 @@ Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 get.grid.of.tracks<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=TRUE, min.max.values=c(0, 64), log.light.borders=log(c(2,64)),   Lats, cluster=NULL, first.date="2010-01-01 00:00:00",last.date="2010-03-20 23:59:59") {
 if (!is.null(cluster)) {
-	require(parallel)
 	#if (threads==-1) threads= detectCores()-1 # selecting all -1 available cores...
 	#cluster<-makeCluster(threads)
 		tmp<-parallel::clusterSetRNGStream(cluster)
@@ -1041,8 +1019,6 @@ get.diff<-function(prepared.data, calibration, min.max.values=c(1, 1150), log.li
 get.all.diffs<-function(Tracks, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
 
 if (!is.null(cluster)) {
-	require(parallel)
-
 	tmp<-parallel::clusterExport(cluster, c( "get.diff", "log.irrad.borders", "log.light.borders","calibration"),  envir=environment())
 	tryCatch(Diffs<-parSapply(cluster, Tracks, FUN=function(x) get.diff(prepared.data=x, calibration=calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders)))
 	} else {

@@ -327,7 +327,6 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	# in this function I'll add a new lnorm calibration...
 	#
 	# now I'll try to do them both..
-	#require(nlme)
 	if (!is.list(positions)) {
 		if (length (positions) !=2) stop("the positions should be a list with $dawn  and $dusk dataframes with pairs of coordiantes OR just one pair\n")
 		dawn=matrix(ncol=2, nrow=dim(Twilight.time.mat.Calib.dawn)[2])
@@ -728,11 +727,11 @@ All.Days.extended<-seq(min(All.Days)-86400, max(All.Days)+86400, by="days")
    start_no_polar[2]<-min(abs(start_no_polar[2]), 66) * sign(start_no_polar[2])
 
 # these are all potential twilights that we would have for the start point...
-Potential.twilights<-sort(c(sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
+Potential.twilights<-sort(c(maptools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], maptools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
 # now we need to add dask or dawn to it..
-Sunrise<-sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunrise", POSIXct.out=TRUE)[,2]
+Sunrise<-maptools::sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunrise", POSIXct.out=TRUE)[,2]
 Sunrises<-c(Sunrise-(3600*24), Sunrise, Sunrise+(3600*24))
-Sunset<-sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunset", POSIXct.out=TRUE)[,2]
+Sunset<-maptools::sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunset", POSIXct.out=TRUE)[,2]
 Sunsets<-c(Sunset-(3600*24), Sunset, Sunset+(3600*24))
 First.twilight<-ifelse(which.min(c(min(abs(difftime(Sunrises,Potential.twilights[1], units="mins"))), min(abs(difftime(Sunsets,Potential.twilights[1], units="mins")))))==1, "dawn", "dusk")
 
