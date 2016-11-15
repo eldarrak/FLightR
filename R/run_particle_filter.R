@@ -61,7 +61,7 @@
 #'
 #' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
 #' # here we will run only 1e4 partilces for a very short track.
-#' # One should use 1e6 particles for the full run
+#' # One should use 1e6 particles for the full run.
 #' Result<-run.particle.filter(all.in, threads=-1,
 #'            nParticles=1e4, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
@@ -290,7 +290,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   
   propagate.particles<-function(Last.Particles, Current.Proposal, parallel=TRUE, Parameters, mycl) {
     Order.vector<-order(Last.Particles)
-    Particles.rle<-intrle(as.integer(Last.Particles[Order.vector]))
+    Particles.rle<-bit::intrle(as.integer(Last.Particles[Order.vector]))
     if (is.null(Particles.rle)) 	Particles.rle<-rle(as.integer(Last.Particles[Order.vector]))
     Last.State<-cbind(Particles.rle$values, Particles.rle$length)
     Last.State<-cbind(Last.State,nMoving=rbinom(dim(Last.State)[[1]], size=Last.State[,2], prob=Current.Proposal$Decision))

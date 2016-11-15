@@ -14,17 +14,16 @@ Depends:
     R (>= 3.0.2),
     truncnorm,
     parallel,
-    bit,
     rgdal,
     Rcpp,
     RcppArmadillo,
     rgeos,
     raster,
-    fields,
     ggmap,
     ggsn,
 	mgcv
 Imports:
+    bit,
     CircStats,
     circular,
 	fields,

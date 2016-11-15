@@ -145,7 +145,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' suggest.irrad.borders experimental parameter! If set to TRUE function will try to find the best values for the log.irrad.borders but in case of unknow location it is should not be used
 #' @details The idea behind the function is that it tries to minimze variance between slopes for the whole period by optimizing location. It can be seen as an extension of Hill-Ekstrom calibration idea.
 #' @examples
-#' this example takes about 15 minutes to run
+#' #this example takes about 15 minutes to run
 #' \dontrun{
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
