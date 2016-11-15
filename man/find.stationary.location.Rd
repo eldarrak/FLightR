@@ -29,7 +29,7 @@ The function attempts to find a location for a time period assuming animal was n
 The idea behind the function is that it tries to minimze variance between slopes for the whole period by optimizing location. It can be seen as an extension of Hill-Ekstrom calibration idea.
 }
 \examples{
-this example takes about 15 minutes to run
+#this example takes about 15 minutes to run
 \dontrun{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 Proc.data<-get.tags.data(File)
