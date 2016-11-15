@@ -728,11 +728,12 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
     Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
     Directions[[i]]$values<-apply(Movement_Points, 1, FUN= dir_fun, in.Data)
   }
-  cat("   estimating mean directions\n")
-  Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats::circ.mean(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)*180/pi))
+  cat("   estimating mean directions and kappas\n")
+  
+  Mean.Directions<-unlist(lapply(Directions, FUN=function(x) (circular::mle.vonmises(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)$mu*180/pi))
   #plot(Mean.Directions)
-  cat("   estimating kappas\n")
-  Kappas<-unlist(lapply(Directions, FUN=function(x) CircStats::est.kappa(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)))
+  cat("   estimating kappas\n") #CircStats::est.kappa
+  Kappas<-unlist(lapply(Directions, FUN=function(x) mle.vonmises(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)$kappa))
   
   
   # now we want to get mean ditance

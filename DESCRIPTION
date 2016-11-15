@@ -14,12 +14,10 @@ Depends:
     R (>= 3.0.2),
 	maptools,
     fields,
-    circular,
     truncnorm,
     parallel,
     bit,
     rgdal,
-    CircStats,
     Rcpp,
     RcppArmadillo,
     rgeos,
@@ -28,6 +26,8 @@ Depends:
     ggmap,
     ggsn,
 	mgcv
+Imports:
+    circular,
 License: GNU GPL v3.0
 ByteCompile: true
 RoxygenNote: 5.0.1

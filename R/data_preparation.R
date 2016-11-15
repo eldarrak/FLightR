@@ -83,7 +83,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
-      Proc.data_tmp<-FLightR:::process.twilights(Proc.data$FLightR.data$Data, 
+      Proc.data_tmp<-process.twilights(Proc.data$FLightR.data$Data, 
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
@@ -91,7 +91,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders,
 		 suggest.irrad.borders=FALSE)
-         FLightR:::plot.slopes(calibration.parameters$All.slopes)
+         plot.slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
 		 Proc.data$Twilight.log.light.mat.dusk<-Proc.data_tmp$Twilight.log.light.mat.dusk
@@ -120,7 +120,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    
    
    
-   Calibration=FLightR:::create.calibration(calibration.parameters$All.slopes,
+   Calibration=create.calibration(calibration.parameters$All.slopes,
                  Proc.data,
 				 Proc.data$FLightR.data,
 				 log.light.borders=Proc.data$log.light.borders, log.irrad.borders=Proc.data$log.irrad.borders,

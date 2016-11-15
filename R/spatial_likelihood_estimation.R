@@ -16,10 +16,10 @@ if (is.character(calibration)) calibration=get("calibration")
 Grid<-all.out$Spatial$Grid
 
 cat("making cluster\n")
-mycl <- parallel:::makeCluster(threads)
-    tmp<-parallel:::clusterSetRNGStream(mycl)
-    tmp<-parallel:::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Grid", "calibration"), envir=environment())
-    tmp<-parallel:::clusterEvalQ(mycl, library("FLightR")) 
+mycl <- parallel::makeCluster(threads)
+    tmp<-parallel::clusterSetRNGStream(mycl)
+    tmp<-parallel::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Grid", "calibration"), envir=environment())
+    tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
 
 #====================
 tryCatch( {
@@ -36,10 +36,6 @@ cat("estimating dawns\n")
 	
 	}, finally = stopCluster(mycl))
 	
-    #if(!is.null(mycl)) {
-    #   parallel::stopCluster(mycl)
-    #   mycl <- c()
-    #}
 cat("processing results\n")
 All.probs.dusk.tmp<-All.probs.dusk
 All.probs.dawn.tmp<-All.probs.dawn
