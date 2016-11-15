@@ -730,7 +730,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   }
   cat("   estimating mean directions and kappas\n")
   
-  Mean.Directions<-unlist(lapply(Directions, FUN=function(x) (circular::mle.vonmises(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)$mu*180/pi))
+  Mean.Directions<-unlist(lapply(Directions, FUN=function(x) (circular::mle.vonmises(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)$mu*180/pi)))
   #plot(Mean.Directions)
   cat("   estimating kappas\n") #CircStats::est.kappa
   Kappas<-unlist(lapply(Directions, FUN=function(x) mle.vonmises(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]))*pi/180)$kappa))
@@ -924,7 +924,7 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
 }
 
 dir_fun<-function(x, in.Data) {
-	  gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
+	  maptools::gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
 }
 	
 dist.fun<-function(x, Result) {
