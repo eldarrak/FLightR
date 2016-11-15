@@ -13,6 +13,33 @@
 #' @param seasonal.donut.location if NULL - no color wheel placed, otherwise select one of 'bottomleft', 'bottomright', 'topleft'
 #' @param seasonal.donut.proportion how much of X axis should color wheel occupy.
 #' return either NULL or ggplot2 class object
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' # to run example fast we will cut the real data file by 2013 Aug 20
+#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+#' Calibration.periods<-data.frame(
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        lon=5.43, lat=52.93) 
+#'        #use c() also for the geographic coordinates, if you have more than one calibration location
+#'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+#' 
+#' # NB Below likelihood.correction is set to FALSE for fast run! 
+#' # Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+#' 
+#' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+#'   distance.from.land.allowed.to.use=c(-Inf, Inf),
+#'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
+#'
+#' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
+#' # here we will run only 1e4 partilces for a very short track. One should use 1e6 particles for the full run
+#' Result<-run.particle.filter(all.in, threads=-1,
+#'            nParticles=1e4, known.last=TRUE,
+#'            precision.sd=25, check.outliers=FALSE)
+#'
+#' map.FLightR.ggmap(Result)
+#' @author Eldar Rakhimberdiev
 #' @export map.FLightR.ggmap
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
@@ -181,6 +208,34 @@ library(ggmap)
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param scheme either 'vertical' or 'horizontal' layouts
 #' return NULL
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' # to run example fast we will cut the real data file by 2013 Aug 20
+#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+#' Calibration.periods<-data.frame(
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        lon=5.43, lat=52.93) 
+#'        #use c() also for the geographic coordinates, if you have more than one calibration location
+#'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+#' 
+#' # NB Below likelihood.correction is set to FALSE for fast run! 
+#' # Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+#' 
+#' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+#'   distance.from.land.allowed.to.use=c(-Inf, Inf),
+#'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
+#'
+#' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
+#' # here we will run only 1e4 partilces for a very short track. One should use 1e6 particles for the full run
+#' Result<-run.particle.filter(all.in, threads=-1,
+#'            nParticles=1e4, known.last=TRUE,
+#'            precision.sd=25, check.outliers=FALSE)
+#'
+#' plot.lon.lat(Result)
+#'
+#' @author Eldar Rakhimberdiev
 #' @export plot.lon.lat
 plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
@@ -353,6 +408,33 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #' @return list with two parts 
 #'         \item{res_buffers}{spatial buffers for defined probability values}
 #'         \item{p}{\code{\link[ggplot2]{ggplot}} object}
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' # to run example fast we will cut the real data file by 2013 Aug 20
+#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+#' Calibration.periods<-data.frame(
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        lon=5.43, lat=52.93) 
+#'        #use c() also for the geographic coordinates, if you have more than one calibration location
+#'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+#' 
+#' # NB Below likelihood.correction is set to FALSE for fast run! 
+#' # Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+#' 
+#' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+#'   distance.from.land.allowed.to.use=c(-Inf, Inf),
+#'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
+#'
+#' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
+#' # here we will run only 1e4 partilces for a very short track. One should use 1e6 particles for the full run
+#' Result<-run.particle.filter(all.in, threads=-1,
+#'            nParticles=1e4, known.last=TRUE,
+#'            precision.sd=25, check.outliers=FALSE)
+#'
+#' plot.util.distr(Result)
+#'
 #' @author Eldar Rakhimberdiev
 #' @export plot.util.distr
 plot.util.distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
@@ -519,6 +601,29 @@ seasonal_donut<-function() {
 #' @param object either output from \code{\link{make.prerun.object}} or \code{\link{run.particle.filter}}
 #' @param date either NULL or a date (possibly with time) closest to the twilight you wan tto be plotted
 #' @param twilight.index number of likelohood surface to be plotted 
+#' @examples
+#' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+#' # to run example fast we will cut the real data file by 2013 Aug 20
+#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+#' Calibration.periods<-data.frame(
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        lon=5.43, lat=52.93) 
+#'        #use c() also for the geographic coordinates, if you have more than one calibration location
+#'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
+#' 
+#' # NB Below likelihood.correction is set to FALSE for fast run! 
+#' # Leave it as default TRUE for real examples
+#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+#' 
+#' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+#'   distance.from.land.allowed.to.use=c(-Inf, Inf),
+#'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
+#'
+#' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
+#' plot.likelihood(all.in, twilight.index=10)
+#'
+#' @author Eldar Rakhimberdiev
 #' @export plot.likelihood
 plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
    my.golden.colors <- colorRampPalette(c("white","#FF7100"))
