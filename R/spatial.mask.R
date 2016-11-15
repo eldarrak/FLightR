@@ -75,7 +75,7 @@ distance<-distance_km*1000
 Sp.All.Points.Focus<-SpatialPoints(Points, proj4string=CRS("+proj=longlat +datum=WGS84"))
 #############
 # ok, let's check 
-load("wrld_simpl", package="maptools")
+load(system.file("data", "wrld_simpl.rda", package = "maptools"))
 
 Potential_water<-is.na(over( spTransform(Sp.All.Points.Focus, CRS("+proj=longlat +datum=WGS84")), spTransform(wrld_simpl, CRS("+proj=longlat +datum=WGS84")))[,1])
 

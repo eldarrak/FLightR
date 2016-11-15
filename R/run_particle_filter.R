@@ -147,7 +147,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
       #}
       points(Meanlat~Meanlon, type="p", data=all.out$Results$Quantiles, pch=3, col="blue")
       lines(Meanlat~Meanlon, data=all.out$Results$Quantiles, col="blue")
-      load("wrld_simpl", package="maptools")
+      load(system.file("data", "wrld_simpl.rda", package = "maptools"))
       plot(wrld_simpl, add=TRUE)
     }
     gc()
