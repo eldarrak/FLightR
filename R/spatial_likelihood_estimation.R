@@ -39,7 +39,7 @@ cat("estimating dawns\n")
 	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
 	All.probs.dawn<-parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 	
-	}, finally = stopCluster(mycl))
+	}, finally = parallel::stopCluster(mycl))
 	
 cat("processing results\n")
 All.probs.dusk.tmp<-All.probs.dusk
@@ -130,10 +130,10 @@ get.probs.lm<-function(Model, plot=FALSE, calibration=NULL, time_correction=NULL
         #LL correction fgoes in here	
 		if (likelihood.correction) {
            if(is.null(calibration$c_fun)) {
-		   warning('you must supply new calibration with calibration correction function!\n') 
-		} else {
-		test.Slope<-test.Slope-calibration$c_fun(slope.sd)
-		}
+		      warning('you must supply new calibration with calibration correction function!\n') 
+		   } else {
+		      test.Slope<-test.Slope-calibration$c_fun(slope.sd)
+		   }
 		}
 		
 		if (is.null(delta)) {

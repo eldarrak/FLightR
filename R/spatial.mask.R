@@ -55,8 +55,8 @@ make.grid<-function(left=-180, bottom=-90,
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
         plot(Grid, type="n")
-        map('state',add=TRUE, lwd=1,  col=grey(0.5))
-        map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+        maps::map('state',add=TRUE, lwd=1,  col=grey(0.5))
+        maps::map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
         points(Grid[,1:2], pch=".", col="grey", cex=2) 
         points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
 	}	
@@ -114,7 +114,7 @@ get.distance.to.water<-function(Points) {
          proj4string=CRS( "+proj=longlat +datum=WGS84"))
 
   
-   load("wrld_simpl", package="maptools")
+   load(system.file("data", "wrld_simpl.rda", package = "maptools"))
    wrld_simpl_l <- as(wrld_simpl, 'SpatialLines')
 
    Potential_water<-is.na(over(

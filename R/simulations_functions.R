@@ -659,9 +659,9 @@ Coords<-cbind(0, Lats)
     ### we don' need to send all parameters to node. so keep it easy..
     tmp<-parallel::clusterExport(mycl, c("calibration","log.irrad.borders", "log.light.borders","min.max.values", "deltalim"), envir=environment())
     tmp<-parallel::clusterEvalQ(mycl, library("FLightR"))
-	tryCatch(Res<-parApply(mycl, Coords, 1, FUN=function(x) as.data.frame(get.deltas.main(start=x,  deltalim=deltalim, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=short.run, repeats=1, random.delta=random.delta, fast=fast, calibration=calibration, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, min.max.values=min.max.values))), finally = stopCluster(mycl))
+	tryCatch(Res<-parallel::parApply(mycl, Coords, 1, FUN=function(x) as.data.frame(get.deltas.main(start=x,  deltalim=deltalim, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=short.run, repeats=1, random.delta=random.delta, fast=fast, calibration=calibration, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, min.max.values=min.max.values))), finally = parallel::stopCluster(mycl))
 	#Res1<-apply(Coords, 1, FUN=function(x) as.data.frame(get.deltas.main(start=x,  deltalim=deltalim, Sigmas=Sigmas, interval=interval, short.run=short.run, LogSlope=LogSlope, Parameters=Parameters, repeats=1, random.delta=random.delta)))
-	stopCluster(cl = mycl)
+	parallel::stopCluster(cl = mycl)
 	Res<-do.call(rbind.data.frame, Res)
 	return(Res)
 }
@@ -977,7 +977,7 @@ if (!is.null(cluster)) {
 		### we don' need to send all parameters to node. so keep it easy..
 		tmp<-parallel::clusterExport(cluster, c( "simulate.and.prepare.track", "Parameters", "measurement.period","saving.period", "short.run", "min.max.values", "log.light.borders", "first.date", "simulate.track", "last.date"),  envir=environment())
 		tmp<-parallel::clusterEvalQ(cluster, library("FLightR"))
-		tryCatch(Tracks<-parLapply(cluster, Lats,fun=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date)), finally = stopCluster(mycl))
+		tryCatch(Tracks<-parallel::parLapply(cluster, Lats,fun=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date)), finally = parallel::stopCluster(mycl))
 	#stopCluster(mycl)
 } else {
 Tracks<-lapply(Lats,FUN=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date))
@@ -1020,7 +1020,7 @@ get.all.diffs<-function(Tracks, calibration, min.max.values=c(1, 1150), log.ligh
 
 if (!is.null(cluster)) {
 	tmp<-parallel::clusterExport(cluster, c( "get.diff", "log.irrad.borders", "log.light.borders","calibration"),  envir=environment())
-	tryCatch(Diffs<-parSapply(cluster, Tracks, FUN=function(x) get.diff(prepared.data=x, calibration=calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders)))
+	tryCatch(Diffs<-parallel::parSapply(cluster, Tracks, FUN=function(x) get.diff(prepared.data=x, calibration=calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders)))
 	} else {
 	Diffs<-sapply(Tracks, FUN=function(x) get.diff(prepared.data=x, calibration=calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders))
 	}
