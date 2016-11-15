@@ -265,7 +265,7 @@ all.in$Data<-Proc.data$FLightR.data
 
 #------
 # add spatial ll
-Possible.threads=detectCores()
+Possible.threads=parallel::detectCores()
 if (threads<=0) Threads=max(Possible.threads+threads, 1)
 if (threads>0) Threads=min(Possible.threads,threads)
 
