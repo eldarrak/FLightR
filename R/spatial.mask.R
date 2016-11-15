@@ -55,8 +55,8 @@ make.grid<-function(left=-180, bottom=-90,
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
         plot(Grid, type="n")
-        maps::map('state',add=TRUE, lwd=1,  col=grey(0.5))
-        maps::map('world',add=TRUE, lwd=1.5,  col=grey(0.8))
+		load(system.file("data", "wrld_simpl.rda", package = "maptools"))
+        plot(wrld_simpl, lwd=1.5, add=TRUE)
         points(Grid[,1:2], pch=".", col="grey", cex=2) 
         points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
 	}	
