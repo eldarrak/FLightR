@@ -61,7 +61,9 @@ Result<-run.particle.filter(all.in, threads=-1,
            nParticles=1e4, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-map.FLightR.ggmap(Result)
+map.FLightR.ggmap(Result, seasonal.donut.location=NULL) 
+# for this short track without variance seasonal donut does not work,
+# but for normall track it will.
 }
 \author{
 Eldar Rakhimberdiev

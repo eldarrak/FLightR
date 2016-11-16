@@ -38,7 +38,9 @@
 #'            nParticles=1e4, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#' map.FLightR.ggmap(Result)
+#' map.FLightR.ggmap(Result, seasonal.donut.location=NULL) 
+#' # for this short track without variance seasonal donut does not work,
+#' # but for normall track it will.
 #' @author Eldar Rakhimberdiev
 #' @export map.FLightR.ggmap
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5) {
