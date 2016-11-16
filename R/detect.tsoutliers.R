@@ -65,10 +65,10 @@ detect.outliers<-function(Lons, plot=TRUE, max.outlier.proportion=0.2) {
     stop("tsoutliers needed for this function to work. Please install it.",
       call. = FALSE)
  }
-.Lons.ts<-ts(Lons)
+.Lons.ts<-tsoutliers::ts(Lons)
 .Lons.ts<<-.Lons.ts
 #fit <- auto.arima(Lons.ts, max.p=1, max.d=1, max.q=0)
-fit <- arima(.Lons.ts, order=c(1,1,0))
+fit <- tsoutliers::arima(.Lons.ts, order=c(1,1,0))
 
 otypes <- c("AO", "TC", "LS")
 
@@ -97,11 +97,11 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100)
  cat("cval adjusted to", Cval, "\n")
  }
 
-Outliers1=try(remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call, cval=1)$outliers)
+Outliers1=try(tsoutliers::remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call, cval=1)$outliers)
 
 if (class(Outliers1)=="try-error") {
 cat("error detected, switching detection method to bottom-up")
-Outliers1=remove.outliers(mo2, .Lons.ts, method = "bottom-up",  tsmethod.call = fit$call, cval=1)$outliers
+Outliers1=tsoutliers::remove.outliers(mo2, .Lons.ts, method = "bottom-up",  tsmethod.call = fit$call, cval=1)$outliers
 }
 rm(".Lons.ts", envir=globalenv())
 
@@ -133,12 +133,12 @@ if (!is.null(Threads)) {
 	cat("estimating dusk errors projection on equator\n")
 	
 	Dusks<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
-	tryCatch(Lons.dusk<-parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=TRUE, x)), finally = parallel::stopCluster(mycl))
+	tryCatch(Lons.dusk<-parallel::parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=TRUE, x)), finally = parallel::stopCluster(mycl))
 	
 	cat("estimating dawn errors projection on equator\n")
 	
 	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dawn)[2])
-	tryCatch(Lons.dawn<-parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=FALSE, x)), finally = parallel::stopCluster(mycl))
+	tryCatch(Lons.dawn<-parallel::parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=FALSE, x)), finally = parallel::stopCluster(mycl))
 	parallel::stopCluster(mycl)
 
 } else {
@@ -184,18 +184,18 @@ if (!simple.version) {
 # now we need to specially focus on the outliers - maybe they were just estimated at the wrong maximum..
 loess.filter<-function(x, y, k=3, exclude=NULL) {
 if (is.null(exclude)) {
-Loess<-loess(y~x)
+Loess<-stats::loess(y~x)
 } else {
 y_new<-y
 y_new[exclude]<-NA
 x_new<-x
 x_new[exclude]<-NA
-Loess<-loess(y_new~x_new)
+Loess<-stats::loess(y_new~x_new)
 }
 Predict<-predict(Loess)
-Predict<-approx(y=Predict[!is.na(x)], x=x[!is.na(x)], xout=x, rule=2)$y
+Predict<-stats::approx(y=Predict[!is.na(x)], x=x[!is.na(x)], xout=x, rule=2)$y
 #Resid<-y-Predict
-Resid<-residuals(Loess)
+Resid<-stats::residuals(Loess)
 outliers<-sort(c(as.numeric(names(Resid))[(which(abs(Resid)>(sd(Resid)*k)))], exclude))
 Res=list(outliers=outliers, center=Predict[outliers])
 return(Res)

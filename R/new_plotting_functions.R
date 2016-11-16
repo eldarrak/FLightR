@@ -329,12 +329,12 @@ plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
 
 get_buffer<-function(coords, r){
-  p = SpatialPoints(matrix(coords, ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
+  p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
   aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
                     p@coords[[2]], p@coords[[1]])
-  projected <- spTransform(p, CRS(aeqd))
-  buffered <- gBuffer(projected, width=r, byid=TRUE)
-  buffer_lonlat <- spTransform(buffered, CRS=p@proj4string)
+  projected <- sp::spTransform(p, sp::CRS(aeqd))
+  buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
+  buffer_lonlat <- sp::spTransform(buffered, CRS=p@proj4string)
   return(buffer_lonlat)
   }
   

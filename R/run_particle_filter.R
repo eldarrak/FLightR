@@ -830,24 +830,24 @@ coords.aeqd.jitter <- function(coords, r, n)
 #"http://gis.stackexchange.com/questions/121489/1km-circles-around-lat-long-points-in-many-places-in-world"
  stopifnot(length(coords) == 2)
 
-	p = SpatialPoints(matrix(coords, ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
+	p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
     aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
                     p@coords[[2]], p@coords[[1]])
-    projected <- spTransform(p, CRS(aeqd))
-    buffered <- gBuffer(projected, width=r, byid=TRUE)
+    projected <- sp::spTransform(p, sp::CRS(aeqd))
+    buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
     lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
                     p@coords[[2]], p@coords[[1]])
-	buffered_eqarea <- spTransform(buffered, CRS(lambert))
-	random_points<-spsample(buffered_eqarea,n=n,type="random")
-	if (is.null(random_points)) random_points<-spsample(buffered_eqarea,n=n,type="random", iter=40) 
+	buffered_eqarea <- sp::spTransform(buffered, sp::CRS(lambert))
+	random_points<-sp::spsample(buffered_eqarea,n=n,type="random")
+	if (is.null(random_points)) random_points<-sp::spsample(buffered_eqarea,n=n,type="random", iter=40) 
 	if (is.null(random_points)) random_points<-p
-    spTransform(random_points, p@proj4string)
+    sp::spTransform(random_points, p@proj4string)
 }
 
 # wrapper for jitter
 get.coords.jitter<-function(in.Data) {
 	Distance<-in.Data$Spatial$tmp$Distance
-	if (is.null(Distance)) Distance=spDists(in.Data$Spatial$Grid[,1:2], longlat=TRUE)
+	if (is.null(Distance)) Distance=sp::spDists(in.Data$Spatial$Grid[,1:2], longlat=TRUE)
 	Distance<-Distance[,1]
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this

@@ -15,7 +15,6 @@ Depends:
     rgdal,
     Rcpp,
     RcppArmadillo,
-    rgeos,
     raster,
     ggmap,
 	ggplot2,
@@ -28,6 +27,8 @@ Imports:
 	fields,
 	maptools,
 	parallel,
+	rgeos,
+	sp,
 	truncnorm
 License: GNU GPL v3.0
 ByteCompile: true
