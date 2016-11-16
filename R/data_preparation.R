@@ -792,7 +792,7 @@ for (i in 1:length(processed.light$Final.dawn$Data$gmt)) {
 while (is.na(Index.tab$Curr.mat[1])) Index.tab<-Index.tab[-1,]
 while (is.na(Index.tab$Curr.mat[nrow(Index.tab)])) Index.tab<-Index.tab[-nrow(Index.tab),]
 Index.tab$Point<-NA
-First.Point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=TRUE))
+First.Point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
 Index.tab$Point[1]<-First.Point
 #
 # I decided that Curr.mat is not needed anymore
@@ -854,11 +854,11 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 
 	output$Spatial$Behav.mask<-as.integer(Grid[,3])
 
-	output$Spatial$start.point<-which.min(spDistsN1(Grid[,1:2], start,  longlat=TRUE))
+	output$Spatial$start.point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
     
 	output$Spatial$start.location<-start
 	if (!is.na(stop[1]) ) {
-	   output$Spatial$stop.point<-which.min(spDistsN1(Grid[,1:2], stop,  longlat=TRUE))
+	   output$Spatial$stop.point<-which.min(sp::spDistsN1(Grid[,1:2], stop,  longlat=TRUE))
 	   output$Spatial$stop.location<-stop
 	} else {
 	   output$Spatial$stop.point<-NA

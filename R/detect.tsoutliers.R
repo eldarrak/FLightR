@@ -43,7 +43,7 @@ tsoutliers.test <- function(x,plot=FALSE)
         tt <- 1:length(x)
         resid <- residuals(loess(x ~ tt))
     }
-    resid.q <- quantile(resid,prob=c(0.25,0.75))
+    resid.q <- quantile(stats::resid,prob=c(0.25,0.75))
     iqr <- diff(resid.q)
     limits <- resid.q + 1.5*iqr*c(-1,1)
     score <- abs(pmin((resid-limits[1])/iqr,0) + pmax((resid - limits[2])/iqr,0))
@@ -52,7 +52,7 @@ tsoutliers.test <- function(x,plot=FALSE)
         plot(x)
         x2 <- ts(rep(NA,length(x)))
         x2[score>0] <- x[score>0]
-        tsp(x2) <- tsp(x)
+        tsp(x2) <- stats::tsp(x)
         points(x2,pch=19,col="red")
         return(invisible(score))
     }
