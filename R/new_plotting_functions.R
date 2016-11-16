@@ -339,7 +339,7 @@ get_buffer<-function(coords, r){
   }
   
 get_gunion_r<-function(Result) {
-    Distances=  sp::spDists(Result$Spatial$Grid[1:which.min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=TRUE)
+    Distances=  sp::spDists(Result$Spatial$Grid[1:min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=TRUE)
     # ok, distances go up to 51.2.. the next step is 62.. 
     # so if I round them 
     Selected_dist<-unique(sort(round(Distances/10)*10))[2]
