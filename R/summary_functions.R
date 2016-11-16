@@ -38,6 +38,10 @@
 #' @export
 stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Cutoffs<-which(Result$Results$Movement.results$Decision>=prob.cutoff)
+   if (length(Cutoffs)==0) { 
+      cat('bird likely dod not move, exiting without result\n')
+	  return(NULL)
+   } else {
    Total_length<-length(Result$Results$Movement.results$Decision)
    Potential_stat_periods<-data.frame(start=unique(c(0, Cutoffs)), end=unique(c(Cutoffs-1, Total_length)))
    Potential_stat_periods$Duration<-Potential_stat_periods[,2]-Potential_stat_periods[,1]
@@ -90,6 +94,7 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    print(Res$Stationary.periods[,c(4,7, 12,15,23, 24, 27, 32)])
    return(Res)
    }
+}
 
 
 get_time_boundaries<-function(Result, twilights.index, utilisation.distribution.percentile=0.95) {
