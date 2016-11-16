@@ -219,7 +219,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
         if (length(LogLight) >= 1) {
             if (calibration$Parameters$calibration.type == "parametric.slope") {
                 #Model <- lm(LogLight ~ LogIrrad)
-				Model<-fastLmPure(matrix(c(rep(1,length(LogIrrad)),LogIrrad), ncol=2), LogLight)
+				Model<-RcppArmadillo::fastLmPure(matrix(c(rep(1,length(LogIrrad)),LogIrrad), ncol=2), LogLight)
 
                 #if (verbose) 
                   #print(summary(Model))
