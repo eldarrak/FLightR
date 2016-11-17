@@ -14,9 +14,9 @@ Depends:
     R (>= 3.0.2),
     ggmap,
 	ggplot2,
-    ggsn
 Imports:
     bit,
+    ggsn,
     CircStats,
     circular,
 	fields,
