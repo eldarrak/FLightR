@@ -24,7 +24,6 @@ Imports:
 	maptools,
 	parallel,
 	RcppArmadillo,
-    raster,
     rgdal,
     rgeos,
 	sp,

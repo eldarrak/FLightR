@@ -636,7 +636,7 @@ plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
    fields::image.plot(fields::as.image(object$Spatial$Phys.Mat[,twilight.index], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
                    col=my.golden.colors(64), main=paste("twilight number",twilight.index, format(object$Indices$Matrix.Index.Table$time[twilight.index], tz='UTC')))          
    load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-   plot(wrld_simpl, add=TRUE)
+   sp::plot(wrld_simpl, add=TRUE)
 }
 
 get_points_distribution<-function(Result, twilights.index) {
