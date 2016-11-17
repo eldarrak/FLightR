@@ -23,6 +23,7 @@ Imports:
 	maptools,
 	mgcv,
     parallel,
+	raster,
 	RcppArmadillo,
     rgdal,
     rgeos,
