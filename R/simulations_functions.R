@@ -760,7 +760,7 @@ print(summary(Model.all))
 #Res.limited<-Res[Res$Diff<2 & Res$Diff>-1.5,]
 
 # let's make an approsfun now...
-lat_correction_fun<-approxfun(y=predict(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
+lat_correction_fun<-approxfun(y=mgcv::predict.gam(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
 
 RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
 }
@@ -786,7 +786,7 @@ if (mode=="smart") {
 
 	#plot(Delta~Diff, data=Res_min_lat)
 	Gam_min<-mgcv::gam(Delta~s(Diff, k=3), data=Res_min_lat)
-	Predict_min<-predict.gam(Gam_min, se.fit=TRUE, newdata=data.frame(Diff=0))
+	Predict_min<-mgcv::predict.gam(Gam_min, se.fit=TRUE, newdata=data.frame(Diff=0))
 	
 	
 	cat("    Done!")	
@@ -806,8 +806,8 @@ if (mode=="smart") {
 	Res_max_lat$cosLat<-cos(Res_max_lat$Lat/180*pi)
 	cat("    Done!")	
 
-	Gam_max<-gam(Delta~s(Diff, k=3), data=Res_max_lat)
-	Predict_max<-predict(Gam_max, se.fit=TRUE, newdata=data.frame(Diff=0))
+	Gam_max<-mgcv::gam(Delta~s(Diff, k=3), data=Res_max_lat)
+	Predict_max<-mgcv::predict.gam(Gam_max, se.fit=TRUE, newdata=data.frame(Diff=0))
 
 	
 	cat("estimated delta for 65 degrees N is" , round(Predict_max$fit,3),  "+-"  , round(Predict_max$se.fit,3), "\n")
@@ -820,8 +820,8 @@ if (mode=="smart") {
 	
  	plot(Delta~Diff, data=Res_max_lat)
 	points(Delta~Diff, data=Res_min_lat, col="red")
-	Gam_max<-gam(Delta~s(Diff, k=3), data=Res_max_lat)
-	Predict_max<-predict(Gam_max, se.fit=TRUE, newdata=data.frame(Diff=0))
+	Gam_max<-mgcv::gam(Delta~s(Diff, k=3), data=Res_max_lat)
+	Predict_max<-mgcv::predict.gam(Gam_max, se.fit=TRUE, newdata=data.frame(Diff=0))
 	
 	# ok and now we want at least  to take a diap from min to max and focus there..
 	
@@ -857,7 +857,7 @@ if (mode=="smart") {
 	RES<-list(simulations=Res)	
 	} else {
 	print(summary(Model.all))
-	lat_correction_fun<-approxfun(y=predict(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
+	lat_correction_fun<-approxfun(y=mgcv::predict.gam(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
 
 	RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
 	

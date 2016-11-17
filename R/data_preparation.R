@@ -650,11 +650,11 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
       MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
    }
    XX<-seq(cur_sd_range[1], cur_sd_range[2], by=0.01)
-   c_fun<-stats::approxfun(predict(MvExp$gam, newdata=data.frame(cur_sd=XX)) ~XX)
+   c_fun<-stats::approxfun(mgcv::predict.gam(MvExp$gam, newdata=data.frame(cur_sd=XX)) ~XX)
 
    if (plot) {
       plot(Res[,4]~Res[,3], pch='+', ylab='cur_mean', xlab='cur_sd')
-      lines(exp(Res$calib_log_mean[1])-predict(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
+      lines(exp(Res$calib_log_mean[1])-mgcv::predict.gam(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
 	  }
 	Out<-list(c_fun=c_fun, Res=Res)
 	cat('\r')
