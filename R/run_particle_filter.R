@@ -917,6 +917,3 @@ lazy.result.plot<-function(Result) {
     sp::plot(wrld_simpl, add=TRUE)
 }
 
-
-
-}
