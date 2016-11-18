@@ -141,15 +141,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     #rm(All.results.mat)
     # plotting resuls
     if (plot) {
-      plot(Meanlat~Meanlon, type="p", data=all.out$Results$Quantiles, pch=3, col="blue", main="mean poistions")
-      #if (all.out$EMIter>1 & !is.null(all.out$Results$Final.Means)) {
-      #  points(CENTRE.y~CENTRE.x, type="p", data=all.out.old$Results$Final.Means, pch=3, col="red")
-      #  lines(CENTRE.y~CENTRE.x, data=all.out.old$Results$Final.Means, col="red")
-      #}
-      points(Meanlat~Meanlon, type="p", data=all.out$Results$Quantiles, pch=3, col="blue")
-      lines(Meanlat~Meanlon, data=all.out$Results$Quantiles, col="blue")
-      load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-      sp::plot(wrld_simpl, add=TRUE)
+	   lazy.result.plot(all.out)
     }
     gc()
   
@@ -915,4 +907,16 @@ dir_fun<-function(x, in.Data) {
 	
 dist.fun<-function(x, Result) {
     sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
+}
+
+lazy.result.plot<-function(Result) {
+    plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean poistions")
+    points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
+    lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
+    load(system.file("data", "wrld_simpl.rda", package = "maptools"))
+    sp::plot(wrld_simpl, add=TRUE)
+}
+
+
+
 }
