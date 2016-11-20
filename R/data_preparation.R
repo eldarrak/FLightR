@@ -46,7 +46,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #' @param model.ageing if set to TRUE, accounts for the tag ageing (with opacification of its transparent shell of a light sensor), resulting into decreasing sensitivity of the device. This option is useful only if there were several calibration periods or if calibration period was very long (~ longer than a month).
 #' @param plot.each Do you want every twilight to be plotted while processing
 #' @param plot.final Do you want final calibration graph to be plotted. On the graph you can see all the observed versus expected light levels. All slopes should be similar.
-#' @param likelihood.correction will estimate correction of likelihood for the current calibration paramters. Highly recommended not to be change from TRUE
+#' @param likelihood.correction will estimate correction of likelihood for the current calibration paramters. Highly recommended not to be change from 'auto'. In this case FLightR will switch it to FALSE in case tage saved dat on 10 minutes or longre period
 #' @param suggest.irrad.borders experimental parameter! If set to TRUE faunction will try to find the best velues for the log.irrad.borders
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
@@ -60,7 +60,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #' print(Calibration.periods)
 #' 
 #' # NB Below likelihood.correction is set to FALSE for fast run! 
-#' # Leave it as default TRUE for real examples
+#' # Leave it as default 'auto' for real examples
 #' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
 #' 
 #' # Leave it as default TRUE for real examples
@@ -69,7 +69,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 #' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~ 5 min
 #' @author Eldar Rakhimberdiev
 #' @export
-make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction=TRUE, suggest.irrad.borders=FALSE) {
+make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction='auto', suggest.irrad.borders=FALSE) {
    Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-"1900-01-01"
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-"2100-01-01"
    calibration.parameters<-get.calibration.parameters(
@@ -79,6 +79,16 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 		  log.irrad.borders=Proc.data$log.irrad.borders,
 		  plot.each= plot.each, plot.final= plot.final,
 		  suggest.irrad.borders=suggest.irrad.borders)
+   # here I check whether tag measures with 10 minutes or more inteval and if so change likelihood correction to FALSE
+   if (likelihood.correction=='auto') {
+      if (Proc.data$saving.period>=550) {
+	     likelihood.correction<-FALSE
+         cat('likelihood correction switched to FALSE\n')
+	  } else {
+	  likelihood.correction<-TRUE
+	  cat('likelihood correction switched to TRUE\n')
+	  }
+   }
    Proc.data$log.irrad.borders=calibration.parameters$log.irrad.borders
    if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,

@@ -5,7 +5,7 @@
 \title{Creates a calibration object, further used for calculation of coordinates in the \code{\link{run.particle.filter}}.}
 \usage{
 make.calibration(Proc.data, Calibration.periods, model.ageing = FALSE,
-  plot.each = FALSE, plot.final = FALSE, likelihood.correction = TRUE,
+  plot.each = FALSE, plot.final = FALSE, likelihood.correction = "auto",
   suggest.irrad.borders = FALSE)
 }
 \arguments{
@@ -19,7 +19,7 @@ make.calibration(Proc.data, Calibration.periods, model.ageing = FALSE,
 
 \item{plot.final}{Do you want final calibration graph to be plotted. On the graph you can see all the observed versus expected light levels. All slopes should be similar.}
 
-\item{likelihood.correction}{will estimate correction of likelihood for the current calibration paramters. Highly recommended not to be change from TRUE}
+\item{likelihood.correction}{will estimate correction of likelihood for the current calibration paramters. Highly recommended not to be change from 'auto'. In this case FLightR will switch it to FALSE in case tage saved dat on 10 minutes or longre period}
 
 \item{suggest.irrad.borders}{experimental parameter! If set to TRUE faunction will try to find the best velues for the log.irrad.borders}
 }
@@ -38,7 +38,7 @@ Calibration.periods<-data.frame(
 print(Calibration.periods)
 
 # NB Below likelihood.correction is set to FALSE for fast run! 
-# Leave it as default TRUE for real examples
+# Leave it as default 'auto' for real examples
 Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
 
 # Leave it as default TRUE for real examples
