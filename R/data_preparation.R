@@ -650,14 +650,14 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    cat('\r  estimating correction function...')
    cat('\r')
 
-   MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
+   MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=nlme::varExp(form =~ cur_sd))
    # now we check for the outliers..
    Resid<-resid(MvExp$lme, type='normalized')
    Outliers<-NULL
    Outliers<-which(abs(Resid)>3*sd(Resid))
    if (length(Outliers)>0) {
       Res<-Res[-Outliers,]
-      MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=varExp(form =~ cur_sd))
+      MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=nlme::varExp(form =~ cur_sd))
    }
    XX<-seq(cur_sd_range[1], cur_sd_range[2], by=0.01)
    c_fun<-stats::approxfun(mgcv::predict.gam(MvExp$gam, newdata=data.frame(cur_sd=XX)) ~XX)
