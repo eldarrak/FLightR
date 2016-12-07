@@ -236,7 +236,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 #' plot_lon_lat(Result)
 #'
 #' @author Eldar Rakhimberdiev
-#' @export plot.lon.lat
+#' @export plot_lon_lat
 plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
    Quantiles<-Result$Results$Quantiles
