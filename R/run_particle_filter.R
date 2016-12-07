@@ -598,11 +598,6 @@ cat("******************\n")
   return(list(Points=Points, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results)))
 }
 
-#return.matrix.from.char<-function(Res.txt) {
-  #this function is needed to get matrix from character vector
-#  return(t(sapply(strsplit(Res.txt, "\\."), as.integer)))
-#}
-
 
 get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
   #library("aspace")
