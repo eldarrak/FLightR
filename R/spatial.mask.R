@@ -28,7 +28,6 @@ make.grid<-function(left=-180, bottom=-90,
 					distance.from.land.allowed.to.use=c(-Inf,Inf),
 					distance.from.land.allowed.to.stay=c(-Inf, Inf), plot=TRUE, return.distances=FALSE, probability.of.staying=0.5) {
    bb<-c(left, bottom, right, top)
-
    data('Points', package='FLightR')
   
    if (distance.from.land.allowed.to.stay[1]> -25) distance.from.land.allowed.to.stay[1]<- -25
