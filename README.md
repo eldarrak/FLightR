@@ -18,7 +18,9 @@ to install the package try:
 	library(FLightR)
 ```
 ---------------
+
 ## NB
+Version 0.4.4 All function names started from `plot.` are replaced wit `plot_`, e.g. `plot.lon.lat()` became `plot_lon_lat()`
 Version 0.3.9 has got two major changes:
 
 1. Workflow was completely rewtitten and simplified. Updated workflow is [here](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_FLightR_vignette/FLightR_analysis_workflow.Rmd)

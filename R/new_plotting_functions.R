@@ -233,11 +233,11 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 #'            nParticles=1e4, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#' plot.lon.lat(Result)
+#' plot_lon_lat(Result)
 #'
 #' @author Eldar Rakhimberdiev
 #' @export plot.lon.lat
-plot.lon.lat<-function(Result, scheme=c("vertical", "horizontal")) {
+plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
    Quantiles<-Result$Results$Quantiles
    
@@ -433,11 +433,11 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #'            nParticles=1e4, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#' plot.util.distr(Result)
+#' plot_util_distr(Result)
 #'
 #' @author Eldar Rakhimberdiev
-#' @export plot.util.distr
-plot.util.distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
+#' @export plot_util_distr
+plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
 if (is.null(color.palette)) color.palette <- colorRampPalette(rev(c("#edf8fb",
                                     "#b3cde3",
@@ -621,11 +621,11 @@ seasonal_donut<-function() {
 #'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
 #'
 #' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
-#' plot.likelihood(all.in, twilight.index=10)
+#' plot_likelihood(all.in, twilight.index=10)
 #'
 #' @author Eldar Rakhimberdiev
-#' @export plot.likelihood
-plot.likelihood<-function(object, date=NULL, twilight.index=NULL) {
+#' @export plot_likelihood
+plot_likelihood<-function(object, date=NULL, twilight.index=NULL) {
    my.golden.colors <- colorRampPalette(c("white","#FF7100"))
    if (!is.null(date)) {
       date<-as.POSIXct(date, tz='UTC')

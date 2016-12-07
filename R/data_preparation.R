@@ -13,13 +13,13 @@
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
-#' plot.slopes.by.location(Proc.data=Proc.data, location=c(5.43, 52.93))
+#' plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93))
 #' abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 #' abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 #'
 #' @author Eldar Rakhimberdiev
-#' @export plot.slopes.by.location
-plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
+#' @export plot_slopes_by_location
+plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
    old.par <- par(no.readonly = TRUE) 
    Calibration.period<-data.frame(
          calibration.start=as.POSIXct("1900-01-01"),
@@ -33,7 +33,7 @@ plot.slopes.by.location<-function(Proc.data, location, log.light.borders='auto',
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
 		 plot.each = FALSE, plot.final = FALSE, suggest.irrad.borders=FALSE))
-    suppressWarnings(plot.slopes(calibration.parameters$All.slopes))
+    suppressWarnings(plot_slopes(calibration.parameters$All.slopes))
 }
 
 
@@ -101,7 +101,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders,
 		 suggest.irrad.borders=FALSE)
-         plot.slopes(calibration.parameters$All.slopes)
+         plot_slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
 		 Proc.data$Twilight.log.light.mat.dusk<-Proc.data_tmp$Twilight.log.light.mat.dusk
@@ -120,7 +120,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders,
 		 suggest.irrad.borders=FALSE)
-         plot.slopes(calibration.parameters$All.slopes)
+         plot_slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
 		 Proc.data$Twilight.log.light.mat.dusk<-Proc.data_tmp$Twilight.log.light.mat.dusk
@@ -159,7 +159,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' \dontrun{
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
-#' plot.slopes.by.location(Proc.data=Proc.data, location=c(5.43, 52.93))
+#' plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93))
 #' abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 #' abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 #' Location<-find.stationary.location(Proc.data, '2013-07-20', '2013-08-20', initial.coords=c(10, 50))
@@ -200,7 +200,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   suggest.irrad.borders=suggest.irrad.borders))
 	   
 	}   
-       if (plot) plot.slopes(calibration.parameters$All.slopes)
+       if (plot) plot_slopes(calibration.parameters$All.slopes)
 	sink()
 	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), '\n')
        return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
@@ -529,7 +529,7 @@ return(Res)
 }
 
 
-plot.slopes<-function(all.slopes, ylim=NULL) {
+plot_slopes<-function(all.slopes, ylim=NULL) {
 old.par <- par(no.readonly = TRUE) 
 #on.exit(par(old.par))
 plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
