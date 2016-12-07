@@ -3,7 +3,7 @@ Type: Package
 Title: template fit SSM for solar geolocation
 Version: 0.4.4
 Date: 2016-12-07
-Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contributions of Anatoly
+Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contributions from Anatoly
     Saveliev and Julia Karagicheva
 Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
 Description: The scope of the package is to position animal using data from
