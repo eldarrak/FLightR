@@ -27,7 +27,7 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
       if (log.irrad.borders[1]=='auto') stop("Unrecognized tag type, please supply log.irrad.borders\n")
       if (length(saves)==3 | saves[1]=='auto') stop("Unrecognized tag type, please  tell FLightR what was tag saving - max or mean over saving period\n")
    } else {
-      if (detected$log_tranformed) TAGS.twilights$light<-exp(TAGS.twilights$light)
+      if (detected$log_transformed) TAGS.twilights$light<-exp(TAGS.twilights$light)
       if(detected$tagtype=="Intigeo_Mode_1") {
 	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 9)
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
@@ -42,6 +42,11 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
 	     if (log.light.borders[1]=='auto') log.light.borders<-log(c(4, 61)) 
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,4)
 	     if (saves[1] =='auto') saves<-"max"
+      }
+	  if(detected$tagtype=="GDL2v2_GDLpam") {
+	     if (log.light.borders[1]=='auto') log.light.borders<-c(2.5, 8)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,1.5)
+	     if (saves[1] =='auto') saves<-"mean"
       }
    }
 
@@ -66,10 +71,10 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
                              measurement.period=measurement.period, saving.period=saving.period, impute.on.boundaries=impute.on.boundaries)
    if (!is.null(detected)) {
    Proc.data$tagtype<-detected$tagtype
-   Proc.data$log_tranformed<-detected$log_tranformed
+   Proc.data$log_transformed<-detected$log_transformed
+   }
    Proc.data$log.light.borders=log.light.borders
    Proc.data$log.irrad.borders=log.irrad.borders
-   }
    Proc.data$FLightR.data<-FLightR.data
    return(Proc.data)			
 }
@@ -81,45 +86,56 @@ get.tag.type<-function(TAGS.twilights) {
    recognized<-FALSE
    if(round(Max_light,2)==11.22) {
       tagtype<-"Intigeo_Mode_1"
-      log_tranformed<-TRUE
+      log_transformed<-TRUE
 	  recognized<-TRUE
    }
    
    if (round(Max_light/10)==7442) {
      tagtype<-"Intigeo_Mode_1"
-	 log_tranformed<-FALSE
+	 log_transformed<-FALSE
      recognized<-TRUE
    }
 
    if(round(Max_light,2)==7.06) {
       tagtype<-"Intigeo_Mode_4"
-      log_tranformed<-TRUE
+      log_transformed<-TRUE
 	  recognized<-TRUE
    }
    if (round(Max_light/10)==116) {
      tagtype<-"Intigeo_Mode_4"
-	 log_tranformed<-FALSE
+	 log_transformed<-FALSE
      recognized<-TRUE
    }
    
    if (Max_light == 64) {
       tagtype<-"mk"
-	  log_tranformed<-FALSE
+	  log_transformed<-FALSE
 	  recognized<-TRUE
    }
 
    if (Max_light == log(64)) {
       tagtype<-"mk"
-	  log_tranformed<-TRUE
+	  log_transformed<-TRUE
 	  recognized<-TRUE
    }
+   if(round(Max_light,1)==9.2) {
+      tagtype<-"GDL2v2_GDLpam"
+      log_transformed<-TRUE
+	  recognized<-TRUE
+   }
+   if (round(Max_light/10)==998) {
+     tagtype<-"GDL2v2_GDLpam"
+	 log_transformed<-FALSE
+     recognized<-TRUE
+   }
+
    if (recognized==FALSE) { 
    cat("tag type was not recognised!\nmail me details of your tag and I will add them to the list!\n")
    return(NULL)
    } else {
    cat("Detected", tagtype, "tag\n")
-   if (log_tranformed) cat("Data found to be logtransformed\n")
-   Res<-list(tagtype=tagtype, log_tranformed=log_tranformed)
+   if (log_transformed) cat("Data found to be logtransformed\n")
+   Res<-list(tagtype=tagtype, log_transformed=log_transformed)
    return(Res)
   }
 }
