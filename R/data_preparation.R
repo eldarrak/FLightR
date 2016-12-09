@@ -196,11 +196,11 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   
 	}   
        if (plot) plot_slopes(calibration.parameters$All.slopes)
-	sink()
+	   suppressWarnings(sink())
 	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), '\n')
        return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
    }
-   tryCatch(Res<-optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=reltol)), finally=try(sink()))
+   tryCatch(Res<-optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=reltol)), finally=try(suppressWarnings(sink())))
    return(Res$par)
  }
  
