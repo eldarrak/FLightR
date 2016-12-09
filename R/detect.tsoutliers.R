@@ -61,10 +61,10 @@ tsoutliers.test <- function(x,plot=FALSE)
 }
 
 detect.outliers<-function(Lons, plot=TRUE, max.outlier.proportion=0.2) {
-  #if (!requireNamespace("tsoutliers", quietly = TRUE)) {
-  #  stop("tsoutliers needed for this function to work. Please install it.",
-  #    call. = FALSE)
-  #}
+  if (!requireNamespace("tsoutliers", quietly = TRUE)) {
+    stop("tsoutliers needed for this function to work. Please install it.",
+      call. = FALSE)
+  }
 .Lons.ts<-tsoutliers::ts(Lons)
 .Lons.ts<<-.Lons.ts
 #fit <- auto.arima(Lons.ts, max.p=1, max.d=1, max.q=0)

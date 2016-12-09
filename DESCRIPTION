@@ -28,7 +28,6 @@ Imports:
     rgdal,
     rgeos,
 	sp,
-	tsoutliers,
 	truncnorm
 License: GPL-3
 ByteCompile: true
