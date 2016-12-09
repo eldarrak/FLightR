@@ -147,7 +147,8 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @param calibration.stop POSIXct time when stationary period ended
 #' @param plot plots every iteration
 #' @param initial.coords location vector with initial values for location (longitude and latitude). Should be close (+-2000 km from the real location)
-#' @param print.optimization 
+#' @param print.optimization do you want every optimization iteration to be printed? If TRUE - Lon, Lat, Calbration mean and Calibration sd are being printed. Optimization tries to minimze the latter.
+#' @param reltol tolerance for optimization, see \code{\link{optim}} for more details
 #' @details The idea behind the function is that it tries to minimze variance between slopes for the whole period by optimizing location. It can be seen as an extension of Hill-Ekstrom calibration idea.
 #' @examples
 #' #this example takes about 15 minutes to run
@@ -161,7 +162,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' }
 #' @author Eldar Rakhimberdiev
 #' @export		
-find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
+find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-5) {
 
   if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very xclose but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE) {
