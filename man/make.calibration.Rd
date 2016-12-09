@@ -41,10 +41,6 @@ print(Calibration.periods)
 # Leave it as default 'auto' for real examples
 Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
 
-# Leave it as default TRUE for real examples
-Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
-
-Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~ 5 min
 }
 \author{
 Eldar Rakhimberdiev

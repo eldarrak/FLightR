@@ -30,6 +30,8 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 \item{M.mean}{Prior for mean distance travelled between consequtive twilights, km}
 
 \item{M.sd}{Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution}
+
+\item{likelihood.correction}{Should likelihood correction estimated during \code{\link{make.calibration}} run be used?}
 }
 \value{
 Object to be uses in the \code{\link{run.particle.filter}}
@@ -53,7 +55,6 @@ print(Calibration.periods)
 # Leave it as default TRUE for real examples
 Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
 
-Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~5 min
 Grid<-make.grid(left=0, bottom=50, right=10, top=56,
   distance.from.land.allowed.to.use=c(-Inf, Inf),
   distance.from.land.allowed.to.stay=c(-Inf, Inf))

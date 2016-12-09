@@ -13,7 +13,7 @@
 #' @param distance.from.land.allowed.to.stay - define how far from the shoreland animal could stay stationary between twilights. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity
 #' @param return.distances - return distances to the shoreline
 #' @param probability.of.staying - assigned probability value for grid cells that do not satisfy \code{distance.from.water.allowed.to.stay}
-#' plot show a plot of final grid.
+#' @param plot show a plot of final grid.
 #' @return dataframe with coordinates(lon and lat) and \code{probability.of.staying}
 #' @examples
 #' Grid<-make.grid(left=-14, bottom=30, right=13, top=57,

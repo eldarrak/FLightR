@@ -20,12 +20,13 @@ make.grid(left = -180, bottom = -90, right = 180, top = 90,
 
 \item{distance.from.land.allowed.to.use}{- define how far from the shoreland animal could occur. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity}
 
+\item{distance.from.land.allowed.to.stay}{- define how far from the shoreland animal could stay stationary between twilights. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity}
+
+\item{plot}{show a plot of final grid.}
+
 \item{return.distances}{- return distances to the shoreline}
 
-\item{probability.of.staying}{- assigned probability value for grid cells that do not satisfy \code{distance.from.water.allowed.to.stay}
-plot show a plot of final grid.}
-
-\item{distance.from.water.allowed.to.stay}{- define how far from the shoreland animal could stay stationary between twilights. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity}
+\item{probability.of.staying}{- assigned probability value for grid cells that do not satisfy \code{distance.from.water.allowed.to.stay}}
 }
 \value{
 dataframe with coordinates(lon and lat) and \code{probability.of.staying}
