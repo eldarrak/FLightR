@@ -1,2 +1,3 @@
 library(testthat)
-test_check("devtools")
+library(FLightR)
+test_check("FLightR")
