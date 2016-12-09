@@ -82,6 +82,7 @@ twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
 #' this function converts combines twilights detected in BAStag ot twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
 #' @param raw original data - dataframe with two columns first column must contain time and second measured light levels
 #' @param gl_twl twilights object from GeoLight
+#' @param threshold threshold value used for twilight definition in GeoLight
 #' @param filename if NULL data.frame in TAGS format will be returned otherwise .csv file in TAGS format will be written
 #' @return \code{NULL} if \code{filename} is provided or TAGS formatted dataframe.
 #' @details TAGS format returned or written as .csv by this function is a dataframe with columns
@@ -97,7 +98,7 @@ twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
 #' 
 #' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
-GeoLight2TAGS<-function (raw, gl_twl, filename=NULL) {
+GeoLight2TAGS<-function (raw, gl_twl, threshold, filename=NULL) {
    names(raw) <- c("datetime", "light")
    raw$twilight<-0
    twl <- data.frame(datetime = as.POSIXct(c(gl_twl$tFirst, 
@@ -105,7 +106,7 @@ GeoLight2TAGS<-function (raw, gl_twl, filename=NULL) {
       1, 2, 1)))
    twl <- twl[!duplicated(twl$datetime),]
    twl <- twl[order(twl[, 1]), ]
-   twl$light <- approx(x = raw$datetime, y = raw$light, xout = twl$datetime)$y
+   twl$light <- mean(approx(x = raw$datetime, y = raw$light, xout = twl$datetime)$y, na.rm=T)
 
    tmp01 <- merge(raw, twl, all.y = TRUE, all.x = TRUE)
 

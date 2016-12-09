@@ -4,12 +4,14 @@
 \alias{GeoLight2TAGS}
 \title{Function to write down twilights annotated in GeoLight package data in so-called TAGS format}
 \usage{
-GeoLight2TAGS(raw, gl_twl, filename = NULL)
+GeoLight2TAGS(raw, gl_twl, threshold, filename = NULL)
 }
 \arguments{
 \item{raw}{original data - dataframe with two columns first column must contain time and second measured light levels}
 
 \item{gl_twl}{twilights object from GeoLight}
+
+\item{threshold}{threshold value used for twilight definition in GeoLight}
 
 \item{filename}{if NULL data.frame in TAGS format will be returned otherwise .csv file in TAGS format will be written}
 }

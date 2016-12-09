@@ -28,7 +28,7 @@ test_that('GeoLight2TAGS works',  {
    twl<-data.frame(Twilight=as.POSIXct(seq(as.numeric(as.POSIXct('2016-12-09 10:55'), tz='UTC'), by=43200, length.out=8), origin='1970-01-01', tz='UTC'))
    gl_twl<-data.frame(tFirst=twl$Twilight[-nrow(twl)], tSecond=twl$Twilight[-1], type=c(rep(c(0,1),3),0))
    threshold=1.5
-   tmp<-GeoLight2TAGS(raw_data, gl_twl) 
+   tmp<-GeoLight2TAGS(raw_data, gl_twl, threshold) 
    expect_equal(dim(tmp), c(1008,5))
   }
 )
