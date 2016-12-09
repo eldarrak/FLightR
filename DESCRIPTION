@@ -21,12 +21,14 @@ Imports:
 	fields,
 	maptools,
 	mgcv,
+	nlme,
     parallel,
 	raster,
 	RcppArmadillo,
     rgdal,
     rgeos,
 	sp,
+	tsoutliers,
 	truncnorm
 License: GNU GPL v3.0
 ByteCompile: true
