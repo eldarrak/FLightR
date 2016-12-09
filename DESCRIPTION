@@ -30,7 +30,7 @@ Imports:
 	sp,
 	tsoutliers,
 	truncnorm
-License: GNU GPL v3.0
+License: GPL-3
 ByteCompile: true
 RoxygenNote: 5.0.1
 Suggests:
