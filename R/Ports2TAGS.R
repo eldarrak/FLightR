@@ -119,4 +119,4 @@ GeoLight2TAGS<-function (raw, gl_twl, filename=NULL) {
   write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
   return(NULL)
   } else { return(out)}
-   }
+}
