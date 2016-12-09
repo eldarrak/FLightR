@@ -77,8 +77,8 @@ test_that('run.particle.filter works',  {
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=4)
    Result<-run.particle.filter(all.in, threads=3,
            nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
-   expect_equal(dim(Result$Results$Quantiles), c(126, 21))
-   expect_equal(dim(Result$Results$Movement.results), c(126, 12))
+   expect_equal(dim(Result$Results$Quantiles), c(627, 21))
+   expect_equal(dim(Result$Results$Movement.results), c(627, 12))
    }
 )
 
