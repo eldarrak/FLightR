@@ -63,10 +63,6 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' # Leave it as default 'auto' for real examples
 #' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
 #' 
-#' # Leave it as default TRUE for real examples
-#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
-#' 
-#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~ 5 min
 #' @author Eldar Rakhimberdiev
 #' @export
 make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction='auto', suggest.irrad.borders=FALSE) {
@@ -152,7 +148,6 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @param plot plots every iteration
 #' @param initial.coords location vector with initial values for location (longitude and latitude). Should be close (+-2000 km from the real location)
 #' @param print.optimization 
-#' suggest.irrad.borders experimental parameter! If set to TRUE function will try to find the best values for the log.irrad.borders but in case of unknow location it is should not be used
 #' @details The idea behind the function is that it tries to minimze variance between slopes for the whole period by optimizing location. It can be seen as an extension of Hill-Ekstrom calibration idea.
 #' @examples
 #' #this example takes about 15 minutes to run
@@ -166,7 +161,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' }
 #' @author Eldar Rakhimberdiev
 #' @export		
-find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, suggest.irrad.borders=FALSE) {
+find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE) {
 
   if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very xclose but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE) {
@@ -184,7 +179,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   log.light.borders=log.light.borders,
 	   log.irrad.borders=log.irrad.borders, 
        plot.each = FALSE, plot.final = FALSE,
-	   suggest.irrad.borders=suggest.irrad.borders)))
+	   suggest.irrad.borders=FALSE)))
 	if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
@@ -197,7 +192,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   log.light.borders=log.light.borders,
 	   log.irrad.borders=log.irrad.borders, 
        plot.each = FALSE, plot.final = FALSE, 
-	   suggest.irrad.borders=suggest.irrad.borders))
+	   suggest.irrad.borders=FALSE))
 	   
 	}   
        if (plot) plot_slopes(calibration.parameters$All.slopes)
@@ -225,6 +220,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' @param Kappa concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prioir for direction for all the track, so is not recommended to be changed
 #' @param M.mean Prior for mean distance travelled between consequtive twilights, km
 #' @param M.sd Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution
+#' @param likelihood.correction Should likelihood correction estimated during \code{\link{make.calibration}} run be used?
 #' @return Object to be uses in the \code{\link{run.particle.filter}}
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
@@ -242,8 +238,6 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' # Leave it as default TRUE for real examples
 #' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
 #' 
-
-#' Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE) # ~5 min
 #' Grid<-make.grid(left=0, bottom=50, right=10, top=56,
 #'   distance.from.land.allowed.to.use=c(-Inf, Inf),
 #'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
