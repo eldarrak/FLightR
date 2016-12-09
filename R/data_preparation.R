@@ -161,7 +161,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' }
 #' @author Eldar Rakhimberdiev
 #' @export		
-find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE) {
+find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
 
   if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very xclose but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE) {
@@ -200,7 +200,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), '\n')
        return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
    }
-   tryCatch(Res<-optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot), finally=try(sink()))
+   tryCatch(Res<-optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=reltol)), finally=try(sink()))
    return(Res$par)
  }
  
