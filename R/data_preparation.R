@@ -375,11 +375,11 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	Calib.data.dawn<-data.frame()
 	if (plot.each) par(ask=FALSE)
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
-cat("checking dawn", dawn, "\n" )
+    cat("\r checking dawn", dawn)
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot.each, verbose=FALSE,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=FALSE, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
-		cat ("dawn", dawn, "was excluded from the calibration\n")
+		cat ("\r dawn", dawn, "was excluded from the calibration")
 		} else {
 		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3], Elevs=Data[,4]))	
 		}		
@@ -388,12 +388,12 @@ cat("checking dawn", dawn, "\n" )
 
 	Calib.data.dusk<-data.frame()
 	for (dusk in 1:dim(Twilight.time.mat.Calib.dusk)[2]) {
-cat("checking dusk", dusk, "\n" )
+    cat("\r checking dusk", dusk )
 
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot.each, verbose=FALSE,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=TRUE,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
-		cat ("dusk", dusk, "was excluded from the calibration\n")
+		cat ("\r dusk", dusk, "was excluded from the calibration")
 		} else {
 		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3], Elevs=Data[,4]))
 		}
@@ -408,7 +408,7 @@ cat("checking dusk", dusk, "\n" )
 	}
 	
 	Calib.data.all$fDay<-as.factor(Calib.data.all$Day)
-	
+	cat('\n')
 	return(Calib.data.all)	
 }
 
