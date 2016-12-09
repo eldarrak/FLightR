@@ -48,8 +48,9 @@ test_that('make.grid works',  {
 test_that('make.prerun.object works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File)
-   Calibration.periods<-data.frame(calibration.start=NA, 
-        calibration.stop=as.POSIXct("2013-08-20"),
+   Calibration.periods<-data.frame(
+        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
         lon=5.43, lat=52.93) 
    Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
    Grid<-make.grid(left=0, bottom=50, right=10, top=56,
@@ -65,8 +66,9 @@ test_that('make.prerun.object works',  {
 test_that('run.particle.filter works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File)
-   Calibration.periods<-data.frame(calibration.start=NA, 
-        calibration.stop=as.POSIXct("2013-08-20"),
+   Calibration.periods<-data.frame(
+        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
+        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
         lon=5.43, lat=52.93) 
    Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
    Grid<-make.grid(left=0, bottom=50, right=10, top=56,
