@@ -47,7 +47,7 @@ test_that('make.grid works',  {
 
 test_that('make.prerun.object works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-   Proc.data<-get.tags.data(File, end.date=as.POSIXct("2013-08-21"))
+   Proc.data<-get.tags.data(File)
    Calibration.periods<-data.frame(calibration.start=NA, 
         calibration.stop=as.POSIXct("2013-08-20"),
         lon=5.43, lat=52.93) 
@@ -64,7 +64,7 @@ test_that('make.prerun.object works',  {
 
 test_that('run.particle.filter works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-   Proc.data<-get.tags.data(File, end.date=as.POSIXct("2013-08-21"))
+   Proc.data<-get.tags.data(File)
    Calibration.periods<-data.frame(calibration.start=NA, 
         calibration.stop=as.POSIXct("2013-08-20"),
         lon=5.43, lat=52.93) 
