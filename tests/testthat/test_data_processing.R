@@ -40,8 +40,8 @@ test_that('make.grid works',  {
    Grid<-make.grid(left=0, bottom=50, right=10, top=56,
      distance.from.land.allowed.to.use=c(-100, Inf),
      distance.from.land.allowed.to.stay=c(0, 100))
-   expect_equal(c(94, 3), dim(Grid))
-   expect_equal(76, sum(Grid[,3]))
+   expect_equal(c(145, 3), dim(Grid))
+   expect_equal(111.5, sum(Grid[,3]))
    }
 )
 
