@@ -50,10 +50,10 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' @param suggest.irrad.borders experimental parameter! If set to TRUE faunction will try to find the best velues for the log.irrad.borders
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-#' Proc.data<-get.tags.data(File)
+#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
 #' Calibration.periods<-data.frame(
-#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        calibration.start=NA,
+#'        calibration.stop=as.POSIXct("2013-08-20"),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -66,8 +66,10 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' @author Eldar Rakhimberdiev
 #' @export
 make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction='auto', suggest.irrad.borders=FALSE) {
-   Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-"1900-01-01"
-   Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-"2100-01-01"
+   Calibration.periods[,1]<-as.POSIXct(Calibration.periods[,1], tz='gmt')
+   Calibration.periods[,2]<-as.POSIXct(Calibration.periods[,2], tz='gmt')
+	Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='gmt')
+   Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-as.POSIXct("2100-01-01", tz='gmt')
    calibration.parameters<-get.calibration.parameters(
          Calibration.periods, Proc.data,
           model.ageing=model.ageing,
@@ -228,8 +230,8 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' # to run example fast we will cut the real data file by 2013 Aug 20
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
 #' Calibration.periods<-data.frame(
-#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        calibration.start=NA,
+#'        calibration.stop=as.POSIXct("2013-08-20"),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -409,7 +411,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	}
 	
 	Calib.data.all$fDay<-as.factor(Calib.data.all$Day)
-	cat('\n')
+	cat('\r\n')
 	return(Calib.data.all)	
 }
 
