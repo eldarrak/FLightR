@@ -41,3 +41,42 @@ test_that('make.grid works',  {
    expect_equal(111.5, sum(Grid[,3]))
    }
 )
+
+
+test_that('make.prerun.object works',  {
+   File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+   Calibration.periods<-data.frame(
+        calibration.start=NA,
+        calibration.stop=as.POSIXct("2013-08-20"),
+		lon=5.43, lat=52.93) 
+   Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+   Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+     distance.from.land.allowed.to.use=c(-Inf, Inf),
+     distance.from.land.allowed.to.stay=c(-Inf, Inf))
+   all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=4)
+   expect_equal(dim(all.in$Spatial$Phys.Mat), c(180, 126))
+   expect_true(max(all.in$Spatial$Phys.Mat)>1)
+   }
+)
+
+
+
+test_that('run.particle.filter works',  {
+   File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+   Calibration.periods<-data.frame(
+        calibration.start=NA,
+        calibration.stop=as.POSIXct("2013-08-20"),
+		lon=5.43, lat=52.93) 
+   Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+   Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+     distance.from.land.allowed.to.use=c(-Inf, Inf),
+     distance.from.land.allowed.to.stay=c(-Inf, Inf))
+   all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=4)
+   Result<-run.particle.filter(all.in, threads=3,
+           nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
+   expect_equal(dim(Result$Results$Quantiles), c(126, 21))
+   expect_equal(dim(Result$Results$Movement.results), c(126, 12))
+   }
+)
