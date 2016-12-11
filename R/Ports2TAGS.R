@@ -32,7 +32,7 @@ BAStag2TAGS <- function(raw, twl, threshold, filename=NULL) {
   out<-out[order(out[,1]),]
   out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
   if (!is.null(filename)) {
-  write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
+  utils::write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
   return(NULL)
   } else { return(out)}
  }
@@ -71,7 +71,7 @@ twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
   out<-out[order(out[,1]),]
   out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
   if (!is.null(filename)) {
-  write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
+  utils::write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
   return(NULL)
   } else { return(out)}
  }
@@ -117,7 +117,7 @@ GeoLight2TAGS<-function (raw, gl_twl, threshold, filename=NULL) {
   out<-out[order(out[,1]),]
   out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
     if (!is.null(filename)) {
-	  write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
+	  utils::write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
   return(NULL)
   } else { return(out)}
 }

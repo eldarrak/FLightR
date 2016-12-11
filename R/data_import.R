@@ -16,7 +16,7 @@
 #' @export
 get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("auto", "max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
  # measurement.period should be set to saving period for swiss tags
-   TAGS.twilights<-read.csv(filename, stringsAsFactors =FALSE)
+   TAGS.twilights<-utils::read.csv(filename, stringsAsFactors =FALSE)
 
    # now we have to find tag type and figure out whether data were logtransformed..
 
@@ -147,7 +147,7 @@ convert.lux.to.tags<-function(file, log=FALSE, log.light.borders=c(1,10)) {
 	# TAGS service accepts
 	warning("\n\nwe have figured out that TAGS service is rounding data, so log=TRUE will produce wrong rounding on upload\n\nsetting log to FALSE\n")
 	log=FALSE
-	Dat<-read.csv(file, skip=20, sep="\t", stringsAsFactors =FALSE)
+	Dat<-utils::read.csv(file, skip=20, sep="\t", stringsAsFactors =FALSE)
 	names(Dat)<-c("datetime", "light")
 	Dat$datetime<-as.POSIXct(Dat$datetime, tz="UTC", format="%d/%m/%Y %H:%M:%S")
 
@@ -163,7 +163,7 @@ convert.lux.to.tags<-function(file, log=FALSE, log.light.borders=c(1,10)) {
 	}
 	}
 	# now I need to save as csv...
-	write.csv(Dat_new, file=paste(unlist(strsplit(file, ".lux")), "csv", sep="."), quote =FALSE, row.names=FALSE) 
+	utils::write.csv(Dat_new, file=paste(unlist(strsplit(file, ".lux")), "csv", sep="."), quote =FALSE, row.names=FALSE) 
 	cat("Success!\n")
 	cat("file", paste(unlist(strsplit(file, ".lux")), "csv", sep="."), "\nwas saved to", getwd(), "\n")
 	return(NULL)
@@ -250,7 +250,7 @@ return(FlightR.data)
 
 
 geologger.read.data<-function( file) {
-	track <- read.csv(file,header=FALSE, stringsAsFactors=FALSE) 
+	track <- utils::read.csv(file,header=FALSE, stringsAsFactors=FALSE) 
 	names(track)<-c('date','time','light')
 	track$datetime <- paste(track$date,track$time,sep=' ') #makes a new column called datetime with date and time concatenated together with a space between
 	track$gmt <- as.POSIXct(strptime(track$datetime,'%d/%m/%Y %H:%M:%S'),'UTC') #makes a new column called gmt with date and time data in a formate that R can work with

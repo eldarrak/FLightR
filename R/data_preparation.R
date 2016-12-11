@@ -435,8 +435,8 @@ Calib.data.all$fTwilight<-Calib.data.all$fDay
 #============================
 # we should do some outlier tests...
 cur.data<-Calib.data.all
-p.lm1<-lm(LogLight~fTwilight/LogIrrad,data=cur.data)
-cur.slope<-matrix(coef(p.lm1),ncol=2) # foo[,2] - slope
+p.lm1<-stats::lm(LogLight~fTwilight/LogIrrad,data=cur.data)
+cur.slope<-matrix(stats::coef(p.lm1),ncol=2) # foo[,2] - slope
 cur.slope<-as.data.frame(cur.slope)
 Diag<-diag(vcov(p.lm1))
 Diag.slopes<-Diag[which(sapply(strsplit(names(Diag), ":"), length)==2)]
@@ -464,9 +464,9 @@ for (i in (unique(cur.data$fTwilight))) {
 Data<-cur.data[cur.data$fTwilight==i,]
 Data<-Data[Data$LogLight>0,]
 
-Lm<-lm(LogLight~LogIrrad,data=Data)
-Cur_slope_mean<-coef(Lm)[2]
-Cur_slope_sd<-sqrt(vcov(Lm)[4])
+Lm<-stats::lm(LogLight~LogIrrad,data=Data)
+Cur_slope_mean<-stats::coef(Lm)[2]
+Cur_slope_sd<-sqrt(stats::vcov(Lm)[4])
 
 
 if (calibration.type=="nonparametric.slope") {
@@ -474,14 +474,14 @@ if (calibration.type=="nonparametric.slope") {
 
 	All_slopes_cur<-diff(Data$LogLight)/diff(Data$LogIrrad)
 	All_slopes_mean<-mean(All_slopes_cur)
-	All_slopes_sd<-sd(All_slopes_cur)
+	All_slopes_sd<-stats::sd(All_slopes_cur)
 	# exclude outliers
 	All_slopes_diff<-abs(All_slopes_cur-All_slopes_mean)
 	Slopes_outliers<-which(All_slopes_diff>3*All_slopes_sd)
 	if (length(Slopes_outliers)>0) {
 		All_slopes_cur<-All_slopes_cur[-Slopes_outliers]
 		All_slopes_mean<-mean(All_slopes_cur)
-		All_slopes_sd<-sd(All_slopes_cur)
+		All_slopes_sd<-stats::sd(All_slopes_cur)
 	}
 	Cur_slope_mean<-All_slopes_mean
 	Cur_slope_sd<-All_slopes_sd
@@ -489,7 +489,7 @@ if (calibration.type=="nonparametric.slope") {
 
 Slopes<-c(Slopes, Cur_slope_mean)
 Slopes.sd<-c(Slopes.sd, Cur_slope_sd)
-Intercept=c(Intercept, coef(Lm)[1])
+Intercept=c(Intercept, stats::coef(Lm)[1])
 Sigma<-c(Sigma, summary(Lm)$sigma)
 Type=c(Type, cur.data$type[cur.data$fTwilight==i][1])
 Time<-c(Time,ifelse(cur.data$type[cur.data$fTwilight==i][1]=="Dusk", max(cur.data$Time[cur.data$fTwilight==i]), min(cur.data$Time[cur.data$fTwilight==i])))
@@ -516,7 +516,7 @@ if (plot) hist(log(cur.slope$slope))
 
 cur.slope.int<-cur.slope[is.finite(log(cur.slope$slope)),]
 
-Parameters<-list(Intercept=c(mean(cur.slope.int$Intercept, na.rm=TRUE), sd(cur.slope.int$Intercept, na.rm=TRUE)), LogSlope=c(mean(log(cur.slope.int$slope), na.rm=TRUE), sd(log(cur.slope.int$slope), na.rm=TRUE)), LogSigma=c(mean(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)])), sd(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope.int$sd, na.rm=TRUE), calibration.type=calibration.type)
+Parameters<-list(Intercept=c(mean(cur.slope.int$Intercept, na.rm=TRUE), stats::sd(cur.slope.int$Intercept, na.rm=TRUE)), LogSlope=c(mean(log(cur.slope.int$slope), na.rm=TRUE), stats::sd(log(cur.slope.int$slope), na.rm=TRUE)), LogSigma=c(mean(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)])), stats::sd(log(cur.slope.int$Sigma[!is.na(cur.slope.int$sd)]))), mean.of.individual.slope.sigma=mean(cur.slope.int$sd, na.rm=TRUE), calibration.type=calibration.type)
 
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 #cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=mean)[,2]
@@ -600,16 +600,16 @@ if (model.ageing) {
 All.slopes.int<-All.slopes
 All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
 Time.start=min(c(Twilight.time.mat.Calib.dusk, Twilight.time.mat.Calib.dawn))
-Model=lm(logSlope~I(Time-Time.start), data=All.slopes.int$Slopes)
+Model=stats::lm(logSlope~I(Time-Time.start), data=All.slopes.int$Slopes)
 Model$Time.start<-Time.start
-calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*sd(residuals(Model))*sqrt(length(residuals(Model))))]
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*stats::sd(stats::residuals(Model))*sqrt(length(stats::residuals(Model))))]
 Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes,log.irrad.borders=log.irrad.borders)
 } else {
 All.slopes.int<-All.slopes
 
 All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$logSlope),]
 
-calib_outliers<-All.slopes.int$Slopes$Time[which(abs(All.slopes.int$Slopes$logSlope-mean(All.slopes.int$Slopes$logSlope, na.rm=TRUE))>3*sd(All.slopes.int$Slopes$logSlope, na.rm=TRUE))]
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(All.slopes.int$Slopes$logSlope-mean(All.slopes.int$Slopes$logSlope, na.rm=TRUE))>3*stats::sd(All.slopes.int$Slopes$logSlope, na.rm=TRUE))]
 
 Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes, log.irrad.borders=log.irrad.borders)
 }
@@ -619,13 +619,13 @@ return(Res)
 
 suggest.irrad.boundaries<-function(Calib.data.all, leave.out=0.01) {
 
-   Model<-lm(LogLight~LogIrrad + fDay, data=Calib.data.all)
+   Model<-stats::lm(LogLight~LogIrrad + fDay, data=Calib.data.all)
 
    MinLight<-round(min(Calib.data.all$LogLight),1)
-   Left.border<- -(coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], leave.out) - MinLight)*coef(Model)[2]
+   Left.border<- -(stats::coef(Model)[1] + stats::quantile(stats::coef(Model)[3:length(stats::coef(Model))], leave.out) - MinLight)*stats::coef(Model)[2]
 
    MaxLight<-round(max(Calib.data.all$LogLight),1)
-   Right.border<-(MaxLight- (coef(Model)[1] + quantile(coef(Model)[3:length(coef(Model))], 1-leave.out))) *coef(Model)[2]
+   Right.border<-(MaxLight- (stats::coef(Model)[1] + stats::quantile(stats::coef(Model)[3:length(stats::coef(Model))], 1-leave.out))) *stats::coef(Model)[2]
    return(c(Left.border, Right.border))
 }
 
@@ -649,9 +649,9 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
 
    MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=nlme::varExp(form =~ cur_sd))
    # now we check for the outliers..
-   Resid<-resid(MvExp$lme, type='normalized')
+   Resid<-stats::resid(MvExp$lme, type='normalized')
    Outliers<-NULL
-   Outliers<-which(abs(Resid)>3*sd(Resid))
+   Outliers<-which(abs(Resid)>3*stats::sd(Resid))
    if (length(Outliers)>0) {
       Res<-Res[-Outliers,]
       MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=nlme::varExp(form =~ cur_sd))
@@ -686,7 +686,7 @@ time_correction_fun= eval(parse(text=paste("function (x,y) return(", Parameters$
 lat_correction_fun<-function(x, y, z) return(0)
 } else {
 time_correction_fun= function(x, y) return(0)
-lat_correction_fun<-eval(parse(text=paste("function (x,y) return(",  coef(ageing.model)[1], "+", coef(ageing.model)[2], "* (y-",ageing.model$Time.start," ))")))
+lat_correction_fun<-eval(parse(text=paste("function (x,y) return(",  stats::coef(ageing.model)[1], "+", stats::coef(ageing.model)[2], "* (y-",ageing.model$Time.start," ))")))
 }
 c_fun=NULL
 if (likelihood.correction) {

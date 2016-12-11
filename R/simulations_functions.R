@@ -186,10 +186,11 @@ do.linear.regresion<-function(Twilight.ID, start, dusk=TRUE, Twilight.time.mat, 
 		#===========
 		# here I'll check on how many points we have
 			if (length(LogLight) >=2) { 
-			Model<- lm(LogLight~LogIrrad)
+			Model<- stats::lm(LogLight~LogIrrad)
+			Model<- stats::lm(LogLight~LogIrrad)
 			if (verbose) print(summary(Model))
 		# now we need to get the results:
-		Res[1]<-coef(Model)[2] 
+		Res[1]<-stats::coef(Model)[2] 
 		Res[2]<-summary(Model)$sigma
 
 	}}
@@ -626,7 +627,7 @@ for (i in Sigmas) {
 cat(Sigmas, "\n")
 Res_local<-try(get.deltas.intermediate(deltalim=deltalim, start=start, Sigma=i, measurement.period=measurement.period, saving.period=saving.period, short.run=short.run, repeats=repeats, random.delta=random.delta, fast=fast, calibration=calibration, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, min.max.values=min.max.values))
 if (class(Res_local) == "try-error") {
-		save(list = ls(all = TRUE), file=paste("Res", start[2],"tmp.RData", sep="."), envir=environment())
+		save(list = ls(all.names = TRUE), file=paste("Res", start[2],"tmp.RData", sep="."), envir=environment())
 		
 Res<-rbind(Res,cbind(rep(NA, 6), i))
 
@@ -709,14 +710,14 @@ All.slope.runs$cosSolarDec<-Solar$cosSolarDec
 # so let's make it linear
 plot(Slope~cosSolarDec, data=All.slope.runs)
 All.slope.runs<-All.slope.runs[is.finite(All.slope.runs$Slope),]
-Lm2<-lm(Slope~cosSolarDec, data=All.slope.runs)
+Lm2<-stats::lm(Slope~cosSolarDec, data=All.slope.runs)
 #summary(Lm2)
 # ok, so this will be used as a time related pattern
 # I think we should make a function of that and add it to the next step...
 
-time_correction_fun<-approxfun(x=c(0.9, 1), y=predict(Lm2, newdata=data.frame(cosSolarDec=c(0.9, 1))))
+time_correction_fun<-stats::approxfun(x=c(0.9, 1), y=predict(Lm2, newdata=data.frame(cosSolarDec=c(0.9, 1))))
 
-Res<-list(time_correction_fun=time_correction_fun, coef=coef(Lm2), results=All.slope.runs)
+Res<-list(time_correction_fun=time_correction_fun, coef=stats::coef(Lm2), results=All.slope.runs)
 return(Res)
 }
 #
