@@ -715,7 +715,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   #cat("   estimating mean and SD to report dists SD\n")
   # attempt to go just for simple distance estimation...
   Mean2report<-unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
-  SD2report<-unlist(lapply(Distances, FUN=function(x) sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
+  SD2report<-unlist(lapply(Distances, FUN=function(x) stats::sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   cat("   estimating probs of migration\n")
   # ok, now we want to get parameters for distances
   #
@@ -736,7 +736,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   #unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   #plot(Mean.Dists)
   cat("   estimating median dists\n")
-  Median.Dists<-unlist(lapply(Distances, FUN=function(x) median(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
+  Median.Dists<-unlist(lapply(Distances, FUN=function(x) stats::median(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
 
   #unlist(lapply(Distances, FUN=function(x) sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   #plot(Kappas)
@@ -796,15 +796,15 @@ mu.sigma.truncnorm<-function(x, a=45, b=500) {
     tr.norm<-function(prm) {
       sum(-log(truncnorm::dtruncnorm(as.numeric(x),a=a,b=b,mean=prm[1],sd=prm[2])))
     }
-    Res=try(optim(c(mean(x),sd(x)), tr.norm, method="BFGS"))
+    Res=try(optim(c(mean(x),stats::sd(x)), tr.norm, method="BFGS"))
     #if (class(Res)=="try-error") Res=try(optim(c(mean(x),sd(x)), tr.norm,method="SANN"))
     if (class(Res)=="try-error") {
       save(x, Res, file="x.RData")
-      Res$par<-c(mean(x), sd(x))
+      Res$par<-c(mean(x), stats::sd(x))
     }
     return(c(Res$par[1], Res$par[2]))
   } else {
-    return(c(mean(x), sd(x)))
+    return(c(mean(x), stats::sd(x)))
   }
 }
 

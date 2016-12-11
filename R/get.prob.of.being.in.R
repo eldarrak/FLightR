@@ -16,8 +16,8 @@ nParticles<-length(inverse.rle(Result$Results$Points.rle[[1]]))
 find.time<-function(Prob.of.being.in, time, prob.cutoff=0.95, plot=FALSE) {
 P<-Prob.of.being.in-prob.cutoff
 if (plot) {
-plot(Prob.of.being.in~time, type="b", pch="+")
-abline(h= prob.cutoff, col="red")
+graphics::plot(Prob.of.being.in~time, type="b", pch="+")
+graphics::abline(h= prob.cutoff, col="red")
 }
 Transitions= which(sign(P[-length(P)]* P[-1])==-1)
 if (length(Transitions) ==0 ) { 
@@ -26,7 +26,7 @@ if (length(Transitions) ==0 ) {
 	} else {
 		Crossing_time=time[Transitions] + (time[Transitions+1] - time[Transitions])* 
 		(prob.cutoff-Prob.of.being.in[Transitions])/(Prob.of.being.in[Transitions+1]-Prob.of.being.in[Transitions])
-		if (plot) abline(v=Crossing_time, col="red")
+		if (plot) graphics::abline(v=Crossing_time, col="red")
 		return(Crossing_time)
 	}
 }

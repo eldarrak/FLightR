@@ -233,7 +233,7 @@ Filtered_tw <- Filtered_tw[!duplicated(Filtered_tw$datetime),]
 Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
 
 # now I want to pair data and twilights..		  
-Filtered_tw$light<-approx(x=datetime, y=light, xout=Filtered_tw$datetime)$y
+Filtered_tw$light<-stats::approx(x=datetime, y=light, xout=Filtered_tw$datetime)$y
 Filtered_tw$id<-0
 Data<-data.frame(id=1:length(datetime), gmt=datetime, light=light, type=0)
 

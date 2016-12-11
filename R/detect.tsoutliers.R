@@ -192,7 +192,7 @@ x_new<-x
 x_new[exclude]<-NA
 Loess<-stats::loess(y_new~x_new)
 }
-Predict<-predict(Loess)
+Predict<-stats::predict(Loess)
 Predict<-stats::approx(y=Predict[!is.na(x)], x=x[!is.na(x)], xout=x, rule=2)$y
 #Resid<-y-Predict
 Resid<-stats::residuals(Loess)
