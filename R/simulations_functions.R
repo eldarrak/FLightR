@@ -397,7 +397,6 @@ for (k in 1:nrow(Filtered_tw)) {
 		}
 }
 
-#str(All.slopes)
 All.slopes<-as.data.frame(All.slopes)
 names(All.slopes)[1:2]<-c("Slope", "Slope.sd")
 All.slopes$gmt<-as.numeric(Filtered_tw$datetime)
@@ -405,33 +404,15 @@ All.slopes$type<-as.numeric(Filtered_tw$type)
 
 
 All.slopes<-cbind(All.slopes, Track[Row, c("Slope.ideal", "SD.ideal", "Lat")])
-#All.slopes<-All.slopes[-which(All.slopes$Duration<saving.period),]
-#plot(All.slopes$Slope~All.slopes$Duration)
 All.slopes$Slope<- log(All.slopes$Slope)
-if (plot) plot(All.slopes$Slope~All.slopes$Slope.ideal)
-#lm(All.slopes$Slope~All.slopes$Slope.ideal)
-#Gam1<-gam(Slope.ideal~s(Slope, Slope.sd), data=All.slopes)
-
-#predict(Gam1, newdata=data.frame(Slope=0.2, Slope.sd=0.4))
-
-#Gam2<-gam(SD.ideal~s(Slope, Slope.sd), data=All.slopes)
-
-#plot(Gam2)
-#predict(Gam2, newdata=data.frame(Slope=0.2, Slope.sd=0.4))
-
-
-
-#plot(All.slopes$Slope.sd~All.slopes$SD.ideal)
-#lm(All.slopes$Slope.SD~All.slopes$SD.ideal)
+if (plot) graphics::plot(All.slopes$Slope~All.slopes$Slope.ideal)
 
 All.slope.runs<-rbind(All.slope.runs, All.slopes)
-#save(All.slope.runs, file=paste(file.head, "All.slope.runs.RData", sep="."))
 if (plot)  {
-par(mfrow=c(1,2))
-plot((All.slope.runs$Slope)~All.slope.runs$Slope.ideal)
+graphics::par(mfrow=c(1,2))
+graphics::plot((All.slope.runs$Slope)~All.slope.runs$Slope.ideal)
 mean((All.slope.runs$Slope), na.rm=TRUE)
-
-plot(Slope~Lat, data=All.slope.runs)
+graphics::plot(Slope~Lat, data=All.slope.runs)
 }
 }
 return(All.slope.runs)
@@ -538,7 +519,7 @@ Track$light<-exp(Track$LogLight)
 Track$light[Track$light<min.max.values[1]] <-min.max.values[1]
 
 
- if (!short.run & plot) plot(Track$light[5000:6000], type="b", pch=".")
+ if (!short.run & plot) graphics::plot(Track$light[5000:6000], type="b", pch=".")
 
  Track$gmt<-as.POSIXct(Track$Time.seq, tz="gmt", origin="1970-01-01")
 
@@ -708,7 +689,7 @@ All.slope.runs$cosSolarDec<-Solar$cosSolarDec
 
 # ok cos is linarly related!!!
 # so let's make it linear
-plot(Slope~cosSolarDec, data=All.slope.runs)
+graphics::plot(Slope~cosSolarDec, data=All.slope.runs)
 All.slope.runs<-All.slope.runs[is.finite(All.slope.runs$Slope),]
 Lm2<-stats::lm(Slope~cosSolarDec, data=All.slope.runs)
 #summary(Lm2)
@@ -751,17 +732,7 @@ if (class(Model.all)=="try-error") {
 RES<-list(simulations=Res)	
 } else {
 print(summary(Model.all))
-#plot(predict(Model.all, newdata=data.frame(Lat=-90:90, Diff=0))~c(-90:90))
-#lines(predict(Model.all, newdata=data.frame(Lat=-90:90, Diff=0))~c(-90:90))
-#lines(predict(Model.all, newdata=data.frame(cosLat=cos(c(0:90)/180*pi), Diff=0)))
-
-# look slike this si the simplest function something quadratic..
-
-#plot(residuals(Model.all.2)~Res$cosLat)
-#Res.limited<-Res[Res$Diff<2 & Res$Diff>-1.5,]
-
-# let's make an approsfun now...
-lat_correction_fun<-approxfun(y=mgcv::predict.gam(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
+lat_correction_fun<-stats::approxfun(y=mgcv::predict.gam(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
 
 RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
 }
@@ -785,7 +756,6 @@ if (mode=="smart") {
 	
 	Res_min_lat<-Res_min_lat[Res_min_lat$Diff>-8 & Res_min_lat$Diff<8,]
 
-	#plot(Delta~Diff, data=Res_min_lat)
 	Gam_min<-mgcv::gam(Delta~s(Diff, k=3), data=Res_min_lat)
 	Predict_min<-mgcv::predict.gam(Gam_min, se.fit=TRUE, newdata=data.frame(Diff=0))
 	
@@ -793,7 +763,7 @@ if (mode=="smart") {
 	cat("    Done!")	
 
 	cat("estimated delta for 0 degrees is" , round(Predict_min$fit,3),  "+-"  , round(Predict_min$se.fit,3), "\n")
-	plot(Delta~Diff, data=Res_min_lat, col="red")
+	graphics::plot(Delta~Diff, data=Res_min_lat, col="red")
 	abline(v=0, col="red")
 	if ((Predict_min$fit-3*Predict_min$se.fit) < deltalim_initial[1]) stop ("try to correct lower deltalim boundary to a smaller value\n")
 
@@ -813,14 +783,14 @@ if (mode=="smart") {
 	
 	cat("estimated delta for 65 degrees N is" , round(Predict_max$fit,3),  "+-"  , round(Predict_max$se.fit,3), "\n")
 	
-	plot(Delta~Diff, data=Res_max_lat)
-	points(Delta~Diff, data=Res_min_lat, col="red")
-	abline(v=0, col="red")
+	graphics::plot(Delta~Diff, data=Res_max_lat)
+	graphics::points(Delta~Diff, data=Res_min_lat, col="red")
+	graphics::abline(v=0, col="red")
 
 	if ((Predict_max$fit+3*Predict_max$se.fit) > deltalim_initial[2]) stop ("try to correct upper  deltalim boundary to a higher value\n")
 	
- 	plot(Delta~Diff, data=Res_max_lat)
-	points(Delta~Diff, data=Res_min_lat, col="red")
+ 	graphics::plot(Delta~Diff, data=Res_max_lat)
+	graphics::points(Delta~Diff, data=Res_min_lat, col="red")
 	Gam_max<-mgcv::gam(Delta~s(Diff, k=3), data=Res_max_lat)
 	Predict_max<-mgcv::predict.gam(Gam_max, se.fit=TRUE, newdata=data.frame(Diff=0))
 	
@@ -1040,7 +1010,7 @@ deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.
 Tracks <- mapply(append, Tracks, deltas, SIMPLIFY = FALSE)
 Tracks <- lapply(Tracks, FUN=function(x) {names(x)[length(x)]="delta"; return(x)})
 Diffs<-get.all.diffs(Tracks, calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, cluster=cluster)
-plot(Diffs~sapply(Tracks, "[[", i=3))
+graphics::plot(Diffs~sapply(Tracks, "[[", i=3))
 print(Diffs)
 Res<-diffs.ll(Diffs, log=FALSE)
 cat("LL:", Res, "\n")
@@ -1059,10 +1029,9 @@ lat_correction_fun<-approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/
 calibration$lat_correction_fun=lat_correction_fun
 
 Diffs<-get.all.diffs(Tracks, calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, cluster=cluster)
-par(mfrow=c(1,2))
-plot(lat_correction_fun(-85:85)~ c(-85:85))
-
-plot(Diffs~sapply(Tracks, "[[", i=3))
+graphics::par(mfrow=c(1,2))
+graphics::plot(lat_correction_fun(-85:85)~ c(-85:85))
+graphics::plot(Diffs~sapply(Tracks, "[[", i=3))
 Res<-diffs.ll(Diffs, log=FALSE)
 cat("LL:", Res, "\n")
 return(Res)
@@ -1074,19 +1043,19 @@ test.deltas3<-function(params, Tracks, calibration, min.max.values=c(1, 1150), l
 print(params)
 #deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.
 
-lat_correction_fun<-approxfun(y= bs((-85:85), degree=5, Boundary.knots=c(-85,85), intercept=TRUE)%*%params, x=-85:85)
+lat_correction_fun<-stats::approxfun(y= splines::bs((-85:85), degree=5, Boundary.knots=c(-85,85), intercept=TRUE)%*%params, x=-85:85)
 # trying to add knots..
 calibration$lat_correction_fun=lat_correction_fun
 
 Diffs<-get.all.diffs(Tracks, calibration, min.max.values=min.max.values, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, cluster=cluster)
 
-Diff_index<-which(abs(mean(Diffs)-Diffs)<(5*sd(Diffs))) # exclude outliers
+Diff_index<-which(abs(mean(Diffs)-Diffs)<(5*stats::sd(Diffs))) # exclude outliers
 Diffs_cor<-Diffs[Diff_index]
 
-par(mfrow=c(1,2))
-plot(lat_correction_fun(-85:85)~ c(-85:85))
-plot(Diffs~sapply(Tracks, "[[", i=3))
-points(Diffs_cor~sapply(Tracks, "[[", i=3)[Diff_index], col="red", pch="+")
+graphics::par(mfrow=c(1,2))
+graphics::plot(lat_correction_fun(-85:85)~ c(-85:85))
+graphics::plot(Diffs~sapply(Tracks, "[[", i=3))
+graphics::points(Diffs_cor~sapply(Tracks, "[[", i=3)[Diff_index], col="red", pch="+")
 Res<-diffs.ll(Diffs_cor, log=FALSE)
 cat("LL:", Res, "\n")
 return(Res)

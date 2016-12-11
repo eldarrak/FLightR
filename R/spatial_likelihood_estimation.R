@@ -192,10 +192,10 @@ get.probs.nonparam.slope<-function(Slopes, plot=FALSE, calibration=NULL, time_co
 		}
 		}
 		#Probability<-mean(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
-		Probability<-sum(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
+		Probability<-sum(stats::dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
 		if (!is.finite(Probability)) Probability<-0
 		if (Probability<0) Probability<-0
-		if (return.slopes) 	Probability<-c(Probability, mean(Slopes), sd(Slopes))
+		if (return.slopes) 	Probability<-c(Probability, mean(Slopes), stats::sd(Slopes))
 		return(Probability)
 		}
 		
@@ -218,11 +218,8 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
         LogIrrad <- Data[, 2]
         if (length(LogLight) >= 1) {
             if (calibration$Parameters$calibration.type == "parametric.slope") {
-                #Model <- lm(LogLight ~ LogIrrad)
 				Model<-RcppArmadillo::fastLmPure(matrix(c(rep(1,length(LogIrrad)),LogIrrad), ncol=2), LogLight)
 
-                #if (verbose) 
-                  #print(summary(Model))
                 Probability <- get.probs.lm(Model, plot = plot, 
                   calibration = calibration, time_correction = time_correction, 
                   Calib.param = Calib.param, return.slopes = return.slopes, 
@@ -464,21 +461,21 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (verbose) print(Res)
 	# and now we want to return 
 	if (plot) {
-		Coef<-try(coef(lm(Res[,1]~Res[,2])))
+		Coef<-try(stats::coef(stats::lm(Res[,1]~Res[,2])))
 		if (class(Coef)!='try-error') {
-		    plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
+		    graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
 		    print(Coef)
 		} else {
-		   plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
+		   graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
 		}
-		   points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
-		   par(ask = TRUE)
+		   graphics::points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
+		   graphics::par(ask = TRUE)
 	    if (class(Coef)!='try-error') {
-		plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
+		   graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
 		} else {
-		   plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
+		   graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "gmt", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))
 		}
-		par(ask=FALSE)
+		graphics::par(ask=FALSE)
 		if (Coef[1]<(-6)) warning("check twilight at around ", as.POSIXct(Twilight.time.vector[24], tz="gmt", origin="1970-01-01"), " it had strange shading\n")
 
 	}

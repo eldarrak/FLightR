@@ -49,11 +49,11 @@ tsoutliers.test <- function(x,plot=FALSE)
     score <- abs(pmin((resid-limits[1])/iqr,0) + pmax((resid - limits[2])/iqr,0))
     if(plot)
     {
-        plot(x)
+        graphics::plot(x)
         x2 <- ts(rep(NA,length(x)))
         x2[score>0] <- x[score>0]
         tsp(x2) <- stats::tsp(x)
-        points(x2,pch=19,col="red")
+        graphics::points(x2,pch=19,col="red")
         return(invisible(score))
     }
     else
@@ -107,10 +107,10 @@ rm(".Lons.ts", envir=globalenv())
 
 Outliers1_c<-Outliers1$ind[Outliers1$type %in% c("AO", "TC")]
 if (plot) {
-plot(.Lons.ts)
-abline(v=Outliers1$ind, col="black")
-abline(v=Outliers1$ind[Outliers1$type=="AO"], col="blue")
-abline(v=Outliers1$ind[Outliers1$type=="TC"], col="brown")
+graphics::plot(.Lons.ts)
+graphics::abline(v=Outliers1$ind, col="black")
+graphics::abline(v=Outliers1$ind[Outliers1$type=="AO"], col="blue")
+graphics::abline(v=Outliers1$ind[Outliers1$type=="TC"], col="brown")
 }
 return(Outliers1_c)
 }
@@ -148,7 +148,7 @@ if (!is.null(Threads)) {
 	for (i in 1:(dim(Proc.data$Twilight.time.mat.dusk)[2])) {
 	cat(i, "\n")
 	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=TRUE, i))
-	plot(Lons)
+	graphics::plot(Lons)
 	}
 
 	Lons.dusk<-Lons
@@ -159,13 +159,13 @@ if (!is.null(Threads)) {
 	for (i in 1:(dim(Proc.data$Twilight.time.mat.dawn)[2])) {
 	cat(i, "\n")
 	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=FALSE, i))
-	plot(Lons)
+	graphics::plot(Lons)
 	}
 	Lons.dawn<-Lons
 }
 # now I have to optimize Lons in order to find the best cut point
 ll.cut.point<-function(delta, Lons) {
-Res<-log(sd((Lons+delta)%%360))
+Res<-log(stats::sd((Lons+delta)%%360))
 return(Res)
 }
 
@@ -196,7 +196,7 @@ Predict<-predict(Loess)
 Predict<-stats::approx(y=Predict[!is.na(x)], x=x[!is.na(x)], xout=x, rule=2)$y
 #Resid<-y-Predict
 Resid<-stats::residuals(Loess)
-outliers<-sort(c(as.numeric(names(Resid))[(which(abs(Resid)>(sd(Resid)*k)))], exclude))
+outliers<-sort(c(as.numeric(names(Resid))[(which(abs(Resid)>(stats::sd(Resid)*k)))], exclude))
 Res=list(outliers=outliers, center=Predict[outliers])
 return(Res)
 }
@@ -210,11 +210,11 @@ Problematic.Dusks<-loess.filter(x=Proc.data$Twilight.time.mat.dusk[25,], y=Lons.
 Dawn.obvious.outliers<-which(tsoutliers.test(Lons.dawn)>1.5)
 Problematic.Dawns<-loess.filter(x=Proc.data$Twilight.time.mat.dawn[25,], y=Lons.dawn, k=3, exclude=Dawn.obvious.outliers)
 
-par(mfrow=c(2,1))
-plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dusk[25,], tz="UTC", origin="1970-01-01"), y=Lons.dusk, pch="+")
-if (length(Problematic.Dusks$outliers) >0) abline(v=Proc.data$Twilight.time.mat.dusk[25,Problematic.Dusks$outliers])
-plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dawn[25,], tz="UTC", origin="1970-01-01"), y=Lons.dawn, pch="+")
-if (length(Problematic.Dawns$outliers) >0) abline(v=Proc.data$Twilight.time.mat.dawn[25,Problematic.Dawns$outliers])
+graphics::par(mfrow=c(2,1))
+graphics::plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dusk[25,], tz="UTC", origin="1970-01-01"), y=Lons.dusk, pch="+")
+if (length(Problematic.Dusks$outliers) >0) graphics::abline(v=Proc.data$Twilight.time.mat.dusk[25,Problematic.Dusks$outliers])
+graphics::plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dawn[25,], tz="UTC", origin="1970-01-01"), y=Lons.dawn, pch="+")
+if (length(Problematic.Dawns$outliers) >0) graphics::abline(v=Proc.data$Twilight.time.mat.dawn[25,Problematic.Dawns$outliers])
 
 # for these points I'd like to rerun the estimation..
 if (length(Problematic.Dusks$outliers) >0| length(Problematic.Dawns$outliers)>0) {
@@ -246,11 +246,11 @@ Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=FALSE, max.outlier.proportion
 Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=FALSE, max.outlier.proportion=max.outlier.proportion)
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
-par(mfrow=c(2,1))
-plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="UTC", origin="1970-01-01"), main="Dusk")
-if (length(Dusk.outliers)>0) abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
-plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,], tz="UTC", origin="1970-01-01"), main="Dawn")
-if (length(Dawn.outliers)>0) abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
+graphics::par(mfrow=c(2,1))
+graphics::plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="UTC", origin="1970-01-01"), main="Dusk")
+if (length(Dusk.outliers)>0) graphics::abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
+graphics::plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,], tz="UTC", origin="1970-01-01"), main="Dawn")
+if (length(Dawn.outliers)>0) graphics::abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
 }
 Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk
 if (length(Dusk.outliers)>0)  Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk[,-Dusk.outliers]
