@@ -334,10 +334,10 @@ return(Res)
 
 get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=FALSE) {
 	# function from Ekstrom 2007
-	erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
+	erf <- function(x) 2 * stats::pnorm(x * sqrt(2)) - 1
 	## (see Abramowitz and Stegun 29.2.29)
 	## and the so-called 'complementary error function'
-	erfc <- function(x) 2 * pnorm(x * sqrt(2), lower = FALSE)
+	erfc <- function(x) 2 * stats::pnorm(x * sqrt(2), lower = FALSE)
 	## and the inverses
 	#erfinv <- function (x) qnorm((1 + x)/2)/sqrt(2)
 	#erfcinv <- function (x) qnorm(x/2, lower = FALSE)/sqrt(2)
@@ -438,14 +438,14 @@ cur.data<-Calib.data.all
 p.lm1<-stats::lm(LogLight~fTwilight/LogIrrad,data=cur.data)
 cur.slope<-matrix(stats::coef(p.lm1),ncol=2) # foo[,2] - slope
 cur.slope<-as.data.frame(cur.slope)
-Diag<-diag(vcov(p.lm1))
+Diag<-diag(stats::vcov(p.lm1))
 Diag.slopes<-Diag[which(sapply(strsplit(names(Diag), ":"), length)==2)]
 
 cur.slope$sd[!is.na(cur.slope[,2])]<-sqrt(Diag.slopes)
-cur.slope$type<-aggregate(cur.data[,"type"],by=list(Day=cur.data$fTwilight),FUN=function(x) unique(x))[,2]
-cur.slope$time<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
+cur.slope$type<-stats::aggregate(cur.data[,"type"],by=list(Day=cur.data$fTwilight),FUN=function(x) unique(x))[,2]
+cur.slope$time<-stats::aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) x[1])[,2]
 
-cur.slope$Duration<-aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) max(x)-min(x))[,2]
+cur.slope$Duration<-stats::aggregate(cur.data[,"Time"],by=list(Day=cur.data$fTwilight),FUN=function(x) max(x)-min(x))[,2]
 names(cur.slope)[2]<-"slope"
 
 #===========================
@@ -511,7 +511,7 @@ cur.slope$sd<-Slopes.sd
 
 names(cur.slope)[2]<-"slope"
 #=====================
-if (plot) hist(log(cur.slope$slope))
+if (plot) graphics::hist(log(cur.slope$slope))
 
 
 cur.slope.int<-cur.slope[is.finite(log(cur.slope$slope)),]
@@ -602,7 +602,7 @@ All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$log
 Time.start=min(c(Twilight.time.mat.Calib.dusk, Twilight.time.mat.Calib.dawn))
 Model=stats::lm(logSlope~I(Time-Time.start), data=All.slopes.int$Slopes)
 Model$Time.start<-Time.start
-calib_outliers<-All.slopes.int$Slopes$Time[which(abs(residuals(Model))>3*stats::sd(stats::residuals(Model))*sqrt(length(stats::residuals(Model))))]
+calib_outliers<-All.slopes.int$Slopes$Time[which(abs(stats::residuals(Model))>3*stats::sd(stats::residuals(Model))*sqrt(length(stats::residuals(Model))))]
 Res<-list(calib_outliers=calib_outliers, ageing.model=Model, All.slopes=All.slopes,log.irrad.borders=log.irrad.borders)
 } else {
 All.slopes.int<-All.slopes

@@ -670,7 +670,7 @@ All.slope.runs=get.slopes(To.run=To.run.cur, Parameters=parameters, Lat=position
 
 #########
 # LL
-LL=log((mean(All.slope.runs$Slope, na.rm=TRUE)-parameters$LogSlope[1])^2+(sd(All.slope.runs$Slope, na.rm=TRUE)-parameters$LogSlope[2])^2)
+LL=log((mean(All.slope.runs$Slope, na.rm=TRUE)-parameters$LogSlope[1])^2+(stats::sd(All.slope.runs$Slope, na.rm=TRUE)-parameters$LogSlope[2])^2)
 cat("\n\n   ############## LL:", LL, "\n\n")
 return(LL)
 }

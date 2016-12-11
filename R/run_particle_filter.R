@@ -191,7 +191,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     if (any(c(Angles.probs, Dists.probs)<0)) {
       cat("PF produced weird probs \n")
       tmp.out<-list(Angles.probs=Angles.probs, Dists.probs=Dists.probs, Current.Proposal=Current.Proposal, Data=x)
-      save(tmp.out, file=paste("tmp.out", round(runif(n=1,min=1, max=1000)), "RData", sep="."))
+      save(tmp.out, file=paste("tmp.out", round(stats::runif(n=1,min=1, max=1000)), "RData", sep="."))
       Biol.proposal<-pmax.int(Dists.probs*Angles.probs, 0)
     } else {
       Biol.proposal<-Dists.probs*Angles.probs
@@ -629,7 +629,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	
 	cur_Grid[,1]<-ifelse(cur_Grid[,1]<Mode_cur-180, cur_Grid[,1]+360, cur_Grid[,1])
 	Quantiles<-rbind(Quantiles, c(summary(cur_Grid[inverse.rle(Points[[i]]),2]), Mode=cur_Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],2], summary(cur_Grid[inverse.rle(Points[[i]]),1]), Mode=cur_Grid[Points[[i]]$values[which.max(Points[[i]]$lengths)],1]))
-	CIntervals<-rbind(CIntervals, c(quantile(cur_Grid[inverse.rle(Points[[i]]),2], probs = c(0.025, 0.975)), quantile(cur_Grid[inverse.rle(Points[[i]]),1], probs = c(0.025, 0.975))))
+	CIntervals<-rbind(CIntervals, c(stats::quantile(cur_Grid[inverse.rle(Points[[i]]),2], probs = c(0.025, 0.975)), stats::quantile(cur_Grid[inverse.rle(Points[[i]]),1], probs = c(0.025, 0.975))))
 	}
 	Quantiles<-as.data.frame(Quantiles)
 	names(Quantiles)[1:6]<-paste(names(Quantiles)[1:6], "lat", sep="")
@@ -842,7 +842,7 @@ get.coords.jitter<-function(in.Data) {
 	tmp<-try(apply(coords, 1,  coords.aeqd.jitter, r=JitRadius, n=1 ))
 	jitter_coords<-NULL
 	if (class(tmp)!="try-error") {
-	jitter_coords<-t(sapply(tmp, coordinates))
+	jitter_coords<-t(sapply(tmp, sp::coordinates))
 	}
 	return(jitter_coords)
 }
