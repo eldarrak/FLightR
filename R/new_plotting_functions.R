@@ -142,15 +142,15 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 
 	if (plot.cloud) {
 	 #if (overdateline) Points[,1]<-ifelse(Points[,1]>0, Points[,1]-360, Points[,1])
-	 p<-p+stat_density2d(data=data.frame(Points), aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
+	 p<-p+ ggplot2::stat_density2d(data=data.frame(Points), ggplot2::aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
 	 
-	 p<-p+ scale_fill_gradient(low = "green", high = "red") 
-	 p<-p+ scale_alpha(range = c(0.00, 0.25), guide = FALSE) 
+	 p<-p+ ggplot2::scale_fill_gradient(low = "green", high = "red") 
+	 p<-p+ ggplot2::scale_alpha(range = c(0.00, 0.25), guide = FALSE) 
      }
-	 p<-p+coord_map(projection="mercator", 
+	 p<-p+ggplot2::coord_map(projection="mercator", 
      xlim=c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon),
      ylim=c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat)) +
-     theme(legend.position = "none", axis.title = element_blank(), text = element_text(size = 12))
+     ggplot2::theme(legend.position = "none", axis.title = ggplot2::element_blank(), text = ggplot::element_text(size = 12))
     
     # here I plot track for selected dates
 	
@@ -167,13 +167,13 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 	
 	}
 	for (segment in 1:Total_segments) {
-       p<-p+ geom_path(data=Points2plot[cur_twilights,],aes(x=lon,y=lat),  colour=grey(0.3))
+       p<-p+ ggplot2::geom_path(data=Points2plot[cur_twilights,],ggplot2::aes(x=lon,y=lat),  colour=grDevices::grey(0.3))
 	   if (seasonal.colors) {
 		  Seasonal_palette<-colorRampPalette(hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
           Days<-as.integer(format(Result$Results$Quantiles$time[cur_twilights], "%j"))
-		  p<-p+geom_point(data=Points2plot[cur_twilights,], shape=21,  colour=grey(0.3), bg=Seasonal_palette(365)[Days])
+		  p<-p+ggplot2::geom_point(data=Points2plot[cur_twilights,], shape=21,  colour=grDevices::grey(0.3), bg=Seasonal_palette(365)[Days])
 	   } else {
-		  p<-p+geom_point(data=Points2plot[cur_twilights,], shape="+",  colour=grey(0.3))
+		  p<-p+ggplot2::geom_point(data=Points2plot[cur_twilights,], shape="+",  colour=grDevices::grey(0.3))
 	   }
 	}
 	
@@ -531,7 +531,7 @@ if (is.null(background)) {
 	geom_path.options$linetype<- geom_polygon.options$linetype
 	geom_polygon.options$linetype=0
 	
-	geom_polygon.options$mapping=aes(x=long, y=lat, group=group)
+	geom_polygon.options$mapping=ggplot2::aes(x=long, y=lat, group=group)
 	geom_path.options$mapping=geom_polygon.options$mapping
 	
 	geom_polygon.options$data=buff_cur
@@ -579,7 +579,7 @@ seasonal_donut<-function() {
    pie.data$ymax = cumsum(pie.data$fraction)
    pie.data$ymin = c(0, head(pie.data$ymax, n = -1))
    
-   donut<-ggplot(data = pie.data, aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
+   donut<-ggplot(data = pie.data, ggplot2::aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
       geom_rect(colour = "grey30", show.legend = FALSE) +
       coord_polar(theta = "y", start=pi) +
       xlim(c(0, 2)) +
@@ -591,7 +591,7 @@ seasonal_donut<-function() {
       theme(axis.ticks=element_blank()) +
       theme(panel.border=element_blank()) +
 	  scale_fill_manual(values=c(Seasonal_palette(13)))+
-      geom_text(aes(x = 1.5, y = ((ymin+ymax)/2), label = group), colour=grey(0.99), size=5) +
+      geom_text(ggplot2::aes(x = 1.5, y = ((ymin+ymax)/2), label = group), colour=grey(0.99), size=5) +
       xlab("") +
       ylab("") 
 	  return(donut)

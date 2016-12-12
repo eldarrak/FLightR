@@ -74,7 +74,7 @@ otypes <- c("AO", "TC", "LS")
 
 # I want to limit cval to allow it no more than 10% of outliers.. this could become a parameter later on..
 
-mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100)
+mo2 <- tsoutliers::locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100)
 
 # if 
 
@@ -83,7 +83,7 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100)
  cat("adjusting cval down\n")
  while(nrow(mo2$outliers)<length(Lons)*0.075) {
  Cval=Cval*0.95
- mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
+ mo2 <- tsoutliers::locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
  } 
  cat("cval adjusted to", Cval, "\n")
  }
@@ -92,7 +92,7 @@ mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100)
  cat("adjusting cval up\n")
  while(nrow(mo2$outliers)>length(Lons)*max.outlier.proportion) {
  Cval=Cval*1.05
- mo2 <- locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
+ mo2 <- tsoutliers::locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
  } 
  cat("cval adjusted to", Cval, "\n")
  }

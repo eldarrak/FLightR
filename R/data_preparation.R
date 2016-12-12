@@ -635,10 +635,10 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    for (i in 1:npoints) {
    	  cat('\r simulation:  ', round(i/npoints*100), '%', sep='')
 	  cat('\r')
-      cur_mean<-runif(300, cur_mean_range[1], cur_mean_range[2])
-	  cur_sd<-runif(1, cur_sd_range[1], cur_sd_range[2])
-      Cur_max_real<- optimize(f=function(x) 
-	        mean(dlnorm(rnorm(200000,x , cur_sd),calib_log_mean, calib_log_sd)),
+      cur_mean<-stats::runif(300, cur_mean_range[1], cur_mean_range[2])
+	  cur_sd<-stats::runif(1, cur_sd_range[1], cur_sd_range[2])
+      Cur_max_real<- stats::optimize(f=function(x) 
+	        mean(stats::dlnorm(stats::rnorm(200000,x , cur_sd),calib_log_mean, calib_log_sd)),
 			interval=cur_mean_range, maximum = TRUE)$maximum
       Res<-rbind(Res, cbind(calib_log_mean, calib_log_sd, cur_sd, cur_mean_max=Cur_max_real))
    }
