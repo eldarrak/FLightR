@@ -278,7 +278,7 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    Vert_grid<-Vert_grid[Vert_grid>=min(Quantiles$time) & Vert_grid<=max(Quantiles$time)]
   
    #Longitude
-   graphics::plot(Quantiles$Medianlon~Quantiles$time, las=1,col=rDevices::grey(0.1),pch=16,
+   graphics::plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grDevices::grey(0.1),pch=16,
       ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
       Quantiles$UCI.lon )), type="n", axes=FALSE)
    graphics::axis(2, las=1)
@@ -288,39 +288,39 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    #################
    # add vertical lines for the first day of every month
    
-   graphics::abline(v=Vert_grid, col=rDevices::grey(0.5), lty=2)
-   graphics::abline(h=seq(-180, 360, by=10), col=rDevices::grey(0.5), lty=2)
+   graphics::abline(v=Vert_grid, col=grDevices::grey(0.5), lty=2)
+   graphics::abline(h=seq(-180, 360, by=10), col=grDevices::grey(0.5), lty=2)
    
    graphics::abline(v=eq, col=2, lwd=2, lty=1)
   
 
    graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)), 
       y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
-      col=grDevices::grey(0.9), border=rDevices::grey(0.5))
+      col=grDevices::grey(0.9), border=grDevices::grey(0.5))
 
    graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)),
    y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
-   col=rDevices::grey(0.7), border=rDevices::grey(0.5))
+   col=grDevices::grey(0.7), border=grDevices::grey(0.5))
 
-   graphics::lines(Quantiles$Medianlon~Quantiles$time, col=rDevices::grey(0.1),lwd=2)
+   graphics::lines(Quantiles$Medianlon~Quantiles$time, col=grDevices::grey(0.1),lwd=2)
    
 
    #Latitude
    graphics::par(mar=c(3,4,1,1))
    
-   graphics::plot(Quantiles$Medianlat~Quantiles$time, las=1,col=rDevices::grey(0.1),
+   graphics::plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grDevices::grey(0.1),
      pch=16,ylab="Latitude",xlab="",lwd=2,
      ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n", axes=FALSE)
    graphics::axis(2, las=1)
    graphics::axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
    graphics::box()
-   graphics::abline(v=Vert_grid, col=rDevices::grey(0.5), lty=2)
-   graphics::abline(h=seq(-80, 80, by=10), col=rDevices::grey(0.5), lty=2)
+   graphics::abline(v=Vert_grid, col=grDevices::grey(0.5), lty=2)
+   graphics::abline(h=seq(-80, 80, by=10), col=grDevices::grey(0.5), lty=2)
 
    graphics::abline(v=eq, col=2, lwd=2, lty=1)
 
    graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
-           col=grDevices::grey(0.9), border=rDevices::grey(0.5))
+           col=grDevices::grey(0.9), border=grDevices::grey(0.5))
 
    graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
            col=grDevices::grey(0.7), border=grDevices::grey(0.5))
