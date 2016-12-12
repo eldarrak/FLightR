@@ -115,7 +115,7 @@ get.distance.to.water<-function(Points) {
 
   
    load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-   wrld_simpl_l <- as(wrld_simpl, 'SpatialLines')
+   wrld_simpl_l <- methods::as(wrld_simpl, 'SpatialLines')
 
    Potential_water<-is.na(sp::over(
         sp::spTransform(Sp.All.Points.Focus, sp::CRS("+proj=longlat +datum=WGS84")),

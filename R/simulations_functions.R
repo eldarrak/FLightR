@@ -21,7 +21,7 @@ cat("   saving file\n")
 lig.data<-cbind(format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%d/%m/%Y"), format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%H:%M:%S"), round(exp(Track$LogLight)))
 
 File.name<-tempfile(pattern = "sim.no.move.", tmpdir = getwd(), fileext = ".csv")
-write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
+utils::write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
 
 ## no I wnat to work with the simulated data.
 
@@ -37,7 +37,7 @@ try(unlink(File.name))
 # new trick - let's try to load the real track
 cat("   GeoLight step\n")
 
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3)
+tw <- GeoLight::twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3)
 
 #save(tw, file="tw.sim.no.move.RData")
 #load("tw.sim.no.move.RData")
@@ -54,8 +54,8 @@ cat("automatically detected twilight:\n")
 print(table(GLtab[,3]))
  if (abs(diff(table(GLtab[,3])))>5 & ask) {
 cat ("more than 5 twilights were detected incorrectly.. please do the selection by hand\n")
-try(dev.off())
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=TRUE, LightThreshold=3, nsee=1000)
+try(grDevices::dev.off())
+tw <- GeoLight::twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=TRUE, LightThreshold=3, nsee=1000)
 save(tw, file=paste("tw.Lat", start[2], "attempt1.RData" , sep="."))
 GLtab   <- tw[[2]]
 } else {
@@ -69,9 +69,9 @@ GLtab[Index[Index%%2==0],3]<-round(mean(GLtab[Index[Index%%2==0],3]))
 #==============================================================
 # here is a brunch for geolight
 if(GeoLight) {
-GLtab_shifted <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3, maxLight=saving.period/60)[[2]]
-Elevation<-getElevation(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, known.coord=start, plot=FALSE)
-positionsGeoLight <- coord(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, degElevation=Elevation)
+GLtab_shifted <- GeoLight::twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3, maxLight=saving.period/60)[[2]]
+Elevation<-GeoLight::getElevation(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, known.coord=start, plot=FALSE)
+positionsGeoLight <- GeoLight::coord(GLtab_shifted$tFirst, GLtab_shifted$tSecond, GLtab_shifted$type, degElevation=Elevation)
 positionsGeoLight<-as.data.frame(positionsGeoLight)
 positionsGeoLight$tFirst<-GLtab_shifted$tFirst
 #tripMap(positionsGeoLight)
@@ -95,7 +95,7 @@ Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
 #
 
 # now I want to pair data and twilights..		  
-Filtered_tw$light<-approx(x=Track$gmt, y=Track$light, xout=Filtered_tw$datetime)$y
+Filtered_tw$light<-stats::approx(x=Track$gmt, y=Track$light, xout=Filtered_tw$datetime)$y
 Filtered_tw$id<-0
 Track$type.real<-Track$type
 Track$type<-0
@@ -266,7 +266,7 @@ All.slope.runs<-c()
 if (is.null(Lat.initial)) {
 	
 	if (ncol(To.run.initial)==2) { 
-		To.run$Latitude<-round(runif(nrow(To.run), -55, 55))
+		To.run$Latitude<-round(stats::runif(nrow(To.run), -55, 55))
 		} else {
 		cat("latitudes were provided with To.run object \n")
 		}
@@ -297,7 +297,7 @@ Track<-simulate.track(measurement.period=measurement.period, saving.period=savin
 # estimation
 #====================================
 # this is the estimation part, so it should be after the generation part..
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3)
+tw <- GeoLight::twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=3)
 
 # now we want to solve the equation for every day..
 GLtab   <- tw[[2]] # Table to proceed with GeoLight
@@ -321,7 +321,7 @@ Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
 #
 
 # now I want to pair data and twilights..		  
-Filtered_tw$light<-approx(x=Track$gmt, y=Track$light, xout=Filtered_tw$datetime)$y
+Filtered_tw$light<-stats::approx(x=Track$gmt, y=Track$light, xout=Filtered_tw$datetime)$y
 Filtered_tw$id<-0
 Track$type.real<-Track$type
 Track$type<-0
@@ -500,7 +500,7 @@ Track$LogLight<-NA
 	for (j in unique(Track$Day)) {
 		
 		Current.sample.size<-length(which((Track$Day==j)))
-		Current.values<- log(Track$Irradiance[Track$Day==j])*exp(rnorm(1, (Track$Slope.ideal[Track$Day==j][1]) , Track$SD.ideal[Track$Day==j][1]))  + rnorm(1, Parameters$Intercept[1], Parameters$Intercept[2]) + rnorm(Current.sample.size, 0, exp(rnorm(1,  Parameters$LogSigma[1], Parameters$LogSigma[2])))
+		Current.values<- log(Track$Irradiance[Track$Day==j])*exp(stats::rnorm(1, (Track$Slope.ideal[Track$Day==j][1]) , Track$SD.ideal[Track$Day==j][1]))  + stats::rnorm(1, Parameters$Intercept[1], Parameters$Intercept[2]) + rnorm(Current.sample.size, 0, exp(stats::rnorm(1,  Parameters$LogSigma[1], Parameters$LogSigma[2])))
 
 		# plot(Current.values)
 		# and now we need to add these valeus to the lines
@@ -585,9 +585,9 @@ if (return.all.out) {return(all.out)
 get.deltas.intermediate<-function(deltalim=c(-0.2, 0.2), start=c(0,0), Sigma=0.5, measurement.period=60, saving.period=600, short.run=TRUE, repeats=3, random.delta=TRUE, fast=FALSE, calibration=NULL, log.light.borders=log(c(2,64)), log.irrad.borders, min.max.values=c(0,64)) {
 	if (random.delta) {
 		if (fast) {
-			Deltas<-rep(runif(5, deltalim[1], deltalim[2]), repeats)
+			Deltas<-rep(stats::runif(5, deltalim[1], deltalim[2]), repeats)
 		} else {
-			Deltas<-rep(runif(ceiling((deltalim[2]-deltalim[1])/0.02), deltalim[1], deltalim[2]), repeats)
+			Deltas<-rep(stats::runif(ceiling((deltalim[2]-deltalim[1])/0.02), deltalim[1], deltalim[2]), repeats)
 		}
 	} else {
 	Deltas<-rep(seq(deltalim[1], deltalim[2], 0.01), repeats)
@@ -635,7 +635,7 @@ if (is.character(deltalim)) deltalim=get("deltalim")
 # points means number of latitudes that should be used for the run..
 # the question is what we have to download before we can run this on cluster
 mycl<-parallel::makeCluster(threads)
-Lats<-runif(points, min(limits), max(limits))
+Lats<-stats::runif(points, min(limits), max(limits))
 Coords<-cbind(0, Lats)
     tmp<-parallel::clusterSetRNGStream(mycl)
     ### we don' need to send all parameters to node. so keep it easy..
@@ -680,7 +680,7 @@ return(LL)
 get.time.correction.function<-function(parameters, measurement.period=60, saving.period=NULL, position, log.light.borders=log(c(2,64)), Repeats=2, min.max.values=c(0,64), log.irrad.borders=c(-15, 50)) {
 # as far as we do not provide time the slope function will runf for the whole year.
 
-To.run<-expand.grid(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2]) #
+To.run<-expand.grid(Slope.ideal=parameters$LogSlope_1_minute[1], SD.ideal=parameters$LogSlope_1_minute[2]) #
 All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, short.run=FALSE, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
 
 Solar<-solar.FLightR(as.POSIXct(All.slope.runs$gmt, tz="UTC", origin="1970-01-01"))
@@ -696,7 +696,7 @@ Lm2<-stats::lm(Slope~cosSolarDec, data=All.slope.runs)
 # ok, so this will be used as a time related pattern
 # I think we should make a function of that and add it to the next step...
 
-time_correction_fun<-stats::approxfun(x=c(0.9, 1), y=predict(Lm2, newdata=data.frame(cosSolarDec=c(0.9, 1))))
+time_correction_fun<-stats::approxfun(x=c(0.9, 1), y=stats::predict(Lm2, newdata=data.frame(cosSolarDec=c(0.9, 1))))
 
 Res<-list(time_correction_fun=time_correction_fun, coef=stats::coef(Lm2), results=All.slope.runs)
 return(Res)
@@ -711,16 +711,16 @@ if (!mode %in% c("trial", "brute", "smart")) stop ("mode could be one of - trial
 if (mode=="trial") {
 	deltalim=c(0.15, 0.16)
 	cat("deltalim set to ", deltalim, "\n")
-	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,  random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
+	Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=2, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders,  random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 	Res<-as.data.frame(Res)
-	print(str(Res))
+	print(utils::str(Res))
 	names(Res)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res$cosLat<-cos(Res$Lat/180*pi)
 	RES<-list(simulations=Res)
 }
 if (mode=="brute") {
 # real run
-Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
+Res<-get.deltas.parallel(deltalim=deltalim, limits=c(-65,65), points=70, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 #=======
 # !!! idealy there should be a check that will make sure that active variation occured at the deltalim specified
 #=======
@@ -748,7 +748,7 @@ if (mode=="smart") {
 
 	Points<-ifelse(threads<7, 7, threads) # how many repeats to run..
 
-	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
+	Res_min_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(0,0), points=Points, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 	Res_min_lat<-as.data.frame(Res_min_lat)
 	names(Res_min_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res_min_lat$cosLat<-cos(Res_min_lat$Lat/180*pi)
@@ -764,12 +764,12 @@ if (mode=="smart") {
 
 	cat("estimated delta for 0 degrees is" , round(Predict_min$fit,3),  "+-"  , round(Predict_min$se.fit,3), "\n")
 	graphics::plot(Delta~Diff, data=Res_min_lat, col="red")
-	abline(v=0, col="red")
+	graphics::abline(v=0, col="red")
 	if ((Predict_min$fit-3*Predict_min$se.fit) < deltalim_initial[1]) stop ("try to correct lower deltalim boundary to a smaller value\n")
 
 	
  cat("...estimating compensation at latitude 65")
-	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
+	Res_max_lat<-get.deltas.parallel(deltalim=deltalim_initial, limits=c(65,65), points=Points, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 	Res_max_lat<-as.data.frame(Res_max_lat)
 	names(Res_max_lat)<-c("Diff", "Sigma", "Delta", "Lat", "Diff.first", "Diff.second", "Sigma.init")
 	Res_max_lat<-Res_max_lat[Res_max_lat$Diff>-8 & Res_max_lat$Diff<8,]
@@ -807,7 +807,7 @@ if (mode=="smart") {
 	
 	Points<-(50%/%threads)*threads # how many repeats to run..
 	
-	Res<-get.deltas.parallel(deltalim=deltalim_corrected, limits=c(-65,65), points=Points, Sigmas=sigma, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
+	Res<-get.deltas.parallel(deltalim=deltalim_corrected, limits=c(-65,65), points=Points, Sigmas=Sigmas, measurement.period=measurement.period, saving.period=saving.period, short.run=TRUE, threads=threads, log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, random.delta=TRUE, calibration=calibration, min.max.values=min.max.values)
 
 	cat(" ... done!")
 	Res<-as.data.frame(Res)
@@ -828,7 +828,7 @@ if (mode=="smart") {
 	RES<-list(simulations=Res)	
 	} else {
 	print(summary(Model.all))
-	lat_correction_fun<-approxfun(y=mgcv::predict.gam(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
+	lat_correction_fun<-stats::approxfun(y=mgcv::predict.gam(Model.all, newdata=data.frame(cosLat=cos(c(-90:90)/180*pi), Diff=0)), x=-90:90)
 
 	RES<-list(simulations=Res, lat_correction_fun=lat_correction_fun)
 	
@@ -859,7 +859,7 @@ cat("   saving file\n")
 lig.data<-cbind(format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%d/%m/%Y"), format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%H:%M:%S"), round(exp(Track$LogLight)))
 
 File.name<-tempfile(pattern = "sim.no.move.", tmpdir = getwd(), fileext = ".csv")
-write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
+utils::write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
 
 ## no I wnat to work with the simulated data.
 cat("   reading file\n")
@@ -873,7 +873,7 @@ try(unlink(File.name))
 # new trick - let's try to load the real track
 cat("   GeoLight step\n")
 
-tw <- twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=log.light.borders[1]+1)
+tw <- GeoLight::twilightCalc(Track$gmt, Track$light, allTwilights=TRUE, ask=FALSE, LightThreshold=log.light.borders[1]+1)
 GLtab   <- tw[[2]] # Table to proceed with GeoLight
 cat("automatically detected twilight:\n")
 print(table(GLtab[,3]))
@@ -890,7 +890,7 @@ Filtered_tw <- Filtered_tw[!duplicated(Filtered_tw$datetime),]
 Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
 
 # now I want to pair data and twilights..		  
-Filtered_tw$light<-approx(x=Track$gmt, y=Track$light, xout=Filtered_tw$datetime)$y
+Filtered_tw$light<-stats::approx(x=Track$gmt, y=Track$light, xout=Filtered_tw$datetime)$y
 Filtered_tw$id<-0
 Track$type.real<-Track$type
 Track$type<-0
@@ -941,19 +941,18 @@ Twilight.log.light.mat.dawn<-Proc.data$Twilight.log.light.mat.dawn
 
 
 get.grid.of.tracks<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=TRUE, min.max.values=c(0, 64), log.light.borders=log(c(2,64)),   Lats, cluster=NULL, first.date="2010-01-01 00:00:00",last.date="2010-03-20 23:59:59") {
-if (!is.null(cluster)) {
+   if (!is.null(cluster)) {
 	#if (threads==-1) threads= detectCores()-1 # selecting all -1 available cores...
 	#cluster<-makeCluster(threads)
 		tmp<-parallel::clusterSetRNGStream(cluster)
 		### we don' need to send all parameters to node. so keep it easy..
 		tmp<-parallel::clusterExport(cluster, c( "simulate.and.prepare.track", "Parameters", "measurement.period","saving.period", "short.run", "min.max.values", "log.light.borders", "first.date", "simulate.track", "last.date"),  envir=environment())
 		tmp<-parallel::clusterEvalQ(cluster, library("FLightR"))
-		tryCatch(Tracks<-parallel::parLapply(cluster, Lats,fun=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date)), finally = parallel::stopCluster(mycl))
-	#stopCluster(mycl)
-} else {
-Tracks<-lapply(Lats,FUN=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date))
-}
-return(Tracks)
+		tryCatch(Tracks<-parallel::parLapply(cluster, Lats,fun=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date)), finally = parallel::stopCluster(cluster))
+   } else {
+        Tracks<-lapply(Lats,FUN=function(x) simulate.and.prepare.track(measurement.period=measurement.period, saving.period=saving.period,  Parameters=Parameters, min.max.values=min.max.values, short.run=short.run, log.light.borders=log.light.borders, Lat=x, first.date=first.date, last.date=last.date))
+   }
+   return(Tracks)
 }
 
 
@@ -1023,7 +1022,7 @@ test.deltas<-function(params, Tracks, Spline, calibration, min.max.values=c(1, 1
 # params are parameters for delta...
 print(params)
 
-lat_correction_fun<-approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/180*pi),cos(3*c(-85:85)/180*pi))%*%params, x=-85:85)
+lat_correction_fun<-stats::approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/180*pi),cos(3*c(-85:85)/180*pi))%*%params, x=-85:85)
 
 # trying to add knots..
 calibration$lat_correction_fun=lat_correction_fun

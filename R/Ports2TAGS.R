@@ -106,7 +106,7 @@ GeoLight2TAGS<-function (raw, gl_twl, threshold, filename=NULL) {
       1, 2, 1)))
    twl <- twl[!duplicated(twl$datetime),]
    twl <- twl[order(twl[, 1]), ]
-   twl$light <- mean(approx(x = raw$datetime, y = raw$light, xout = twl$datetime)$y, na.rm=T)
+   twl$light <- mean(stats::approx(x = raw$datetime, y = raw$light, xout = twl$datetime)$y, na.rm=T)
 
    tmp01 <- merge(raw, twl, all.y = TRUE, all.x = TRUE)
 

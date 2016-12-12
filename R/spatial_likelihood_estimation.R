@@ -110,7 +110,7 @@ get.probs.lm<-function(Model, plot=FALSE, calibration=NULL, time_correction=NULL
 		if (slope.sd==0) {
       		test.Slope=coef.coef[2]
 		} else {
-     		test.Slope<-rnorm(1000, coef.coef[2], slope.sd)
+     		test.Slope<-stats::rnorm(1000, coef.coef[2], slope.sd)
 		}
 		if (is.null(time_correction)) {	
 
@@ -145,7 +145,7 @@ get.probs.lm<-function(Model, plot=FALSE, calibration=NULL, time_correction=NULL
 		#sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
 
 		# correction for both parameters
-		Probability<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
+		Probability<-mean(stats::dlnorm(test.Slope, Expected.mean+delta, Calib.param[2]))
 		#-----------------
 		# new exp correction added 24 Apr 2015
 		#sum<-mean(dlnorm(test.Slope, Expected.mean+delta, Calib.param[2])*test.Slope)
@@ -173,7 +173,7 @@ get.probs.lm<-function(Model, plot=FALSE, calibration=NULL, time_correction=NULL
 		}
 
 			
-get.probs.nonparam.slope<-function(Slopes, plot=FALSE, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=FALSE, Twilight.time.vector=NULL,  delta=0, dusk=TRUE) {
+get.probs.nonparam.slope<-function(Slopes, plot=FALSE, calibration=NULL, time_correction=NULL, Calib.param=NULL, return.slopes=FALSE, Twilight.time.vector=NULL,  delta=0, dusk=TRUE, x=NULL) {
 
 		if (is.null(time_correction)) {	
 
@@ -191,7 +191,6 @@ get.probs.nonparam.slope<-function(Slopes, plot=FALSE, calibration=NULL, time_co
 		delta=calibration$lat_correction_fun(x[2], Twilight.time.vector[13]) # have to check whether we always have time specified...
 		}
 		}
-		#Probability<-mean(dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
 		Probability<-sum(stats::dlnorm(Slopes, Expected.mean+delta, Calib.param[2]))
 		if (!is.finite(Probability)) Probability<-0
 		if (Probability<0) Probability<-0
@@ -239,7 +238,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
             if (return.slopes) 
                 Probability <- c(Probability, NA, NA)
             if (verbose) {
-                print(str(calibration, max.level = 1))
+                print(utils::str(calibration, max.level = 1))
                 cat("calibration$Parameters:\n")
                 print(calibration$Parameters)
             }
