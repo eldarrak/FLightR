@@ -905,9 +905,9 @@ dist.fun<-function(x, Result) {
 }
 
 lazy.result.plot<-function(Result) {
-    plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean poistions")
-    points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
-    lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
+    graphics::plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean poistions")
+    graphics::points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
+    graphics::lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
     load(system.file("data", "wrld_simpl.rda", package = "maptools"))
     sp::plot(wrld_simpl, add=TRUE)
 }

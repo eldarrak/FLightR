@@ -20,14 +20,14 @@
 #' @author Eldar Rakhimberdiev
 #' @export plot_slopes_by_location
 plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto') {
-   old.par <- par(no.readonly = TRUE) 
+   old.par <- graphics::par(no.readonly = TRUE) 
    Calibration.period<-data.frame(
          calibration.start=as.POSIXct("1900-01-01"),
 		 calibration.stop=as.POSIXct("2050-01-01"),
 		 lon=location[1], lat=location[2])
    if (log.light.borders[1]=='auto') log.light.borders<-Proc.data$log.light.borders
    if (log.irrad.borders[1]=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
-   par(old.par)
+   graphics::par(old.par)
    calibration.parameters<-suppressWarnings(get.calibration.parameters(Calibration.period,
          Proc.data, model.ageing=FALSE, 
 		 log.light.borders=log.light.borders,
@@ -376,7 +376,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	Twilight.log.light.mat.Calib.dusk<-Twilight.log.light.mat.Calib.dusk[-25,]
 	# let's try to create Calib.data.all first!!
 	Calib.data.dawn<-data.frame()
-	if (plot.each) par(ask=FALSE)
+	if (plot.each) graphics::par(ask=FALSE)
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
     cat("\r checking dawn", dawn)
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
@@ -404,9 +404,9 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	Calib.data.dusk$type<-"Dusk"
 	Calib.data.all<-rbind(Calib.data.dawn, Calib.data.dusk)
 	if (plot.final) {
-		plot(LogLight~LogIrrad,data=Calib.data.all, type="n")
+		graphics::plot(LogLight~LogIrrad,data=Calib.data.all, type="n")
 		for (Day in unique(Calib.data.all$Day)) {
-		lines(LogLight~LogIrrad, data=Calib.data.all[Calib.data.all$Day==Day,], type="b", pch="+", col=rainbow(length(unique(Calib.data.all$Day)))[Day])
+		graphics::lines(LogLight~LogIrrad, data=Calib.data.all[Calib.data.all$Day==Day,], type="b", pch="+", col=grDevices::rainbow(length(unique(Calib.data.all$Day)))[Day])
 		}
 	}
 	
@@ -527,13 +527,13 @@ return(Res)
 
 
 plot_slopes<-function(all.slopes, ylim=NULL) {
-old.par <- par(no.readonly = TRUE) 
+old.par <- graphics::par(no.readonly = TRUE) 
 #on.exit(par(old.par))
-plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
-lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
-points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
-points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
-lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
+graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
+graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
+graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
+graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
+graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
 #invisible()
 #par(old.par)
 }
@@ -660,8 +660,8 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    c_fun<-stats::approxfun(mgcv::predict.gam(MvExp$gam, newdata=data.frame(cur_sd=XX)) ~XX)
 
    if (plot) {
-      plot(Res[,4]~Res[,3], pch='+', ylab='cur_mean', xlab='cur_sd')
-      lines(exp(Res$calib_log_mean[1])-mgcv::predict.gam(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
+      graphics::plot(Res[,4]~Res[,3], pch='+', ylab='cur_mean', xlab='cur_sd')
+      graphics::lines(exp(Res$calib_log_mean[1])-mgcv::predict.gam(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
 	  }
 	Out<-list(c_fun=c_fun, Res=Res)
 	cat('\r')
@@ -716,7 +716,7 @@ make.result.list<-function(Data, raw.X, raw.Y) {
 	Index<-sapply(raw.X,  FUN=function(x) which.min(abs(as.numeric(Data$d$gmt-x))))
 	Res<-Data$d[Index,]
 	# now I want to adjust time and light
-	Res$light<-approx(x=Data$d$gmt, y=Data$d$light, xout=raw.X)$y
+	Res$light<-stats::approx(x=Data$d$gmt, y=Data$d$light, xout=raw.X)$y
 	Res$gmt<-raw.X
 	Res$Hour<-raw.Y
 	Result<-list(Data=Res)

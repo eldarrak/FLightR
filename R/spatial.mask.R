@@ -54,11 +54,11 @@ make.grid<-function(left=-180, bottom=-90,
 	Grid[,3][Grid[,3]==0]<-probability.of.staying
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
-        plot(Grid, type="n")
+        graphics::plot(Grid, type="n")
 		load(system.file("data", "wrld_simpl.rda", package = "maptools"))
         sp::plot(wrld_simpl, lwd=1.5, add=TRUE)
-        points(Grid[,1:2], pch=".", col="grey", cex=2) 
-        points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
+        graphics::points(Grid[,1:2], pch=".", col="grey", cex=2) 
+        graphics::points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
 	}	
 	attr(Grid,'left') <- left
 	attr(Grid,'bottom') <- bottom

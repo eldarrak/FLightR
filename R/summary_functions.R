@@ -138,13 +138,13 @@ get_stationary_stats<-function(Result, twilights.index) {
 
    All_tmp_1<-(Mode[1,1]-All.longs)%%360
    All_longs.shifted<-ifelse(All_tmp_1>180, All_tmp_1-360,  All_tmp_1)
-   All_longs_sd<-sd(All_longs.shifted)
+   All_longs_sd<-stats::sd(All_longs.shifted)
    Sum_lons_shifted<-summary(All_longs.shifted)
    Sum_lons<-ifelse(Mode[1,1]-Sum_lons_shifted>180, Mode[1,1]-Sum_lons_shifted-360, Mode[1,1]-Sum_lons_shifted)
-   CI_lon_shifted<-quantile(All_longs.shifted, probs = c(0.025, 0.975))
+   CI_lon_shifted<-stats::quantile(All_longs.shifted, probs = c(0.025, 0.975))
    CI_lons<-ifelse(Mode[1,1]-CI_lon_shifted>180, Mode[1,1]-CI_lon_shifted-360, Mode[1,1]-CI_lon_shifted)
    
-   Quantiles<-c(summary(All.lats), SD=sd(All.lats), Mode=Mode[1,2], Sum_lons, SD=All_longs_sd, Mode=Mode[1,1], quantile(All.lats, probs = c(0.025, 0.975)), CI_lons)
+   Quantiles<-c(summary(All.lats), SD=stats::sd(All.lats), Mode=Mode[1,2], Sum_lons, SD=All_longs_sd, Mode=Mode[1,1], stats::quantile(All.lats, probs = c(0.025, 0.975)), CI_lons)
    Quantiles<- as.data.frame(t(Quantiles))
    names(Quantiles)[1:7]<-paste(names(Quantiles)[1:7], "lat", sep="")
    names(Quantiles)[9:15]<-paste(names(Quantiles)[9:15], "lon", sep="")
@@ -176,7 +176,7 @@ get_ZI_distances<-function(Result) {
   
     for (i in 1:length(Result$Results$Transitions.rle)) {
 	   Inverse<-inverse.rle(Distances[[i]])
-       DistancesZI<-rbind(DistancesZI,   c(quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
+       DistancesZI<-rbind(DistancesZI,   c(stats::quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
     }
   
     DistancesZI<-cbind(Departure=as.POSIXct(c(NA,Result$Results$Movement.results$time[-length(Result$Results$Movement.results$time)]), origin=c('1970-01-01'), tz='UTC'), Arrival= as.POSIXct(as.numeric(Result$Results$Movement.results$time), tz='UTC', origin='1970-01-01'), as.data.frame(DistancesZI))

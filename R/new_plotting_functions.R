@@ -382,7 +382,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
    Buff_comb<-Buffers[[1]] 
    if (length(Buffers)>1) {
    for (i in 2:length(Buffers)) {
-       Buff_comb<-gUnion(Buff_comb, Buffers[[i]])
+       Buff_comb<-rgeos::gUnion(Buff_comb, Buffers[[i]])
   }
   }
   Buff_comb_simpl<-rgeos::gSimplify(Buff_comb, tol=0.01, topologyPreserve=TRUE)
