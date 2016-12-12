@@ -55,11 +55,12 @@ test_that('parallel setup works works',  {
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
    
    
-   threads = parallel::detectCores()
-   mycl <- parallel::makeCluster(threads)
+   threads = expectparallel::detectCores()
+   expect_true(threads>0)
+   #mycl <- parallel::makeCluster(threads)
    #tmp<-parallel::clusterSetRNGStream(mycl)
    #tmp<-parallel::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Grid", "calibration"), envir=environment())
-   tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
-   expect_silent(parallel::stopCluster(mycl))
+   #tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
+   #expect_silent(parallel::stopCluster(mycl))
 }
 )

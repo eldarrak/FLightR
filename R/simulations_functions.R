@@ -481,7 +481,8 @@ cat("Solar...")
 S<-solar.FLightR(Time)
 Track.row<-1:dim(Track)[1]
 cat("Angles...")
-Angles<-sapply(Track.row,  FUN=function(x) { elevation(Track[x,1], Track[x, 2], lapply(S, "[", i=x))})
+#Angles<-sapply(Track.row,  FUN=function(x) { elevation(Track[x,1], Track[x, 2], lapply(S, "[", i=x))})
+Angles<-sapply(Track.row,  FUN=function(x) { GeoLight::getElevation(Track[x,1], Track[x, 2], lapply(S, "[", i=x))})
 cat("Irradiance\n")
 # Irradiance
 Irradiance<-sapply(Angles, FUN=function(x) get.Irradiance(x*pi/180))
@@ -500,7 +501,7 @@ Track$LogLight<-NA
 	for (j in unique(Track$Day)) {
 		
 		Current.sample.size<-length(which((Track$Day==j)))
-		Current.values<- log(Track$Irradiance[Track$Day==j])*exp(stats::rnorm(1, (Track$Slope.ideal[Track$Day==j][1]) , Track$SD.ideal[Track$Day==j][1]))  + stats::rnorm(1, Parameters$Intercept[1], Parameters$Intercept[2]) + rnorm(Current.sample.size, 0, exp(stats::rnorm(1,  Parameters$LogSigma[1], Parameters$LogSigma[2])))
+		Current.values<- log(Track$Irradiance[Track$Day==j])*exp(stats::rnorm(1, (Track$Slope.ideal[Track$Day==j][1]) , Track$SD.ideal[Track$Day==j][1]))  + stats::rnorm(1, Parameters$Intercept[1], Parameters$Intercept[2]) + stats::rnorm(Current.sample.size, 0, exp(stats::rnorm(1,  Parameters$LogSigma[1], Parameters$LogSigma[2])))
 
 		# plot(Current.values)
 		# and now we need to add these valeus to the lines

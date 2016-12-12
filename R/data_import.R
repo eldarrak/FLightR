@@ -196,7 +196,7 @@ read.tags.light.twilight<-function(lig.raw, start.date=NULL, end.date=NULL) {
 ##Save that date/light file so it can be read in later##
 ########################################################
 	tmpname<-tempfile(fileext = ".csv")
-	write.table(lig.new, file=tmpname, sep="," , row.names = FALSE, col.names =FALSE,  quote=FALSE)
+	utils::write.table(lig.new, file=tmpname, sep="," , row.names = FALSE, col.names =FALSE,  quote=FALSE)
 	Data<-geologger.read.data(file=tmpname)
 	unlink(x=tmpname)
 #########################################################

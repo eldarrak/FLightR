@@ -35,24 +35,24 @@ tsoutliers.test <- function(x,plot=FALSE)
 {
 # this function is taken from here:
 # http://stats.stackexchange.com/questions/1142/simple-algorithm-for-online-outlier-detection-of-a-generic-time-series
-    x <- as.ts(x)
-    if(frequency(x)>1)
-        resid <- stl(x,s.window="periodic",robust=TRUE)$time.series[,3]
+    x <- stats::as.ts(x)
+    if(stats::frequency(x)>1)
+        resid <- stats::stl(x,s.window="periodic",robust=TRUE)$time.series[,3]
     else
     {
         tt <- 1:length(x)
-        resid <- residuals(loess(x ~ tt))
+        resid <- stats::residuals(stats::loess(x ~ tt))
     }
-    resid.q <- quantile(stats::resid,prob=c(0.25,0.75))
+    resid.q <- stats::quantile(resid,prob=c(0.25,0.75))
     iqr <- diff(resid.q)
     limits <- resid.q + 1.5*iqr*c(-1,1)
     score <- abs(pmin((resid-limits[1])/iqr,0) + pmax((resid - limits[2])/iqr,0))
     if(plot)
     {
         graphics::plot(x)
-        x2 <- ts(rep(NA,length(x)))
+        x2 <- stats::ts(rep(NA,length(x)))
         x2[score>0] <- x[score>0]
-        tsp(x2) <- stats::tsp(x)
+        stats::tsp(x2) <- stats::tsp(x)
         graphics::points(x2,pch=19,col="red")
         return(invisible(score))
     }

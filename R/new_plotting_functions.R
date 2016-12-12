@@ -258,12 +258,12 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    
     }
    if (scheme[1]=="horizontal") {
-      par(mfrow=c(1,2)) 
+      graphics::par(mfrow=c(1,2)) 
    } else {
-      par(mfrow=c(2,1)) 
+      graphics::par(mfrow=c(2,1)) 
    }
  
-   par(mar=c(2,4,3,1),cex=1)
+   graphics::par(mar=c(2,4,3,1),cex=1)
    Sys.setlocale("LC_ALL", "English")  
 
    #------here I have create the equinox dates..
@@ -278,54 +278,54 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    Vert_grid<-Vert_grid[Vert_grid>=min(Quantiles$time) & Vert_grid<=max(Quantiles$time)]
   
    #Longitude
-   plot(Quantiles$Medianlon~Quantiles$time, las=1,col=grey(0.1),pch=16,
+   graphics::plot(Quantiles$Medianlon~Quantiles$time, las=1,col=rDevices::grey(0.1),pch=16,
       ylab="Longitude",xlab="",lwd=2, ylim=range(c( Quantiles$LCI.lon,
       Quantiles$UCI.lon )), type="n", axes=FALSE)
-   axis(2, las=1)
-   axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
-   box()
+   graphics::axis(2, las=1)
+   graphics::axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
+   graphics::box()
 
    #################
    # add vertical lines for the first day of every month
    
-   abline(v=Vert_grid, col=grey(0.5), lty=2)
-   abline(h=seq(-180, 360, by=10), col=grey(0.5), lty=2)
+   graphics::abline(v=Vert_grid, col=rDevices::grey(0.5), lty=2)
+   graphics::abline(h=seq(-180, 360, by=10), col=rDevices::grey(0.5), lty=2)
    
-   abline(v=eq, col=2, lwd=2, lty=1)
+   graphics::abline(v=eq, col=2, lwd=2, lty=1)
   
 
-   polygon(x=c(Quantiles$time, rev(Quantiles$time)), 
+   graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)), 
       y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
-      col=grey(0.9), border=grey(0.5))
+      col=rDevices::grey(0.9), border=rDevices::grey(0.5))
 
-   polygon(x=c(Quantiles$time, rev(Quantiles$time)),
+   graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)),
    y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
-   col=grey(0.7), border=grey(0.5))
+   col=rDevices::grey(0.7), border=rDevices::grey(0.5))
 
-   lines(Quantiles$Medianlon~Quantiles$time, col=grey(0.1),lwd=2)
+   graphics::lines(Quantiles$Medianlon~Quantiles$time, col=rDevices::grey(0.1),lwd=2)
    
 
    #Latitude
-   par(mar=c(3,4,1,1))
+   graphics::par(mar=c(3,4,1,1))
    
-   plot(Quantiles$Medianlat~Quantiles$time, las=1,col=grey(0.1),
+   graphics::plot(Quantiles$Medianlat~Quantiles$time, las=1,col=rDevices::grey(0.1),
      pch=16,ylab="Latitude",xlab="",lwd=2,
      ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n", axes=FALSE)
-   axis(2, las=1)
+   graphics::axis(2, las=1)
    axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
-   box()
-   abline(v=Vert_grid, col=grey(0.5), lty=2)
-   abline(h=seq(-80, 80, by=10), col=grey(0.5), lty=2)
+   graphics::box()
+   graphics::abline(v=Vert_grid, col=rDevices::grey(0.5), lty=2)
+   graphics::abline(h=seq(-80, 80, by=10), col=rDevices::grey(0.5), lty=2)
 
-   abline(v=eq, col=2, lwd=2, lty=1)
+   graphics::abline(v=eq, col=2, lwd=2, lty=1)
 
-   polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
-           col=grey(0.9), border=grey(0.5))
+   graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$LCI.lat, rev(Quantiles$UCI.lat)),
+           col=grDevices::grey(0.9), border=rDevices::grey(0.5))
 
-   polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
-           col=grey(0.7), border=grey(0.5))
+   graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)), y=c(Quantiles$TrdQu.lat, rev(Quantiles$FstQu.lat)),
+           col=grDevices::grey(0.7), border=grDevices::grey(0.5))
 
-   lines(Quantiles$Medianlat~Quantiles$time, col=grey(0.1),lwd=2)
+   graphics::lines(Quantiles$Medianlat~Quantiles$time, col=grDevices::grey(0.1),lwd=2)
 
 }
 
@@ -442,7 +442,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #' @export plot_util_distr
 plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
-if (is.null(color.palette)) color.palette <- colorRampPalette(rev(c("#edf8fb",
+if (is.null(color.palette)) color.palette <- grDevices::colorRampPalette(rev(c("#edf8fb",
                                     "#b3cde3",
 									"#8c96c6",
 									"#88419d")))
@@ -573,27 +573,27 @@ if (is.null(background)) {
 
  
 seasonal_donut<-function() {
-   Seasonal_palette<-colorRampPalette(hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
+   Seasonal_palette<-grDevices::colorRampPalette(grDevices::hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
    pie.data<-data.frame(group=as.factor(c(1:12)), value=rep(1,12))  
    pie.data$fraction = pie.data$value / sum(pie.data$value)
    pie.data$ymax = cumsum(pie.data$fraction)
-   pie.data$ymin = c(0, head(pie.data$ymax, n = -1))
+   pie.data$ymin = c(0, utils::head(pie.data$ymax, n = -1))
    
-   donut<-ggplot2:ggplot(data = pie.data, ggplot2::aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
-      geom_rect(colour = "grey30", show.legend = FALSE) +
-      coord_polar(theta = "y", start=pi) +
+   donut<-ggplot2::ggplot(data = pie.data, ggplot2::aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
+      ggplot2::geom_rect(colour = "grey30", show.legend = FALSE) +
+      ggplot2::coord_polar(theta = "y", start=pi) +
       xlim(c(0, 2)) +
-      theme_bw() + 
-	  theme(plot.background = element_rect(fill = "transparent" ,colour = NA))+
-	  theme(panel.background = element_blank())+
-	  theme(panel.grid=element_blank()) +
-      theme(axis.text=element_blank()) +
-      theme(axis.ticks=element_blank()) +
-      theme(panel.border=element_blank()) +
-	  scale_fill_manual(values=c(Seasonal_palette(13)))+
-      geom_text(ggplot2::aes(x = 1.5, y = ((ymin+ymax)/2), label = group), colour=grey(0.99), size=5) +
-      xlab("") +
-      ylab("") 
+      ggplot2::theme_bw() + 
+	  ggplot2::theme(plot.background = ggplot2::element_rect(fill = "transparent" ,colour = NA))+
+	  ggplot2::theme(panel.background = ggplot2::element_blank())+
+	  ggplot2::theme(panel.grid=ggplot2::element_blank()) +
+      ggplot2::theme(axis.text=ggplot2::element_blank()) +
+      ggplot2::theme(axis.ticks=ggplot2::element_blank()) +
+      ggplot2::theme(panel.border=ggplot2::element_blank()) +
+	  ggplot2::scale_fill_manual(values=c(Seasonal_palette(13)))+
+      ggplot2::geom_text(ggplot2::aes(x = 1.5, y = ((ymin+ymax)/2), label = group), colour=grDevices::grey(0.99), size=5) +
+      ggplot2::xlab("") +
+      ggplot2::ylab("") 
 	  return(donut)
 }
 
@@ -629,7 +629,7 @@ seasonal_donut<-function() {
 #' @author Eldar Rakhimberdiev
 #' @export plot_likelihood
 plot_likelihood<-function(object, date=NULL, twilight.index=NULL) {
-   my.golden.colors <- colorRampPalette(c("white","#FF7100"))
+   my.golden.colors <- grDevices::colorRampPalette(c("white","#FF7100"))
    if (!is.null(date)) {
       date<-as.POSIXct(date, tz='UTC')
       twilight.index<-which.min(abs(object$Indices$Matrix.Index.Table$time-date))
