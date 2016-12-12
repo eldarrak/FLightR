@@ -42,7 +42,7 @@ test_that('make.grid works',  {
    }
 )
 
-test_that('make.prerun.object works',  {
+test_that('parallel setup works works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
    Calibration.periods<-data.frame(
@@ -53,5 +53,15 @@ test_that('make.prerun.object works',  {
    Grid<-make.grid(left=0, bottom=50, right=10, top=56,
      distance.from.land.allowed.to.use=c(-Inf, Inf),
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
-   }
+   
+   
+   threads = parallel::detectCores()
+   mycl <- parallel::makeCluster(threads)
+   tmp<-parallel::clusterSetRNGStream(mycl)
+   tmp<-parallel::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Grid", "calibration"), envir=environment())
+   tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
+   expect_silent(parallel::stopCluster(mycl))
 )
+
+}
+
