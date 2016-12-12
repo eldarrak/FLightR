@@ -59,7 +59,7 @@ test_that('parallel setup works works',  {
    mycl <- parallel::makeCluster(2)
    #tmp<-parallel::clusterSetRNGStream(mycl)
    #tmp<-parallel::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Grid", "calibration"), envir=environment())
-   tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
+   #tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
    expect_silent(parallel::stopCluster(mycl))
 }
 )

@@ -30,7 +30,8 @@ Imports:
     rgdal,
     rgeos,
 	sp,
-	truncnorm
+	truncnorm,
+	tsoutliers	
 License: GPL-3
 ByteCompile: true
 RoxygenNote: 5.0.1
