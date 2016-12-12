@@ -217,7 +217,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' @param start release location (lat, lon).
 #' @param end end of the track location. Will use \code{start} by default. Use NA in case of unknown end point.
 #' @param Calibration Calibration object created by \code{\link{make.calibration}}.
-#' @param threads number of parallel threads to use. default is -1, which means FLightR will use all available threads except 1.
+#' @param threads number of parallel threads to use. default is -1, which means FLightR will use all available threads except 1. NA means sequential evaluation
 #' @param Decision prior for migration probability values from 0 to 1 are allowed
 #' @param Direction Direction prior for direction of migration (in degrees) with 0 pointing to the North
 #' @param Kappa concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prioir for direction for all the track, so is not recommended to be changed
@@ -250,40 +250,42 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' @author Eldar Rakhimberdiev
 #' @export
 make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.1, Direction=0,Kappa=0, M.mean=300, M.sd=500, likelihood.correction=TRUE) {
-if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
-if (length(Direction)>1) stop("Direction has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
-if (length(Kappa)>1) stop("Kappa has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
-if (length(M.mean)>1) stop("M.mean has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
-if (length(M.sd)>1) stop("M.sd has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+   if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+   if (length(Direction)>1) stop("Direction has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+   if (length(Kappa)>1) stop("Kappa has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+   if (length(M.mean)>1) stop("M.mean has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
+   if (length(M.sd)>1) stop("M.sd has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
 
-Processed.light<-make.processed.light.object(Proc.data$FLightR.data)
+   Processed.light<-make.processed.light.object(Proc.data$FLightR.data)
 
-Index.tab<-create.proposal(Processed.light, start=start, Grid=Grid)
-Index.tab$Decision<-Decision # prob of migration
-Index.tab$Direction<- Direction # direction 0 - North
-Index.tab$Kappa<-Kappa # distr concentration 0 means even
-Index.tab$M.mean<- M.mean # distance mu
-Index.tab$M.sd<- M.sd # distance sd
+   Index.tab<-create.proposal(Processed.light, start=start, Grid=Grid)
+   Index.tab$Decision<-Decision # prob of migration
+   Index.tab$Direction<- Direction # direction 0 - North
+   Index.tab$Kappa<-Kappa # distr concentration 0 means even
+   Index.tab$M.mean<- M.mean # distance mu
+   Index.tab$M.sd<- M.sd # distance sd
 
-all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=end)
+   all.in<-geologger.sampler.create.arrays(Index.tab, Grid, start=start, stop=end)
 
-all.in$Calibration<-Calibration
-all.in$Data<-Proc.data$FLightR.data
+   all.in$Calibration<-Calibration
+   all.in$Data<-Proc.data$FLightR.data
 
-#------
-# add spatial ll
-Possible.threads=parallel::detectCores()
-if (threads<=0) Threads=max(Possible.threads+threads, 1)
-if (threads>0) Threads=min(Possible.threads,threads)
-
-Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
-        Proc.data$Twilight.log.light.mat.dusk,
-    Proc.data$Twilight.time.mat.dawn,
-    Proc.data$Twilight.log.light.mat.dawn,
-    threads=Threads, calibration=all.in$Calibration, likelihood.correction=likelihood.correction)
-all.in$Spatial$Phys.Mat<-Phys.Mat
-return(all.in)
+   if (!is.na(threads )) {
+      Possible.threads<-parallel::detectCores()
+      if (threads<=0) Threads<-max(Possible.threads+threads, 1)
+      if (threads>0) Threads<-min(Possible.threads,threads)
+   } else {
+      Possible.threads<-NA
+   }
+   Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
+      Proc.data$Twilight.log.light.mat.dusk,
+      Proc.data$Twilight.time.mat.dawn,
+      Proc.data$Twilight.log.light.mat.dawn,
+      threads=Threads, calibration=all.in$Calibration, likelihood.correction=likelihood.correction)
+   all.in$Spatial$Phys.Mat<-Phys.Mat
+   return(all.in)
 }
+
 
 
    

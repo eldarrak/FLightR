@@ -19,28 +19,41 @@ if (is.character(calibration)) calibration=get("calibration")
 
 
 Grid<-all.out$Spatial$Grid
-
-cat("making cluster\n")
-mycl <- parallel::makeCluster(threads)
-    tmp<-parallel::clusterSetRNGStream(mycl)
-    tmp<-parallel::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Grid", "calibration"), envir=environment())
-    tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
+if (!is.na(threads)) {
+   cat("making cluster\n")
+   mycl <- parallel::makeCluster(threads)
+   tmp<-parallel::clusterSetRNGStream(mycl)
+   tmp<-parallel::clusterExport(mycl,c("Twilight.time.mat.dawn", "Twilight.time.mat.dusk", "Twilight.log.light.mat.dawn", "Twilight.log.light.mat.dusk", "Grid", "calibration"), envir=environment())
+   tmp<-parallel::clusterEvalQ(mycl, library("FLightR")) 
 
 #====================
-tryCatch( {
-cat("estimating dusks\n")
+   tryCatch( {
+      cat("estimating dusks\n")
 
-	Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
+	   Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
-	All.probs.dusk<-parallel::parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
+	   All.probs.dusk<-parallel::parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 		 	
-cat("estimating dawns\n")
+       cat("estimating dawns\n")
 	 
-	Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
-	All.probs.dawn<-parallel::parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
+	   Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
+	   All.probs.dawn<-parallel::parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 	
-	}, finally = parallel::stopCluster(mycl))
+   }, finally = parallel::stopCluster(mycl))
+
+
+} else {
+      cat("estimating dusks\n")
+
+	   Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
+	   All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
+		 	
+       cat("estimating dawns\n")
+	 
+	   Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
+	   All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
+}	
 cat("processing results\n")
 All.probs.dusk.tmp<-All.probs.dusk
 All.probs.dawn.tmp<-All.probs.dawn
@@ -268,9 +281,9 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	#------------------------------------
 	# version 0.3.6 after impute on.boundaries turned to FALSE figured out that there is not cut for low log irradiance so added it here..
 	if (impute.on.boundaries) {
-	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
+    	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
 	} else {
-	NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2] &  LogIrrad>log.irrad.borders[1])
+	    NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2] &  LogIrrad>log.irrad.borders[1])
 	}
 	# here we should make a new cut!
 	# the idea is that we want to find at least two consequent points at the maximum

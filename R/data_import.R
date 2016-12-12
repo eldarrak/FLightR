@@ -258,4 +258,3 @@ geologger.read.data<-function( file) {
 	Data<-list(d=d)
 	return(Data)
 }
-

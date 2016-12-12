@@ -65,10 +65,10 @@ detect.outliers<-function(Lons, plot=TRUE, max.outlier.proportion=0.2) {
     stop("tsoutliers needed for this function to work. Please install it.",
       call. = FALSE)
   }
-.Lons.ts<-tsoutliers::ts(Lons)
+.Lons.ts<-stats::ts(Lons)
 .Lons.ts<<-.Lons.ts
 #fit <- auto.arima(Lons.ts, max.p=1, max.d=1, max.q=0)
-fit <- tsoutliers::arima(.Lons.ts, order=c(1,1,0))
+fit <- stats::arima(.Lons.ts, order=c(1,1,0))
 
 otypes <- c("AO", "TC", "LS")
 
