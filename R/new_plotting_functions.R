@@ -296,7 +296,7 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
    graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)), 
       y=c(Quantiles$LCI.lon, rev(Quantiles$UCI.lon)),
-      col=rDevices::grey(0.9), border=rDevices::grey(0.5))
+      col=grDevices::grey(0.9), border=rDevices::grey(0.5))
 
    graphics::polygon(x=c(Quantiles$time, rev(Quantiles$time)),
    y=c(Quantiles$TrdQu.lon, rev(Quantiles$FstQu.lon)),
@@ -312,7 +312,7 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
      pch=16,ylab="Latitude",xlab="",lwd=2,
      ylim=range(c( Quantiles$UCI.lat, Quantiles$LCI.lat )), type="n", axes=FALSE)
    graphics::axis(2, las=1)
-   axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
+   graphics::axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
    graphics::box()
    graphics::abline(v=Vert_grid, col=rDevices::grey(0.5), lty=2)
    graphics::abline(h=seq(-80, 80, by=10), col=rDevices::grey(0.5), lty=2)

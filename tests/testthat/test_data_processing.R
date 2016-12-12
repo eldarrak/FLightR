@@ -55,7 +55,7 @@ test_that('parallel setup works works',  {
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
    
    
-   threads = expectparallel::detectCores()
+   threads = parallel::detectCores()
    expect_true(threads>0)
    #mycl <- parallel::makeCluster(threads)
    #tmp<-parallel::clusterSetRNGStream(mycl)
