@@ -150,7 +150,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 	 p<-p+ggplot2::coord_map(projection="mercator", 
      xlim=c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon),
      ylim=c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat)) +
-     ggplot2::theme(legend.position = "none", axis.title = ggplot2::element_blank(), text = ggplot::element_text(size = 12))
+     ggplot2::theme(legend.position = "none", axis.title = ggplot2::element_blank(), text = ggplot2::element_text(size = 12))
     
     # here I plot track for selected dates
 	
@@ -169,7 +169,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 	for (segment in 1:Total_segments) {
        p<-p+ ggplot2::geom_path(data=Points2plot[cur_twilights,],ggplot2::aes(x=lon,y=lat),  colour=grDevices::grey(0.3))
 	   if (seasonal.colors) {
-		  Seasonal_palette<-colorRampPalette(hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
+		  Seasonal_palette<-grDevices::colorRampPalette(grDevices::hsv(1-((1:365)+(365/4))%%365/365, s=0.8, v=0.8), space="Lab")
           Days<-as.integer(format(Result$Results$Quantiles$time[cur_twilights], "%j"))
 		  p<-p+ggplot2::geom_point(data=Points2plot[cur_twilights,], shape=21,  colour=grDevices::grey(0.3), bg=Seasonal_palette(365)[Days])
 	   } else {
@@ -181,10 +181,10 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
        Xrange<-c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon)
        Yrange<-c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat)
        d<-seasonal_donut()  
-       g = ggplotGrob(d)
+       g = ggplot2::ggplotGrob(d)
 
     if (seasonal.donut.location=='bottomleft') {
-        p<-p + inset(grob = g, xmin = Xrange[1], xmax = Xrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymin = Yrange[1], ymax = Yrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]))
+        p<-p + ggmap::inset(grob = g, xmin = Xrange[1], xmax = Xrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]), ymin = Yrange[1], ymax = Yrange[1]+seasonal.donut.proportion*(Yrange[2]-Yrange[1]))
     }
 
     if (seasonal.donut.location=='topleft') {
@@ -195,11 +195,11 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
     }
 
     }
-	plot(p)
+	graphics::plot(p)
 	
     if (is.null(save.options)) save.options<-list()
 	if (is.null(save.options$filename)) save.options$filename<-"FLightR.map.pdf"
-	do.call(ggsave, save.options)
+	do.call(ggplot2::ggsave, save.options)
 	if (return.ggobj) return(p)
 	}
 
@@ -579,7 +579,7 @@ seasonal_donut<-function() {
    pie.data$ymax = cumsum(pie.data$fraction)
    pie.data$ymin = c(0, head(pie.data$ymax, n = -1))
    
-   donut<-ggplot(data = pie.data, ggplot2::aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
+   donut<-ggplot2:ggplot(data = pie.data, ggplot2::aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
       geom_rect(colour = "grey30", show.legend = FALSE) +
       coord_polar(theta = "y", start=pi) +
       xlim(c(0, 2)) +
