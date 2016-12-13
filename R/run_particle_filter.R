@@ -903,6 +903,7 @@ lazy.result.plot<-function(Result) {
     graphics::plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean poistions")
     graphics::points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
     graphics::lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
+	wrld_simpl<-NA
     load(system.file("data", "wrld_simpl.rda", package = "maptools"))
     sp::plot(wrld_simpl, add=TRUE)
 }

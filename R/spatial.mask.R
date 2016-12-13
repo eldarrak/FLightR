@@ -55,6 +55,7 @@ make.grid<-function(left=-180, bottom=-90,
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
         graphics::plot(Grid, type="n")
+    	wrld_simpl<-NA
 		load(system.file("data", "wrld_simpl.rda", package = "maptools"))
         sp::plot(wrld_simpl, lwd=1.5, add=TRUE)
         graphics::points(Grid[,1:2], pch=".", col="grey", cex=2) 
@@ -74,7 +75,9 @@ create.land.mask<-function(Points, distance_km=25) {
 distance<-distance_km*1000
 Sp.All.Points.Focus<-sp::SpatialPoints(Points, proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
 #############
-# ok, let's check 
+# ok, let's check
+wrld_simpl<-NA
+ 
 load(system.file("data", "wrld_simpl.rda", package = "maptools"))
 
 Potential_water<-is.na(sp::over( sp::spTransform(Sp.All.Points.Focus, sp::CRS("+proj=longlat +datum=WGS84")), sp::spTransform(wrld_simpl, sp::CRS("+proj=longlat +datum=WGS84")))[,1])
@@ -113,7 +116,7 @@ get.distance.to.water<-function(Points) {
    Sp.All.Points.Focus<-sp::SpatialPoints(Points, 
          proj4string=sp::CRS( "+proj=longlat +datum=WGS84"))
 
-  
+  	wrld_simpl<-NA
    load(system.file("data", "wrld_simpl.rda", package = "maptools"))
    wrld_simpl_l <- methods::as(wrld_simpl, 'SpatialLines')
 
