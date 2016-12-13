@@ -579,7 +579,7 @@ seasonal_donut<-function() {
    pie.data$ymax = cumsum(pie.data$fraction)
    pie.data$ymin = c(0, utils::head(pie.data$ymax, n = -1))
    
-   donut<-ggplot2::ggplot(data = pie.data, ggplot2::aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
+   donut<-ggplot2::ggplot(data = pie.data, ggplot2::aes(fill = pie.data$group, ymax = pie.data$ymax, ymin = pie.data$ymin, xmax = 1, xmin = 2))  +
       ggplot2::geom_rect(colour = "grey30", show.legend = FALSE) +
       ggplot2::coord_polar(theta = "y", start=pi) +
       ggplot2::xlim(c(0, 2)) +
@@ -591,7 +591,7 @@ seasonal_donut<-function() {
       ggplot2::theme(axis.ticks=ggplot2::element_blank()) +
       ggplot2::theme(panel.border=ggplot2::element_blank()) +
 	  ggplot2::scale_fill_manual(values=c(Seasonal_palette(13)))+
-      ggplot2::geom_text(ggplot2::aes(x = 1.5, y = ((ymin+ymax)/2), label = group), colour=grDevices::grey(0.99), size=5) +
+      ggplot2::geom_text(ggplot2::aes(x = 1.5, y = (( pie.data$ymin+ pie.data$ymax)/2), label =  pie.data$group), colour=grDevices::grey(0.99), size=5) +
       ggplot2::xlab("") +
       ggplot2::ylab("") 
 	  return(donut)
