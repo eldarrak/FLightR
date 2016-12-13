@@ -142,6 +142,12 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 
 	if (plot.cloud) {
 	 #if (overdateline) Points[,1]<-ifelse(Points[,1]>0, Points[,1]-360, Points[,1])
+	 
+	 # for r cmd check:
+	 ..level..<-NA
+	 lon<-NA
+	 lat<-NA
+	 #################
 	 p<-p+ ggplot2::stat_density2d(data=data.frame(Points), ggplot2::aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
 	 
 	 p<-p+ ggplot2::scale_fill_gradient(low = "green", high = "red") 
@@ -442,6 +448,12 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #' @export plot_util_distr
 plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
+   # for r cmd check
+   long<-NA
+   lat<-NA
+   group<-NA
+   ## end ##########
+   
 if (is.null(color.palette)) color.palette <- grDevices::colorRampPalette(rev(c("#edf8fb",
                                     "#b3cde3",
 									"#8c96c6",
