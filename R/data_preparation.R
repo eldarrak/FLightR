@@ -245,7 +245,8 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #'   distance.from.land.allowed.to.use=c(-Inf, Inf),
 #'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
 #'
-#' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=2)
+#' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93),
+#'                              Calibration=Calibration, threads=2)
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
