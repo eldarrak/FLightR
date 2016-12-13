@@ -68,31 +68,31 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, parallel=TRUE, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE) {
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
       threads<-cpus
    }
    
+   	all.out$Results<-list()
+    all.out$Results$SD<-vector(mode = "double")
+    all.out$Results$LL<-vector(mode = "double")
+
+  
+   if (threads!=1){
    Possible.threads=parallel::detectCores()
    if (threads<=0) Threads=max(Possible.threads+threads, 1)
    if (threads>0) Threads=min(Possible.threads,threads)
-
-	all.out$Results<-list()
-    all.out$Results$SD<-vector(mode = "double")
-    all.out$Results$LL<-vector(mode = "double")
-	
-  if (parallel) {
     cat("creating cluster with", Threads, "threads")
     mycl <- parallel::makeCluster(Threads, type=cluster.type)
     parallel::clusterSetRNGStream(mycl)
 	parallel::clusterEvalQ(mycl, library("FLightR")) 
 	cat('   Done\n')
 
-  }	else mycl=NA
-    if (parallel) {
     tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers), finally = parallel::stopCluster(mycl))
 	} else {	
+	mycl=NA
+    parallel=FALSE
     Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers)
 	}
     # Part 2. Creating matrix of results.
