@@ -18,7 +18,7 @@ test_that('plot_lon_lat_works',  {
    }
 )
 
-test_that('plot_lon_lat_works',  {
+test_that('map_flightr_ggmap_works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
    Calibration.periods<-data.frame(
@@ -33,6 +33,7 @@ test_that('plot_lon_lat_works',  {
    Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
    # not too clever but it looks like that other ways of graphics test are not stable..
-   expect_silent(plot_lon_lat(Result))
+   p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE)    
+   expect_equal(length(p), 9)
    }
 )
