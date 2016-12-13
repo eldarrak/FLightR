@@ -1,3 +1,4 @@
 #'
-#' @import ggplot2 ggmap
+#' @import ggplot2
 #' @import ggmap
+#' 

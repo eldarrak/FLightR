@@ -217,7 +217,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' @param start release location (lat, lon).
 #' @param end end of the track location. Will use \code{start} by default. Use NA in case of unknown end point.
 #' @param Calibration Calibration object created by \code{\link{make.calibration}}.
-#' @param threads number of parallel threads to use. default is -1, which means FLightR will use all available threads except 1. NA means sequential evaluation
+#' @param threads number of parallel threads to use. default is -1, which means FLightR will use all available threads except 1. Value 1 will force sequential evaluation
 #' @param Decision prior for migration probability values from 0 to 1 are allowed
 #' @param Direction Direction prior for direction of migration (in degrees) with 0 pointing to the North
 #' @param Kappa concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prioir for direction for all the track, so is not recommended to be changed
@@ -270,12 +270,12 @@ make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, thr
    all.in$Calibration<-Calibration
    all.in$Data<-Proc.data$FLightR.data
 
-   if (!is.na(threads )) {
+   if (threads!=1 ) {
       Possible.threads<-parallel::detectCores()
       if (threads<=0) Threads<-max(Possible.threads+threads, 1)
       if (threads>0) Threads<-min(Possible.threads,threads)
    } else {
-      Possible.threads<-NA
+      Threads<-1
    }
    Phys.Mat<-get.Phys.Mat.parallel(all.in, Proc.data$Twilight.time.mat.dusk,
       Proc.data$Twilight.log.light.mat.dusk,

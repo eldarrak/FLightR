@@ -1,4 +1,4 @@
-# spatial_likelihood_estiamtion.R
+# spatial_likelihood_estimation.R
 
 
 get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL, likelihood.correction=TRUE ) {
@@ -19,7 +19,7 @@ if (is.character(calibration)) calibration=get("calibration")
 
 
 Grid<-all.out$Spatial$Grid
-if (!is.na(threads)) {
+if (threads!=1) {
    cat("making cluster\n")
    mycl <- parallel::makeCluster(threads)
    tmp<-parallel::clusterSetRNGStream(mycl)
