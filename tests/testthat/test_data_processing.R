@@ -53,7 +53,7 @@ test_that('parallel setup works works',  {
    Grid<-make.grid(left=0, bottom=50, right=10, top=56,
      distance.from.land.allowed.to.use=c(-Inf, Inf),
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
-   all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=4)
+   all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    expect_equal(dim(all.in$Spatial$Phys.Mat), c(180, 126))
    expect_true(max(all.in$Spatial$Phys.Mat)>1)
 }
