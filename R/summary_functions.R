@@ -35,16 +35,17 @@
 #'            nParticles=1e4, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#' Summary<-stationary.migration.summary(Result)
-
+#' Summary<-stationary.migration.summary(Result, prob.cutoff=0.5)
+#'
 #' @export
 stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Cutoffs<-which(Result$Results$Movement.results$Decision>=prob.cutoff)
-   cat('Cutoffs\n')
-   print(str(Cutoffs))
-   print(length(Cutoffs))
-   cat('-----\n')
-   if (length(Cutoffs)==0 | is.na(Cutoffs)) { 
+   #cat('Cutoffs\n')
+   #print(str(Cutoffs))
+   #print(length(Cutoffs))
+   #print(data.frame(start=unique(c(0, Cutoffs)), end=unique(c(Cutoffs-1, Total_length))))
+   #cat('-----\n')
+   if (length(Cutoffs)==0) { 
       cat('bird likely dod not move, exiting without result\n')
 	  return(NULL)
    } else {
