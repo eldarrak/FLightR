@@ -1,7 +1,7 @@
 Package: FLightR
 Type: Package
 Title: Hidden Markov Model for Solar Geolocation Archival Tags
-Version: 0.4.4
+Version: 0.4.5
 Date: 2016-12-07
 Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contributions from Anatoly
     Saveliev and Julia Karagicheva
@@ -14,26 +14,26 @@ Depends:
 Imports:
     bit,
     ggsn,
-	ggmap,
+    ggmap,
     ggplot2,
     CircStats,
     circular,
-	GeoLight,
-	fields,
-	maptools,
-	methods,
-	mgcv,
-	nlme,
+    GeoLight,
+    fields,
+    maptools,
+    methods,
+    mgcv,
+    nlme,
     parallel,
-	raster,
-	RcppArmadillo,
+    raster,
+    RcppArmadillo,
     rgdal,
     rgeos,
-	sp,
-	truncnorm	
+    sp,
+    truncnorm	
 License: GPL-3
 ByteCompile: true
 RoxygenNote: 5.0.1
 Suggests:
     covr,
-	testthat	
+    testthat
