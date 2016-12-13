@@ -35,7 +35,7 @@
 #'            nParticles=1e4, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#' Summary<-stationary.migration.summary(Result, prob.cutoff=0.5)
+#' Summary<-stationary.migration.summary(Result, prob.cutoff=1)
 #'
 #' @export
 stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {

@@ -73,6 +73,6 @@ test_that('plot_util_distr_works',  {
     all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
     Result<-run.particle.filter(all.in, threads=1,
             nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
-    expect_null(stationary.migration.summary(Result, prob.cutoff=0.5))
+    expect_null(stationary.migration.summary(Result, prob.cutoff=1))
     }
-# )
+ )
