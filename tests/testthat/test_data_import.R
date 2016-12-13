@@ -73,8 +73,8 @@ test_that('GeoLight2TAGS can write',  {
 test_that('get.tags.data works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File)
-   expect_equal(nrow(Proc.data$FLightR.data$Data), 97109)
-   expect_equal(nrow(Proc.data$FLightR.data$twilights), 628)
+   expect_equal(nrow(Proc.data$FLightR.data$Data), 24211)
+   expect_equal(nrow(Proc.data$FLightR.data$twilights), 162)
   }
 )
 
