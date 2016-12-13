@@ -40,10 +40,10 @@
 #' @export
 stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Cutoffs<-which(Result$Results$Movement.results$Decision>=prob.cutoff)
-   #cat('Cutoffs\n')
-   #print(str(Cutoffs))
-   #print(length(Cutoffs))
-   #cat('-----\n')
+   cat('Cutoffs\n')
+   print(str(Cutoffs))
+   print(length(Cutoffs))
+   cat('-----\n')
    if (length(Cutoffs)==0 | is.na(Cutoffs)) { 
       cat('bird likely dod not move, exiting without result\n')
 	  return(NULL)
