@@ -46,7 +46,8 @@ Result<-run.particle.filter(all.in, threads=2,
            nParticles=1e4, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-Summary<-stationary.migration.summary(Result)
+Summary<-stationary.migration.summary(Result, prob.cutoff=0.5)
+
 }
 \author{
 Eldar Rakhimberdiev
