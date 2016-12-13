@@ -19,7 +19,7 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 
 \item{Calibration}{Calibration object created by \code{\link{make.calibration}}.}
 
-\item{threads}{number of parallel threads to use. default is -1, which means FLightR will use all available threads except 1. NA means sequential evaluation}
+\item{threads}{number of parallel threads to use. default is -1, which means FLightR will use all available threads except 1. Value 1 will force sequential evaluation}
 
 \item{Decision}{prior for migration probability values from 0 to 1 are allowed}
 

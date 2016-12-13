@@ -6,17 +6,16 @@
 \usage{
 run.particle.filter(all.out, cpus = NULL, threads = -1,
   nParticles = 1e+06, known.last = TRUE, precision.sd = 25,
-  behav.mask.low.value = 0, k = NA, parallel = TRUE, plot = TRUE,
-  cluster.type = "PSOCK", a = 45, b = 1500, L = 90,
-  adaptive.resampling = 0.99, check.outliers = FALSE, sink2file = FALSE,
-  add.jitter = FALSE)
+  behav.mask.low.value = 0, k = NA, plot = TRUE, cluster.type = "PSOCK",
+  a = 45, b = 1500, L = 90, adaptive.resampling = 0.99,
+  check.outliers = FALSE, sink2file = FALSE, add.jitter = FALSE)
 }
 \arguments{
 \item{all.out}{An object created by \code{\link{make.prerun.object}}.}
 
 \item{cpus}{another way to specify  \code{threads}}
 
-\item{threads}{An amount of threads to use while running in parallel. default is -1.}
+\item{threads}{An amount of threads to use while running in parallel. default is -1. if value 1 submitted package will run sequentially}
 
 \item{nParticles}{total amount of particles to be used with the run. 10 000 (1e4) is recommended for the preliminary run and 1 000 000 (1e6) for the final}
 
@@ -27,8 +26,6 @@ run.particle.filter(all.out, cpus = NULL, threads = -1,
 \item{behav.mask.low.value}{Probability value that will be used instead of 0 in the behavioural mask. If set to 1 behavioural mask will not be active anymore}
 
 \item{k}{Kappa parameter from vonMises distribution. Default is NA, otherwise will generate particles in a direction of a previous transitions with kappa = k}
-
-\item{parallel}{Should function create a cluster and run in parallel?}
 
 \item{plot}{Should function plot preliminary map in the end of the run?}
 

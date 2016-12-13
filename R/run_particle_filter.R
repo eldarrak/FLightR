@@ -5,14 +5,13 @@
 #' 
 #' Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotiing etc.
 #' @param all.out An object created by \code{\link{make.prerun.object}}.
-#' @param threads An amount of threads to use while running in parallel. default is -1.
+#' @param threads An amount of threads to use while running in parallel. default is -1. if value 1 submitted package will run sequentially
 #' @param cpus another way to specify  \code{threads}
 #' @param nParticles  total amount of particles to be used with the run. 10 000 (1e4) is recommended for the preliminary run and 1 000 000 (1e6) for the final
 #' @param known.last Set to FALSE if your bird was not at a known place during last twilight in the data
 #' @param precision.sd if \code{known.last} then what is the precision of this information. Will be used to resample particles prportionally to their ditance from the known last point with probability \code{P = dnorm(0, precision.sd)}
 #' @param behav.mask.low.value Probability value that will be used instead of 0 in the behavioural mask. If set to 1 behavioural mask will not be active anymore
 #' @param k Kappa parameter from vonMises distribution. Default is NA, otherwise will generate particles in a direction of a previous transitions with kappa = k
-#' @param parallel Should function create a cluster and run in parallel?
 #' @param plot Should function plot preliminary map in the end of the run?
 #' @param cluster.type see help to package parallel for details
 #' @param a minimum distance that is used in the movement model - left boundary for truncated normal distribtuon of ditances moved between twilights. Default is 45 for as default grid has a minimum ditance of 50 km.
@@ -80,6 +79,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 
   
    if (threads!=1){
+   parallel=TRUE
    Possible.threads=parallel::detectCores()
    if (threads<=0) Threads=max(Possible.threads+threads, 1)
    if (threads>0) Threads=min(Possible.threads,threads)
