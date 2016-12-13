@@ -4,3 +4,4 @@ examples
 ^codecov\.yml$
 ^LICENSE\.txt$
 ^R/detect\.tsoutliers\.R$
+^\.git$
