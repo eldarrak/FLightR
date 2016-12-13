@@ -582,7 +582,7 @@ seasonal_donut<-function() {
    donut<-ggplot2::ggplot(data = pie.data, ggplot2::aes(fill = group, ymax = ymax, ymin = ymin, xmax = 1, xmin = 2))  +
       ggplot2::geom_rect(colour = "grey30", show.legend = FALSE) +
       ggplot2::coord_polar(theta = "y", start=pi) +
-      xlim(c(0, 2)) +
+      ggplot2::xlim(c(0, 2)) +
       ggplot2::theme_bw() + 
 	  ggplot2::theme(plot.background = ggplot2::element_rect(fill = "transparent" ,colour = NA))+
 	  ggplot2::theme(panel.background = ggplot2::element_blank())+
