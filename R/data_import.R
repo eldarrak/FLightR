@@ -1,7 +1,7 @@
 #'
-#' @title FLightR
-#' @import ggplot2
-#' @description With a hidden Markov model package estimates postions of animal from data collected by solar geolocation archival tags.
+#' #@title FLightR
+#' #@import ggplot2
+#' #@description With a hidden Markov model package estimates postions of animal from data collected by solar geolocation archival tags.
 #' 
 #' Reads the data frame with detected twilight events into the FlightR
 #' 
