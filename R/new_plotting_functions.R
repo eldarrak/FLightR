@@ -264,7 +264,7 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    }
  
    graphics::par(mar=c(2,4,3,1),cex=1)
-   Sys.setlocale("LC_ALL", "English")  
+   suppressWarnings(Sys.setlocale("LC_ALL", "English")) 
 
    #------here I have create the equinox dates..
    Years<-unique(format(Quantiles$time, format="%Y"))
