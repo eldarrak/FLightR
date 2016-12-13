@@ -3,4 +3,4 @@ examples
 ^appveyor\.yml$
 ^codecov\.yml$
 ^LICENSE\.txt$
-^detect\.tsoutliers\.R$
+^R/detect\.tsoutliers\.R$
