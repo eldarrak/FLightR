@@ -1,8 +1,5 @@
-## Test environments
-* ubuntu 12.04 (on travis-ci), R 3.3.2
-* win-builder (devel and release)
-
-## R CMD check results
+## Resubmission
+This is a resubmission. In this version I have:
 
 1. Possibly mis-spelled words in DESCRIPTION:
   postions (9:59)
@@ -17,4 +14,7 @@ Package in Depends/Imports which should probably only be in LinkingTo: ‘RcppAr
 
 Fixed, sorry about that!
 
+## Test environments
+* ubuntu 12.04 (on travis-ci), R 3.3.2
+* win-builder (devel and release)
 ---
