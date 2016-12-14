@@ -10,6 +10,7 @@ changed description to avoid use of word package. Hope this is what was needed.
   
 2. * checking package dependencies ... NOTE
 Package in Depends/Imports which should probably only be in LinkingTo: ‘RcppArmadillo’
+
  I use RcppArmadillo::fastLmPure in my package, so RcppArmadillo has to be in Imports but not LinkingTo
 
 3. and the running the examples fails for me with...
