@@ -36,7 +36,7 @@
 #'            precision.sd=25, check.outliers=FALSE)
 #'
 #' Summary<-stationary.migration.summary(Result, prob.cutoff=1)
-#'
+#' # Use lower cut offs for real runs!
 #' @export
 stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Cutoffs<-which(Result$Results$Movement.results$Decision>=prob.cutoff)
