@@ -47,7 +47,7 @@ Result<-run.particle.filter(all.in, threads=2,
            precision.sd=25, check.outliers=FALSE)
 
 Summary<-stationary.migration.summary(Result, prob.cutoff=1)
-
+# Use lower cut offs for real runs!
 }
 \author{
 Eldar Rakhimberdiev
