@@ -5,3 +5,4 @@ examples
 ^LICENSE\.txt$
 ^R/detect\.tsoutliers\.R$
 ^\.git$
+^cran-comments\.md$

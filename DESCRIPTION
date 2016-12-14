@@ -6,7 +6,7 @@ Date: 2016-12-07
 Author: Eldar Rakhimberdiev <eldar@nioz.nl> with contributions from Anatoly
     Saveliev and Julia Karagicheva
 Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
-Description: With a hidden Markov model package estimates postions of animal from data collected by solar geolocation archival tags.
+Description: Estimate positions of animal from data collected by solar geolocation archival tags.
 URL: http://github.com/eldarrak/FLightR
 BugReports: http://github.com/eldarrak/FLightR/issues
 Depends:
