@@ -33,7 +33,7 @@ test_that('map_flightr_ggmap_works',  {
    Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
    # not too clever but it looks like that other ways of graphics test are not stable..
-   p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5)    
+   p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
    expect_equal(length(p), 9)
    }
 )
@@ -54,7 +54,7 @@ test_that('plot_util_distr_works',  {
    Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
    # not too clever but it looks like that other ways of graphics test are not stable..
-   expect_warning(plot_util_distr(Result, zoom=5))
+   expect_warning(plot_util_distr(Result, zoom=5, save=FALSE))
    }
 )
 

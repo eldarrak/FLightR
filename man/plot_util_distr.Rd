@@ -67,14 +67,14 @@ Grid<-make.grid(left=0, bottom=50, right=10, top=56,
   distance.from.land.allowed.to.stay=c(-Inf, Inf))
 
 all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93),
-                             Calibration=Calibration, threads=2)
+                             Calibration=Calibration, threads=1)
 # here we will run only 1e4 partilces for a very short track.
 # One should use 1e6 particles for the full run
 Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-plot_util_distr(Result, zoom=6)
+plot_util_distr(Result, zoom=6, save=FALSE)
 
 }
 \author{

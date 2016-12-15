@@ -7,7 +7,8 @@
 map.FLightR.ggmap(Result, dates = NULL, plot.cloud = TRUE,
   map.options = NULL, plot.options = NULL, save.options = NULL,
   zoom = "auto", return.ggobj = FALSE, seasonal.colors = TRUE,
-  seasonal.donut.location = "topleft", seasonal.donut.proportion = 0.5)
+  seasonal.donut.location = "topleft", seasonal.donut.proportion = 0.5,
+  save = TRUE)
 }
 \arguments{
 \item{Result}{FLightR result object obtained from \code{\link{run.particle.filter}}}
@@ -32,6 +33,8 @@ map.FLightR.ggmap(Result, dates = NULL, plot.cloud = TRUE,
 
 \item{seasonal.donut.proportion}{how much of X axis should color wheel occupy.
 return either NULL or ggplot2 class object}
+
+\item{save}{should function save results with \code{\link[ggplot2]{ggsave}}?}
 }
 \description{
 plots track over map with probability cloud. Can plot only part of the track if dates are specified
@@ -61,7 +64,7 @@ all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93),
 # One should use 1e6 particles for the full run
 Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE,
-           precision.sd=25, check.outliers=FALSE)
+           precision.sd=25, check.outliers=FALSE, save=FALSE)
 
 map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6) 
 # for this short track without variance seasonal donut does not work,

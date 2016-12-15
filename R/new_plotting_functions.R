@@ -13,6 +13,7 @@
 #' @param seasonal.donut.location if NULL - no color wheel placed, otherwise select one of 'bottomleft', 'bottomright', 'topleft'
 #' @param seasonal.donut.proportion how much of X axis should color wheel occupy.
 #' return either NULL or ggplot2 class object
+#' @param save should function save results with \code{\link[ggplot2]{ggsave}}?
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20
@@ -38,14 +39,14 @@
 #' # One should use 1e6 particles for the full run
 #' Result<-run.particle.filter(all.in, threads=1,
 #'            nParticles=1e3, known.last=TRUE,
-#'            precision.sd=25, check.outliers=FALSE)
+#'            precision.sd=25, check.outliers=FALSE, save=FALSE)
 #'
 #' map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6) 
 #' # for this short track without variance seasonal donut does not work,
 #' # but for normall track it will.
 #' @author Eldar Rakhimberdiev
 #' @export map.FLightR.ggmap
-map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5) {
+map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5, save=TRUE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
@@ -133,12 +134,8 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 
         }
 	    map.options$zoom=zoom_cur-1
+    	 background <-do.call(ggmap::get_map, map.options)
     }
-	
-	
-	
-    background <-do.call(ggmap::get_map, map.options)
-	
 	p<-ggmap::ggmap(background, maprange=TRUE)
 
 	if (plot.cloud) {
@@ -203,10 +200,11 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 
     }
 	graphics::plot(p)
-	
+	if (save) {
     if (is.null(save.options)) save.options<-list()
 	if (is.null(save.options$filename)) save.options$filename<-"FLightR.map.pdf"
 	do.call(ggplot2::ggsave, save.options)
+	}
 	if (return.ggobj) return(p)
 	}
 
@@ -438,14 +436,14 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #'   distance.from.land.allowed.to.stay=c(-Inf, Inf))
 #'
 #' all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93),
-#'                              Calibration=Calibration, threads=2)
+#'                              Calibration=Calibration, threads=1)
 #' # here we will run only 1e4 partilces for a very short track.
 #' # One should use 1e6 particles for the full run
 #' Result<-run.particle.filter(all.in, threads=1,
 #'            nParticles=1e3, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#' plot_util_distr(Result, zoom=6)
+#' plot_util_distr(Result, zoom=6, save=FALSE)
 #'
 #' @author Eldar Rakhimberdiev
 #' @export plot_util_distr
@@ -510,9 +508,9 @@ if (is.null(background)) {
 	}
     }
 	map.options$zoom=zoom_cur-1
+	background <-do.call(ggmap::get_map, map.options)
     }
 	
-	background <-do.call(ggmap::get_map, map.options)
     }
     geom_polygon.options.external=geom_polygon.options
 	
