@@ -228,7 +228,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20
-#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+#' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
 #' Calibration.periods<-data.frame(
 #'        calibration.start=NA,
 #'        calibration.stop=as.POSIXct("2013-08-20"),

@@ -22,7 +22,7 @@ This function will find any sites where birds stayed longer than \code{min.stay}
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 # to run example fast we will cut the real data file by 2013 Aug 20
-Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
+Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-06-25', tz='GMT'))
 Calibration.periods<-data.frame(
        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
