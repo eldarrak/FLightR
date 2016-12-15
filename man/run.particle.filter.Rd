@@ -69,7 +69,7 @@ Main function of FLightR, it takes fully prepared object created by \code{\link{
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 # to run example fast we will cut the real data file by 2013 Aug 20
-Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
 Calibration.periods<-data.frame(
        calibration.start=NA,
        calibration.stop=as.POSIXct("2013-08-20"),
@@ -90,8 +90,8 @@ all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93),
                              Calibration=Calibration, threads=2)
 # here we will run only 1e4 partilces for a very short track.
 # One should use 1e6 particles for the full run.
-Result<-run.particle.filter(all.in, threads=2,
-           nParticles=1e4, known.last=TRUE,
+Result<-run.particle.filter(all.in, threads=1,
+           nParticles=1e3, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
 }

@@ -44,7 +44,7 @@ test_that('make.grid works',  {
 
 test_that('parallel setup works works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
         calibration.start=NA,
         calibration.stop=as.POSIXct("2013-08-20"),
@@ -54,7 +54,7 @@ test_that('parallel setup works works',  {
      distance.from.land.allowed.to.use=c(-Inf, Inf),
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
-   expect_equal(dim(all.in$Spatial$Phys.Mat), c(180, 126))
+   expect_equal(dim(all.in$Spatial$Phys.Mat), c(180, 27))
    expect_true(max(all.in$Spatial$Phys.Mat)>1)
 }
 )
@@ -63,7 +63,7 @@ test_that('parallel setup works works',  {
 
 test_that('run.particle.filter works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
         calibration.start=NA,
         calibration.stop=as.POSIXct("2013-08-20"),
@@ -74,8 +74,8 @@ test_that('run.particle.filter works',  {
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
-           nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
-   expect_equal(dim(Result$Results$Quantiles), c(126, 21))
-   expect_equal(dim(Result$Results$Movement.results), c(126, 12))
+           nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
+   expect_equal(dim(Result$Results$Quantiles), c(27, 21))
+   expect_equal(dim(Result$Results$Movement.results), c(27, 12))
    }
 )

@@ -39,7 +39,7 @@ plots track over map with probability cloud. Can plot only part of the track if 
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 # to run example fast we will cut the real data file by 2013 Aug 20
-Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
+Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
 Calibration.periods<-data.frame(
        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
@@ -59,11 +59,11 @@ all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93),
                              Calibration=Calibration, threads=2)
 # here we will run only 1e4 partilces for a very short track.
 # One should use 1e6 particles for the full run
-Result<-run.particle.filter(all.in, threads=2,
-           nParticles=1e4, known.last=TRUE,
+Result<-run.particle.filter(all.in, threads=1,
+           nParticles=1e3, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-map.FLightR.ggmap(Result, seasonal.donut.location=NULL) 
+map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6) 
 # for this short track without variance seasonal donut does not work,
 # but for normall track it will.
 }

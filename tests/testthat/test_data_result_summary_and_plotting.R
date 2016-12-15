@@ -1,7 +1,7 @@
 
 test_that('plot_lon_lat_works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
         calibration.start=NA,
         calibration.stop=as.POSIXct("2013-08-20"),
@@ -12,7 +12,7 @@ test_that('plot_lon_lat_works',  {
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
-           nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
+           nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
    # not too clever but it looks like that other ways of graphics test are not stable..
    expect_silent(plot_lon_lat(Result))
    }
@@ -20,7 +20,7 @@ test_that('plot_lon_lat_works',  {
 
 test_that('map_flightr_ggmap_works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
         calibration.start=NA,
         calibration.stop=as.POSIXct("2013-08-20"),
@@ -31,7 +31,7 @@ test_that('map_flightr_ggmap_works',  {
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
-           nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
+           nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
    # not too clever but it looks like that other ways of graphics test are not stable..
    p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5)    
    expect_equal(length(p), 9)
@@ -41,7 +41,7 @@ test_that('map_flightr_ggmap_works',  {
 
 test_that('plot_util_distr_works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
         calibration.start=NA,
         calibration.stop=as.POSIXct("2013-08-20"),
@@ -52,7 +52,7 @@ test_that('plot_util_distr_works',  {
      distance.from.land.allowed.to.stay=c(-Inf, Inf))
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
-           nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
+           nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
    # not too clever but it looks like that other ways of graphics test are not stable..
    expect_warning(plot_util_distr(Result, zoom=5))
    }
@@ -61,7 +61,7 @@ test_that('plot_util_distr_works',  {
 
  test_that('summary produces null foor stationary tag',  {
     File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
-    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-21', tz='GMT'))
+    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
     Calibration.periods<-data.frame(
          calibration.start=NA,
          calibration.stop=as.POSIXct("2013-08-20"),
@@ -72,7 +72,7 @@ test_that('plot_util_distr_works',  {
       distance.from.land.allowed.to.stay=c(-Inf, Inf))
     all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
     Result<-run.particle.filter(all.in, threads=1,
-            nParticles=1e4, known.last=TRUE, check.outliers=FALSE)
+            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
     expect_null(stationary.migration.summary(Result, prob.cutoff=1))
     }
  )
