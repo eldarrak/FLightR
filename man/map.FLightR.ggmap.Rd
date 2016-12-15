@@ -64,9 +64,9 @@ all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93),
 # One should use 1e6 particles for the full run
 Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE,
-           precision.sd=25, check.outliers=FALSE, save=FALSE)
+           precision.sd=25, check.outliers=FALSE)
 
-map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6) 
+map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE) 
 # for this short track without variance seasonal donut does not work,
 # but for normall track it will.
 }
