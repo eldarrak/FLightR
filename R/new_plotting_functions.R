@@ -134,8 +134,9 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 
         }
 	    map.options$zoom=zoom_cur-1
-    	 background <-do.call(ggmap::get_map, map.options)
     }
+  	 background <-do.call(ggmap::get_map, map.options)
+
 	p<-ggmap::ggmap(background, maprange=TRUE)
 
 	if (plot.cloud) {
@@ -490,7 +491,7 @@ if (is.null(background)) {
 	if (is.null(map.options$col)) map.options$col="bw"
 	Extent<-raster::extent(res_buffers[[length(res_buffers)]])
 	location<-c(Extent@xmin, Extent@ymin, Extent@xmax, Extent@ymax)
-    background <-do.call(ggmap::get_map, map.options)
+
     if (is.null(map.options$location)) map.options$location<-location
 
 	if (zoom=="auto") {
@@ -508,9 +509,9 @@ if (is.null(background)) {
 	}
     }
 	map.options$zoom=zoom_cur-1
-	background <-do.call(ggmap::get_map, map.options)
     }
-	
+	background <-do.call(ggmap::get_map, map.options)
+
     }
     geom_polygon.options.external=geom_polygon.options
 	
