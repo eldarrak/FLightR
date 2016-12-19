@@ -20,7 +20,7 @@ Load package
 library(FLightR)
 ```
 ## 1. Data preparation and import
-The analysis of geolocation data begins with defining twilight events (sunrises and sunsets). This procedure is implemented in several software packages, and we therefore did not incorporate it into FLightR. We recommend using appropriate functions from other R packages, e.g. BAStag, twGeos or GeoLight, or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing those twilights defined as obviously wrong or around which the light pattern is atypical or systematically biased; the latter can happen  when a bird enters or exits a cavity during twilight ([Rakhimberdiev et al. 2016](#rakhimberidev_jab_2016)). An example of the routine for twilight detection in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016).
+The analysis of geolocation data begins with defining twilight events (sunrises and sunsets). This procedure is implemented in several software packages, and we therefore did not incorporate it into FLightR. We recommend using appropriate functions from other R packages, e.g. BAStag, twGeos or GeoLight [Lisovski et al. 2012a](#lisovski_2012a), or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing those twilights defined as obviously wrong or around which the light pattern is atypical or systematically biased; the latter can happen  when a bird enters or exits a cavity during twilight ([Rakhimberdiev et al. 2016](#rakhimberidev_jab_2016)). An example of the routine for twilight detection in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016).
 
 FLightR works with ‘TAGS’ format containing annotated twilight data. This format is the result of an agreement on the general annotation of twilight data by National Centre for Ecological Analysis and Synthesis working group ‘Establishing an open-source animal-tracking analysis platform for archival geolocators’ https://www.nceas.ucsb.edu/featured/bridge. The ‘TAGS’ file is a csv file containing the following fields: 
 
@@ -32,7 +32,7 @@ FLightR works with ‘TAGS’ format containing annotated twilight data. This fo
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
 TAGS online service (http://tags.animalmigration.org) saves data in the TAGS format, while from the R packages GeoLight and BAStag or twGeos the annotated twilights need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
 
-We will use data TAGS formatted data from [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016), that can be downloaded as Appendix A3 to Rakhimberdiev et al. 2016 or from the authors’ GitHub page:
+We will use data TAGS formatted data provided as Appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) available on the authors’ GitHub page:
 ```{r, eval=FALSE, tidy=FALSE}
 download.file('https://git.io/vrJgv', 'example_TAGS_format.csv')
 ```
@@ -50,7 +50,9 @@ Proc.data<-get.tags.data("example_TAGS_format.csv")
  
 ## 2. Calibration
 
-All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. FLightR works with so-called template fit observational model [Ekstrom 2004, 2007](#ekstrom_2004). This model compares log of light irradiance measured at location with log of irradiance expected there according to astronomical position of the sun [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015). The calibration parameters are based on the data recorded during calibration periods. To define these periods, user needs to create a data frame in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
+All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. FLightR works with so-called template fit observational model [Ekstrom 2004, 2007](#ekstrom_2004). This model compares log of light irradiance measured at location with log of irradiance expected there according to astronomical position of the sun [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015).
+
+The calibration parameters are based on the data recorded during calibration periods. To define these periods, user needs to create a data frame in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
 * `calibration.start` (POSIXct format)
 * `calibration.stop` (POSIXct format)
 * `lon` (numeric)
@@ -70,13 +72,13 @@ In this example, we have two calibration periods (in the same location), in the 
 
 When multiple calibration locations are available, each of them has to be processed with the function `plot_slopes_by_location`.  In this case, in the ‘Calibration periods’ data frame, each row should refer to one calibration period. Compiling the data frame with multiple calibration locations, use `c()` also for the geographic coordinates (e. g., `lon=c(5.43, 6.00), lat=c(52.93,52.94)`).
 
-Using the created data frame with the calibration periods and locations and the object with light data and twilight events (Proc.data), we estimate calibration parameters for each of the periods and make a calibration object. This object will be used for the calculation of geographic positions later on.
+Using the created data frame with the calibration periods and locations and the object with light data and twilight events (`Proc.data`), we estimate calibration parameters create a calibration object. This object will be used for the calculation of geographic positions later on.
 ```{r, eval = F}
 Calibration<-make.calibration(Proc.data, Calibration.periods)
 ```
 When there are more than one calibration periods, the parameter `model.ageing` can be set `TRUE` to account for tag ageing. In this case, the calibration parameters are calculated, based on the assumption that the calibration slope changes linearly (with time) between the calibration points. The obtained calibration object is further used for calculation of geographical positions.
 
-### Find calibration periods
+### Find calibration periods for known calibration location
 For the data recorded by a deployed on an animal tag, the exact period of its stay in a known location is usually not known, but it can be estimated from the data. For this, we obtain and plot calibration slopes for sunsets and sunrises for every day of the tracking period, based on the assumption that the tag remained in the same calibration location all the time. 
 
 ```{r, eval = F}
@@ -90,6 +92,13 @@ Play with `abline()` to find the proper boundaries for the calibration.
 abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 ```
+### Find calibration location for known calibration periods
+When tagging happened in the High Arctic under polar day conditions or when bird moved away from the tagging site immedialtey after tagging and rood top calibration data are absent it is still possibe to obtain calibration parameters for a stationary period at unknown location. FLightR approach to this problem is similar to Hill-Ekstrom calibration [
+i et al. 2012](#lisovski_2012a) implemented in GeoLight [Lisovksi et al. 2012a](#Lisovski_2012b). If bird is assumed to be stationary at some period one can try:
+```{r}
+Location<-find.stationary.location(Proc.data, '2013-07-20', '2013-08-20', initial.coords=c(10, 50))
+```
+Function will return coordinates of location for which spread of errors in slopes is minimal. Initial coordinates should be within a few thousand kilometers from the real location.
 
 ## 3. Spatial extent
 
@@ -164,5 +173,7 @@ plot_util_distr(Result,
 # References
 1. Ekstrom, P. (2004). An advance in geolocation by light. Memoirs of the National Insitute of Polar Research, Special Issue, 58, 210–226.<a id="ekstrom_2004"></a>
 1. Ekstrom, P. (2007). Error measures for template-fit geolocation based on light. Deep Sea Research Part II: Topical Studies in Oceanography, 54, 392–403.<a id="ekstrom_2007"></a>
+1. Lisovski, S., Hahn, S. & Hodgson, D. (2012a). GeoLight - processing and analysing light-based geolocator data in R. Methods in Ecology and Evolution, 3, 1055–1059.<a id="lisovski_2012b"></a>
+1. Lisovski, S., Hewson, C.M., Klaassen, R.H.G., Korner-Nievergelt, F., Kristensen, M.W. & Hahn, S. (2012b). Geolocation by light: accuracy and precision affected by environmental factors. Methods in Ecology and Evolution, 3, 603–612.<a id="lisovski_2012a"></a>
 1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25.<a id="rakhimberdiev_movecol_2015"></a>
-1. Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.<a id="rakhimberdiev_jab_2016"></a>
+1. Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. (2016) Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.<a id="rakhimberdiev_jab_2016"></a>
