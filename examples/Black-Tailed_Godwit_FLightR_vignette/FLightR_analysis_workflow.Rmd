@@ -4,19 +4,24 @@
 %\VignetteDepends{FLightR}
 -->
 # FLightR analysis example of Black tailed godwit geolocator
-# 
-This is a FLightR>=0.4.2 example with the data from 
-
-Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.
 
 ## Install package
-We used FLightR 0.4.2 version, so you might want to install it if you want to get exactly the same results.
-
+We used FLightR 0.4.5 version, so you might want to install it if you want to get exactly the same results.
+To install latest CRAN version try
+```{r, eval = F}
+install.packages('FLightR')
+```
+To run version 0.4.5 which we use in this example try 
 ```{r, eval = F}
 library(devtools)
-install_github("eldarrak/FLightR@0.4.2") # note the version
-# or just latest one
-#install_github("eldarrak/FLightR")
+install_github('ldarrak/FLightR@0.4.5')
+```
+The latest version is available here:
+```{r, eval = F}
+install_github('eldarrak/FLightR')
+```
+Load package
+```{r}
 library(FLightR)
 ```
 ## 1. Data preparation and import
@@ -30,7 +35,9 @@ The FLightR works with ‘TAGS’ format containing annotated twilight data. Thi
 * `excluded` – indication of whether a twilight was excluded during manual inspection (logical, `TRUE | FALSE`);
 * `interp` - indication of whether the light value at twilight was interpolated (logical, `TRUE | FALSE`). 
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
+example with the data from 
 
+Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.
 The TAGS formatted file can be downloaded as Appendix A3 to Rakhimberdiev et al. 2016 or from the authors’ GitHub page: 
 ```{r, eval=FALSE, tidy=FALSE}
 download.file('https://git.io/vrJgv', 'example_TAGS_format.csv')
