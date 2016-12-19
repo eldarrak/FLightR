@@ -14,7 +14,7 @@ the package is in the active development.
 ---------------	
 FLightR is on CRAN now, so 
 ```{r}
-install.packages(FLightR)
+install.packages("FLightR")
 ```
 works, but to get the latest version from GitHub try:
 ```{r}
