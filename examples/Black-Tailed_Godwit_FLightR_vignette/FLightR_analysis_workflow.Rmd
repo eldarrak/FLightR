@@ -1,8 +1,3 @@
-<!--
-%\VignetteEngine{knitr}
-%\VignetteIndexEntry{Black-Tailed Godwit FLightR analysis}
-%\VignetteDepends{FLightR}
--->
 # FLightR analysis example of Black tailed godwit geolocator
 
 ## Install package
@@ -14,7 +9,7 @@ install.packages('FLightR')
 To run version 0.4.5 which we use in this example try 
 ```{r, eval = F}
 library(devtools)
-install_github('ldarrak/FLightR@0.4.5')
+install_github('eldarrak/FLightR@0.4.5')
 ```
 The latest version is available here:
 ```{r, eval = F}
@@ -25,9 +20,9 @@ Load package
 library(FLightR)
 ```
 ## 1. Data preparation and import
-The analysis of geolocation data begins with defining twilight events (sunrises and sunsets). This procedure is implemented in several software packages, and we therefore did not incorporate it into FLightR. We recommend using appropriate functions from other R packages, e. g. BAStag, twGeos or GeoLight, or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing those twilights defined as obviously wrong or around which the light pattern is atypical or systematically biased; the latter can happen  when a bird enters or exits a cavity during twilight (Rakhimberdiev et al. 2016). An example of the routine for twilight detection in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to Rakhimberdiev et al. 2016.
+The analysis of geolocation data begins with defining twilight events (sunrises and sunsets). This procedure is implemented in several software packages, and we therefore did not incorporate it into FLightR. We recommend using appropriate functions from other R packages, e.g. BAStag, twGeos or GeoLight, or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing those twilights defined as obviously wrong or around which the light pattern is atypical or systematically biased; the latter can happen  when a bird enters or exits a cavity during twilight ([Rakhimberdiev et al. 2016](#rakhimberidev_jab_2016)). An example of the routine for twilight detection in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016).
 
-The FLightR works with ‘TAGS’ format containing annotated twilight data. This format is the result of an agreement on the general annotation of twilight data by National Centre for Ecological Analysis and Synthesis working group ‘Establishing an open-source animal-tracking analysis platform for archival geolocators’ https://www.nceas.ucsb.edu/featured/bridge. The ‘TAGS’ file is a csv file containing the following fields: 
+FLightR works with ‘TAGS’ format containing annotated twilight data. This format is the result of an agreement on the general annotation of twilight data by National Centre for Ecological Analysis and Synthesis working group ‘Establishing an open-source animal-tracking analysis platform for archival geolocators’ https://www.nceas.ucsb.edu/featured/bridge. The ‘TAGS’ file is a csv file containing the following fields: 
 
 * `datetime` – date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z;
 * `light` – light value measured by tag;
@@ -35,23 +30,20 @@ The FLightR works with ‘TAGS’ format containing annotated twilight data. Thi
 * `excluded` – indication of whether a twilight was excluded during manual inspection (logical, `TRUE | FALSE`);
 * `interp` - indication of whether the light value at twilight was interpolated (logical, `TRUE | FALSE`). 
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
-example with the data from 
+TAGS online service (http://tags.animalmigration.org) saves data in the TAGS format, while from the R packages GeoLight and BAStag or twGeos the annotated twilights need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
 
-Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.
-The TAGS formatted file can be downloaded as Appendix A3 to Rakhimberdiev et al. 2016 or from the authors’ GitHub page: 
+We will use data TAGS formatted data from [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016), that can be downloaded as Appendix A3 to Rakhimberdiev et al. 2016 or from the authors’ GitHub page:
 ```{r, eval=FALSE, tidy=FALSE}
 download.file('https://git.io/vrJgv', 'example_TAGS_format.csv')
-
 ```
-TAGS online service (http://tags.animalmigration.org) saves data in the TAGS format, while from the R packages GeoLight and BAStag or twGeos the annotated twilights need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used. The function `get.tags.data` reads comma separated file in TAGS format, detects tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed an object, containing 
+The function `get.tags.data` reads comma separated file in TAGS format, detects tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed an object, containing 
 
 1. the recorded light data,
 2. the detected twilight events,
 3. light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after it events into an object of two lists
 4. technical parameters of the tag, added automatically, unless preset by the user.
 
-Download the example TAGS file:
-
+Currently finction recognizes data from all common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornothological Institute).
 ```{r, eval=FALSE, tidy=FALSE}
 Proc.data<-get.tags.data("example_TAGS_format.csv")
 ```
@@ -129,16 +121,11 @@ Within the `run.particle.filter`, the following parameters can be defined:
 * `check.outliers` – FALSE by default. Set it TRUE if you wish on a fly outliers detection, we recommend use it if results have strong outliers.
 
 ```{r, eval = F}
-
 nParticles=1e6
-a= Sys.time()
 Result<-run.particle.filter(all.in, threads=-1,
             nParticles=nParticles, known.last=TRUE,
 		    precision.sd=25, check.outliers=F)
-b= Sys.time()
-b-a
 save(Result, file="Result.bltg.ageing.model.noOD.RData")
-
 ```
 Now your results are saved in your work directory as an RData object.
 
@@ -176,3 +163,5 @@ plot_util_distr(Result,
     dates=data.frame(as.POSIXct('2013-12-01'), as.POSIXct('2014-01-31')),
     add.scale.bar=TRUE, percentiles=0.5)
 ```
+# References
+1. Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.<a id="rakhimberdiev_jab_2016"></a>
