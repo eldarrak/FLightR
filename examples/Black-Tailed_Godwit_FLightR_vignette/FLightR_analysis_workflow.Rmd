@@ -43,21 +43,19 @@ The function `get.tags.data` reads comma separated file in TAGS format, detects 
 3. light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after it events into an object of two lists
 4. technical parameters of the tag, added automatically, unless preset by the user.
 
-Currently finction recognizes data from all common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornothological Institute).
+Currently finction recognizes data from all common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
 ```{r, eval=FALSE, tidy=FALSE}
 Proc.data<-get.tags.data("example_TAGS_format.csv")
 ```
  
 ## 2. Calibration
 
-All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. A "roof top" treatment of a tag (getting a perod of records from a tag put in an open place, before deployment) is a recommended source of calibration data.
-
-The calibration parameters are based on the data recorded during calibration periods. For this, the user needs to create a data frame called ‘Calibration.periods’, in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
+All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. FLightR works with so-called template fit observational model [Ekstrom 2004, 2007](#Ekstrom_2004). This model compares log of light irradiance measured at location with log of irradiance expected there according to astronomical position of the sun [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015). The calibration parameters are based on the data recorded during calibration periods. To define these periods, user needs to create a data frame in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
 * `calibration.start` (POSIXct format)
 * `calibration.stop` (POSIXct format)
 * `lon` (numeric)
 * `lat` (numeric)
-The data.frame contains as many rows as many distinct calibration periods there are in the track. 
+The data frame contains as many rows as many distinct calibration periods are in the track. 
 
 ```{r, eval = F}
 Calibration.periods<-data.frame(
@@ -164,4 +162,7 @@ plot_util_distr(Result,
     add.scale.bar=TRUE, percentiles=0.5)
 ```
 # References
+1. Ekstrom, P. (2004). An advance in geolocation by light. Memoirs of the National Insitute of Polar Research, Special Issue, 58, 210–226.<a id="ekstrom_2004"></a>
+1. Ekstrom, P. (2007). Error measures for template-fit geolocation based on light. Deep Sea Research Part II: Topical Studies in Oceanography, 54, 392–403.<a id="ekstrom_2007"></a>
+1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25.<a id="rakhimberdiev_movecol_2015"></a>
 1. Rakhimberdiev, E., Senner, N. R., Verhoeven, M. A., Winkler, D. W., Bouten, W. and Piersma T. 2016 Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged Black-Tailed Godwit. - Journal of Avian Biology 47: 589-596.<a id="rakhimberdiev_jab_2016"></a>
