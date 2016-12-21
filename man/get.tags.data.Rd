@@ -2,9 +2,8 @@
 % Please edit documentation in R/data_import.R
 \name{get.tags.data}
 \alias{get.tags.data}
-\title{#@title FLightR
-#@import ggplot2
-#@description With a hidden Markov model package estimates postions of animal from data collected by solar geolocation archival tags.}
+\title{read TAGS formatted data
+Reads the data frame with detected twilight events into the FlightR}
 \usage{
 get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
   log.light.borders = "auto", log.irrad.borders = "auto",
@@ -32,6 +31,7 @@ get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
 list, which is to be further processed with the FlightR.
 }
 \description{
+read TAGS formatted data
 Reads the data frame with detected twilight events into the FlightR
 }
 \details{
