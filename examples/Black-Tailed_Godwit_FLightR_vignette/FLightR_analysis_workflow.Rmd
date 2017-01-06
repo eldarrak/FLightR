@@ -1,8 +1,8 @@
 # FLightR analysis example of Black tailed godwit geolocator
 
 ## Install package
-We used FLightR 0.4.5 version, so you might want to install it if you want to get exactly the same results.
-To install latest CRAN version try
+Note that we used FLightR 0.4.5 version, and running this example in later versions may provide somehow different results.
+To install the latest CRAN version try
 ```{r, eval = F}
 install.packages('FLightR')
 ```
@@ -20,9 +20,9 @@ Load package
 library(FLightR)
 ```
 ## 1. Data preparation and import
-The analysis of geolocation data begins with defining twilight events (sunrises and sunsets). This procedure is implemented in several software packages, and we did not incorporate it into FLightR. We recommend using appropriate functions from other R packages, e.g. BAStag, twGeos or GeoLight [Lisovski et al. 2012a](#lisovski_2012a), or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing those twilights defined as obviously wrong or around which the light pattern is atypical or systematically biased; the latter can happen  when a bird enters or exits a cavity during twilight ([Rakhimberdiev et al. 2016](#rakhimberidev_jab_2016)). An example of the routine for twilight detection in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016).
+The analysis of geolocation data begins with defining the twilight events, i. e. sunrises and sunsets. This procedure is not implemented in FLightR. Please, use appropriate functions in other R packages, e.g. BAStag, twGeos or GeoLight [Lisovski et al. 2012a](#lisovski_2012a), or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing twilights defined apparently wrong or around which the light pattern is atypical or systematically biased, e.g. when a bird enters or exits a cavity during twilight ([Rakhimberdiev et al. 2016](#rakhimberidev_jab_2016)). An example of the routine for the twilight detection in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016).
 
-FLightR works with ‘TAGS’ format containing annotated twilight data. This format is the result of an agreement on the general annotation of twilight data by National Centre for Ecological Analysis and Synthesis working group ‘Establishing an open-source animal-tracking analysis platform for archival geolocators’ https://www.nceas.ucsb.edu/featured/bridge. The ‘TAGS’ file is a csv file containing the following fields: 
+FLightR works with the ‘TAGS’ format, which is an agreed general annotation of twilight data by National Centre for Ecological Analysis and Synthesis working group ‘Establishing an open-source animal-tracking analysis platform for archival geolocators https://www.nceas.ucsb.edu/featured/bridge. A ‘TAGS’ file is a 'CSV' file containing the following fields: 
 
 * `datetime` – date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z;
 * `light` – light value measured by tag;
@@ -30,9 +30,9 @@ FLightR works with ‘TAGS’ format containing annotated twilight data. This fo
 * `excluded` – indication of whether a twilight was excluded during manual inspection (logical, `TRUE | FALSE`);
 * `interp` - indication of whether the light value at twilight was interpolated (logical, `TRUE | FALSE`). 
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
-TAGS online service (http://tags.animalmigration.org) saves data in the TAGS format, while from the R packages GeoLight and BAStag or twGeos the annotated twilights need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
+The online service http://tags.animalmigration.org saves data in the TAGS format. In the R packages GeoLight and BAStag or twGeos, the annotated twilight data need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
 
-We will use data TAGS formatted data provided as Appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) available on the authors’ GitHub page:
+We will use the TAGS formatted data provided as Appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) also available on the authors’ GitHub page:
 ```{r, eval=FALSE, tidy=FALSE}
 download.file('https://git.io/vrJgv', 'example_TAGS_format.csv')
 ```
