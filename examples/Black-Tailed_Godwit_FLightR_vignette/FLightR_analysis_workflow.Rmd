@@ -140,31 +140,36 @@ Now the results are saved in your work directory as an RData object.
 
 ## 6. Estimation of arrival and departure dates
 
-The function `find.times.distribution` derives the time at which an animal arrived or departed from the area and provides the measure of its uncertainty. First, select grid points of interest. For example in the current data we are interested in the date when our bird left the Netherlands. We will make  a boundary at 2&deg; longitude;
+The function `find.times.distribution` derives the time at which an animal arrived or departed from the area and provides the measure of its uncertainty. First, select grid points of interest. For example in the current data we are interested in the date when our bird left the Netherlands. We will make  a boundary at 2&deg; longitude:
 ```{r, eval = F}
 Index<-which(Result$Spatial$Grid[,1]>(2))
 ```
-And now we estimate probabilities if being in the area for each twilight:
+Estimate probabilities of occurrence within the area at each twilight:
 ```{r, eval = F}
 Arrivals.NL<-find.times.distribution(Result,Index)
 Arrivals.NL
 ```
-## 7. Result summary and plots
-
-### Print summary on stationary and migration periods
+Print a simple summary of the periods of residence and movement:
 ```{r, eval = F}
 stationary.migration.summary(Result, prob.cutoff = 0.1, min.stay = 3)
 ```
+## 7. Visualisation of the results
+
 ### Plot a simple map
+
+Plot a map with the most probable positions, i. e. combinations of the most probable latitude and longitude for each twilight:
 ```{r, eval = F}
 map.FLightR.ggmap(Result)
 ```
 ### Plot lon lat graph
+
+Plot the estimated for each twilight probabilities of an animal to occur at particular latitude and longitude:
 ```{r, eval = F}
 plot_lon_lat(Result)
 ```
 ### Plot utilization distribution
-Plot space utilisation distribution for the wintering range 
+
+Plot space utilisation distribution for the wintering range:
 ```{r, eval = F}
 plot_util_distr(Result, 
     dates=data.frame(as.POSIXct('2013-12-01'), as.POSIXct('2014-01-31')),
