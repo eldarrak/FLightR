@@ -1,8 +1,8 @@
 # FLightR analysis example of Black tailed godwit geolocator
 
 ## Install package
-We used FLightR 0.4.5 version, so you might want to install it if you want to get exactly the same results.
-To install latest CRAN version try
+Note that we used FLightR 0.4.5 version, and running this example in later versions may provide somehow different results.
+To install the latest CRAN version try
 ```{r, eval = F}
 install.packages('FLightR')
 ```
@@ -20,9 +20,9 @@ Load package
 library(FLightR)
 ```
 ## 1. Data preparation and import
-The analysis of geolocation data begins with defining twilight events (sunrises and sunsets). This procedure is implemented in several software packages, and we therefore did not incorporate it into FLightR. We recommend using appropriate functions from other R packages, e.g. BAStag, twGeos or GeoLight [Lisovski et al. 2012a](#lisovski_2012a), or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing those twilights defined as obviously wrong or around which the light pattern is atypical or systematically biased; the latter can happen  when a bird enters or exits a cavity during twilight ([Rakhimberdiev et al. 2016](#rakhimberidev_jab_2016)). An example of the routine for twilight detection in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016).
+The procedure of the definition of the twilight events, i. e. sunrises and sunsets, is not implemented in FLightR. Please, use appropriate functions in other R packages, e.g. BAStag, twGeos or GeoLight [Lisovski et al. 2012a](#lisovski_2012a), or online service http://tags.animalmigration.org for this purpose. In this software, user guides semi-automatically search for the twilight times and then visually explores the light data, manually removing twilights defined apparently wrong or around which the light pattern is atypical or systematically biased, e.g. when a bird enters or exits a cavity during twilight ([Rakhimberdiev et al. 2016](#rakhimberidev_jab_2016)). An example of the routine for the twilight definition in BAStag is available as [appendix A4](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A4_BAStag_routine.Rmd) to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016).
 
-FLightR works with ‘TAGS’ format containing annotated twilight data. This format is the result of an agreement on the general annotation of twilight data by National Centre for Ecological Analysis and Synthesis working group ‘Establishing an open-source animal-tracking analysis platform for archival geolocators’ https://www.nceas.ucsb.edu/featured/bridge. The ‘TAGS’ file is a csv file containing the following fields: 
+FLightR works with the ‘TAGS’ format, which is an agreed general annotation of twilight data by National Centre for Ecological Analysis and Synthesis working group ‘Establishing an open-source animal-tracking analysis platform for archival geolocators https://www.nceas.ucsb.edu/featured/bridge. A TAGS file is a CSV file containing the following fields: 
 
 * `datetime` – date and time in ISO 8601 format e.g. 2013-06-16T00:00:11.000Z;
 * `light` – light value measured by tag;
@@ -30,34 +30,34 @@ FLightR works with ‘TAGS’ format containing annotated twilight data. This fo
 * `excluded` – indication of whether a twilight was excluded during manual inspection (logical, `TRUE | FALSE`);
 * `interp` - indication of whether the light value at twilight was interpolated (logical, `TRUE | FALSE`). 
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
-TAGS online service (http://tags.animalmigration.org) saves data in the TAGS format, while from the R packages GeoLight and BAStag or twGeos the annotated twilights need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
+The online service http://tags.animalmigration.org saves data in the TAGS forma. In the R packages GeoLight and BAStag or twGeos, the annotated twilight data need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
 
-We will use data TAGS formatted data provided as Appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) available on the authors’ GitHub page:
+We will use the TAGS formatted data provided as appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) also available on the authors’ GitHub page:
 ```{r, eval=FALSE, tidy=FALSE}
 download.file('https://git.io/vrJgv', 'example_TAGS_format.csv')
 ```
-The function `get.tags.data` reads comma separated file in TAGS format, detects tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed an object, containing 
+The function `get.tags.data` reads comma separated file in the TAGS format, detects the tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed and creates an object, containing 
 
 1. the recorded light data,
 2. the detected twilight events,
 3. light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after it events into an object of two lists
 4. technical parameters of the tag, added automatically, unless preset by the user.
 
-Currently finction recognizes data from all common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
+The finction works with all the common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
 ```{r, eval=FALSE, tidy=FALSE}
 Proc.data<-get.tags.data("example_TAGS_format.csv")
 ```
  
 ## 2. Calibration
 
-All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. FLightR works with so-called template fit observational model [Ekstrom 2004, 2007](#ekstrom_2004). This model compares log of light irradiance measured at location with log of irradiance expected there according to astronomical position of the sun [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015).
+Geolocators measure light levels with different precision, and calibration is needed to establish the relationship between the observed and the expected light levels for each device. This relationship is depicted by the calibration parameters (slopes), calculated using the data recorded in known (calibration) geographic positions, e. g. where the animal was tagged, recaptured or observed. FLightR uses a 'template fit' for calibration [Ekstrom 2004, 2007](#ekstrom_2004). For each tag it finds the linear (on a log-log scale) relationship between the light levels measured in known locations and the theoretical light levels, estimated from current sun angle in these locations with the deterministic equation developed by Ekstrom [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015).
 
-The calibration parameters are based on the data recorded during calibration periods. To define these periods, user needs to create a data frame in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
+To calculate the calibration parameters user needs to create a data frame where the geographic coordinates of the calibration location, and the start and end dates of the calibration period, i. e. the period of residence in the known location, are specified:
 * `calibration.start` (POSIXct format)
 * `calibration.stop` (POSIXct format)
 * `lon` (numeric)
 * `lat` (numeric)
-The data frame contains as many rows as many distinct calibration periods are in the track. 
+The data frame contains as many rows as many distinct calibration periods the track contains. 
 
 ```{r, eval = F}
 Calibration.periods<-data.frame(
@@ -68,66 +68,65 @@ Calibration.periods<-data.frame(
 		# (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
 print(Calibration.periods)
 ```
-In this example, we have two calibration periods (in the same location), in the beginning and at the end of the track. This is a common case, as the birds are oftentimes recaptured at the same location, where they were tagged. 
+In this example, we have two calibration periods in the same location, at the beginning and at the end of the track. This is a common case, as the birds are often recaptured at the same location, where they were tagged. 
 
-When multiple calibration locations are available, each of them has to be processed with the function `plot_slopes_by_location`.  In this case, in the ‘Calibration periods’ data frame, each row should refer to one calibration period. Compiling the data frame with multiple calibration locations, use `c()` also for the geographic coordinates (e. g., `lon=c(5.43, 6.00), lat=c(52.93,52.94)`).
+When multiple calibration locations are available, each of them has to be processed with the function `plot_slopes_by_location`.  In this case, in the `Calibration periods` data frame, each row should refer to one calibration period. Compiling the data frame with multiple calibration locations, use `c()` also for the geographic coordinates (e. g., `lon=c(5.43, 6.00), lat=c(52.93,52.94)`).
 
-Using the created data frame with the calibration periods and locations and the object with light data and twilight events (`Proc.data`), we estimate calibration parameters create a calibration object. This object will be used for the calculation of geographic positions later on.
+A 'Calibration' object is compiled with the function`make.calibration` from the created `Calibration periods` data frame and the `Proc.data` object. 
 ```{r, eval = F}
 Calibration<-make.calibration(Proc.data, Calibration.periods)
 ```
-When there are more than one calibration periods, the parameter `model.ageing` can be set `TRUE` to account for tag ageing. In this case, the calibration parameters are calculated, based on the assumption that the calibration slope changes linearly (with time) between the calibration points. The obtained calibration object is further used for calculation of geographical positions.
+This object contains all the calibration parameters for the tag, and it will be further used for calculation of geographic positions across the track. When there are more than one calibration periods, the parameter `model.ageing` can be set `TRUE` to account for the tag ageing. In this case, the calibration parameters are calculated, based on the assumption that the calibration slope changes linearly with time. 
 
-### Find calibration periods for known calibration location
-For the data recorded by a deployed on an animal tag, the exact period of its stay in a known location is usually not known, but it can be suggested from the data. For this, we obtain and plot calibration slopes for sunsets and sunrises for every day of the tracking period, based on the assumption that the tag remained in the same calibration location all the time. 
+### Find calibration periods for a known calibration location
+The exact period of a tagged animal's stay in a known location is usually unknown, but it can be derived from the data. For this, calibration slopes for the sunset and sunrise of each day of the tracking period are calculated, based on the assumption that the tag remained in the same known position all the time. The slopes are calculated and plotted with the function `plot_slopes_by_location`.
 
 ```{r, eval = F}
 plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93))
 ```
 
-Looking at the plot, we can define the time periods, during which the tag really was in the calibration location (recall, that we assume that the tag remained in this location all the time). Because calibration slopes reflect the adequacy of the light level measured by the device, they vary little, in time and between sunsets and sunrises, as long as the tagged animal stays in the calibration location, but become clearly diverse, when it moves away from it. Both patterns are clearly distinguishable at the plot. 
+Looking at the plot, we can define the time periods, during which the tag resided in the calibration location (recall, that we assume that the tag remained in this location all the time). Because calibration slopes reflect the adequacy of the light level measured by the device, they vary little, in time and between sunsets and sunrises, as long as the tagged animal stays in the calibration location, but become apparently diverse, when it moves away from it. Both patterns are clearly distinguishable at the plot. 
 
 Play with `abline()` to find the proper boundaries for the calibration.
 ```{r, eval = F}
 abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 ```
-### Find calibration location for known calibration period
-When tagging happened in the High Arctic under polar day conditions or when bird moved away from the tagging site immedialtey after tagging and rood top calibration data are absent it is still possibe to obtain calibration parameters for a resident period at unknown location. FLightR approach to this problem is similar to Hill-Ekstrom calibration [
+### Find a calibration location for a known calibration period
+It may happen that an animal was tagged in the High Arctic under polar day conditions or that it moved far away from the capture site immedialtly after tagging and the roof-top calibration data are not available. Even in such cases it is still possibe to obtain calibration parameters for a resident period at unknown location. FLightR approach to this problem is similar to Hill-Ekstrom calibration [
 [Lisovski et al. 2012b](#lisovski_2012b) implemented in GeoLight [Lisovksi et al. 2012a](#lisovski_2012a). If bird is assumed to be resident at some period one can try:
 ```{r, eval=FALSE}
 # ~ 15 min run time
 Location<-find.stationary.location(Proc.data, '2013-07-20', '2013-08-20', initial.coords=c(10, 50))
 ```
-Function will return coordinates of location for which spread of errors in slopes is minimal. Initial coordinates should be within a few thousand kilometers from the real location.
+The function will return geographic coordinates of the location for which the range of errors in slopes is minimal. User has to provide the initial coordinates, which should be within a few thousand kilometers from the hypothetical real location.
 
-## 3. Spatial extent
+## 3. Assign spatial extent
 
-Set up a spatial grid (50 X 50 km on default) `left`, `right`. `bottom` and `top` are specific boundaries for your bounding box. `distance.from.land.allowed.to.use` should be vector with length of two, first number is negative distance allowed to use while over land, and second is distance from land allowed to use while over water.
-`distance.from.land.allowed.to.stay` should be vector with length of two, first number is negative distance where bird is allowed to be stationary, and second is distance from land allowed to fly over during twilight while over water.
+The function `make.grid` sets up a spatial grid (50 X 50 km on default) delimited by user-defined boundaries: `left`, `right`. `bottom` and `top`. When the tagged animal cannot occur or stay between two subsequent twilights over particular areas, e.g. open water for a landbird or deep inland for a marine animal, additional parameters `distance.from.land.allowed.to.use` and `distance.from.land.allowed.to.stay` can be specified. Each of the parameters require a vector of two numbers: the minimal and the maximal distances (in km) from shoreline, at which the animal is allowed to occur/stay.
 ```{r, eval = F}
 Grid<-make.grid(left=-14, bottom=30, right=13, top=57,
    distance.from.land.allowed.to.use=c(-Inf, Inf),
    distance.from.land.allowed.to.stay=c(-Inf, Inf))
 ```
-The resulting grid is a matrix with the columns: `lon` (longitude), `lat` (latitude) and `Stay` (probability of stay). The grid cells, which the animal presumably cannot use (e.g. locations over land for a marine animal), are excluded from the data, while the locations at which an animal cannot be stationary are given a low probability of stay. Using masks can side track model estimation to the local minima, so we recommend to initially run model without a mask, enable them for the second run and visually compare the results, to see if the model converges to a similar track.
+The resulting `Grid` is a matrix with the columns: `lon` (longitude), `lat` (latitude) and `Stay` (probability of stay). The grid cells, which the animal presumably cannot use, are excluded from the data, while the locations at which an animal cannot be stationary are given a low probability of stay. Using masks can side track model estimation to the local minima, and we recommend to initially run model without a mask, enable them for the second run and visually compare the results, to see if the model converges to a similar track.
 
-## 4. Create proposal
+## 4. Prepare the model for run
 
-Here we create a complex object, which will be used in the main run. It incorporates all the objects, created at earlier steps: the light data with the detected twilight events (Proc.data), the spatial parameters (Grid), geographic coordinates of the initial location, where the tracking has started (start), and the calibration parameters (Calibration).
+The function `make.prerun.object` creates a complex object, which will be used in the main run. It incorporates all the objects, created at earlier steps: the light data with the detected twilight events (`Proc.data`), the spatial parameters (`Grid`), geographic coordinates of the initial location, where the tracking has started (`start`), and the calibration parameters (`Calibration`).
 
 ```{r, eval = F}
 # ~ 15 min run time
 all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration)
 ```
-## 5. Run particle filter
+## 5. Particle filter run
 
-At this stage, results are calculated (coordinates, behavior, probability of migration).
-Within the `run.particle.filter`, the following parameters can be defined: 
+At this stage, the model output is generated. It contains: a table of positions at each twilight (`$Results$Quantiles`) and their statistics (mean, median values and credible intervals), a table of parameters of the movement model (`$Results$Movement.results`) and posterior distribution at every twilight (`$Results$Points.rle`) and at every transition between twilights (`$Results$Transitions.rle`). 
+Within `run.particle.filter`, the following parameters can be defined: 
 * `nParticles` - number of particles (1e4 is recommended for test and 1e6 for the analysis);
 * `threads` - amount of parallel threads to use for the run default is -1 that means all available except one;
-* `known.last` - TRUE if you know that in the end of data collection tag was in a known place (FALSE is the default option);
-* `check.outliers` – FALSE by default. Set it TRUE if you wish on a fly outliers detection, we recommend use it if results have strong outliers.
+* `known.last` - TRUE if you know that in the end of the logging period tag occurred in a known place (FALSE is the default option);
+* `check.outliers` – FALSE by default. Set it TRUE if you wish on a fly outliers detection, we recommend to use it if the results have strong outliers.
 
 ```{r, eval = F}
 nParticles=1e6
@@ -137,36 +136,40 @@ Result<-run.particle.filter(all.in, threads=-1,
 		    precision.sd=25, check.outliers=F)
 save(Result, file="Result.bltg.ageing.model.noOD.RData")
 ```
-Now your results are saved in your work directory as an RData object.
+Now the results are saved in your work directory as an RData object.
 
-## 6. Migration schedules
+## 6. Estimation of arrival and departure dates
 
-We can extract departure arrival estimates from the results we have got. 
-First select grid points that are of interest. For example in the current data we are interested to figure out when our bird left the Netherlands. We will make  a boundary at 2&deg; longitude;
+The function `find.times.distribution` derives the time at which an animal arrived or departed from the area and provides the measure of its uncertainty. First, select grid points of interest. For example in the current data we are interested in the date when our bird left the Netherlands. We will make  a boundary at 2&deg; longitude:
 ```{r, eval = F}
 Index<-which(Result$Spatial$Grid[,1]>(2))
 ```
-And now we estimate probabilities if being in the area for each twilight:
+Estimate probabilities of occurrence within the area at each twilight:
 ```{r, eval = F}
 Arrivals.NL<-find.times.distribution(Result,Index)
 Arrivals.NL
 ```
-## 7. Result summary and plots
-
-### Print summary on stationary and migration periods
+Print a simple summary of the periods of residence and movement:
 ```{r, eval = F}
 stationary.migration.summary(Result, prob.cutoff = 0.1, min.stay = 3)
 ```
+## 7. Visualisation of the results
+
 ### Plot a simple map
+
+Plot a map with the most probable positions, i. e. combinations of the most probable latitude and longitude for each twilight:
 ```{r, eval = F}
 map.FLightR.ggmap(Result)
 ```
 ### Plot lon lat graph
+
+Plot the estimated for each twilight probabilities of an animal to occur at particular latitude and longitude:
 ```{r, eval = F}
 plot_lon_lat(Result)
 ```
 ### Plot utilization distribution
-Plot space utilisation distribution for the wintering range 
+
+Plot space utilisation distribution for the wintering range:
 ```{r, eval = F}
 plot_util_distr(Result, 
     dates=data.frame(as.POSIXct('2013-12-01'), as.POSIXct('2014-01-31')),
