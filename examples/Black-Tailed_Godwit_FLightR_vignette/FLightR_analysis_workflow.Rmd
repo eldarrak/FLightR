@@ -32,25 +32,25 @@ FLightR works with the ‘TAGS’ format, which is an agreed general annotation 
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
 The online service http://tags.animalmigration.org saves data in the TAGS format. In the R packages GeoLight and BAStag or twGeos, the annotated twilight data need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
 
-We will use the TAGS formatted data provided as Appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) also available on the authors’ GitHub page:
+We will use the TAGS formatted data provided as appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) also available on the authors’ GitHub page:
 ```{r, eval=FALSE, tidy=FALSE}
 download.file('https://git.io/vrJgv', 'example_TAGS_format.csv')
 ```
-The function `get.tags.data` reads comma separated file in TAGS format, detects tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed an object, containing 
+The function `get.tags.data` reads comma separated file in the TAGS format, detects the tag type, checks whether the light data are log-transformed, transforms them back from the log scale if needed and creates an object, containing 
 
 1. the recorded light data,
 2. the detected twilight events,
 3. light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after it events into an object of two lists
 4. technical parameters of the tag, added automatically, unless preset by the user.
 
-Currently finction recognizes data from all common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
+The finction recognizes the data from all the common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
 ```{r, eval=FALSE, tidy=FALSE}
 Proc.data<-get.tags.data("example_TAGS_format.csv")
 ```
  
 ## 2. Calibration
 
-All geolocators measure light levels with different precision, and calibration is needed to find the relationship between the measured and real light levels for each device. This relationship is depicted by the calibration parameters (slopes), which are calculated based on the data recorded in known (calibration) locations.  Such locations can be the ones, where the animal was tagged, recaptured or observed. FLightR works with so-called template fit observational model [Ekstrom 2004, 2007](#ekstrom_2004). This model compares log of light irradiance measured at location with log of irradiance expected there according to astronomical position of the sun [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015).
+Geolocators measure light levels with different precision, and calibration is needed to establish the relationship between the measured and the expected light levels for each device. This relationship is depicted by the calibration parameters (slopes), calculated based on the data recorded in known (calibration) geographic positions, e. g. the locations where the animal was tagged, recaptured or observed. FLightR uses a 'template fit' observational model [Ekstrom 2004, 2007](#ekstrom_2004) to establish the linear (on a log-log scale) between the light irradiance measured in known locations with the irradiance expected there according to the astronomical position of the sun [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015).
 
 The calibration parameters are based on the data recorded during calibration periods. To define these periods, user needs to create a data frame in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
 * `calibration.start` (POSIXct format)
