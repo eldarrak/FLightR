@@ -43,14 +43,14 @@ The function `get.tags.data` reads comma separated file in the TAGS format, dete
 3. light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after it events into an object of two lists
 4. technical parameters of the tag, added automatically, unless preset by the user.
 
-The finction recognizes the data from all the common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
+The finction works with all the common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
 ```{r, eval=FALSE, tidy=FALSE}
 Proc.data<-get.tags.data("example_TAGS_format.csv")
 ```
  
 ## 2. Calibration
 
-Geolocators measure light levels with different precision, and calibration is needed to establish the relationship between the measured and the expected light levels for each device. This relationship is depicted by the calibration parameters (slopes), calculated based on the data recorded in known (calibration) geographic positions, e. g. the locations where the animal was tagged, recaptured or observed. FLightR uses a 'template fit' observational model [Ekstrom 2004, 2007](#ekstrom_2004) to establish the linear (on a log-log scale) between the light irradiance measured in known locations with the irradiance expected there according to the astronomical position of the sun [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015).
+Geolocators measure light levels with different precision, and calibration is needed to establish the relationship between the observed and the expected light levels for each device. This relationship is depicted by the calibration parameters (slopes), calculated based on the data recorded in known (calibration) geographic positions, e. g. the locations where the animal was tagged, recaptured or observed. FLightR uses a 'template fit' for calibration [Ekstrom 2004, 2007](#ekstrom_2004). For each tag it finds the linear (on a log-log scale) relationship between the light levels measured in known locations and the theoretical light levels, estimated from current sun angle in these locations with the deterministic equation developed by Ekstrom [Rakhimberdiev et al. 2015](#rakhimberdiev_movecol_2015).
 
 The calibration parameters are based on the data recorded during calibration periods. To define these periods, user needs to create a data frame in which geographic coordinates of the calibration location (usually, the location, where the tag was deployed on an animal), and start and end date of the calibration period are specified in the following columns:
 * `calibration.start` (POSIXct format)
