@@ -46,7 +46,7 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    #print(data.frame(start=unique(c(0, Cutoffs)), end=unique(c(Cutoffs-1, Total_length))))
    #cat('-----\n')
    if (length(Cutoffs)==0) { 
-      cat('bird likely dod not move, exiting without result\n')
+      cat('bird likely did not move, exiting without result\n')
 	  return(NULL)
    } else {
    Total_length<-length(Result$Results$Movement.results$Decision)
