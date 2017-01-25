@@ -581,8 +581,29 @@ if (is.null(background)) {
 	   save.options$dpi <-600
 	   tmp<-do.call(ggplot2::ggsave, save.options)
 	}
-	#b<-do.call(raster::bind, res_buffers) 
-    #SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles))
+	
+    my.rbind.SpatialPolygons = function(..., makeUniqueIDs = FALSE) {
+       dots = list(...)
+       names(dots) <- NULL
+       stopifnot(sp::identicalCRS(dots))
+       # checkIDSclash(dots)
+       pl = do.call(c, lapply(dots, function(x) slot(x, "polygons")))
+       if (makeUniqueIDs)
+               pl = makeUniqueIDs(pl)
+       sp::SpatialPolygons(pl, proj4string = sp::CRS(sp::proj4string(dots[[1]])))
+	}
+    makeUniqueIDs <- function(lst) {
+	   ids = sapply(lst, function(i) slot(i, "ID"))
+	   if (any(duplicated(ids))) {
+		  ids <- make.unique(as.character(unlist(ids)), sep = "")
+		  for (i in seq(along = ids))
+			lst[[i]]@ID = ids[i]
+	   }
+	   lst
+    }
+	
+	b<-do.call(my.rbind.SpatialPolygons,  c(res_buffers, list(makeUniqueIDs=TRUE))) 
+    SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles))
 	return(list(res_buffers=res_buffers, p=p))
 }
 
