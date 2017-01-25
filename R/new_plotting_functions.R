@@ -582,7 +582,7 @@ if (is.null(background)) {
 	   tmp<-do.call(ggplot2::ggsave, save.options)
 	}
 	b<-do.call(raster::bind, res_buffers) 
-    SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentile))
+    SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles))
 	return(list(res_buffers=SPDF, p=p))
 }
 
