@@ -587,13 +587,13 @@ if (is.null(background)) {
        names(dots) <- NULL
        stopifnot(sp::identicalCRS(dots))
        # checkIDSclash(dots)
-       pl = do.call(c, lapply(dots, function(x) slot(x, "polygons")))
+       pl = do.call(c, lapply(dots, function(x) methods::slot(x, "polygons")))
        if (makeUniqueIDs)
                pl = makeUniqueIDs(pl)
        sp::SpatialPolygons(pl, proj4string = sp::CRS(sp::proj4string(dots[[1]])))
 	}
     makeUniqueIDs <- function(lst) {
-	   ids = sapply(lst, function(i) slot(i, "ID"))
+	   ids = sapply(lst, function(i) methods::slot(i, "ID"))
 	   if (any(duplicated(ids))) {
 		  ids <- make.unique(as.character(unlist(ids)), sep = "")
 		  for (i in seq(along = ids))
