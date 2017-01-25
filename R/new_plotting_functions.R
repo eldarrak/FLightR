@@ -603,8 +603,8 @@ if (is.null(background)) {
     }
 	
 	b<-do.call(my.rbind.SpatialPolygons,  c(res_buffers, list(makeUniqueIDs=TRUE))) 
-    SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles))
-	return(list(res_buffers=res_buffers, p=p))
+    SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles, row.names=names(b)))
+	return(list(res_buffers=SPDF, p=p))
 }
 
 
