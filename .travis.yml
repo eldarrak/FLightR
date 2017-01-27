@@ -23,9 +23,6 @@ before_install:
 
 language: R
 sudo: required
-r_github_packages:
-  - tidyverse/ggplot2
-  - dkahle/ggmap
 
 warnings_are_errors: false
 cache: packages
