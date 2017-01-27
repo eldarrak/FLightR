@@ -18,9 +18,8 @@ library(FLightR)
 ```
 
 ## Define twilights with BAStag package
-```
-download.file("https://raw.githubusercontent.com/eldarrak/FLightR/0.3.6/examples/Caribean_Martin/S1_Caribean_martin.lux", "S1_Carribean_martin.lux")
-
+```{r, eval=FALSE}
+download.file("https://git.io/vDfJl", "S1_Carribean_martin.lux")
 d.lux<-luxTrans("S1_Carribean_martin.lux")
 names(d.lux) <- c("Datetime", "Light")
 d.lux$Light <- log(d.lux$Light)
@@ -46,15 +45,12 @@ Now yo can TAGS.twiligths you have just created or download one we made
 
 ```{r, eval=F}
 download.file("https://git.io/vDfe6", "S2_TAGS_format.csv")
-
 Proc.data<-get.tags.data("S2_TAGS_format.csv")
-
 ```
-## Calibration
 
+## Calibration
 ```{r, eval=FALSE}
 # search for calibration periods
-
 plot_slopes_by_location(Proc.data, location=start)
 abline(v=as.POSIXct("2012-05-10")) 
 abline(v=as.POSIXct("2013-03-20")) 
@@ -67,27 +63,27 @@ Calibration.periods<-data.frame(calibration.start=as.POSIXct(c("2012-05-10", "20
                                 lon=start[1], lat=start[2])
 
 Calibration<-make.calibration(Proc.data, Calibration.periods, model.ageing=TRUE)
+```
 
 ## Spatial extent
-
 ```{r, eval=FALSE}
-
 Grid<-make.grid(left=-66, bottom=-20, right=-40, top=25,
    distance.from.land.allowed.to.use=c(-Inf, Inf),
    distance.from.land.allowed.to.stay=c(-Inf, 50))
-  
+```
+
+## Data preparation and main run
+```{r, eval=FALSE}
 all.in<-make.prerun.object(Proc.data, Grid, start=start, Calibration=Calibration)
 
 # ~ 45 mean run time
 Result<-run.particle.filter(all.in, threads=6,
             nParticles=1e6, known.last=FALSE)
-			
 save(Result, file="Result.with.ageing.model.RData")
 ```
 
 ## Plot results
 ```{r, eval=FALSE}
-
 map.FLightR.ggmap(Result, seasonal.donut.location = "bottomleft")
 plot_lon_lat(Result)
 ```
