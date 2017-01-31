@@ -127,8 +127,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 
         #Final.Means=cbind(all.out$Results$Final.Means[-1,],
 		#time=all.out$Indices$Matrix.Index.Table$time),
-		Quantiles=cbind(all.out$Results$Quantiles[-1,],
-		time=all.out$Indices$Matrix.Index.Table$time),
+		Quantiles=all.out$Results$Quantiles,
 		Movement.results=all.out$Results$Movement.results,
 		outliers=all.out$Results$outliers,
 		LL=all.out$Results$LL,
@@ -668,6 +667,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
            Quantiles[Quantiles[,i]>180,i]<-Quantiles[Quantiles[,i]>180,i]-360
        }	   
 	}
+	Quantiles<-cbind(Quantiles[-1,], time=in.data$Indices$Matrix.Index.Table$time)
 	in.Data$Results$Quantiles<-Quantiles
 	
     in.Data$Results$Points.rle<-Points
