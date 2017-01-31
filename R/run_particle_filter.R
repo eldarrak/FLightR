@@ -625,7 +625,8 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	Quantiles<-c()
 	CIntervals<-c()
 	cur_Grid<-in.Data$Spatial$Grid
-	cur_Grid[cur_Grid[,1]<0,1]<-cur_Grid[cur_Grid[,1]<0,1]+360
+	if (overdateline) cur_Grid[cur_Grid[,1]<0,1]<-cur_Grid[cur_Grid[,1]<0,1]+360
+	
 	for (i in 1:length(Points)) {
 	
 
