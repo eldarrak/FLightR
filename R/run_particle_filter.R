@@ -667,7 +667,11 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
            Quantiles[Quantiles[,i]>180,i]<-Quantiles[Quantiles[,i]>180,i]-360
        }	   
 	}
-	Quantiles<-cbind(Quantiles, time=in.Data$Indices$Matrix.Index.Table$time)
+	if (nrow(Quantiles)==nrow(in.Data$Indices$Matrix.Index.Table)) {
+	   Quantiles<-cbind(Quantiles, time=in.Data$Indices$Matrix.Index.Table$time)
+	} else {
+	   Quantiles<-cbind(Quantiles[-1,], time=in.Data$Indices$Matrix.Index.Table$time)
+	}
 	in.Data$Results$Quantiles<-Quantiles
 	
     in.Data$Results$Points.rle<-Points
