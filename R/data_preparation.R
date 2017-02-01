@@ -164,7 +164,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' }
 #' @author Eldar Rakhimberdiev
 #' @export		
-find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-5) {
+find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
 
   if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very xclose but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE) {
@@ -200,14 +200,17 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	}   
        if (plot) plot_slopes(calibration.parameters$All.slopes)
 	   suppressWarnings(sink())
-	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), '\n')
-       return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
+	   Val<-log(1/(1e-5+anova(lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))
+	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val, '\n')
+       #return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
+ 
+       return(Val)
    }
    tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=reltol)), finally=try(suppressWarnings(sink())))
    return(Res$par)
  }
- 
 
+ 
    
 #' combines data, calibration and sets up priors
 #' 
