@@ -200,7 +200,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	}   
        if (plot) plot_slopes(calibration.parameters$All.slopes)
 	   suppressWarnings(sink())
-	   Val<-log(1/(1e-5+anova(lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))
+	   Val<-log(1/(anova(lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]+(1e-5)))
 	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val, '\n')
        #return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
  
