@@ -29,7 +29,7 @@ test_that('find.stationary.location works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File)
    Location<-find.stationary.location(Proc.data, '2013-07-20', '2013-08-20', initial.coords=c(10, 50), reltol=0.03, plot=FALSE,  print.optimization = FALSE)
-   expect_equal(c(5,55), Location)
+   expect_equal(c(5,50), round(Location/5)*5)
    }
 )
 
