@@ -1,4 +1,8 @@
-citHeader("When citing the 'FLightR' package in publications please include:")
+citHeader("When citing the 'FLightR' package in publications please include one or several from the following:
+2017 for the FLightR package;
+2016 for godwit data and comparison with GPS data and GeoLight;
+2015 for the method.")
+
 bibentry(
 	bibtype ="Manual",
     title = "FLightR: SSM for solar geolocation",
