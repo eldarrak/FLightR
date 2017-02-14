@@ -27,3 +27,21 @@ bibentry(
                 volume= "3",
 		url = "http://www.movementecologyjournal.com/content/3/1/25",
 		month="dec")
+bibentry(
+       bibtype ="Article",
+       title = "Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit",
+       author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
+       author = person(given="Nathan R.", family="Senner",role="aut"),
+       author = person(given="Mo A.", family="Verhoeven",role="aut"),
+       author = person(given="David W.", family="Winkler",role="aut"),
+       author = person(given="Willem", family="Bouten",role="aut"),
+       author = person(given="Theunis", family="Piersma",role="aut")),
+       year = "2016",
+       journal = "Journal of Avian Biology",
+       volume = "47",
+       number = "4",
+       publisher = "Blackwell Publishing Ltd",
+       issn = "1600-048X",
+       url = "http://dx.doi.org/10.1111/jav.00891",
+       doi = "10.1111/jav.00891",
+       pages = "589-596")
