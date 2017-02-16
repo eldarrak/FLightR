@@ -3,15 +3,19 @@ Supplement to
 Perlut, N.G., Klak. K, Rakhimberdiev, E. 2017 Geolocator data reveals the migration route and wintering location of the Caribbean Martin. - Wilson Journal of Ornithology 000: 000-000.
 
 ## Install packages
-We used FLightR 0.4.6 version, so you might want to install it if you want to get exactly the same results.
-
 ```{r, eval=FALSE}
 library(devtools)
 install_github("SWotherspoon/SGAT")
 install_github("SWotherspoon/BAStag")
-install_github("eldarrak/FLightR@0.4.6")
-# or try the altest version
-install.packages("FLightR")
+
+# the latest FLightR:
+install_github("eldarrak/FLightR")
+
+# the version we used is here:
+install_github("eldarrak/FLightR@0.4.5")
+
+# CRAN version may be a couple of month out of date:
+install.packages('FLightR')
 
 library(BAStag)
 library(FLightR)
