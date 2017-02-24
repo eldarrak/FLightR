@@ -477,7 +477,7 @@ nPoints<-c(nPoints, res_cur$nPoints)
 }
 
 # Now I want to take only the upper levels from identical nPoints
-Index_not_dupl<-(1:length(percentiles))[!duplicated(nPoints)]
+#Index_not_dupl<-(1:length(percentiles))[!duplicated(nPoints)]
 
 #-----------------#
 # and now we want to plot it
@@ -604,7 +604,7 @@ if (is.null(background)) {
 	
 	b<-do.call(my.rbind.SpatialPolygons,  c(res_buffers, list(makeUniqueIDs=TRUE))) 
     SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles, row.names=names(b)))
-	return(list(res_buffers=SPDF, p=p))
+	return(list(res_buffers=SPDF, p=p, bg=background))
 }
 
 
