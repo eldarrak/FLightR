@@ -3,6 +3,8 @@
 [![Coverage Status](https://img.shields.io/codecov/c/github/eldarrak/FLightR/master.svg)](https://codecov.io/github/eldarrak/FLightR?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/FLightR)](http://cran.r-project.org/package=FLightR)
 [![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/FLightR?color=brightgreen)](http://cran.rstudio.com/web/packages/FLightR/index.html)
+[![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/grand-total/FLightR?color=brightgreen)](http://cran.rstudio.com/web/packages/FLightR/index.html)
+
 
 FLightR
 =======
