@@ -51,6 +51,16 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,1.5)
 	     if (saves[1] =='auto') saves<-"mean"
       }
+	  if(detected$tagtype=="GDL1") {
+	     if (log.light.borders[1]=='auto') log.light.borders<-c(3, 7)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-4,1)
+	     if (saves[1] =='auto') saves<-"mean"
+      }
+	  if(detected$tagtype=="GDL2v1") {
+	     if (log.light.borders[1]=='auto') log.light.borders<-c(2.2,7)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-2.7,0)
+	     if (saves[1] =='auto') saves<-"mean"
+      }
    }
 
    FLightR.data<-read.tags.light.twilight(TAGS.twilights,
@@ -128,6 +138,24 @@ get.tag.type<-function(TAGS.twilights) {
    }
    if (round(Max_light/10)==998) {
      tagtype<-"GDL2v2_GDLpam"
+	 log_transformed<-FALSE
+     recognized<-TRUE
+   }
+   if(round(Max_light,2)==11.32) {
+      tagtype<-"GDL1"
+      log_transformed<-TRUE
+	  recognized<-TRUE
+   }
+   if (round(Max_light)==82863) {
+     tagtype<-"GDL1"
+	 log_transformed<-FALSE
+     recognized<-TRUE
+   }
+   if(round(Max_light,2)==log(63)) {
+      log_transformed<-TRUE
+	  recognized<-TRUE
+   }
+   if (Max_light==63) {
 	 log_transformed<-FALSE
      recognized<-TRUE
    }
