@@ -152,10 +152,12 @@ get.tag.type<-function(TAGS.twilights) {
      recognized<-TRUE
    }
    if(round(Max_light,2)==log(63)) {
+      tagtype<-"GDL2v1"
       log_transformed<-TRUE
 	  recognized<-TRUE
    }
    if (Max_light==63) {
+     tagtype<-"GDL2v1"
 	 log_transformed<-FALSE
      recognized<-TRUE
    }
