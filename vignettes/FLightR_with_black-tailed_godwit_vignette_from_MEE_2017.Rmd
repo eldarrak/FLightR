@@ -1,3 +1,15 @@
+---
+title: "FLightR with black-tailed godwit vignette from MEE 2017"
+author: "Eldar Rakhimberdiev & Julia Karagicheva"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{FLightR with black-tailed godwit vignette from MEE 2017}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
 # FLightR analysis example of Black tailed godwit geolocator
 _this vignette is supplementary material to_
 Rakhimberdiev E., Saveliev A., Piersma, T., Karagicheva J. 2017 FLightR: An R package for reconstructing animal paths from solar geolocation loggers. Methods in Ecology and Evolution. _In press_
