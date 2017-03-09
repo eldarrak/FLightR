@@ -12,7 +12,7 @@ vignette: >
 
 # FLightR analysis example of Black tailed godwit geolocator
 _this vignette is supplementary material to_
-Rakhimberdiev E., Saveliev A., Piersma, T., Karagicheva J. 2017 FLightR: An R package for reconstructing animal paths from solar geolocation loggers. Methods in Ecology and Evolution. _In press_
+**Rakhimberdiev E., Saveliev A., Piersma, T., Karagicheva J. 2017 FLightR: An R package for reconstructing animal paths from solar geolocation loggers. Methods in Ecology and Evolution. _In press_**
 
 ## Install package
 Note that we used FLightR 0.4.5 version, and running this example in later versions may provide somehow different results.
