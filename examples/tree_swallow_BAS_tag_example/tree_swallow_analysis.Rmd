@@ -2,7 +2,9 @@
 # Tree swallow BAS tag geolocator analysis
 This file is supplementart material for the FLightR paper:
 *A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity*, Movement ecology (2015). http://dx.doi.org/10.1186/s40462-015-0062-5.
-I will not update this script.
+
+Check updated workflow [here](https://github.com/eldarrak/FLightR/blob/master/vignettes/FLightR_with_black-tailed_godwit_vignette_from_MEE_2017.Rmd)
+
 ## Install package and read data
 ```{r}
 require(devtools)
