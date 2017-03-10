@@ -1,4 +1,7 @@
 ###############################################################################
+# this is old and outdated example. Check vignette in CRAN version fo FLIghtR #
+
+###############################################################################
 #LOCATIONS ESTIMATED FROM SIMULATED LIGHT LEVEL DATA SET WITH FLightR PACKAGE#
 ###############################################################################
 
