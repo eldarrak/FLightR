@@ -18,12 +18,16 @@ FLightR is on CRAN now, so
 ```{r}
 install.packages("FLightR")
 ```
-works, but to get the latest version from GitHub try:
+I will try to update CRAN version several times a year, but to get the latest version from GitHub try:
 ```{r}
     require("devtools")
     install_github("eldarrak/FLightR")
-	library(FLightR)
 ```
+
+```{r}
+   library(FLightR)
+```
+
 ---------------
 
 ## NB
@@ -46,11 +50,7 @@ Do not know what the difference between BAS and Intigeo is? In short intigeo are
 
 -------------
 
-Vignette for the package is coming very soon,
-
--------------
-
-I am also developing [wiki pages for the package] (https://github.com/eldarrak/FLightR/wiki)
+Vignette for the package is available [here](https://github.com/eldarrak/FLightR/blob/master/vignettes/FLightR_with_black-tailed_godwit_vignette_from_MEE_2017.Rmd)
 
 -------------
 ##References
@@ -61,7 +61,7 @@ I am also developing [wiki pages for the package] (https://github.com/eldarrak/F
 
 3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166000.svg)](https://doi.org/10.5281/zenodo.166000)
 
-4. Rakhimberdiev, E.Saveliev A., Piersma, T. & Karagicheva, J. FLightR: An R package for reconstructing animal paths from solar geolocation loggers - submitted
+4. Rakhimberdiev, E.Saveliev A., Piersma, T. & Karagicheva, J. (2017). FLightR: An R package for reconstructing animal paths from solar geolocation loggers. Methods in Ecology and evolution. [Check it](http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12765)
 
 -------------
 Discussion web forum for solar geolocation is available at [ornithologyexchange](http://ornithologyexchange.org/forums/forum/259-geolocator-discussion-support/). Ask there if you need help with the FLightR _per se_ or with solar geolocation in general.
