@@ -45,3 +45,19 @@ bibentry(
        url = "http://dx.doi.org/10.1111/jav.00891",
        doi = "10.1111/jav.00891",
        pages = "589-596")
+       
+ bibentry(
+       bibtype ="Article",
+       title = "FLightR: An R package for reconstructing animal paths from solar geolocation loggers",
+       author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
+       author = person(given="Anatoly", family="Saveliev",role="aut"),
+       author = person(given="Theunis", family="Piersma",role="aut"),
+       author = person(given="Julia", family="Karagicheva",role="aut")),
+       year = "2017",
+       journal = "Methods in Ecology and Evolution",
+       volume = "NA",
+       number = "NA",
+       publisher = "Blackwell Publishing Ltd",
+       url = "http://dx.doi.org/10.1111/2041-210X.12765",
+       doi = "10.1111/2041-210X.12765",
+       pages = "NA-NA")
