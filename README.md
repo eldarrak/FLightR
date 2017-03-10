@@ -20,8 +20,7 @@ install.packages("FLightR")
 ```
 I will try to update CRAN version several times a year, but to get the latest version from GitHub try:
 ```{r}
-    require("devtools")
-    install_github("eldarrak/FLightR")
+    devtools::install_github("eldarrak/FLightR")
 ```
 
 ```{r}
