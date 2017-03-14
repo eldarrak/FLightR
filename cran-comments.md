@@ -1,9 +1,10 @@
 ## Resubmission
-* fixed urls
-* fixed release date
+* fixed url
 
 ## Comment
- I use RcppArmadillo, so need to have it in package dependencies
+  I use RcppArmadillo::fastLmPure in my FLightR, so
+  RcppArmadillo has to be in Imports but not
+  LinkingTo
 
 ---
 
