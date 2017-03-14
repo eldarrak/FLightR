@@ -1,8 +1,11 @@
-## Resubmission
-This is a resubmission. In this version I have:
-
-Worked on examples and tests. Run times for functions are now well below 10 seconds.
-Thanks for pointing at this problem.
+## Update
+This is an update. 
+In 0.4.6 version I have 
+* added support for old swiss loggers
+* improved find stationary location function small bug fixes
+* updated citations
+* added vignette
+* fixed many small bugs
 
 ## Test environments
 * ubuntu 12.04 (on travis-ci), R 3.3.2
