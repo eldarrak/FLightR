@@ -1,3 +1,12 @@
+## Resubmission
+* fixed urls
+* fixed release date
+
+## Comment
+ I use RcppArmadillo, so need to have it in package dependencies
+
+---
+
 ## Update
 This is an update. 
 In 0.4.6 version I have 
