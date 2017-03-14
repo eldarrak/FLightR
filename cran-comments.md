@@ -1,5 +1,5 @@
 ## Resubmission
-  I use RcppArmadillo::fastLmPure in my FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
+  I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
 
 ---
 
