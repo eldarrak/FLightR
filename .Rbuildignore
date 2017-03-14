@@ -6,3 +6,4 @@ examples
 ^R/detect\.tsoutliers\.R$
 ^\.git$
 ^cran-comments\.md$
+^R/NEWS$
