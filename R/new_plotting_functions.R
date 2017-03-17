@@ -75,7 +75,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 	# background map
 	
 	# check whether Grid was over dateline:
-	overdateline<-ifelse(attr(Result$Spatial$Grid, 'left')>	attr(Result$Spatial$Grid, 'right'), TRUE, FALSE)
+	overdateline<-ifelse(, 'left')>	attr(Result$Spatial$Grid, 'right'), TRUE, FALSE)
 	
 	if (overdateline) {
 	location<-cbind(
@@ -83,6 +83,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 				min(Result$Results$Quantiles$Medianlat[twilights.index]),
 				max(Result$Results$Quantiles$Medianlon[twilights.index][Result$Results$Quantiles$Medianlon[twilights.index]<0]),
 				max(Result$Results$Quantiles$Medianlat[twilights.index]))
+	location[!is.finite(location)]<-0
 	} else {			
 	location<-cbind(
 	            min(Result$Results$Quantiles$Medianlon[twilights.index]),
