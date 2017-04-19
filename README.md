@@ -16,7 +16,7 @@ the package is in the active development.
 ---------------	
 FLightR is on CRAN now, so 
 ```{r}
-install.packages("FLightR")
+    install.packages("FLightR")
 ```
 I will try to update CRAN version several times a year, but to get the latest version from GitHub try:
 ```{r}
@@ -39,7 +39,7 @@ Version 0.3.9 has got two major changes:
 Very important changes were made for version 0.3.6
 Just contact me if results come out strange.
 
-##Examples of packages use:
+## Examples of packages use:
 
 1.  [new (>=0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_FLightR_vignette/FLightR_analysis_workflow.Rmd)
 2.  [old (<0.3.9) workflow for tree swallow example with BAS tag](https://github.com/eldarrak/FLightR/blob/master/examples/tree_swallow_BAS_tag_example/tree_swallow_analysis.Rmd)
@@ -52,8 +52,8 @@ Do not know what the difference between BAS and Intigeo is? In short intigeo are
 Vignette for the package is available [here](https://github.com/eldarrak/FLightR/blob/master/vignettes/FLightR_with_black-tailed_godwit_vignette_from_MEE_2017.Rmd)
 
 -------------
-##References
 
+## References
 1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25. [Check it](http://movementecologyjournal.biomedcentral.com/articles/10.1186/s40462-015-0062-5)
 
 2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596. [Check it](http://onlinelibrary.wiley.com/doi/10.1111/jav.00891/abstract)
