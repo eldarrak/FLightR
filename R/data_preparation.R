@@ -208,7 +208,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 
 	   if (stage==1) {
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
-		   print(table(calibration.parameters$All.slopes$Slopes)
+		   print(table(calibration.parameters$All.slopes$Slopes))
 	   if (length(table(calibration.parameters$All.slopes$Slopes$Type)==1)) {
 		   print('only_one_twilight_type_left!\n')
 		   return(10+percent_excluded)
