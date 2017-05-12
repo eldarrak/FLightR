@@ -229,7 +229,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
    }
 
    cat('stage 1...\n')
-   tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=1e-2), method='BFGS'), finally=try(suppressWarnings(sink())))
+   tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=1e-2)), finally=try(suppressWarnings(sink())))
    cat('stage 2...\n')
 
    tryCatch(Res<-stats::optim(Res$par, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, stage=2,control=list(reltol=reltol), method='BFGS' ), finally=try(suppressWarnings(sink())))
