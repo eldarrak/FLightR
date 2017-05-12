@@ -207,7 +207,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded)
 	   } else {
 	       print(table(calibration.parameters$All.slopes$Slopes$Type))
-	       if (length(unique(calibration.parameters$All.slopes$Slopes$Type))==1) {
+	       if (min(table(calibration.parameters$All.slopes$Slopes$Type))<=3) {
 		   print('only_one_twilight_type_left!\n')
 		   Val<-10
 		   } else {
