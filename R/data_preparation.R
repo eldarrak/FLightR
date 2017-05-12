@@ -178,6 +178,8 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
         # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
        log.light.borders<-Proc.data$log.light.borders
        log.irrad.borders<-Proc.data$log.irrad.borders
+	   
+
        calibration.parameters<-invisible(suppressWarnings(get.calibration.parameters(Calibration.period,
        Proc.data, model.ageing=FALSE, 
 	   log.light.borders=log.light.borders,
@@ -205,7 +207,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   percent_excluded<-1-(sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope))/Twilights_total)
 	   if (stage==1) {
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
-          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded^2)
+          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded^3)
 	   } else {
 	       if (min(table(calibration.parameters$All.slopes$Slopes$Type))<=2) {
 		   print('only_one_twilight_type_left!\n')
@@ -217,6 +219,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
            return(Val)
 	   }
    }
+
    cat('stage 1...\n')
    tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=1e-2)), finally=try(suppressWarnings(sink())))
    cat('stage 2...\n')
