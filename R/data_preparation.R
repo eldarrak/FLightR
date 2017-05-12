@@ -202,7 +202,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	}   
        if (plot) plot_slopes(calibration.parameters$All.slopes)
 	   suppressWarnings(sink())
-	   percent_excluded<-1-(nrow(calibration.parameters$All.slopes$Slopes)/Twilights_total
+	   percent_excluded<-1-(nrow(calibration.parameters$All.slopes$Slopes)/Twilights_total)
 	   if (stage==1) {
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded)
