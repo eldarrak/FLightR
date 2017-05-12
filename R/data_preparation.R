@@ -209,8 +209,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2-log(1/percent_excluded+0.01))
 	   } else {
-	       print(table(calibration.parameters$All.slopes$Slopes$Type))
-	       if (min(table(calibration.parameters$All.slopes$Slopes$Type))<=2) {
+	       if (length(table(calibration.parameters$All.slopes$Slopes$Type)==1) | min(table(calibration.parameters$All.slopes$Slopes$Type))<=2) {
 		   print('only_one_twilight_type_left!\n')
 		   Val<-10+percent_excluded
 		   } else {
