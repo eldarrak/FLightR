@@ -208,15 +208,13 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 
 	   if (stage==1) {
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
-          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2/sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope)))
-          #return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2-log(1/percent_excluded+0.01))
+          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2-log(1/percent_excluded+0.01))
 	   } else {
 	       if (length(table(calibration.parameters$All.slopes$Slopes$Type)==1) | min(table(calibration.parameters$All.slopes$Slopes$Type))<=2) {
 		   print('only_one_twilight_type_left!\n')
-		   #Val<-10+percent_excluded
-		   Val<-1/sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope))
+		   Val<-Inf
 		   } else {
-     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))/sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope))
+     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))+percent_excluded
 		   }
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
            return(Val)
