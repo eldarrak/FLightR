@@ -212,7 +212,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   } else {
 	       if (length(table(calibration.parameters$All.slopes$Slopes$Type)==1) | min(table(calibration.parameters$All.slopes$Slopes$Type))<=2) {
 		   print('only_one_twilight_type_left!\n')
-		   Val<-Inf
+		   Val<-10+percent_excluded
 		   } else {
      	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))+percent_excluded
 		   }
@@ -225,7 +225,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
    tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=1e-2)), finally=try(suppressWarnings(sink())))
    cat('stage 2...\n')
 
-   tryCatch(Res<-stats::optim(Res$par, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, stage=2,control=list(reltol=reltol)), finally=try(suppressWarnings(sink())))
+   tryCatch(Res<-stats::optim(Res$par, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, stage=2,control=list(reltol=reltol)), finally=try(suppressWarnings(sink())), method='BFGS')
    
    return(Res$par)
  }
