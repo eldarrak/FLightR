@@ -211,14 +211,15 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 		   #print(table(calibration.parameters$All.slopes$Slopes$Type))
 	   if (length(table(calibration.parameters$All.slopes$Slopes$Type))==1) {
 		   print('only_one_twilight_type_left!\n')
-		   return(10+percent_excluded)
+		   return(length(na.omit(calibration.parameters$All.slopes$Slopes$Type)))
 		  } else {
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2*log(1/(percent_excluded+0.01)))
 		  }
 	   } else {
 	       if (length(table(calibration.parameters$All.slopes$Slopes$Type))==1 | min(table(calibration.parameters$All.slopes$Slopes$Type))<=2) {
+		   print(table(calibration.parameters$All.slopes$Slopes$Type))
 		   print('only_one_twilight_type_left!\n')
-		   Val<-10+percent_excluded
+		   Val<-length(na.omit(calibration.parameters$All.slopes$Slopes$Type))
 		   } else {
      	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))*log(1/(percent_excluded+0.01))
 		   }
