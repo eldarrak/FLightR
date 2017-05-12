@@ -184,6 +184,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   log.irrad.borders=log.irrad.borders, 
        plot.each = FALSE, plot.final = FALSE,
 	   suggest.irrad.borders=FALSE)))
+	   Twilights_total<-calibration.parameters$Twilights_total
 	if (length(calibration.parameters$calib_outliers)>0) {
       Proc.data$FLightR.data$twilights$excluded[which(sapply(Proc.data$FLightR.data$twilights$datetime,
       FUN=function(x) min(abs(calibration.parameters$calib_outliers-as.numeric(x))))<Proc.data$saving.period*24)]<-1
@@ -201,7 +202,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	}   
        if (plot) plot_slopes(calibration.parameters$All.slopes)
 	   suppressWarnings(sink())
-	   percent_excluded<-1-(nrow(calibration.parameters$All.slopes$Slopes)/calibration.parameters$Twilights_total)
+	   percent_excluded<-1-(nrow(calibration.parameters$All.slopes$Slopes)/Twilights_total
 	   if (stage==1) {
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded)
@@ -210,7 +211,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 		   print('only_one_twilight_type_left!\n')
 		   Val<-10+percent_excluded^4
 		   } else {
-     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))- log(1/percent_excluded)
+     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))- log(1/percent_excluded+0.01)
 		   }
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
            return(Val)
