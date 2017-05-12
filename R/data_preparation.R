@@ -201,12 +201,12 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	}   
        if (plot) plot_slopes(calibration.parameters$All.slopes)
 	   suppressWarnings(sink())
-	   
+	   percent_excluded<-1-(nrow(calibration.parameters$All.slopes$Slopes)/calibration.parameters$Twilights_total)
 	   if (stage==1) {
-     	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), '\n')
-          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2)
+     	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
+          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded)
 	   } else {
-     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))
+     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))+percent_excluded
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val, '\n')
            return(Val)
 	   }
@@ -403,7 +403,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3], Elevs=Data[,4]))	
 		}		
 	}
-	Calib.data.dawn$type<-"Dawn"
+   if (nrow(Calib.data.dawn)>0) {Calib.data.dawn$type<-"Dawn"}
 
 	Calib.data.dusk<-data.frame()
 	for (dusk in 1:dim(Twilight.time.mat.Calib.dusk)[2]) {
@@ -417,7 +417,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3], Elevs=Data[,4]))
 		}
 	}
-	Calib.data.dusk$type<-"Dusk"
+	if (nrow(Calib.data.dusk)>0) {Calib.data.dusk$type<-"Dusk"}
 	Calib.data.all<-rbind(Calib.data.dawn, Calib.data.dusk)
 	if (plot.final) {
 		graphics::plot(LogLight~LogIrrad,data=Calib.data.all, type="n")
@@ -597,14 +597,14 @@ Twilight.log.light.mat.Calib.dusk<-Proc.data$Twilight.log.light.mat.dusk[,Dusk.c
 Twilight.time.mat.Calib.dawn<-Proc.data$Twilight.time.mat.dawn[,Dawn.calib.days]
 Twilight.log.light.mat.Calib.dawn<-Proc.data$Twilight.log.light.mat.dawn[,Dawn.calib.days ]
 
+Twilights_total<-length(c(Dusk.calib.days,Dawn.calib.days))
 #-------------------#
-if (suggest.irrad.borders) {
-Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=c(-10,10), plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
+  if (suggest.irrad.borders) {
+     Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=c(-10,10), plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
-log.irrad.borders<-suggest.irrad.boundaries(Calib.data.all) 
-cat('!!! log.irrad.borders were updated to new values:', log.irrad.borders[1], log.irrad.borders[2], '\n')
-
-}
+     log.irrad.borders<-suggest.irrad.boundaries(Calib.data.all) 
+     cat('!!! log.irrad.borders were updated to new values:', log.irrad.borders[1], log.irrad.borders[2], '\n')
+  }
 
 Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
@@ -627,7 +627,7 @@ All.slopes.int$Slopes<-All.slopes.int$Slopes[is.finite(All.slopes.int$Slopes$log
 
 calib_outliers<-All.slopes.int$Slopes$Time[which(abs(All.slopes.int$Slopes$logSlope-mean(All.slopes.int$Slopes$logSlope, na.rm=TRUE))>3*stats::sd(All.slopes.int$Slopes$logSlope, na.rm=TRUE))]
 
-Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes, log.irrad.borders=log.irrad.borders)
+Res<-list(calib_outliers=calib_outliers, All.slopes=All.slopes, log.irrad.borders=log.irrad.borders, Twilights_total=Twilights_total)
 }
 return(Res)
 }
