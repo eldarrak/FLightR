@@ -223,7 +223,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 		   } else {
 		   Dat<-subset(calibration.parameters$All.slopes$Slopes, is.finite(logSlope), select=c(logSlope, Time, Type))
 		   #print(Dat)
-     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=Dat),stats::lm(logSlope~Time, data=Dat))[2,6]))-log(1/(percent_excluded+0.001))
+     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=Dat),stats::lm(logSlope~Time, data=Dat))[2,6])) +percent_excluded^2 #-log(1/(percent_excluded+0.001)
 		   }
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
            return(Val)
