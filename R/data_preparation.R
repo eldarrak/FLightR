@@ -213,7 +213,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 		   print('only_one_twilight_type_left!\n')
 		   return(length(na.omit(calibration.parameters$All.slopes$Slopes$Type)))
 		  } else {
-          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2-log(1/(percent_excluded+0.001)))
+          return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded)
 		  }
 	   } else {
 	       if (length(table(calibration.parameters$All.slopes$Slopes$Type))==1 | min(table(calibration.parameters$All.slopes$Slopes$Type))<=2) {
@@ -221,7 +221,8 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 		   print('only_one_twilight_type_left!\n')
 		   Val<-length(na.omit(calibration.parameters$All.slopes$Slopes$Type))
 		   } else {
-     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=calibration.parameters$All.slopes$Slopes),stats::lm(logSlope~Time, data=calibration.parameters$All.slopes$Slopes))[2,6]))-log(1/(percent_excluded+0.001))
+		   Dat<-na.omit(subset(calibration.parameters$All.slopes$Slopes, select=c(Slopes, Time, Type))
+     	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=Dat),stats::lm(logSlope~Time, data=Dat))[2,6]))-log(1/(percent_excluded+0.001))
 		   }
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
            return(Val)
