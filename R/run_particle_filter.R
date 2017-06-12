@@ -439,7 +439,9 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	#Current.Weights.with.Prev<-	pmax(rowProds(Current.Weights.with.Prev.mat), 1e-323)
 	
 	# here is the place - I'll check weights without use of the last stage information! 
-	Current.Weights.with.Prev<-	pmax(rowProds(Weights.stack), 1e-323)
+	#Current.Weights.with.Prev<-	pmax(rowProds(Weights.stack), 1e-323)
+    # here in v 0.4.8 I am trying to figure out why I do not use the last stage..	
+    Current.Weights.with.Prev<-	pmax(rowProds(Current.Weights.with.Prev.mat), 1e-323)
 	#
     #================================================================
     # ver 1.7. 
