@@ -431,17 +431,19 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     #=====================================================
     # here is the change from 1.6 - Adding cumulative weights now..
 	# and this came back at the version 3.2!
-    Current.Weights.with.Prev.mat<-cbind(Weights.stack, Current.Weights)
+    #Current.Weights.with.Prev.mat<-cbind(Weights.stack, Current.Weights)
     
 	#rowProds <- function(a) exp(rowMeans(log(a)))
     rowProds <- function(a) exp(rowSums(log(a)))
 	
 	#Current.Weights.with.Prev<-	pmax(rowProds(Current.Weights.with.Prev.mat), 1e-323)
 	
-	# here is the place - I'll check weights without use of the last stage information! 
-	#Current.Weights.with.Prev<-	pmax(rowProds(Weights.stack), 1e-323)
-    # here in v 0.4.8 I am trying to figure out why I do not use the last stage..	
-    Current.Weights.with.Prev<-	pmax(rowProds(Current.Weights.with.Prev.mat), 1e-323)
+	if (Time.Period != total_length) {
+	   	# here is the place - I'll check weights without use of the last stage information! 
+     	Current.Weights.with.Prev<-	pmax(rowProds(Weights.stack), 1e-323)
+    } else {
+	    Current.Weights.with.Prev<-	pmax(rowProds(cbind(Weights.stack, Current.Weights)) , 1e-323)
+	}
 	#
     #================================================================
     # ver 1.7. 
@@ -455,6 +457,8 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
       cat("ESS is ", ESS)
 if (is.na(ESS)) {
 	ESS=1
+	Current.Weights.with.Prev.mat<-cbind(Weights.stack, Current.Weights)
+
 	save(Current.Weights.with.Prev, Current.Weights.with.Prev.mat, Current.Weights, file="tmp.RData")
 	}		
     } else {
