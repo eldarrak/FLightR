@@ -71,13 +71,13 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    Calibration.periods[,2]<-as.POSIXct(Calibration.periods[,2], tz='gmt')
 	Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='gmt')
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-as.POSIXct("2100-01-01", tz='gmt')
-   calibration.parameters<-get.calibration.parameters(
+   calibration.parameters<-suppressWarnings(get.calibration.parameters(
          Calibration.periods, Proc.data,
           model.ageing=model.ageing,
 		  log.light.borders=Proc.data$log.light.borders,
 		  log.irrad.borders=Proc.data$log.irrad.borders,
 		  plot.each= plot.each, plot.final= plot.final,
-		  suggest.irrad.borders=suggest.irrad.borders)
+		  suggest.irrad.borders=suggest.irrad.borders))
    # here I check whether tag measures with 10 minutes or more inteval and if so change likelihood correction to FALSE
    if (likelihood.correction=='auto') {
       if (Proc.data$saving.period>=550) {
@@ -96,10 +96,10 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
-         calibration.parameters<-get.calibration.parameters(Calibration.periods, Proc.data_tmp, 
+         calibration.parameters<-suppressWarnings(get.calibration.parameters(Calibration.periods, Proc.data_tmp, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders,
-		 suggest.irrad.borders=FALSE)
+		 suggest.irrad.borders=suggest.irrad.borders))
          plot_slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
@@ -114,11 +114,11 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
          Proc.data$FLightR.data$twilights[Proc.data$FLightR.data$twilights$excluded==0,],
          measurement.period=Proc.data$measurement.period, saving.period=Proc.data$saving.period,
          impute.on.boundaries=Proc.data$impute.on.boundaries)
-         calibration.parameters<-get.calibration.parameters(
+         calibration.parameters<-suppressWarnings(get.calibration.parameters(
 		 Calibration.periods, Proc.data_tmp, 
          model.ageing=model.ageing, log.light.borders=Proc.data$log.light.borders,
          log.irrad.borders=Proc.data$log.irrad.borders,
-		 suggest.irrad.borders=FALSE)
+		 suggest.irrad.borders=suggest.irrad.borders))
          plot_slopes(calibration.parameters$All.slopes)
 		 Proc.data$Twilight.time.mat.dusk<-Proc.data_tmp$Twilight.time.mat.dusk
 		 Proc.data$Twilight.time.mat.dawn<-Proc.data_tmp$Twilight.time.mat.dawn
@@ -627,7 +627,7 @@ Twilights_total<-length(c(Dusk.calib.days,Dawn.calib.days))
 
 Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
-All.slopes<-get.calib.param(Calib.data.all, plot=FALSE, calibration.type=calibration.type)
+All.slopes<-suppressWarnings(get.calib.param(Calib.data.all, plot=FALSE, calibration.type=calibration.type))
 
 All.slopes$Slopes$logSlope<-log(All.slopes$Slopes$Slope)
 
