@@ -288,7 +288,10 @@ make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, thr
    if (length(Kappa)>1) stop("Kappa has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
    if (length(M.mean)>1) stop("M.mean has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
    if (length(M.sd)>1) stop("M.sd has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
-
+   if (any(is.na(Proc.data$FLightR.data$twilights$datetime))) {
+      warning('NAs found and deleted in Proc.data$FLightR.data$twilights$datetime\n')
+	  Proc.data$FLightR.data$twilights<- na.omit(Proc.data$FLightR.data$twilights)
+   }
    Processed.light<-make.processed.light.object(Proc.data$FLightR.data)
 
    Index.tab<-create.proposal(Processed.light, start=start, Grid=Grid)
