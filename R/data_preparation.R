@@ -127,8 +127,8 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 		 Proc.data$Twilight.log.light.mat.dawn<-Proc.data_tmp$Twilight.log.light.mat.dawn
    }   
 
-   if (!stats::is.na(fixed.logSlope[1])) calibration.parameters$All.slopes$Parameters$LogSlope[1]<-fixed.logSlope[1]
-   if (!stats::is.na(fixed.logSlope[2])) calibration.parameters$All.slopes$Parameters$LogSlope[2]<-fixed.logSlope[2]
+   if (!is.na(fixed.logSlope[1])) calibration.parameters$All.slopes$Parameters$LogSlope[1]<-fixed.logSlope[1]
+   if (!is.na(fixed.logSlope[2])) calibration.parameters$All.slopes$Parameters$LogSlope[2]<-fixed.logSlope[2]
    
    Calibration=create.calibration(calibration.parameters$All.slopes,
                  Proc.data,
