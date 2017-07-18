@@ -282,7 +282,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.1, Direction=0,Kappa=0, M.mean=300, M.sd=500, likelihood.correction=TRUE) {
+make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.05, Direction=0,Kappa=0, M.mean=300, M.sd=500, likelihood.correction=TRUE) {
    if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
    if (length(Direction)>1) stop("Direction has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
    if (length(Kappa)>1) stop("Kappa has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
