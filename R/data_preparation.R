@@ -179,8 +179,6 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
         # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
        log.light.borders<-Proc.data$log.light.borders
        log.irrad.borders<-Proc.data$log.irrad.borders
-	   
-logSlope
        calibration.parameters<-invisible(suppressWarnings(get.calibration.parameters(Calibration.period,
        Proc.data, model.ageing=FALSE, 
 	   log.light.borders=log.light.borders,
