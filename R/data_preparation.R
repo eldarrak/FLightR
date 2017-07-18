@@ -391,7 +391,7 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=FALSE
 }
 
 
-logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=TRUE, plot.final=TRUE,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), adjust.variance=TRUE, impute.on.boundaries=FALSE) {
+logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=TRUE, plot.final=TRUE,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), impute.on.boundaries=FALSE) {
 	# =================
 	# in this function I'll add a new lnorm calibration...
 	#
@@ -454,9 +454,9 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 }
 
 # ok now we need template.calibration.function..
-logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), adjust.variance=FALSE, plot.each=TRUE, plot.final=TRUE, impute.on.boundaries=FALSE) {
+logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, time.shift=0, positions, log.light.borders=NA,  log.irrad.borders=c(-15, 50), plot.each=TRUE, plot.final=TRUE, impute.on.boundaries=FALSE) {
 	
-	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, adjust.variance=adjust.variance, plot.each=plot.each, plot.final=plot.final,impute.on.boundaries=impute.on.boundaries)
+	Calibration.original<-logger.template.calibrarion.internal(Twilight.time.mat.Calib.dawn+time.shift, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk+time.shift, Twilight.log.light.mat.Calib.dusk, positions=positions, log.light.borders=log.light.borders,  log.irrad.borders= log.irrad.borders, plot.each=plot.each, plot.final=plot.final,impute.on.boundaries=impute.on.boundaries)
 
 	return(Calibration.original)
 	}
