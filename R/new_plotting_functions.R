@@ -69,7 +69,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
          for (twilight in 1:length(twilights.index)) {
              All.Points[Points_rle[[twilight]]$values]<-All.Points[Points_rle[[twilight]]$values] + Points_rle[[twilight]]$lengths
          }
-		 Points<-Result$Spatial$Grid[All.Points>0,][sample.int(length(All.Points[All.Points>0]), size = 10000, replace = TRUE, prob = All.Points[All.Points>0]), 1:2]
+		 Points<-Result$Spatial$Grid[All.Points>0,,drop=FALSE][sample.int(length(All.Points[All.Points>0]), size = 10000, replace = TRUE, prob = All.Points[All.Points>0]), 1:2]
 	}
 	
 	# background map
