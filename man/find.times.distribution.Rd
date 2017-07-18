@@ -20,4 +20,3 @@ Idea of this functions is to extract schedules for known location
 \author{
 Eldar Rakhimberdiev
 }
-

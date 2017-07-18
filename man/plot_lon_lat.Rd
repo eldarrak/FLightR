@@ -48,4 +48,3 @@ plot_lon_lat(Result)
 \author{
 Eldar Rakhimberdiev
 }
-

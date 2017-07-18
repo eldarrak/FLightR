@@ -52,4 +52,3 @@ Summary<-stationary.migration.summary(Result, prob.cutoff=1)
 \author{
 Eldar Rakhimberdiev
 }
-

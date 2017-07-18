@@ -32,10 +32,9 @@ TAGS format returned or written as .csv by this function is a dataframe with col
  }
 The fields \code{excluded} and \code{interp} may have values of \code{TRUE} only for \code{twilight > 0}.
 }
-\author{
-Eldar Rakhimberdiev & Simeon Lisovski
-}
 \seealso{
 \code{\link{BAStag2TAGS}} and \code{\link{GeoLight2TAGS}}
 }
-
+\author{
+Eldar Rakhimberdiev & Simeon Lisovski
+}

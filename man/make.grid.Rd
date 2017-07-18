@@ -43,4 +43,3 @@ Grid<-make.grid(left=-14, bottom=30, right=13, top=57,
 \author{
 Eldar Rakhimberdiev
 }
-

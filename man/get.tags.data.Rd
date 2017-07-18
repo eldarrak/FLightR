@@ -39,4 +39,3 @@ The returned object has many parts, the important are: (1) the recorded light da
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 Proc.data<-get.tags.data(File)
 }
-

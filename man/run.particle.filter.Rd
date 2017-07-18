@@ -98,4 +98,3 @@ Result<-run.particle.filter(all.in, threads=1,
 \author{
 Eldar Rakhimberdiev
 }
-

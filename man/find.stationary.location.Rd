@@ -44,4 +44,3 @@ Location<-find.stationary.location(Proc.data, '2013-07-20', '2013-08-20', initia
 \author{
 Eldar Rakhimberdiev
 }
-

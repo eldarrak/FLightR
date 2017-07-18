@@ -46,4 +46,3 @@ plot_likelihood(all.in, twilight.index=10)
 \author{
 Eldar Rakhimberdiev
 }
-

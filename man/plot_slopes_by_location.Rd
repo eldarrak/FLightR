@@ -36,4 +36,3 @@ abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 \author{
 Eldar Rakhimberdiev
 }
-

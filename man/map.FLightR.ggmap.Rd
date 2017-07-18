@@ -73,4 +73,3 @@ map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)
 \author{
 Eldar Rakhimberdiev
 }
-

@@ -80,4 +80,3 @@ plot_util_distr(Result, zoom=6, save=FALSE)
 \author{
 Eldar Rakhimberdiev
 }
-
