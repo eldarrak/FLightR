@@ -180,7 +180,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
        log.light.borders<-Proc.data$log.light.borders
        log.irrad.borders<-Proc.data$log.irrad.borders
 	   
-
+logSlope
        calibration.parameters<-invisible(suppressWarnings(get.calibration.parameters(Calibration.period,
        Proc.data, model.ageing=FALSE, 
 	   log.light.borders=log.light.borders,
@@ -217,7 +217,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded^2)
 		  }
 	   } else {
-	       Dat<-subset(calibration.parameters$All.slopes$Slopes, is.finite(logSlope), select=c(logSlope, Time, Type))
+	       Dat<-subset(calibration.parameters$All.slopes$Slopes, is.finite(logSlope), select=c('logSlope', 'Time', 'Type'))
 	       if (length(table(Dat$Type))==1 | min(table(Dat$Type))<=2) {
 		   print('only_one_twilight_type_left!\n')
 		   Val<-nrow(Dat)
