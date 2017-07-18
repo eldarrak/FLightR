@@ -148,7 +148,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
   
   all.out$Spatial$tmp<-NULL
   all.out$call<-cl
-  all.out$Results$FLightRver<-packageVersion("FLightR")
+  all.out$Results$FLightRver<-utils::packageVersion("FLightR")
   cat("DONE!\n")
   return(all.out)
 }
