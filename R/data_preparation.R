@@ -566,7 +566,7 @@ return(Res)
 plot_slopes<-function(all.slopes, ylim=NULL) {
 old.par <- graphics::par(no.readonly = TRUE) 
 #on.exit(par(old.par))
-all.slopes$Slopes$Slope<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
+all.slopes$Slopes<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
 graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
 graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
 graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
