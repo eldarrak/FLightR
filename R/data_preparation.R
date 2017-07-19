@@ -566,6 +566,7 @@ return(Res)
 plot_slopes<-function(all.slopes, ylim=NULL) {
 old.par <- graphics::par(no.readonly = TRUE) 
 #on.exit(par(old.par))
+all.slopes$Slopes$Slope<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
 graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
 graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
 graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
@@ -631,7 +632,7 @@ Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilig
 
 All.slopes<-suppressWarnings(get.calib.param(Calib.data.all, plot=FALSE, calibration.type=calibration.type))
 
-All.slopes$Slopes$logSlope<-log(All.slopes$Slopes$Slope)
+All.slopes$Slopes$logSlope<-suppressWarnings(log(All.slopes$Slopes$Slope))
 
 if (model.ageing) {
 All.slopes.int<-All.slopes
