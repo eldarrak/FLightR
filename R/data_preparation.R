@@ -168,7 +168,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @export		
 find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
 
-  if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very xclose but within few thousand km!')
+  if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very close but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE, stage=1) {
    sink("tmp")
         Calibration.period<-data.frame(
@@ -215,10 +215,10 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded^2)
 		  }
 	   } else {
-	       Dat<-subset(calibration.parameters$All.slopes$Slopes, is.finite('logSlope'), select=c('logSlope', 'Time', 'Type'))
+	       Dat<-calibration.parameters$All.slopes$Slopes[is.finite(calibration.parameters$All.slopes$logSlope,]
 	       if (length(table(Dat$Type))==1 | min(table(Dat$Type))<=2) {
-		   print('only_one_twilight_type_left!\n')
-		   Val<-nrow(Dat)
+	     	   print('only_one_twilight_type_left!\n')
+		       Val<-nrow(Dat)
 		   } else {
 		   #Dat<-subset(calibration.parameters$All.slopes$Slopes, is.finite(logSlope), select=c(logSlope, Time, Type))
 		   #print(Dat)
