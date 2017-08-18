@@ -440,7 +440,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	}
 	if (nrow(Calib.data.dusk)>0) {Calib.data.dusk$type<-"Dusk"}
 	
-	if (nrow(Calib.data.dusk)==0 & nrow(Calib.data.dawn)==0) stop('None of twilights could happen in the location... Something went wrong at the previous stages')
+	if (nrow(Calib.data.dusk)==0 & nrow(Calib.data.dawn)==0) stop('\r Error: None of twilights could happen in the location... Something went wrong at the previous stages')
 	Calib.data.all<-rbind(Calib.data.dawn, Calib.data.dusk)
 	if (plot.final) {
 		graphics::plot(LogLight~LogIrrad,data=Calib.data.all, type="n")
