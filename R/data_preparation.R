@@ -439,6 +439,7 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 		}
 	}
 	if (nrow(Calib.data.dusk)>0) {Calib.data.dusk$type<-"Dusk"}
+	
 	Calib.data.all<-rbind(Calib.data.dawn, Calib.data.dusk)
 	if (plot.final) {
 		graphics::plot(LogLight~LogIrrad,data=Calib.data.all, type="n")
