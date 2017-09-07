@@ -641,7 +641,7 @@ seasonal_donut<-function() {
 #' @details function plots likelihoods before particle filter run, so these are pure results of calibrations without any movement model
 #' @param object either output from \code{\link{make.prerun.object}} or \code{\link{run.particle.filter}}
 #' @param date either NULL or a date (possibly with time) closest to the twilight you wan to be plotted
-#' @param twilight.index number of likelohood surface to be plotted 
+#' @param twilight.index number of likelihood surface to be plotted 
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20

@@ -48,8 +48,8 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' @param plot.each Do you want every twilight to be plotted while processing
 #' @param plot.final Do you want final calibration graph to be plotted. On the graph you can see all the observed versus expected light levels. All slopes should be similar.
 #' @param likelihood.correction will estimate correction of likelihood for the current calibration parameters. Highly recommended not to be change from 'auto'. In this case FLightR will switch it to FALSE in case tag saved dat on 10 minutes or longer period.
-#' @param fixed.logSlope these are mean (1) and SD (2) for distribution of slopes. Should normally be estimated from the data (and thus default is c(NA, NA)). Change any of these two finite values if you want them to be predetermined and not estiamted from the calibration data.
-#' @param suggest.irrad.borders experimental parameter! If set to TRUE faunction will try to find the best values for the log.irrad.borders
+#' @param fixed.logSlope these are mean (1) and SD (2) for distribution of slopes. Should normally be estimated from the data (and thus default is c(NA, NA)). Change any of these two finite values if you want them to be predetermined and not estimated from the calibration data.
+#' @param suggest.irrad.borders experimental parameter! If set to TRUE function will try to find the best values for the log.irrad.borders
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
@@ -252,8 +252,8 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' @param Decision prior for migration probability values from 0 to 1 are allowed
 #' @param Direction Direction prior for direction of migration (in degrees) with 0 pointing to the North
 #' @param Kappa concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prior for direction for all the track, so is not recommended to be changed
-#' @param M.mean Prior for mean distance travelled between consequtive twilights, km
-#' @param M.sd Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution
+#' @param M.mean Prior for mean distance travelled between consecutive twilights, km
+#' @param M.sd Prior for sd of distance travelled between consecutive twilights, the higher the value is the wider is the the distribution
 #' @param likelihood.correction Should likelihood correction estimated during \code{\link{make.calibration}} run be used?
 #' @return Object to be uses in the \code{\link{run.particle.filter}}
 #' @examples

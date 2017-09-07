@@ -20,7 +20,7 @@
 #' @param adaptive.resampling Above what level of ESS resampling should be skipped
 #' @param check.outliers switches ON the online outlier routine 
 #' @param sink2file will write run details in a file instead of showing on the screen
-#' @param add.jitter will add spatial jitter inside a grid cell for the median estiamtes
+#' @param add.jitter will add spatial jitter inside a grid cell for the median estimates
 #' @return FLightR object, containing output and extracted results. It is a list with the following elements 
 #' 
 #'    \item{Indices}{List with prior information and indices}

@@ -11,7 +11,7 @@ plot_likelihood(object, date = NULL, twilight.index = NULL)
 
 \item{date}{either NULL or a date (possibly with time) closest to the twilight you wan to be plotted}
 
-\item{twilight.index}{number of likelohood surface to be plotted}
+\item{twilight.index}{number of likelihood surface to be plotted}
 }
 \description{
 plots specific likelihood surface over map

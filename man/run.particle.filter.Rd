@@ -43,7 +43,7 @@ run.particle.filter(all.out, cpus = NULL, threads = -1,
 
 \item{sink2file}{will write run details in a file instead of showing on the screen}
 
-\item{add.jitter}{will add spatial jitter inside a grid cell for the median estiamtes}
+\item{add.jitter}{will add spatial jitter inside a grid cell for the median estimates}
 }
 \value{
 FLightR object, containing output and extracted results. It is a list with the following elements 

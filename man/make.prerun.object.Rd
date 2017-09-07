@@ -27,9 +27,9 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 
 \item{Kappa}{concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prior for direction for all the track, so is not recommended to be changed}
 
-\item{M.mean}{Prior for mean distance travelled between consequtive twilights, km}
+\item{M.mean}{Prior for mean distance travelled between consecutive twilights, km}
 
-\item{M.sd}{Prior for sd of distance travelled between consequtive twilights, the higher the value is the wider is the the distribution}
+\item{M.sd}{Prior for sd of distance travelled between consecutive twilights, the higher the value is the wider is the the distribution}
 
 \item{likelihood.correction}{Should likelihood correction estimated during \code{\link{make.calibration}} run be used?}
 }

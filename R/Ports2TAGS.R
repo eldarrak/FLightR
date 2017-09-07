@@ -84,7 +84,7 @@ twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
 
 #' Function to write down twilights annotated in GeoLight package data in so-called TAGS format
 #'
-#' this function converts combines twilights detected in BAStag ot twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
+#' this function converts combines twilights detected in BAStag to twGeos with raw data and writes them down in TAGS format that can be easily read by \code{\link{get.tags.data}}
 #' @param raw original data - dataframe with two columns first column must contain time and second measured light levels
 #' @param gl_twl twilights object from GeoLight
 #' @param threshold threshold value used for twilight definition in GeoLight
