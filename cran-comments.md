@@ -5,11 +5,7 @@
 
 ## Update
 This is an update. 
-In 0.4.6 version I have 
-* added support for old swiss loggers
-* improved find stationary location function small bug fixes
-* updated citations
-* added vignette
+In 0.4.7 version I have 
 * fixed many small bugs
 
 ## Test environments

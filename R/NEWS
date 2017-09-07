@@ -18,3 +18,4 @@
 # ver 0.4.4 many changes, all tests, helpfiles, ready for CRAN submission
 # ver 0.4.5 corrected mistakes in check submitted to CRAN
 # ver 0.4.6 added support for old swiss loggers, improved find stationary location function small bug fixes, citation update, added vignette, fixed many small bugs.
+# ver 0.4.7 many small stability improvements, typo corrections and new error mesages
