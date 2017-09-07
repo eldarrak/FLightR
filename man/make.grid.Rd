@@ -18,9 +18,9 @@ make.grid(left = -180, bottom = -90, right = 180, top = 90,
 
 \item{top}{- top boundary in degrees (-90 <= right <= 90)}
 
-\item{distance.from.land.allowed.to.use}{- define how far from the shoreland animal could occur. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity}
+\item{distance.from.land.allowed.to.use}{- define how far from the shore animal could occur. Unit - km, negative values are for inland and positive for offshore directions. \code{Inf} stays for infinity}
 
-\item{distance.from.land.allowed.to.stay}{- define how far from the shoreland animal could stay stationary between twilights. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity}
+\item{distance.from.land.allowed.to.stay}{- define how far from the shore animal could stay stationary between twilights. Unit - km, negative values are for inland and positive for offshore directions. \code{Inf} stays for infinity}
 
 \item{plot}{show a plot of final grid.}
 
@@ -32,7 +32,7 @@ make.grid(left = -180, bottom = -90, right = 180, top = 90,
 dataframe with coordinates(lon and lat) and \code{probability.of.staying}
 }
 \description{
-This function makes a rectangular grid with use defined boudnaries and probabilities of being stationary.
+This function makes a rectangular grid with use defined boundaries and probabilities of being stationary.
 }
 \examples{
 Grid<-make.grid(left=-14, bottom=30, right=13, top=57,

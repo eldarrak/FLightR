@@ -21,7 +21,7 @@ run.particle.filter(all.out, cpus = NULL, threads = -1,
 
 \item{known.last}{Set to FALSE if your bird was not at a known place during last twilight in the data}
 
-\item{precision.sd}{if \code{known.last} then what is the precision of this information. Will be used to resample particles prportionally to their ditance from the known last point with probability \code{P = dnorm(0, precision.sd)}}
+\item{precision.sd}{if \code{known.last} then what is the precision of this information. Will be used to resample particles proportionally to their distance from the known last point with probability \code{P = dnorm(0, precision.sd)}}
 
 \item{behav.mask.low.value}{Probability value that will be used instead of 0 in the behavioural mask. If set to 1 behavioural mask will not be active anymore}
 
@@ -31,11 +31,11 @@ run.particle.filter(all.out, cpus = NULL, threads = -1,
 
 \item{cluster.type}{see help to package parallel for details}
 
-\item{a}{minimum distance that is used in the movement model - left boundary for truncated normal distribtuon of ditances moved between twilights. Default is 45 for as default grid has a minimum ditance of 50 km.}
+\item{a}{minimum distance that is used in the movement model - left boundary for truncated normal distribution of distances moved between twilights. Default is 45 for as default grid has a minimum distance of 50 km.}
 
-\item{b}{Maximum distance allowed to fly between two consequtive twilights}
+\item{b}{Maximum distance allowed to fly between two consecutive twilights}
 
-\item{L}{how many consequitive particles to resample}
+\item{L}{how many consecutive particles to resample}
 
 \item{adaptive.resampling}{Above what level of ESS resampling should be skipped}
 
@@ -64,7 +64,7 @@ FLightR object, containing output and extracted results. It is a list with the f
   }
 }
 \description{
-Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotiing etc.
+Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotting etc.
 }
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")

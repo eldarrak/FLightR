@@ -4,13 +4,13 @@
 
 #' makes spatial grid
 #' 
-#' This function makes a rectangular grid with use defined boudnaries and probabilities of being stationary.
+#' This function makes a rectangular grid with use defined boundaries and probabilities of being stationary.
 #' @param left - left boundary in degrees (-180 <= left <= 180)
 #' @param bottom - lower boundary in degrees (-90 <= bottom <= 90)
 #' @param right - right boundary in degrees (-180 <= right <= 180)
 #' @param top - top boundary in degrees (-90 <= right <= 90)
-#' @param distance.from.land.allowed.to.use - define how far from the shoreland animal could occur. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity
-#' @param distance.from.land.allowed.to.stay - define how far from the shoreland animal could stay stationary between twilights. Unit - km, egative values are for inland and positive for offshore directions. \code{Inf} stays for infinity
+#' @param distance.from.land.allowed.to.use - define how far from the shore animal could occur. Unit - km, negative values are for inland and positive for offshore directions. \code{Inf} stays for infinity
+#' @param distance.from.land.allowed.to.stay - define how far from the shore animal could stay stationary between twilights. Unit - km, negative values are for inland and positive for offshore directions. \code{Inf} stays for infinity
 #' @param return.distances - return distances to the shoreline
 #' @param probability.of.staying - assigned probability value for grid cells that do not satisfy \code{distance.from.water.allowed.to.stay}
 #' @param plot show a plot of final grid.

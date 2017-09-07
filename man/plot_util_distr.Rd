@@ -2,7 +2,7 @@
 % Please edit documentation in R/new_plotting_functions.R
 \name{plot_util_distr}
 \alias{plot_util_distr}
-\title{plots resulting track over map with uncertainty shown by spave utilisation distribution}
+\title{plots resulting track over map with uncertainty shown by space utilisation distribution}
 \usage{
 plot_util_distr(Result, dates = NULL, map.options = NULL,
   percentiles = c(0.4, 0.6, 0.8), zoom = "auto",
@@ -13,7 +13,7 @@ plot_util_distr(Result, dates = NULL, map.options = NULL,
 \arguments{
 \item{Result}{FLightR result object obtained from \code{\link{run.particle.filter}}}
 
-\item{dates}{Use NULL if all twilights will be used for plotting, one integer if specific twilight should be plotted (line number in Result$Results$Quantiles). Use data.frame with first colum - start of the period and second - end of the period and each line represents a new period to plot specific periods, e.g. wintering or migration.}
+\item{dates}{Use NULL if all twilights will be used for plotting, one integer if specific twilight should be plotted (line number in Result$Results$Quantiles). Use data.frame with first column - start of the period and second - end of the period and each line represents a new period to plot specific periods, e.g. wintering or migration.}
 
 \item{map.options}{options passed to \code{\link[ggmap]{get_map}}, note that \code{zoom} option is defined separately}
 
@@ -21,9 +21,9 @@ plot_util_distr(Result, dates = NULL, map.options = NULL,
 
 \item{zoom}{Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.}
 
-\item{geom_polygon.options}{passed to \code{\link[ggplot2]{geom_polygon}}}
+\item{geom_polygon.options}{options passed to \code{\link[ggplot2]{geom_polygon}}}
 
-\item{save.options}{ptions passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.}
+\item{save.options}{options passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.}
 
 \item{color.palette}{colors for probability contours. Either NULL or \code{\link[grDevices]{colorRampPalette}} object}
 

@@ -9,7 +9,7 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
   M.mean = 300, M.sd = 500, likelihood.correction = TRUE)
 }
 \arguments{
-\item{Proc.data}{Processed dat aobject created by \code{\link{get.tags.data}}.}
+\item{Proc.data}{Processed data object created by \code{\link{get.tags.data}}.}
 
 \item{Grid}{Spatial grid created by \code{\link{make.grid}}.}
 
@@ -25,7 +25,7 @@ make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
 
 \item{Direction}{Direction prior for direction of migration (in degrees) with 0 pointing to the North}
 
-\item{Kappa}{concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prioir for direction for all the track, so is not recommended to be changed}
+\item{Kappa}{concentration parameter for vonMises distribution, 0 means uniform or even distribution. Will set some prior for direction for all the track, so is not recommended to be changed}
 
 \item{M.mean}{Prior for mean distance travelled between consequtive twilights, km}
 

@@ -3,20 +3,20 @@
 
 #' Run Particle Filter
 #' 
-#' Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotiing etc.
+#' Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotting etc.
 #' @param all.out An object created by \code{\link{make.prerun.object}}.
 #' @param threads An amount of threads to use while running in parallel. default is -1. if value 1 submitted package will run sequentially
 #' @param cpus another way to specify  \code{threads}
 #' @param nParticles  total amount of particles to be used with the run. 10 000 (1e4) is recommended for the preliminary run and 1 000 000 (1e6) for the final
 #' @param known.last Set to FALSE if your bird was not at a known place during last twilight in the data
-#' @param precision.sd if \code{known.last} then what is the precision of this information. Will be used to resample particles prportionally to their ditance from the known last point with probability \code{P = dnorm(0, precision.sd)}
+#' @param precision.sd if \code{known.last} then what is the precision of this information. Will be used to resample particles proportionally to their distance from the known last point with probability \code{P = dnorm(0, precision.sd)}
 #' @param behav.mask.low.value Probability value that will be used instead of 0 in the behavioural mask. If set to 1 behavioural mask will not be active anymore
 #' @param k Kappa parameter from vonMises distribution. Default is NA, otherwise will generate particles in a direction of a previous transitions with kappa = k
 #' @param plot Should function plot preliminary map in the end of the run?
 #' @param cluster.type see help to package parallel for details
-#' @param a minimum distance that is used in the movement model - left boundary for truncated normal distribtuon of ditances moved between twilights. Default is 45 for as default grid has a minimum ditance of 50 km.
-#' @param b Maximum distance allowed to fly between two consequtive twilights
-#' @param L how many consequitive particles to resample
+#' @param a minimum distance that is used in the movement model - left boundary for truncated normal distribution of distances moved between twilights. Default is 45 for as default grid has a minimum distance of 50 km.
+#' @param b Maximum distance allowed to fly between two consecutive twilights
+#' @param L how many consecutive particles to resample
 #' @param adaptive.resampling Above what level of ESS resampling should be skipped
 #' @param check.outliers switches ON the online outlier routine 
 #' @param sink2file will write run details in a file instead of showing on the screen
@@ -729,7 +729,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Kappas<-unlist(lapply(Directions, FUN=function(x) CircStats::est.kappa(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]*pi/180)))))
   
   
-  # now we want to get mean ditance
+  # now we want to get mean distance
   cat("   estimating mean dists\n")
   #
   #cat("   estimating mean and SD to report dists SD\n")

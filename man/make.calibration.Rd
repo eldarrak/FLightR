@@ -19,14 +19,14 @@ make.calibration(Proc.data, Calibration.periods, model.ageing = FALSE,
 
 \item{plot.final}{Do you want final calibration graph to be plotted. On the graph you can see all the observed versus expected light levels. All slopes should be similar.}
 
-\item{likelihood.correction}{will estimate correction of likelihood for the current calibration paramters. Highly recommended not to be change from 'auto'. In this case FLightR will switch it to FALSE in case tage saved dat on 10 minutes or longre period.}
+\item{likelihood.correction}{will estimate correction of likelihood for the current calibration parameters. Highly recommended not to be change from 'auto'. In this case FLightR will switch it to FALSE in case tag saved dat on 10 minutes or longer period.}
 
-\item{fixed.logSlope}{these are mean (1) and SD (2) for distribution of slopes. Should normallu be estimated from the data (and thus default is c(NA, NA)). Change any of these two finite values if you want them to be predetermined and not estiamted from the calibration data.}
+\item{fixed.logSlope}{these are mean (1) and SD (2) for distribution of slopes. Should normally be estimated from the data (and thus default is c(NA, NA)). Change any of these two finite values if you want them to be predetermined and not estiamted from the calibration data.}
 
-\item{suggest.irrad.borders}{experimental parameter! If set to TRUE faunction will try to find the best velues for the log.irrad.borders}
+\item{suggest.irrad.borders}{experimental parameter! If set to TRUE faunction will try to find the best values for the log.irrad.borders}
 }
 \description{
-Function estimates all nesessary parameters from the calibration data logged in a known location or locations.
+Function estimates all necessary parameters from the calibration data logged in a known location or locations.
 }
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")

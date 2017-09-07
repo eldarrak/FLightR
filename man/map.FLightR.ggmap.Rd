@@ -13,15 +13,15 @@ map.FLightR.ggmap(Result, dates = NULL, plot.cloud = TRUE,
 \arguments{
 \item{Result}{FLightR result object obtained from \code{\link{run.particle.filter}}}
 
-\item{dates}{either NULL if all twilights should be included or data.frame with first colum - start of the period and second end of the period. Each line represents a new period}
+\item{dates}{either NULL if all twilights should be included or data.frame with first column - start of the period and second end of the period. Each line represents a new period}
 
-\item{plot.cloud}{Shlould probability cloud be plotted? If TRUE cloud is estimated by \code{\link[ggplot2]{stat_density2d}}}
+\item{plot.cloud}{Should probability cloud be plotted? If TRUE cloud is estimated by \code{\link[ggplot2]{stat_density2d}}}
 
 \item{map.options}{options passed to \code{\link[ggmap]{get_map}}, note that \code{zoom} option is defined separately}
 
 \item{plot.options}{plotting options. Not defined yet!}
 
-\item{save.options}{ptions passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.}
+\item{save.options}{options passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.}
 
 \item{zoom}{Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.}
 
