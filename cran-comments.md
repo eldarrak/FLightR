@@ -1,12 +1,15 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
+ *Corrected package title to title case
+ 
  *Extended description
  
  *Clarified roles of authors
 
-## Note
-I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
+## Note There were three other notes - 
+ * One on RcppArmadillo, that I get every time: I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
+ * two more were on tests and examples that take more then 10 seconds, but they took less than 11 seconds, so I would argue this is not critical.
 
 ## Update
 This is an update. 
