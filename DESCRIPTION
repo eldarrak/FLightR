@@ -9,7 +9,7 @@ Author: Authors@R: c(
     person("Julia", "Karagicheva", role = "aut"),
     person("Simeon", "Lisovski", role = "ctb"))
 Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
-Description: Spatiotemporal locations of an animal are computed 
+Description: Spatio-temporal locations of an animal are computed 
     from annotated data with a hidden Markov  model via particle
 	filter algorithm. The package is relatively robust to varying
 	degrees of shading.
