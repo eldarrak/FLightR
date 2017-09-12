@@ -1,3 +1,10 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+ *Extended description
+ 
+ *Clarified roles of authors
+
 ## Note
 I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
 
