@@ -3,12 +3,11 @@ Type: Package
 Title: A Package for Reconstructing Animal Paths from Solar Geolocation Loggers
 Version: 0.4.7
 Date: 2017-09-07
-Author: Authors@R: c(
+Authors@R: c(
     person("Eldar", "Rakhimberdiev", email = "eldar@nioz.nl", role = c("aut","cre")),
     person("Anatoly", "Saveliev", role = "aut"),
     person("Julia", "Karagicheva", role = "aut"),
     person("Simeon", "Lisovski", role = "ctb"))
-Maintainer: Eldar Rakhimberdiev <eldar@nioz.nl>
 Description: Spatio-temporal locations of an animal are computed 
     from annotated data with a hidden Markov  model via particle
     filter algorithm. The package is relatively robust to varying
