@@ -923,7 +923,7 @@ dist.fun<-function(x, Result) {
 }
 
 lazy.result.plot<-function(Result) {
-    graphics::plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean poistions")
+    graphics::plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean positions")
     graphics::points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
     graphics::lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
 	wrld_simpl<-NA
