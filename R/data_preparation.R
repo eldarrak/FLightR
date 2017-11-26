@@ -574,7 +574,13 @@ plot_slopes<-function(all.slopes, ylim=NULL, xlim=NULL) {
 old.par <- graphics::par(no.readonly = TRUE) 
 #on.exit(par(old.par))
 all.slopes$Slopes<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
-graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1, xlim=as.POSIXct(xlim, tz='UTC'))
+if (is.null(xlim)) {
+   graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
+} else {
+   graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1, xlim= as.POSIXct(xlim, tz='UTC'))
+
+}
+
 graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
 graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
 graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
