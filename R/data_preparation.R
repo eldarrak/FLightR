@@ -9,6 +9,7 @@
 #' @param log.light.borders numeric vector with length of 2 for minimum and maximum log(light) levels to use. Default value 'auto', will take these values from the Proc.data object.
 #' @param log.irrad.borders numeric vector with length of 2 for minimum and maximum log(irradiance) values to use. Default value 'auto', will take these values from the Proc.data object.
 #' @param ylim the y limits of the plot. The default value, NULL, indicates that the range of the finite values to be plotted should be used.
+#' @param ylim the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{as.POSIXct()}}.
 #' @details The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
 #' All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
 #' @examples
@@ -20,7 +21,7 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export plot_slopes_by_location
-plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto', ylim=NULL) {
+plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto', ylim=NULL, xlim=NULL) {
    old.par <- graphics::par(no.readonly = TRUE) 
    Calibration.period<-data.frame(
          calibration.start=as.POSIXct("1900-01-01"),
@@ -34,7 +35,7 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
 		 plot.each = FALSE, plot.final = FALSE, suggest.irrad.borders=FALSE))
-    suppressWarnings(plot_slopes(calibration.parameters$All.slopes, ylim=ylim))
+    suppressWarnings(plot_slopes(calibration.parameters$All.slopes, ylim=ylim, xlim=xlim))
 }
 
 
@@ -73,7 +74,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='gmt')
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-as.POSIXct("2100-01-01", tz='gmt')
    for (i in 1:nrow(Calibration.periods)) {
-     if (Calibration.periods[i,1]>=Calibration.periods[i,1]) stop('Calibration start in some period is earlier than calibration end'))
+     if (Calibration.periods[i,1]>=Calibration.periods[i,1]) stop('Calibration start in some period is earlier than calibration end')
 	 if (i>1 & Calibration.periods[i,1]<=Calibration.periods[i-1,2]) stop('Calibration periods overlap')
    }
    calibration.parameters<-suppressWarnings(get.calibration.parameters(
@@ -569,11 +570,11 @@ return(Res)
 }
 
 
-plot_slopes<-function(all.slopes, ylim=NULL) {
+plot_slopes<-function(all.slopes, ylim=NULL, xlim=NULL) {
 old.par <- graphics::par(no.readonly = TRUE) 
 #on.exit(par(old.par))
 all.slopes$Slopes<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
-graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
+graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1, xlim=as.POISXct(xlim, tz='UTC'))
 graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
 graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
 graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
