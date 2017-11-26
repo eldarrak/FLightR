@@ -70,8 +70,12 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction='auto', fixed.logSlope=c(NA,NA), suggest.irrad.borders=FALSE) {
    Calibration.periods[,1]<-as.POSIXct(Calibration.periods[,1], tz='gmt')
    Calibration.periods[,2]<-as.POSIXct(Calibration.periods[,2], tz='gmt')
-	Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='gmt')
+   Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='gmt')
    Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-as.POSIXct("2100-01-01", tz='gmt')
+   for (i in 1:nrow(Calibration.periods)) {
+     if (Calibration.periods[i,1]>=Calibration.periods[i,1]) stop('Calibration start in some period is earlier than calibration end'))
+	 if (i>1 & Calibration.periods[i,1]<=Calibration.periods[i-1,2]) stop('Calibration periods overlap')
+   }
    calibration.parameters<-suppressWarnings(get.calibration.parameters(
          Calibration.periods, Proc.data,
           model.ageing=model.ageing,
