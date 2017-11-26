@@ -9,7 +9,7 @@
 #' @param log.light.borders numeric vector with length of 2 for minimum and maximum log(light) levels to use. Default value 'auto', will take these values from the Proc.data object.
 #' @param log.irrad.borders numeric vector with length of 2 for minimum and maximum log(irradiance) values to use. Default value 'auto', will take these values from the Proc.data object.
 #' @param ylim the y limits of the plot. The default value, NULL, indicates that the range of the finite values to be plotted should be used.
-#' @param xlim the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{as.POSIXct()}}.
+#' @param xlim the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{base::as.POSIXct()}}.
 #' @details The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
 #' All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
 #' @examples
@@ -575,16 +575,16 @@ old.par <- graphics::par(no.readonly = TRUE)
 #on.exit(par(old.par))
 all.slopes$Slopes<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
 if (is.null(xlim)) {
-   graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
+   graphics::plot(log(all.slopes$Slopes$Slope)~base::as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
 } else {
-   graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1, xlim= as.POSIXct(xlim, tz='UTC'))
+   graphics::plot(log(all.slopes$Slopes$Slope)~base::as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1, xlim= base::as.POSIXct(xlim, tz='UTC'))
 
 }
 
-graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
-graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
-graphics::points(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
-graphics::lines(log(Slope)~as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
+graphics::lines(log(Slope)~base::as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
+graphics::points(log(Slope)~base::as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
+graphics::points(log(Slope)~base::as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
+graphics::lines(log(Slope)~base::as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
 #invisible()
 #par(old.par)
 }
@@ -772,8 +772,8 @@ make.result.list<-function(Data, raw.X, raw.Y) {
 	Res$Hour<-raw.Y
 	Result<-list(Data=Res)
 	Result$Data$gmt.adj<-Result$Data$gmt
-	Result$Data$gmt<-as.POSIXct(Result$Data$gmt, tz="UTC", origin="1970-01-01")
-	Result$Data$gmt.adj<-as.POSIXct(Result$Data$gmt.adj, tz="UTC", origin="1970-01-01")
+	Result$Data$gmt<-base::as.POSIXct(Result$Data$gmt, tz="UTC", origin="1970-01-01")
+	Result$Data$gmt.adj<-base::as.POSIXct(Result$Data$gmt.adj, tz="UTC", origin="1970-01-01")
 	return(Result)
 }
 
@@ -826,8 +826,8 @@ if (First.twilight=="dusk") {
 }
 
 Index.tab$Curr.mat<-NA # this will be NA if no data and row number if there are..
-Index.tab$Real.time<-as.POSIXct(NA, tz="GMT")
-Index.tab$time<-as.POSIXct(NA, tz="GMT")
+Index.tab$Real.time<-base::as.POSIXct(NA, tz="GMT")
+Index.tab$time<-base::as.POSIXct(NA, tz="GMT")
 
 ######################################
 # !!!! this will not work if bird will move for over 12 time zones!!!
