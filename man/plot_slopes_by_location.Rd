@@ -18,7 +18,7 @@ plot_slopes_by_location(Proc.data, location, log.light.borders = "auto",
 
 \item{ylim}{the y limits of the plot. The default value, NULL, indicates that the range of the finite values to be plotted should be used.}
 
-\item{xlim}{the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{base::as.POSIXct()}}.}
+\item{xlim}{the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{as.POSIXct}}.}
 }
 \description{
 The function calculates and plots calibration slopes for sunsets and sunrises for every day of the tracking period, based on the assumption that the tag remained in the same (calibration) location all the time.
