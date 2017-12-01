@@ -34,8 +34,9 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
 		 plot.each = FALSE, plot.final = FALSE, suggest.irrad.borders=FALSE))
-   suppressWarnings(plot_slopes(calibration.parameters$All.slopes, ylim=ylim, xlim=xlim))
+   tmp<-suppressWarnings(plot_slopes(calibration.parameters$All.slopes, ylim=ylim, xlim=xlim))
    graphics::par(old.par)
+   return(tmp)
 }
 
 
