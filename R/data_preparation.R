@@ -29,13 +29,13 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 		 lon=location[1], lat=location[2])
    if (log.light.borders[1]=='auto') log.light.borders<-Proc.data$log.light.borders
    if (log.irrad.borders[1]=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
-   graphics::par(old.par)
    calibration.parameters<-suppressWarnings(get.calibration.parameters(Calibration.period,
          Proc.data, model.ageing=FALSE, 
 		 log.light.borders=log.light.borders,
 		 log.irrad.borders=log.irrad.borders, 
 		 plot.each = FALSE, plot.final = FALSE, suggest.irrad.borders=FALSE))
-    suppressWarnings(plot_slopes(calibration.parameters$All.slopes, ylim=ylim, xlim=xlim))
+   suppressWarnings(plot_slopes(calibration.parameters$All.slopes, ylim=ylim, xlim=xlim))
+   graphics::par(old.par)
 }
 
 
@@ -51,6 +51,7 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' @param likelihood.correction will estimate correction of likelihood for the current calibration parameters. Highly recommended not to be change from 'auto'. In this case FLightR will switch it to FALSE in case tag saved dat on 10 minutes or longer period.
 #' @param fixed.logSlope these are mean (1) and SD (2) for distribution of slopes. Should normally be estimated from the data (and thus default is c(NA, NA)). Change any of these two finite values if you want them to be predetermined and not estimated from the calibration data.
 #' @param suggest.irrad.borders experimental parameter! If set to TRUE function will try to find the best values for the log.irrad.borders
+#' @param return.slopes if true function will return estimated individual twilight slopes.
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
@@ -68,7 +69,7 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' 
 #' @author Eldar Rakhimberdiev
 #' @export
-make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction='auto', fixed.logSlope=c(NA,NA), suggest.irrad.borders=FALSE) {
+make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction='auto', fixed.logSlope=c(NA,NA), suggest.irrad.borders=FALSE, return.slopes=FALSE) {
    Calibration.periods[,1]<-as.POSIXct(Calibration.periods[,1], tz='gmt')
    Calibration.periods[,2]<-as.POSIXct(Calibration.periods[,2], tz='gmt')
    Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='gmt')
@@ -135,13 +136,14 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    if (!is.na(fixed.logSlope[1])) calibration.parameters$All.slopes$Parameters$LogSlope[1]<-fixed.logSlope[1]
    if (!is.na(fixed.logSlope[2])) calibration.parameters$All.slopes$Parameters$LogSlope[2]<-fixed.logSlope[2]
    
-   Calibration=create.calibration(calibration.parameters$All.slopes,
+   Calibration<-create.calibration(calibration.parameters$All.slopes,
                  Proc.data,
 				 Proc.data$FLightR.data,
 				 log.light.borders=Proc.data$log.light.borders, log.irrad.borders=Proc.data$log.irrad.borders,
 				 ageing.model=calibration.parameters$ageing.model,
 				 location=NA, likelihood.correction=likelihood.correction)
    Calibration$Calibration.periods<-Calibration.periods
+   if (return.slopes) Calibration$Calibration.Slopes<-calibration.parameters$All.slopes$Slopes
    return(Calibration)
    }
 
