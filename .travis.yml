@@ -18,5 +18,11 @@ before_install:
 
 warnings_are_errors: true
 
+r_packages:
+  - devtools
+  
+r_github_packages:
+  - r-lib/covr
+  
 after_success:
   - Rscript -e 'covr::codecov()'
