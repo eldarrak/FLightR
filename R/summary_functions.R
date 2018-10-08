@@ -52,7 +52,8 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Total_length<-length(Result$Results$Movement.results$Decision)
    Potential_stat_periods<-data.frame(start=unique(c(0, Cutoffs)), end=unique(c(Cutoffs-1, Total_length)))
    Potential_stat_periods$Duration<-Potential_stat_periods[,2]-Potential_stat_periods[,1]
-   Potential_stat_periods<-Potential_stat_periods[-which(Potential_stat_periods[,3]<min.stay),]
+   if (any(Potential_stat_periods[,3]<min.stay))  Potential_stat_periods<-Potential_stat_periods[-which(Potential_stat_periods[,3]<min.stay),]
+   
    Quantiles<-c()
    Schedules<-c()
    for (period in 1:nrow(Potential_stat_periods)) {
