@@ -108,9 +108,8 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 	# combine location with map options
 	if (is.null(map.options)) map.options<-list()
 	if (is.null(map.options$location)) map.options$location<-c(center_lon, center_lat)
-	if (is.null(map.options$source)) map.options$source<-"osm"
 	if (is.null(map.options$zoom) & is.numeric(zoom)) map.options$zoom=zoom
-	#if (is.null(map.options$col)) map.options$col="bw"
+	if (is.null(map.options$col)) map.options$col="bw"
 	
     if (zoom=="auto") {
 
