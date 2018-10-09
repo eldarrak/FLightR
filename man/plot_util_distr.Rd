@@ -45,7 +45,7 @@ list with two parts
         \item{p}{\code{\link[ggplot2]{ggplot}} object}
 }
 \description{
-May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration
+May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
 }
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
@@ -74,7 +74,9 @@ Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-\dontrun {plot_util_distr(Result, zoom=6, save=FALSE)}
+\dontrun{
+plot_util_distr(Result, zoom=6, save=FALSE)
+}
 
 }
 \author{

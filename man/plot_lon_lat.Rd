@@ -13,7 +13,7 @@ plot_lon_lat(Result, scheme = c("vertical", "horizontal"))
 return NULL}
 }
 \description{
-This function plots result by latitude and longitude in either vertical or horizontal layout
+This function plots result by latitude and longitude in either vertical or horizontal layout.
 }
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")

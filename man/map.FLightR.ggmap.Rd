@@ -37,7 +37,7 @@ return either NULL or ggplot2 class object}
 \item{save}{should function save results with \code{\link[ggplot2]{ggsave}}?}
 }
 \description{
-plots track over map with probability cloud. Can plot only part of the track if dates are specified
+plots track over map with probability cloud. Can plot only part of the track if dates are specified. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
 }
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
@@ -66,7 +66,9 @@ Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-\dontrun {map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)} 
+\dontrun{
+map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)
+} 
 # for this short track without variance seasonal donut does not work,
 # but for normall track it will.
 }

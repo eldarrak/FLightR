@@ -1,6 +1,6 @@
 #' plots result over map
 #'
-#' plots track over map with probability cloud. Can plot only part of the track if dates are specified
+#' plots track over map with probability cloud. Can plot only part of the track if dates are specified. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param dates either NULL if all twilights should be included or data.frame with first column - start of the period and second end of the period. Each line represents a new period
 #' @param plot.cloud Should probability cloud be plotted? If TRUE cloud is estimated by \code{\link[ggplot2]{stat_density2d}}
@@ -41,13 +41,16 @@
 #'            nParticles=1e3, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#'\dontrun {map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)} 
+#'\dontrun{
+#' map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)
+#'} 
 #' # for this short track without variance seasonal donut does not work,
 #' # but for normall track it will.
 #' @author Eldar Rakhimberdiev
 #' @export map.FLightR.ggmap
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5, save=TRUE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
+if (!ggmap::has_google_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
 # ggsave.options is a list that will be will be directly passed to ggsave
@@ -212,7 +215,7 @@ if (!is.null(plot.options)) warning("plot options are not in use yet. Let me kno
 
 #' plots result by longitude and latitude
 #'
-#' This function plots result by latitude and longitude in either vertical or horizontal layout
+#' This function plots result by latitude and longitude in either vertical or horizontal layout.
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param scheme either 'vertical' or 'horizontal' layouts
 #' return NULL
@@ -399,7 +402,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 
 #' plots resulting track over map with uncertainty shown by space utilisation distribution
 #' 
-#' May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration
+#' May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
 #' 
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param dates Use NULL if all twilights will be used for plotting, one integer if specific twilight should be plotted (line number in Result$Results$Quantiles). Use data.frame with first column - start of the period and second - end of the period and each line represents a new period to plot specific periods, e.g. wintering or migration.
@@ -445,11 +448,15 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #'            nParticles=1e3, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#'\dontrun {plot_util_distr(Result, zoom=6, save=FALSE)}
+#'\dontrun{
+#' plot_util_distr(Result, zoom=6, save=FALSE)
+#'}
 #'
 #' @author Eldar Rakhimberdiev
 #' @export plot_util_distr
 plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
+
+if (!ggmap::has_google_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
 
    # for r cmd check
    long<-NA
