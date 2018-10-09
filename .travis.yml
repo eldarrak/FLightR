@@ -20,7 +20,6 @@ warnings_are_errors: true
 
 r_packages:
   - devtools
-  - ggmap
   
 r_github_packages:
   - r-lib/covr
