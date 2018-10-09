@@ -50,7 +50,7 @@
 #' @export map.FLightR.ggmap
 map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NULL, plot.options=NULL, save.options=NULL, zoom="auto", return.ggobj=FALSE, seasonal.colors=TRUE, seasonal.donut.location='topleft', seasonal.donut.proportion=0.5, save=TRUE) {
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
-if (!ggmap::has_google_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
+if (!ggmap::has_goog_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
 # ggsave.options is a list that will be will be directly passed to ggsave
@@ -456,7 +456,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #' @export plot_util_distr
 plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
-if (!ggmap::has_google_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
+if (!ggmap::has_goog_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
 
    # for r cmd check
    long<-NA

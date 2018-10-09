@@ -32,7 +32,7 @@ test_that('map_flightr_ggmap_works',  {
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
-   if (ggmap::has_google_key()) {
+   if (ggmap::has_goog_key()) {
          # not too clever but it looks like that other ways of graphics test are not stable..
          p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
          expect_equal(length(p), 9)
@@ -59,7 +59,7 @@ test_that('map_flightr_ggmap_works',  {
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
-   if (ggmap::has_google_key()) {
+   if (ggmap::has_goog_key()) {
    # not too clever but it looks like that other ways of graphics test are not stable..
    expect_warning(plot_util_distr(Result, zoom=5, save=FALSE))
    } else {
