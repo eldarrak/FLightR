@@ -41,7 +41,7 @@
 #'            nParticles=1e3, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#'\dontrun map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE) 
+#'\dontrun {map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)} 
 #' # for this short track without variance seasonal donut does not work,
 #' # but for normall track it will.
 #' @author Eldar Rakhimberdiev
@@ -445,7 +445,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #'            nParticles=1e3, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#'\dontrun plot_util_distr(Result, zoom=6, save=FALSE)
+#'\dontrun {plot_util_distr(Result, zoom=6, save=FALSE)}
 #'
 #' @author Eldar Rakhimberdiev
 #' @export plot_util_distr
