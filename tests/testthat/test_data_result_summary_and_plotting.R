@@ -64,7 +64,8 @@ test_that('map_flightr_ggmap_works',  {
    expect_warning(plot_util_distr(Result, zoom=5, save=FALSE))
    } else {
       expect_error(plot_util_distr(Result, zoom=5, save=FALSE))
-   }   
+   }
+}   
 )
 
 
