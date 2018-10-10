@@ -55,6 +55,14 @@ if (!ggmap::has_goog_key()) stop('From August 2018 Google allows to use Google m
 
 # ggsave.options is a list that will be will be directly passed to ggsave
 
+Opt<-options('ggmap')
+if(is.null(Opt$ggmap$google$account_type)) Opt$ggmap$google$account_type<-'standard'
+if(is.null(Opt$ggmap$google$day_limit)) Opt$ggmap$google$day_limit<-2500
+if(is.null(Opt$ggmap$google$second_limit)) Opt$ggmap$google$day_limit<-50
+if(is.null(Opt$ggmap$google$client)) Opt$ggmap$google$client<-NA
+if(is.null(Opt$ggmap$google$signature)) Opt$ggmap$google$signature<-NA
+options('ggmap'= Opt$ggmap)
+
 # select twilights to plot
 	 if (is.null(dates)) {
 	     twilights.index<-1:length(Result$Results$Points.rle)
@@ -457,6 +465,16 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
 
 if (!ggmap::has_goog_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
+
+
+Opt<-options('ggmap')
+if(is.null(Opt$ggmap$google$account_type)) Opt$ggmap$google$account_type<-'standard'
+if(is.null(Opt$ggmap$google$day_limit)) Opt$ggmap$google$day_limit<-2500
+if(is.null(Opt$ggmap$google$second_limit)) Opt$ggmap$google$day_limit<-50
+if(is.null(Opt$ggmap$google$client)) Opt$ggmap$google$client<-NA
+if(is.null(Opt$ggmap$google$signature)) Opt$ggmap$google$signature<-NA
+options('ggmap'= Opt$ggmap)
+
 
    # for r cmd check
    long<-NA
