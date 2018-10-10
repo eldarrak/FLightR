@@ -9,6 +9,6 @@ my_google_api_key <- function() {
 
 google_api_key<-my_google_api_key()
 
-if (!is.null(a)) {
+if (!is.null(google_api_key)) {
    ggmap::register_google(google_api_key)
 }
