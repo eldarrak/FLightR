@@ -6,7 +6,7 @@ print.FLightR.version <- function()
 		um <- strsplit(version," ")[[1]]
   	    version <- um[nchar(um)>0][2]
 	}
-	hello <- paste("This is FLightR ",version,"\n NB: All functions that started from plot.**.**() are renamed to plot_**_** in order to pass CRAN check \n",sep="")
+	hello <- paste("This is FLightR ",version,"\n Note that for use of plotting functions relying on google maps you should get the Google maps api key\n",sep="")
 	packageStartupMessage(hello)
 }
 
