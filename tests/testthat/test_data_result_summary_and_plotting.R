@@ -42,7 +42,11 @@ test_that('map_flightr_ggmap_works',  {
          p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
       })
       }
-   } 
+   } else {
+      expect_error({
+         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
+      })
+      }
    }
  )
 
@@ -68,6 +72,8 @@ test_that('map_flightr_ggmap_works',  {
    } else {
       expect_error(plot_util_distr(Result, zoom=5, save=FALSE))
    }
+   } else {
+         expect_error(plot_util_distr(Result, zoom=5, save=FALSE))
    }
 }   
 )

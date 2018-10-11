@@ -14,7 +14,6 @@ dist: trusty
  
 matrix:
   include:
-    - os: linux
     - os: osx
       brew_packages: libgit2
     - os: osx
