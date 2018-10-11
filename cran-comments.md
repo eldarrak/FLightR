@@ -1,5 +1,9 @@
 ## Resubmission
 This is a resubmission. In this version I have:
+ 
+ * Solved the Google maps api key issue. The testing environemnt now will check the functions relying on Google maps only if the api key is present as environemntal variable. I have set up the hidden environemntal api keys at travis and appveyor, to check that everything works there. CRAN check will not test these functions.
+ 
+ * I have also added an explanation for users that they need to obtain the Google maps api key.
 
  *Corrected package title to title case
  
@@ -21,6 +25,7 @@ In 0.4.7 version I have
 * fixed many small bugs
 
 ## Test environments
-* ubuntu 12.04 (on travis-ci), R 3.3.2
+* ubuntu 12.04 (on travis-ci), R devel, R release, R oldrelease
+* OSX
 * win-builder (devel and release)
 ---
