@@ -11,17 +11,24 @@ sudo: required
 
 dist: trusty
 
-os:
-  - linux
-  - osx
+ 
+matrix:
+  include:
+    - os: linux
+    - os: osx
+      brew_packages: libgit2
+    - os: osx
+      disable_homebrew: true
+    - os: osx
+      disable_homebrew: true
+      env: autobrew=yes
 
+      
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable --yes;
        sudo apt-get --yes --force-yes update -qq;
        sudo apt-get install --yes libudunits2-dev libproj-dev libgeos-dev libgdal-dev;
-    else 
-       brew_packages: libgit2;
     fi
 
 warnings_are_errors: true
