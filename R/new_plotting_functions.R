@@ -164,10 +164,11 @@ options('ggmap'= Opt$ggmap)
 	 p<-p+ ggplot2::scale_fill_gradient(low = "green", high = "red") 
 	 p<-p+ ggplot2::scale_alpha(range = c(0.00, 0.25), guide = FALSE) 
      }
-	 p<-p+ggplot2::coord_map(projection="mercator", 
-     xlim=c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon),
-     ylim=c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat)) +
-     ggplot2::theme(legend.position = "none", axis.title = ggplot2::element_blank(), text = ggplot2::element_text(size = 12))
+
+	#p<-p+ggplot2::coord_map(projection="mercator", 
+    # xlim=c(attr(background, "bb")$ll.lon, attr(background, "bb")$ur.lon),
+    # ylim=c(attr(background, "bb")$ll.lat, attr(background, "bb")$ur.lat))
+    p<-p+ ggplot2::theme(legend.position = "none", axis.title = ggplot2::element_blank(), text = ggplot2::element_text(size = 12))
     
     # here I plot track for selected dates
 	
