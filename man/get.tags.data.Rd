@@ -27,10 +27,10 @@ get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
 \item{impute.on.boundaries}{logical, if FLightR should approximate values at boundaries. Set it to TRUE only if you have vary few active points at each twilight, e.g if tag was saving every 10 minutes or so.}
 }
 \value{
-list, which is to be further processed with the FlightR.
+list, which is to be further processed with the FLightR.
 }
 \description{
-Reads the data frame with detected twilight events into the FlightR
+Reads the data frame with detected twilight events into the FLightR
 }
 \details{
 The returned object has many parts, the important are: (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data).
