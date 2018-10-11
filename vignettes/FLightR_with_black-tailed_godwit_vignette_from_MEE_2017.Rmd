@@ -44,7 +44,7 @@ FLightR works with the ‘TAGS’ format, which is an agreed general annotation 
 * `excluded` – indication of whether a twilight was excluded during manual inspection (logical, `TRUE | FALSE`);
 * `interp` - indication of whether the light value at twilight was interpolated (logical, `TRUE | FALSE`). 
 The fields `excluded` and `interp` may have values of `TRUE` only for `twilight > 0`. 
-The online service http://tags.animalmigration.org saves data in the TAGS forma. In the R packages GeoLight and BAStag or twGeos, the annotated twilight data need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
+The online TAGS service saves data in the TAGS format. In the R packages GeoLight and BAStag or twGeos, the annotated twilight data need to be exported to TAGS, for which the functions in the FLightR (`GeoLight2TAGS`,  `BAStag2TAGS` or `twGeos2TAGS`) can be used.
 
 We will use the TAGS formatted data provided as appendix A3 to [Rakhimberdiev et al. 2016](#rakhimberdiev_jab_2016) also available on the authors’ GitHub page:
 ```{r, eval=FALSE, tidy=FALSE}
