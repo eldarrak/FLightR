@@ -40,10 +40,10 @@ Very important changes were made for version 0.3.6
 Just contact me if results come out strange.
 
 ## Examples of packages use:
-
-1.  [new (>=0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_FLightR_vignette/FLightR_analysis_workflow.Rmd)
-2.  [old (<0.3.9) workflow for tree swallow example with BAS tag](https://github.com/eldarrak/FLightR/blob/master/examples/tree_swallow_BAS_tag_example/tree_swallow_analysis.Rmd)
-3.  [old (<0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis.Rmd)
+1. [new (>=0.4.7) workflow for red-backed shrike example with Intigeo tag](https://github.com/eldarrak/FLightR_shrike_vignette)
+2.  [new (>=0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_FLightR_vignette/FLightR_analysis_workflow.Rmd)
+3.  [old (<0.3.9) workflow for tree swallow example with BAS tag](https://github.com/eldarrak/FLightR/blob/master/examples/tree_swallow_BAS_tag_example/tree_swallow_analysis.Rmd)
+4.  [old (<0.3.9) workflow for black-tailed godwit example with Intigeo tag](https://github.com/eldarrak/FLightR/blob/master/examples/Black-Tailed_Godwit_JAB_example/A6_FLightR_analysis.Rmd)
 
 Do not know what the difference between BAS and Intigeo is? In short intigeo are being currently produced by Migrate Technology Ltd, and measure data up to very high sun elevation angles, BAS tags are the old ones produced inititally by British Antarctic Survey, then by Migrate Technology (till ~2013) and Lotek (still available) and measured data at the low sun angles (with maximum written at 64). More on the tag specific differences can be found [here](https://github.com/eldarrak/FLightR/wiki/setting-up-tag-specific-boundaries).
 
