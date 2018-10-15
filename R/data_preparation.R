@@ -289,7 +289,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.05, Direction=0,Kappa=0, M.mean=300, M.sd=500, likelihood.correction=TRUE) {
+make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, threads=-1, Decision=0.05, Direction=0, Kappa=0, M.mean=300, M.sd=500, likelihood.correction=TRUE) {
    if (length(Decision)>1) stop("Decision has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
    if (length(Direction)>1) stop("Direction has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
    if (length(Kappa)>1) stop("Kappa has to have length of 1, to sepcify it per twilight, change it in the result object of this function")
@@ -809,7 +809,7 @@ All.Days.extended<-seq(min(All.Days)-86400, max(All.Days)+86400, by="days")
 # ver 0.4.2
 # correct twilights for polar periods..
    start_no_polar<-start
-   start_no_polar[2]<-min(abs(start_no_polar[2]), 66) * sign(start_no_polar[2])
+   start_no_polar[2]<-min(abs(start_no_polar[2]), 65.73) * sign(start_no_polar[2])
 
 # these are all potential twilights that we would have for the start point...
 Potential.twilights<-sort(c(maptools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], maptools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
