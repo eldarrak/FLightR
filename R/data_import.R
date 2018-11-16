@@ -61,6 +61,12 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-2.7,0)
 	     if (saves[1] =='auto') saves<-"mean"
       }
+    if(detected$tagtype=="Lat_2000") {
+	     if (log.light.borders[1]=='auto') log.light.borders<-c(100,360)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-10,10)
+	     if (saves[1] =='auto') saves<-"max"
+         measurement.period<-10
+    }
    }
 
    FLightR.data<-read.tags.light.twilight(TAGS.twilights,
@@ -75,6 +81,7 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
          measurement.period<-60
       }
    }
+   
    cat("tag saved data every", saving.period, "seconds, and is assumed to measure data every", measurement.period, "seconds, and write down", saves[1], "\n" )
    if (max(TAGS.twilights$light) ==64 & saving.period>500) {
       impute.on.boundaries=TRUE
@@ -162,6 +169,13 @@ get.tag.type<-function(TAGS.twilights) {
      recognized<-TRUE
    }
 
+   if(Max_light %in% c(4095, 357)) {
+      tagtype<-"Lat_2000"
+      log_transformed<-TRUE
+	  recognized<-TRUE
+   }
+     
+   
    if (recognized==FALSE) { 
    cat("tag type was not recognised!\nmail me details of your tag and I will add them to the list!\n")
    return(NULL)
