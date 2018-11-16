@@ -168,6 +168,11 @@ get.tag.type<-function(TAGS.twilights) {
 	 log_transformed<-FALSE
      recognized<-TRUE
    }
+   if(log(Max_light) %in% c(4095, 357)) {
+      tagtype<-"Lat_2000"
+      log_transformed<-FALSE
+	  recognized<-TRUE
+   }
 
    if(Max_light %in% c(4095, 357)) {
       tagtype<-"Lat_2000"
