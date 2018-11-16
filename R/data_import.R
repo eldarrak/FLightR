@@ -63,7 +63,7 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
       }
     if(detected$tagtype=="Lat_2000") {
 	     if (log.light.borders[1]=='auto') log.light.borders<-c(100,360)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-10,10)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-8,2)
 	     if (saves[1] =='auto') saves<-"max"
          measurement.period<-10
     }
