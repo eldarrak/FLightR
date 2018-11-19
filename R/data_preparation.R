@@ -685,7 +685,7 @@ suggest.irrad.boundaries<-function(Calib.data.all, leave.out=0.01) {
 
 
 make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, npoints=300, plot=FALSE) {
-   cur_mean_range<-c(calib_log_mean-10*calib_log_sd, calib_log_mean+10*calib_log_sd)
+   cur_mean_range<-c(exp(calib_log_mean)-5*exp(calib_log_sd), exp(calib_log_mean)+5*exp(calib_log_sd))
    cur_sd_range<-c(0, calib_log_sd*3)
    Res<-c()
    for (i in 1:npoints) {
