@@ -684,9 +684,8 @@ suggest.irrad.boundaries<-function(Calib.data.all, leave.out=0.01) {
 }
 
 
-make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, npoints=300, plot=FALSE) {
+make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_sd_range, npoints=300, plot=FALSE) {
    cur_mean_range<-c(exp(calib_log_mean)-5*exp(calib_log_sd), exp(calib_log_mean)+5*exp(calib_log_sd))
-   cur_sd_range<-c(0, calib_log_sd*3)
    Res<-c()
    for (i in 1:npoints) {
    	  cat('\r simulation:  ', round(i/npoints*100), '%', sep='')
@@ -746,7 +745,8 @@ lat_correction_fun<-eval(parse(text=paste("function (x,y) return(",  stats::coef
 }
 c_fun=NULL
 if (likelihood.correction) {
-   c_fun=make_likelihood_correction_function(Parameters$LogSlope[1], Parameters$LogSlope[2])$c_fun
+   
+   c_fun=make_likelihood_correction_function(Parameters$LogSlope[1], Parameters$LogSlope[2], cur_sd_range=c(exp(All.slopes$Parameters$LogSigma[1]-5*All.slopes$Parameters$LogSigma[2], exp(All.slopes$Parameters$LogSigma[1]+5*All.slopes$Parameters$LogSigma[2])$c_fun
 }
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun, c_fun=c_fun)
 
