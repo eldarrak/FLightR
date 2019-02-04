@@ -6,9 +6,10 @@
 \usage{
 run.particle.filter(all.out, cpus = NULL, threads = -1,
   nParticles = 1e+06, known.last = TRUE, precision.sd = 25,
-  behav.mask.low.value = 0, k = NA, plot = TRUE, cluster.type = "PSOCK",
-  a = 45, b = 1500, L = 90, adaptive.resampling = 0.99,
-  check.outliers = FALSE, sink2file = FALSE, add.jitter = FALSE)
+  behav.mask.low.value = 0, k = NA, plot = TRUE,
+  cluster.type = "PSOCK", a = 45, b = 1500, L = 90,
+  adaptive.resampling = 0.99, check.outliers = FALSE,
+  sink2file = FALSE, add.jitter = FALSE)
 }
 \arguments{
 \item{all.out}{An object created by \code{\link{make.prerun.object}}.}

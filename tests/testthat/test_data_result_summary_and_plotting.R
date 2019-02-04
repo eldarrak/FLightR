@@ -32,6 +32,7 @@ test_that('map_flightr_ggmap_works',  {
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
+   if (utils::packageVersion('ggmap')[1]>=2.7) {
    if (ggmap::has_google_key()) {
          # not too clever but it looks like that other ways of graphics test are not stable..
          p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
@@ -41,6 +42,11 @@ test_that('map_flightr_ggmap_works',  {
          p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
       })
       }
+      } else {
+      expect_error({
+         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
+      })
+   } 
    }
  )
 
@@ -59,12 +65,18 @@ test_that('map_flightr_ggmap_works',  {
    all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
    Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
+   if (utils::packageVersion('ggmap')[1]>=2.7) {
    if (ggmap::has_google_key()) {
    # not too clever but it looks like that other ways of graphics test are not stable..
    expect_output(plot_util_distr(Result, zoom=5, save=FALSE))
    } else {
       expect_error(plot_util_distr(Result, zoom=5, save=FALSE))
    }
+   } else {
+      expect_error({
+         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
+      })
+   } 
 }   
 )
 
