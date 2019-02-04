@@ -61,7 +61,7 @@ test_that('map_flightr_ggmap_works',  {
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
    if (ggmap::has_google_key()) {
    # not too clever but it looks like that other ways of graphics test are not stable..
-   expect_warning(plot_util_distr(Result, zoom=5, save=FALSE))
+   expect_output(plot_util_distr(Result, zoom=5, save=FALSE))
    } else {
       expect_error(plot_util_distr(Result, zoom=5, save=FALSE))
    }
