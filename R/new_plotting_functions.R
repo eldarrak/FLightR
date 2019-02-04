@@ -469,7 +469,7 @@ plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.
 
 if (utils::packageVersion('ggmap')[1]<2.7) {stop('plot_util_distr function works only with ggmap >= 2.7.x')}
 
-if (!ggmap::has_goog_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
+if (!ggmap::has_google_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
 
 
 Opt<-options('ggmap')
