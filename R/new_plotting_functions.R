@@ -52,7 +52,7 @@ map.FLightR.ggmap<-function(Result, dates=NULL, plot.cloud=TRUE, map.options=NUL
 if (!is.null(plot.options)) warning("plot options are not in use yet. Let me know what you would like to have here.")
 
 if (utils::packageVersion('ggmap')[1]<2.7) { stop('map.FLightR.ggmap function works only with ggmap >= 2.7.x') }
-if (!ggmap::has_goog_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
+if (!ggmap::has_google_key()) stop('From August 2018 Google allows to use Google maps only for users with the API key, please get one and proceed as described here: http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/')
 # dates should be a data.frame with first point - starting dates and last column end dates for periods
 
 # ggsave.options is a list that will be will be directly passed to ggsave
