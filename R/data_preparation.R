@@ -137,6 +137,9 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    if (!is.na(fixed.logSlope[1])) calibration.parameters$All.slopes$Parameters$LogSlope[1]<-fixed.logSlope[1]
    if (!is.na(fixed.logSlope[2])) calibration.parameters$All.slopes$Parameters$LogSlope[2]<-fixed.logSlope[2]
    
+   # clean the LogSigma values not to use it under the fixed slope scenario
+   if (!is.na(fixed.logSlope[1])) calibration.parameters$All.slopes$Parameters$LogSigma<-c(NA,NA)
+   
    Calibration<-create.calibration(calibration.parameters$All.slopes,
                  Proc.data,
 				 Proc.data$FLightR.data,
@@ -745,7 +748,12 @@ lat_correction_fun<-eval(parse(text=paste("function (x,y) return(",  stats::coef
 }
 c_fun=NULL
 if (likelihood.correction) {
-     c_fun=make_likelihood_correction_function(Parameters$LogSlope[1], Parameters$LogSlope[2], cur_sd_range=c(0, max(exp(All.slopes$Parameters$LogSigma[1]+5*All.slopes$Parameters$LogSigma[2]),1)))$c_fun
+     if (is.na(All.slopes$Parameters$LogSigma[1])) {
+	     cur_sd_range=c(0, 1)
+	 } else {
+	     cur_sd_range=c(0, max(exp(All.slopes$Parameters$LogSigma[1]+5*All.slopes$Parameters$LogSigma[2]),1))
+	 }
+     c_fun=make_likelihood_correction_function(Parameters$LogSlope[1], Parameters$LogSlope[2], cur_sd_range=cur_sd_range)$c_fun
 }
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun, c_fun=c_fun)
 
