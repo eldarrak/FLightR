@@ -190,3 +190,45 @@ get_ZI_distances<-function(Result) {
 
 	return(DistancesZI)
 }
+
+
+#' Summarize result object in the format required for upload to Movebank
+#'
+#' This function accepts FLightR results object.
+#'
+#' @rdname FLightR2Movebank
+#' @title Summary of estimated locations for Movebank
+#' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
+#' \code{estelleMetropolis} or \code{stellaMetropolis}.
+#' @param alpha coverage of the credible intervals for now only two options: 0.95 or 0.5.
+#' @return either csv object or NULL if filename was specified
+#' @export
+#' @author Eldar Rakhimberdiev
+FLightRMovebank <- function(Result, alpha=0.5, filename = NULL) {
+  if (!alpha %in% c(0.5, 0.95)) stop('FLightRMovebank only can output 0.5 or 0.95 for now')
+  Full_set<-Result$Results$Quantiles
+  if (alpha == 0.5) {
+      out<-data.frame(timestamp=Full_set$time,
+        'end-timestamp'=NA,
+        'location-long'=Full_set$Medianlon,
+		'location-lat'= Full_set$Medianlat,
+		'long-upper'=  Full_set$TrdQu.lon,
+		'long-lower'= Full_set$FstQu.lon,
+		'lat-upper'=  Full_set$TrdQu.lat,
+		'lat-lower'=  Full_set$FstQu.lat)
+  } else {
+      out<-data.frame(timestamp=Full_set$time,
+        'end-timestamp'=NA,
+        'location-long'=Full_set$Medianlon,
+		'location-lat'= Full_set$Medianlat,
+		'long-upper'= Full_set$UCI.lon,
+		'long-lower'= Full_set$LCI.lon,
+		'lat-upper'= Full_set$UCI.lat,
+		'lat-lower'= Full_set$LCI.lat)
+  }
+  out[,1]<-format(out[,1], format="%Y-%m-%dT%H:%M:%S.000Z")
+  if (!is.null(filename)) {
+  utils::write.csv(out, file=paste(strsplit(filename, '.csv')[[1]][1], ".csv", sep=''), quote=FALSE, row.names=FALSE)
+  return(NULL)
+  } else { return(out)}
+}
