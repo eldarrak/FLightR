@@ -4,7 +4,7 @@ Title: A Package for Reconstructing Animal Paths from Solar Geolocation Loggers
 Version: 0.4.9
 Date: 2019-06-13
 Authors@R: c(
-    person("Eldar", "Rakhimberdiev", email = "eldar@nioz.nl", role = c("aut","cre")),
+    person("Eldar", "Rakhimberdiev", email = "e.rakhimberdiev@rug.nl", role = c("aut","cre")),
     person("Anatoly", "Saveliev", role = "aut"),
     person("Julia", "Karagicheva", role = "aut"),
     person("Simeon", "Lisovski", role = "ctb"))
