@@ -199,12 +199,12 @@ get_ZI_distances<-function(Result) {
 #' @rdname FLightR2Movebank
 #' @title Summary of estimated locations for Movebank
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
-#' \code{estelleMetropolis} or \code{stellaMetropolis}.
 #' @param alpha coverage of the credible intervals for now only two options: 0.95 or 0.5.
-#' @return either csv object or NULL if filename was specified
+#' @param filename if NULL data.frame in TAGS format will be returned otherwise .csv file in TAGS format will be written
+#' @return \code{NULL} if \code{filename} is provided or Movebank formatted dataframe.
 #' @export
 #' @author Eldar Rakhimberdiev
-FLightRMovebank <- function(Result, alpha=0.5, filename = NULL) {
+FLightR2Movebank <- function(Result, alpha=0.5, filename = NULL) {
   if (!alpha %in% c(0.5, 0.95)) stop('FLightRMovebank only can output 0.5 or 0.95 for now')
   Full_set<-Result$Results$Quantiles
   if (alpha == 0.5) {
