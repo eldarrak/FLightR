@@ -11,17 +11,9 @@ sudo: required
 
 dist: trusty
 
- 
-matrix:
-  include:
-    - os: osx
-      brew_packages: libgit2
-    - os: osx
-      disable_homebrew: true
-    - os: osx
-      disable_homebrew: true
-      env: autobrew=yes
-
+os:
+  - linux
+  - osx
       
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
