@@ -57,7 +57,7 @@ The function `get.tags.data` reads comma separated file in the TAGS format, dete
 3. light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after it events into an object of two lists
 4. technical parameters of the tag, added automatically, unless preset by the user.
 
-The finction works with all the common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
+The function works with all the common tag types: mk tags (produced by British Antarctic Survey, Lotek, and Migrate Technology Ltd.), Intigeo tags (Migrate technology Ltd.) and GDL tags (Swiss Ornithological Institute).
 ```{r, eval=FALSE, tidy=FALSE}
 Proc.data<-get.tags.data("example_TAGS_format.csv")
 ```
@@ -108,7 +108,7 @@ abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
 abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
 ```
 ### Find a calibration location for a known calibration period
-It may happen that an animal was tagged in the High Arctic under polar day conditions or that it moved far away from the capture site immedialtly after tagging and the roof-top calibration data are not available. Even in such cases it is still possibe to obtain calibration parameters for a resident period at unknown location. FLightR approach to this problem is similar to Hill-Ekstrom calibration [
+It may happen that an animal was tagged in the High Arctic under polar day conditions or that it moved far away from the capture site immediately after tagging and the roof-top calibration data are not available. Even in such cases it is still possible to obtain calibration parameters for a resident period at unknown location. FLightR approach to this problem is similar to Hill-Ekstrom calibration [
 [Lisovski et al. 2012b](#lisovski_2012b) implemented in GeoLight [Lisovksi et al. 2012a](#lisovski_2012a). If bird is assumed to be resident at some period one can try:
 ```{r, eval=FALSE}
 # ~ 15 min run time
@@ -194,7 +194,7 @@ plot_util_distr(Result,
 
 ## References
 
-1. Ekstrom, P. (2004). An advance in geolocation by light. Memoirs of the National Insitute of Polar Research, Special Issue, 58, 210–226.<a id="ekstrom_2004"></a>
+1. Ekstrom, P. (2004). An advance in geolocation by light. Memoirs of the National Institute of Polar Research, Special Issue, 58, 210–226.<a id="ekstrom_2004"></a>
 1. Ekstrom, P. (2007). Error measures for template-fit geolocation based on light. Deep Sea Research Part II: Topical Studies in Oceanography, 54, 392–403.<a id="ekstrom_2007"></a>
 1. Lisovski, S., Hahn, S. & Hodgson, D. (2012a). GeoLight - processing and analysing light-based geolocator data in R. Methods in Ecology and Evolution, 3, 1055–1059.<a id="lisovski_2012b"></a>
 1. Lisovski, S., Hewson, C.M., Klaassen, R.H.G., Korner-Nievergelt, F., Kristensen, M.W. & Hahn, S. (2012b). Geolocation by light: accuracy and precision affected by environmental factors. Methods in Ecology and Evolution, 3, 603–612.<a id="lisovski_2012a"></a>
