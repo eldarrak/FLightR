@@ -1,14 +1,9 @@
 ## resubmission
 in the submission I had two problems:
 
-1. My old email address eldar@nioz.nl is no longer active, and I cannot send a confimration message from there.
+1. My old email address eldar@nioz.nl is no longer active, and I cannot send a confirmation message from there.
 
-2. there was a comment: 'Found the following (possibly) invalid file URI:
-   URI: www.dx.doi.org/10.1111/2041-210X.12765
-     From: 
-inst/doc/FLightR_with_black-tailed_godwit_vignette_from_MEE_2017.html'
-
-This is false positive and address to my Methods in Ecology and Evolution paper is correct. 
+2. URL in one of the link in the vignette is fixed now. Sorry about that.
 
 
 ## R CMD check results
