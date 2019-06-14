@@ -1,6 +1,6 @@
 Package: FLightR
 Type: Package
-Title: A Package for Reconstructing Animal Paths from Solar Geolocation Loggers
+Title: Reconstruct Animal Paths from Solar Geolocation Loggers Data
 Version: 0.4.9
 Date: 2019-06-13
 Authors@R: c(
@@ -12,9 +12,9 @@ Description: Spatio-temporal locations of an animal are computed
     from annotated data with a hidden Markov  model via particle
     filter algorithm. The package is relatively robust to varying
     degrees of shading.
-    The hidden Markov model is described in Movement Ecology (Rakhimberdiev et al., 2015)<doi:10.1186/s40462-015-0062-5>,
-    general package description is in the Methods in Ecology and Evolution (Rakhimberdiev et al., 2017)<doi:10.1111/2041-210X.12765>
-    and package accuracy assessed in the Journal of Avian Biology (Rakhimberdiev et al. 2016)<doi:10.1111/jav.00891>.
+    The hidden Markov model is described in Movement Ecology (Rakhimberdiev et al., 2015) <doi:10.1186/s40462-015-0062-5>,
+    general package description is in the Methods in Ecology and Evolution (Rakhimberdiev et al., 2017) <doi:10.1111/2041-210X.12765>
+    and package accuracy assessed in the Journal of Avian Biology (Rakhimberdiev et al. 2016) <doi:10.1111/jav.00891>.
 URL: https://CRAN.R-project.org/package=FLightR
 BugReports: http://github.com/eldarrak/FLightR/issues
 Depends:
