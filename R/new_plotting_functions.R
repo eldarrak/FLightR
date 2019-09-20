@@ -501,6 +501,7 @@ r=get_gunion_r(Result)
 
 res_buffers<-c()
 nPoints<-c()
+
 for (percentile in percentiles) {
 res_cur<- get_time_spent_buffer(Result, dates, percentile, r)
 res_buffers<-c(res_buffers, res_cur$Buffer)
@@ -513,40 +514,49 @@ nPoints<-c(nPoints, res_cur$nPoints)
 #-----------------#
 # and now we want to plot it
 
-if (is.null(background)) {
+#if (is.null(background)) {
 
 # combine location with map options
 	if (is.null(map.options)) map.options<-list()
 	#if (is.null(map.options$location)) map.options$location<-location
 	if (is.null(map.options$zoom) & is.numeric(zoom)) map.options$zoom=zoom
 	if (is.null(map.options$col)) map.options$col="bw"
-	Extent<-raster::extent(res_buffers[[length(res_buffers)]])
-	location<-c(Extent@xmin, Extent@ymin, Extent@xmax, Extent@ymax)
+	location<-res_buffers[[length(res_buffers)]]@bbox
 
-    if (is.null(map.options$location)) map.options$location<-location
+    if (is.null(map.options$location)) map.options$location<-rowMeans(res_buffers[[length(res_buffers)]]@bbox)
 
 	if (zoom=="auto") {
 
-	for (zoom_cur in (2:10)) {
-	map.options$zoom=zoom_cur
+	    for (zoom_cur in (2:10)) {
+		   map.options$zoom=zoom_cur
+		   
+		   background <-do.call(ggmap::get_map, map.options)
+		   bb<-attr(background, 'bb')
+	      
+		   bb[2]<-ifelse(bb[2]< (-180), bb[2]+360, bb[2])
+		   bb[4]<-ifelse(bb[4]< (-180), bb[4]+360, bb[4])
+		   bb[2]<-ifelse(bb[2]> (180), bb[2]-360, bb[2])
+		   bb[4]<-ifelse(bb[4]> (180), bb[4]-360, bb[4])
+		  
+		if (bb[4]<bb[2]) {
+           lonisinbb<-(location[1] >= bb[2] || location[1] <= bb[4]) & (location[3] >= bb[2] || location[3] <= bb[4]) 
+        } else {
+	       lonisinbb<-(location[1] >= bb[2] && location[1] <= bb[4]) & (location[3] >= bb[2] && location[3] <= bb[4])
+	    }
+	  
+	    isinbb<-lonisinbb & location[2]>=bb[1] & location[4]<=bb[3]
+	    if (!isinbb) break
 	
-	background <-do.call(ggmap::get_map, map.options)
-	if (!(
-	location[1]>attr(background, 'bb')[2] &
-	location[2]>attr(background, 'bb')[1] &
-	location[3]<attr(background, 'bb')[4] &
-	location[4]<attr(background, 'bb')[3] )) {
-	break
-	}
-    }
+
+        }
 	map.options$zoom=zoom_cur-1
     }
 	background <-do.call(ggmap::get_map, map.options)
 
-    }
+    #}
     geom_polygon.options.external=geom_polygon.options
 	
-	p<-ggmap::ggmap(background)
+	p<-ggmap::ggmap(background, maprange=TRUE)
 	#p<-ggmap::ggmap(background, extent = "normal", maprange=FALSE)
 	#p<-ggmap::ggmap(background, extent = "normal")
 	
