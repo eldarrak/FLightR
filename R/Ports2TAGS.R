@@ -20,7 +20,7 @@
 #' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
 BAStag2TAGS <- function(raw, twl, threshold, filename=NULL) {
-  if (any(is.na(c(twl[,1], twl[,2])))) stop('NA detected in twl, check what went wrong there!')
+  if (any(is.na(twl[,1])) || any(is.na(twl[,2]))) stop('NA detected in twl, check what went wrong there!')
   names(raw) <- c("Twilight", "Light")
   twl$Light <- threshold
   if (!'POSIXct' %in% class(twl$Twilight)) stop ('Twilight column in twl object should have POSIX format!')
@@ -61,7 +61,7 @@ BAStag2TAGS <- function(raw, twl, threshold, filename=NULL) {
 #' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
 twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
-  if (any(is.na(c(twl[,1], twl[,2])))) stop('NA detected in twl, check what went wrong there!')
+  if (any(is.na(twl[,1])) || any(is.na(twl[,2]))) stop('NA detected in twl, check what went wrong there!')
   if (!'POSIXct' %in% class(twl$Twilight)) stop ('Twilight column in twl object should have POSIX format!')
 
   names(raw) <- c("Twilight", "Light")
@@ -104,7 +104,7 @@ twGeos2TAGS <- function(raw, twl, threshold, filename=NULL) {
 #' @author Eldar Rakhimberdiev & Simeon Lisovski
 #' @export
 GeoLight2TAGS<-function (raw, gl_twl, threshold, filename=NULL) {
-   if (any(is.na(c(gl_twl[,1], gl_twl[,2])))) stop('NA detected in gl_twl, check what went wrong there!')
+   if (any(is.na(gl_twl[,1])) || any(is.na(gl_twl[,2]))) stop('NA detected in gl_twl, check what went wrong there!')
    names(raw) <- c("datetime", "light")
    raw$twilight<-0
    twl <- data.frame(datetime = as.POSIXct(c(gl_twl$tFirst, 
