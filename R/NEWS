@@ -21,3 +21,4 @@
 # ver 0.4.7 many small stability improvements, typo corrections and new error mesages
 # ver 0.4.8 compartible with ggmap >= 3.0.0
 # ver 0.4.9 small bug fixes in calibration function, FLightR2Movebank function added
+# ver 0.5.0 small fixes in test for R 4.1.0 compartibility
