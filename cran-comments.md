@@ -1,12 +1,3 @@
-## resubmission
-in the submission I had three problems:
-
-1. My old email address eldar@nioz.nl is no longer active, and I cannot send a confirmation message from there.
-
-2. There was an unnesesary 'a package for' in the title, corrected now
-
-3. There were no spaces before doi in the package description. Also corrected.
-
 ## R CMD check results
 There were no ERRORs or WARNINGs AND 1 NOTES
 
@@ -14,7 +5,7 @@ There were no ERRORs or WARNINGs AND 1 NOTES
 This note on RcppArmadillo, I get every time: I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
 
 ## Update
-This is an update with a few bug fixes and a new function to save results in the Movebank repository format. 
+This is an update that fixes errors in tests due to changed behaviour of as.POSIXct in R 4.1.0
 
 ## Test environments
 * ubuntu 14.04 (R devel, R release, R old release) on Travis
