@@ -4,12 +4,22 @@
 \alias{plot_util_distr}
 \title{plots resulting track over map with uncertainty shown by space utilisation distribution}
 \usage{
-plot_util_distr(Result, dates = NULL, map.options = NULL,
-  percentiles = c(0.4, 0.6, 0.8), zoom = "auto",
-  geom_polygon.options = NULL, save.options = NULL,
-  color.palette = NULL, use.palette = TRUE, background = NULL,
-  plot = TRUE, save = TRUE, add.scale.bar = FALSE,
-  scalebar.options = NULL)
+plot_util_distr(
+  Result,
+  dates = NULL,
+  map.options = NULL,
+  percentiles = c(0.4, 0.6, 0.8),
+  zoom = "auto",
+  geom_polygon.options = NULL,
+  save.options = NULL,
+  color.palette = NULL,
+  use.palette = TRUE,
+  background = NULL,
+  plot = TRUE,
+  save = TRUE,
+  add.scale.bar = FALSE,
+  scalebar.options = NULL
+)
 }
 \arguments{
 \item{Result}{FLightR result object obtained from \code{\link{run.particle.filter}}}

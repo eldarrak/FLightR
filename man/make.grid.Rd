@@ -4,10 +4,17 @@
 \alias{make.grid}
 \title{makes spatial grid}
 \usage{
-make.grid(left = -180, bottom = -90, right = 180, top = 90,
+make.grid(
+  left = -180,
+  bottom = -90,
+  right = 180,
+  top = 90,
   distance.from.land.allowed.to.use = c(-Inf, Inf),
-  distance.from.land.allowed.to.stay = c(-Inf, Inf), plot = TRUE,
-  return.distances = FALSE, probability.of.staying = 0.5)
+  distance.from.land.allowed.to.stay = c(-Inf, Inf),
+  plot = TRUE,
+  return.distances = FALSE,
+  probability.of.staying = 0.5
+)
 }
 \arguments{
 \item{left}{- left boundary in degrees (-180 <= left <= 180)}

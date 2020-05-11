@@ -4,11 +4,20 @@
 \alias{map.FLightR.ggmap}
 \title{plots result over map}
 \usage{
-map.FLightR.ggmap(Result, dates = NULL, plot.cloud = TRUE,
-  map.options = NULL, plot.options = NULL, save.options = NULL,
-  zoom = "auto", return.ggobj = FALSE, seasonal.colors = TRUE,
-  seasonal.donut.location = "topleft", seasonal.donut.proportion = 0.5,
-  save = TRUE)
+map.FLightR.ggmap(
+  Result,
+  dates = NULL,
+  plot.cloud = TRUE,
+  map.options = NULL,
+  plot.options = NULL,
+  save.options = NULL,
+  zoom = "auto",
+  return.ggobj = FALSE,
+  seasonal.colors = TRUE,
+  seasonal.donut.location = "topleft",
+  seasonal.donut.proportion = 0.5,
+  save = TRUE
+)
 }
 \arguments{
 \item{Result}{FLightR result object obtained from \code{\link{run.particle.filter}}}

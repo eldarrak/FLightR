@@ -4,9 +4,20 @@
 \alias{make.prerun.object}
 \title{combines data, calibration and sets up priors}
 \usage{
-make.prerun.object(Proc.data, Grid, start, end = start, Calibration,
-  threads = -1, Decision = 0.05, Direction = 0, Kappa = 0,
-  M.mean = 300, M.sd = 500, likelihood.correction = TRUE)
+make.prerun.object(
+  Proc.data,
+  Grid,
+  start,
+  end = start,
+  Calibration,
+  threads = -1,
+  Decision = 0.05,
+  Direction = 0,
+  Kappa = 0,
+  M.mean = 300,
+  M.sd = 500,
+  likelihood.correction = TRUE
+)
 }
 \arguments{
 \item{Proc.data}{Processed data object created by \code{\link{get.tags.data}}.}

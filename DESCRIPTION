@@ -41,7 +41,7 @@ Imports:
     truncnorm	
 License: GPL-3
 ByteCompile: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Suggests:
     covr,
     testthat,

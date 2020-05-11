@@ -4,10 +4,16 @@
 \alias{get.tags.data}
 \title{read TAGS formatted data}
 \usage{
-get.tags.data(filename = NULL, start.date = NULL, end.date = NULL,
-  log.light.borders = "auto", log.irrad.borders = "auto",
-  saves = c("auto", "max", "mean"), measurement.period = NULL,
-  impute.on.boundaries = FALSE)
+get.tags.data(
+  filename = NULL,
+  start.date = NULL,
+  end.date = NULL,
+  log.light.borders = "auto",
+  log.irrad.borders = "auto",
+  saves = c("auto", "max", "mean"),
+  measurement.period = NULL,
+  impute.on.boundaries = FALSE
+)
 }
 \arguments{
 \item{filename}{the name of the file which the data are to be read from. File is supposed to be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file (see \code{\link[base]{file}}). Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL. For the supported URL schemes, see help for \code{\link[base]{url}}.}
