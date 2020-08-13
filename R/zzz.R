@@ -1,5 +1,5 @@
-print.FLightR.version <- function()
-{ library(help=FLightR)$info[[1]] -> version
+print.FLightR.version <- function() {
+    library(help=FLightR)$info[[1]] -> version
 	version <- version[pmatch("Version",version)]
 	if(!is.null(version))
 	{
