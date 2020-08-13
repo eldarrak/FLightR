@@ -56,7 +56,7 @@ find.times.distribution<-function(Result, Spatial.Index) {
 
 	if(any(is.na(c(Q2, Q4)))) {
 	   Q2.4 = c(as.POSIXct(Q2), as.POSIXct(Q4)) }
-	else {Q1.5 = sort(c(Q1, Q5) )}
+	else {Q2.4 = sort(c(Q2, Q4) )}
    
    if (is.na(Q3[1])) {
       return(NA)
