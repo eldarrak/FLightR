@@ -1,5 +1,6 @@
 
 test_that('plot_lon_lat_works',  {
+   skip_on_os('solaris')
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
