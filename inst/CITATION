@@ -10,7 +10,7 @@ bibentry(
 	person(given="Anatoly", family="Saveliev",role="ctb")),
             year = sub("-.*", "", meta$Date),
 			note = paste("R package version", meta$Version),
-			url = "http://github.com/eldarrak/FLightR"
+			url = "https://github.com/eldarrak/FLightR"
 			)
 bibentry(
 	bibtype ="Article",
@@ -25,7 +25,7 @@ bibentry(
                 year = "2015",
 		journal = "Movement Ecology",
                 volume= "3",
-		url = "http://www.movementecologyjournal.com/content/3/1/25",
+		url = "https://www.movementecologyjournal.com/content/3/1/25",
 		month="dec")
 bibentry(
        bibtype ="Article",
