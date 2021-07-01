@@ -51,11 +51,11 @@ find.times.distribution<-function(Result, Spatial.Index) {
    Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=FALSE)
    Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=FALSE)
 	if(any(is.na(c(Q1, Q5)))) {
-	   Q1.5 = c(as.POSIXct(Q1, tz='GMT'), as.POSIXct(Q5, tz='GMT')))
+	   Q1.5 = c(as.POSIXct(Q1, tz='GMT'), as.POSIXct(Q5, tz='GMT'))
 	} else {Q1.5 = sort(c(Q1, Q5) )}
 
 	if(any(is.na(c(Q2, Q4)))) {
-	   Q2.4 = c(as.POSIXct(Q2, tz='GMT')), as.POSIXct(Q4, tz='GMT'))) }
+	   Q2.4 = c(as.POSIXct(Q2, tz='GMT')), as.POSIXct(Q4, tz='GMT')) }
 	else {Q2.4 = sort(c(Q2, Q4) )}
    
    if (is.na(Q3[1])) {
