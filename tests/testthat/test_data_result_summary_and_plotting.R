@@ -36,16 +36,16 @@ test_that('map_flightr_ggmap_works',  {
    if (utils::packageVersion('ggmap')[1]>=2.7) {
    if (ggmap::has_google_key()) {
          # not too clever but it looks like that other ways of graphics test are not stable..
-         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
+         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE, plot.cloud=FALSE)    
          expect_equal(length(p), 9)
    } else {
       expect_error({
-         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
+         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE, plot.cloud=FALSE)    
       })
       }
       } else {
       expect_error({
-         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE)    
+         p<-map.FLightR.ggmap(Result, seasonal.donut.location=NULL,return.ggobj=TRUE, zoom=5, save=FALSE, plot.cloud=FALSE)    
       })
    } 
    }

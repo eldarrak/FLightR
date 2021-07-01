@@ -151,7 +151,7 @@ options('ggmap'= Opt$ggmap)
     }
   	 background <-do.call(ggmap::get_map, map.options)
 
-	p<-ggmap::ggmap(background, maprange=TRUE)
+	p<-ggmap::ggmap(background)#, maprange=TRUE)
 
 	if (plot.cloud) {
 	 #if (overdateline) Points[,1]<-ifelse(Points[,1]>0, Points[,1]-360, Points[,1])
@@ -161,7 +161,7 @@ options('ggmap'= Opt$ggmap)
 	 lon<-NA
 	 lat<-NA
 	 #################
-	 p<-p+ ggplot2::stat_density2d(data=data.frame(Points), ggplot2::aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
+	 p<-  p+ ggplot2::stat_density2d(data=data.frame(Points), ggplot2::aes(fill = ..level.., alpha = ..level.., x=lon, y=lat), size = 0.01,  geom = 'polygon', n=400) 
 	 
 	 p<-p+ ggplot2::scale_fill_gradient(low = "green", high = "red") 
 	 p<-p+ ggplot2::scale_alpha(range = c(0.00, 0.25), guide = FALSE) 
