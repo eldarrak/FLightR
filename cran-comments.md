@@ -7,8 +7,7 @@ There were no ERRORs or WARNINGs AND 1 NOTES
 This note on RcppArmadillo, I get every time: I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
 
 ## Update
-This is an update that fixes errors in tests due to changed behaviour of as.POSIXct in R 4.1.0
-
+The package was erroring in linux environments due to new r warning on time zone mismatch. I now directly define all the time zones within the package and the tests.
 ## Test environments
 * ubuntu 14.04 (R devel, R release, R old release) on Travis
 * macOS 10.13 (R release, R old release) on Travis
