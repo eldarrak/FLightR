@@ -108,7 +108,7 @@ GeoLight2TAGS<-function (raw, gl_twl, threshold, filename=NULL) {
    names(raw) <- c("datetime", "light")
    raw$twilight<-0
    twl <- data.frame(datetime = as.POSIXct(c(gl_twl$tFirst, 
-      gl_twl$tSecond), "UTC"), twilight = c(gl_twl$type, ifelse(gl_twl$type == 
+      gl_twl$tSecond), tz="GMT"), twilight = c(gl_twl$type, ifelse(gl_twl$type == 
       1, 2, 1)))
    twl <- twl[!duplicated(twl$datetime),]
    twl <- twl[order(twl[, 1]), ]

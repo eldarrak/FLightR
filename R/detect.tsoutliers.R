@@ -3,11 +3,11 @@
 
 get.equatorial.max<-function(Proc.data, calibration, dusk=TRUE, Twilight.ID, center=NULL) {
 if (dusk) {
-Twilight.solar.vector<-solar.FLightR(as.POSIXct(Proc.data$Twilight.time.mat.dusk[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+Twilight.solar.vector<-solar.FLightR(as.POSIXct(Proc.data$Twilight.time.mat.dusk[c(1:24, 26:49), Twilight.ID], tz="GMT", origin="1970-01-01"))
 Twilight.log.light.vector<-Proc.data$Twilight.log.light.mat.dusk[c(1:24, 26:49), Twilight.ID]
 Twilight.time.vector=Proc.data$Twilight.time.mat.dusk[c(1:24, 26:49), Twilight.ID]
 } else {
-Twilight.solar.vector<-solar.FLightR(as.POSIXct(Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.ID], tz="gmt", origin="1970-01-01"))
+Twilight.solar.vector<-solar.FLightR(as.POSIXct(Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.ID], tz="GMT", origin="1970-01-01"))
 Twilight.log.light.vector<-Proc.data$Twilight.log.light.mat.dawn[c(1:24, 26:49), Twilight.ID]
 Twilight.time.vector=Proc.data$Twilight.time.mat.dawn[c(1:24, 26:49), Twilight.ID]
 }
@@ -211,9 +211,9 @@ Dawn.obvious.outliers<-which(tsoutliers.test(Lons.dawn)>1.5)
 Problematic.Dawns<-loess.filter(x=Proc.data$Twilight.time.mat.dawn[25,], y=Lons.dawn, k=3, exclude=Dawn.obvious.outliers)
 
 graphics::par(mfrow=c(2,1))
-graphics::plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dusk[25,], tz="UTC", origin="1970-01-01"), y=Lons.dusk, pch="+")
+graphics::plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dusk[25,], tz="GMT", origin="1970-01-01"), y=Lons.dusk, pch="+")
 if (length(Problematic.Dusks$outliers) >0) graphics::abline(v=Proc.data$Twilight.time.mat.dusk[25,Problematic.Dusks$outliers])
-graphics::plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dawn[25,], tz="UTC", origin="1970-01-01"), y=Lons.dawn, pch="+")
+graphics::plot(x=as.POSIXct(Proc.data$Twilight.time.mat.dawn[25,], tz="GMT", origin="1970-01-01"), y=Lons.dawn, pch="+")
 if (length(Problematic.Dawns$outliers) >0) graphics::abline(v=Proc.data$Twilight.time.mat.dawn[25,Problematic.Dawns$outliers])
 
 # for these points I'd like to rerun the estimation..
@@ -247,9 +247,9 @@ Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=FALSE, max.outlier.proportion
 cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 graphics::par(mfrow=c(2,1))
-graphics::plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="UTC", origin="1970-01-01"), main="Dusk")
+graphics::plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="GMT", origin="1970-01-01"), main="Dusk")
 if (length(Dusk.outliers)>0) graphics::abline(v=Proc.data$Twilight.time.mat.dusk[1,][Dusk.outliers])
-graphics::plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,], tz="UTC", origin="1970-01-01"), main="Dawn")
+graphics::plot(Lons.dawn~as.POSIXct(Proc.data$Twilight.time.mat.dawn[1,], tz="GMT", origin="1970-01-01"), main="Dawn")
 if (length(Dawn.outliers)>0) graphics::abline(v=Proc.data$Twilight.time.mat.dawn[1,][Dawn.outliers])
 }
 Proc.data$Twilight.time.mat.dusk<-Proc.data$Twilight.time.mat.dusk

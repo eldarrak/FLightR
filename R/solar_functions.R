@@ -58,7 +58,7 @@ elevation.tripEstimation<-function (lon, lat, sun) {
 
 solar.GeoLight<-function(gmt) {
     n <- gmt - as.POSIXct(strptime("2000-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"), 
-        "UTC")
+        tz="GMT")
     L <- 280.46 + 0.9856474 * n
     L <- as.numeric(L)
     g <- 357.528 + 0.9856003 * n
@@ -80,9 +80,9 @@ solar.GeoLight<-function(gmt) {
     deklination.rad <- asin(sin(epsilon.rad) * sin(LAMBDA.rad))
     deklination <- deklination.rad * 180/pi
     tag <- paste(format(gmt, format="%Y"), "-", format(gmt, format="%m"), "-", format(gmt, format="%d"), " 00:00:00", sep = "")
-    JD0 <- as.POSIXct(strptime(tag, "%Y-%m-%d %H:%M:%S"), "UTC")
+    JD0 <- as.POSIXct(strptime(tag, "%Y-%m-%d %H:%M:%S"), tz="GMT")
     JD0 <- JD0 - as.POSIXct(strptime("2000-01-01 12:00:00", "%Y-%m-%d %H:%M:%S"), 
-        "UTC")
+        tz="GMT")
     T0 <- JD0/36525
 	
     Time <- as.numeric(format(gmt, format="%H")) + as.numeric(format(gmt, format="%M"))/60 + as.numeric(format(gmt, format="%S"))/60/100
@@ -131,9 +131,9 @@ if (mode[1]=="tripEstimation") {
 
 get.declination<-function(Dates) {
 
-if (is.numeric(Dates[1])) Dates<-as.POSIXct(Dates, tz="UTC", origin="1970-01-01")
+if (is.numeric(Dates[1])) Dates<-as.POSIXct(Dates, tz="GMT", origin="1970-01-01")
 
-n=as.numeric(Dates-c(as.POSIXct("2000-01-01 12:00:00", tz="UTC")))
+n=as.numeric(Dates-c(as.POSIXct("2000-01-01 12:00:00", tz="GMT")))
 L=280.460+0.9856474*n
 g=357.528+0.9856003*n
 Lambda=(L+1.915*sin(g/180*pi)+0.020*sin(2*g/180*pi))%%360

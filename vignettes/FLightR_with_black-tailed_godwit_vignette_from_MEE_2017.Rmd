@@ -75,8 +75,8 @@ The data frame contains as many rows as many distinct calibration periods the tr
 
 ```{r, eval = F}
 Calibration.periods<-data.frame(
-        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+        calibration.start=as.POSIXct(c(NA, "2014-05-05"), tz='GMT'),
+        calibration.stop=as.POSIXct(c("2013-08-20", NA), tz='GMT'),
         lon=5.43, lat=52.93) 
 		#use c() also for the geographic coordinates, 
 		#if you have more than one calibration location
@@ -104,8 +104,8 @@ Looking at the plot, we can define the time periods, during which the tag reside
 
 Play with `abline()` to find the proper boundaries for the calibration.
 ```{r, eval = F}
-abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
-abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
+abline(v=as.POSIXct("2013-08-20", tz='GMT')) # end of first calibration period
+abline(v=as.POSIXct("2014-05-05", tz='GMT')) # start of the second calibration period
 ```
 ### Find a calibration location for a known calibration period
 It may happen that an animal was tagged in the High Arctic under polar day conditions or that it moved far away from the capture site immediately after tagging and the roof-top calibration data are not available. Even in such cases it is still possible to obtain calibration parameters for a resident period at unknown location. FLightR approach to this problem is similar to Hill-Ekstrom calibration [
@@ -188,7 +188,7 @@ plot_lon_lat(Result)
 Plot space utilisation distribution for the wintering range:
 ```{r, eval = F}
 plot_util_distr(Result, 
-    dates=data.frame(as.POSIXct('2013-12-01'), as.POSIXct('2014-01-31')),
+    dates=data.frame(as.POSIXct('2013-12-01', tz='GMT'), as.POSIXct('2014-01-31', tz='GMT')),
     add.scale.bar=TRUE, percentiles=0.5)
 ```
 

@@ -19,8 +19,8 @@
 #' # to run example fast we will cut the real data file by 2013 Aug 20
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-06-25', tz='GMT'))
 #' Calibration.periods<-data.frame(
-#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05", tz='GMT')),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA, tz='GMT')),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -235,8 +235,8 @@ options('ggmap'= Opt$ggmap)
 #' # to run example fast we will cut the real data file by 2013 Aug 20
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
 #' Calibration.periods<-data.frame(
-#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05"), tz='GMT'),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA), tz='GMT'),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -296,7 +296,7 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    
    #------- vert grid
    
-   Vert_grid<-seq(as.POSIXct("2000-01-01"), as.POSIXct("2030-01-01"), by="month")
+   Vert_grid<-seq(as.POSIXct("2000-01-01", tz='GMT'), as.POSIXct("2030-01-01", tz='GMT'), by="month")
    Vert_grid<-Vert_grid[Vert_grid>=min(Quantiles$time) & Vert_grid<=max(Quantiles$time)]
   
    #Longitude
@@ -437,8 +437,8 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #' # to run example fast we will cut the real data file by 2013 Aug 20
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-06-25', tz='GMT'))
 #' Calibration.periods<-data.frame(
-#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05"), tz='GMT'),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA), tz='GMT'),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -687,8 +687,8 @@ seasonal_donut<-function() {
 #' # to run example fast we will cut the real data file by 2013 Aug 20
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
 #' Calibration.periods<-data.frame(
-#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05"), tz='GMT'),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA), tz='GMT'),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -710,7 +710,7 @@ seasonal_donut<-function() {
 plot_likelihood<-function(object, date=NULL, twilight.index=NULL) {
    my.golden.colors <- grDevices::colorRampPalette(c("white","#FF7100"))
    if (!is.null(date)) {
-      date<-as.POSIXct(date, tz='UTC')
+      date<-as.POSIXct(date, tz='GMT')
       twilight.index<-which.min(abs(object$Indices$Matrix.Index.Table$time-date))
 	}
 

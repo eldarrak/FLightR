@@ -18,7 +18,7 @@ Track<-simulate.track(measurement.period=measurement.period, saving.period=savin
 # saving and reading track file
 cat("   saving file\n")
 
-lig.data<-cbind(format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%d/%m/%Y"), format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%H:%M:%S"), round(exp(Track$LogLight)))
+lig.data<-cbind(format(as.POSIXct(Track$gmt, tz="GMT",origin="1970-01-01"), format="%d/%m/%Y"), format(as.POSIXct(Track$gmt, tz="GMT",origin="1970-01-01"), format="%H:%M:%S"), round(exp(Track$LogLight)))
 
 File.name<-tempfile(pattern = "sim.no.move.", tmpdir = getwd(), fileext = ".csv")
 utils::write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
@@ -83,7 +83,7 @@ positionsGeoLight$tFirst<-GLtab_shifted$tFirst
 # 
 #GLtab1<-GLtab[filter,]
 GLtab1<-GLtab
-Filtered_tw <- data.frame(datetime=as.POSIXct(c(GLtab1$tFirst,GLtab1$tSecond),"UTC"),type=c(GLtab1$type,ifelse(GLtab1$type==1,2,1)))
+Filtered_tw <- data.frame(datetime=as.POSIXct(c(GLtab1$tFirst,GLtab1$tSecond),"GMT"),type=c(GLtab1$type,ifelse(GLtab1$type==1,2,1)))
 
 
 Filtered_tw <- Filtered_tw[!duplicated(Filtered_tw$datetime),]
@@ -310,7 +310,7 @@ GLtab[Index[Index%%2==0],3]<-round(mean(GLtab[Index[Index%%2==0],3]))
 
 GLtab1<-GLtab
 
-Filtered_tw <- data.frame(datetime=as.POSIXct(c(GLtab1$tFirst,GLtab1$tSecond),"UTC"),type=c(GLtab1$type,ifelse(GLtab1$type==1,2,1)))
+Filtered_tw <- data.frame(datetime=as.POSIXct(c(GLtab1$tFirst,GLtab1$tSecond),"GMT"),type=c(GLtab1$type,ifelse(GLtab1$type==1,2,1)))
 
 Filtered_tw <- Filtered_tw[!duplicated(Filtered_tw$datetime),]
 Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
@@ -428,20 +428,20 @@ if (saving.period%%measurement.period !=0) stop("saving period / measurement.per
 time.shift<-sample(1:saving.period, 1)
 if (is.null(Time.seq) | is.null(Time.seq.saving)) {
 	if (!short.run) {
-	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=measurement.period)+time.shift
+	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="GMT")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="GMT")), by=measurement.period)+time.shift
 
-	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="UTC")), by=saving.period)+time.shift
+	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="GMT")), to=as.numeric(as.POSIXct("2010-12-31 23:59:59", tz="GMT")), by=saving.period)+time.shift
 	} else {
-	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct(last.date, tz="UTC")), by=measurement.period)+time.shift
+	Time.seq<-seq(from=as.numeric(as.POSIXct(first.date, tz="GMT")), to=as.numeric(as.POSIXct(last.date, tz="GMT")), by=measurement.period)+time.shift
 
-	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="UTC")), to=as.numeric(as.POSIXct(last.date, tz="UTC")), by=saving.period)+time.shift
+	Time.seq.saving<-seq(from=as.numeric(as.POSIXct(first.date, tz="GMT")), to=as.numeric(as.POSIXct(last.date, tz="GMT")), by=saving.period)+time.shift
 	}
 }
 
 Track<-cbind(Lon, NA, Time.seq)
 Track<-as.data.frame(Track)
 names(Track)<-c("Lon","Lat", "Time.seq")
-Track$type<-ifelse(as.numeric(format(as.POSIXct(Time.seq, tz="utc", origin="1970-01-01"), "%H"))<12, "Dawn", "Dusk")
+Track$type<-ifelse(as.numeric(format(as.POSIXct(Time.seq, tz="GMT", origin="1970-01-01"), "%H"))<12, "Dawn", "Dusk")
 
 Track$type<-as.numeric(as.factor(Track$type))
 
@@ -476,7 +476,7 @@ Track$SD.ideal<-inverse.rle(tmpRle)
 # Angles
 cat("   Estimating solar angles\n")
 cat("Time...")
-Time<-as.POSIXct(Track[,3], tz="gmt", origin="1970-01-01")
+Time<-as.POSIXct(Track[,3], tz="GMT", origin="1970-01-01")
 cat("Solar...")
 S<-solar.FLightR(Time)
 Track.row<-1:dim(Track)[1]
@@ -522,7 +522,7 @@ Track$light[Track$light<min.max.values[1]] <-min.max.values[1]
 
  if (!short.run & plot) graphics::plot(Track$light[5000:6000], type="b", pch=".")
 
- Track$gmt<-as.POSIXct(Track$Time.seq, tz="gmt", origin="1970-01-01")
+ Track$gmt<-as.POSIXct(Track$Time.seq, tz="GMT", origin="1970-01-01")
 
  # now we need to get the estimates without saving file I'd say 
 Track.new<-Track[Track$Time.seq %in% Time.seq.saving,] # creating new track
@@ -560,7 +560,7 @@ get.deltas.one.basic<-function(delta=0, start=c(0,0), Sigma=0.5, return.all.out=
 
 Grid<-as.matrix(expand.grid(start[1], seq(start[2]-8, start[2]+8, 0.5)))
 Grid<-cbind(Grid, 1)
-Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="UTC")), to=as.numeric(as.POSIXct("2010-03-22 23:59:59", tz="UTC")), by=saving.period)
+Time.seq<-seq(from=as.numeric(as.POSIXct("2010-01-01 00:00:00", tz="GMT")), to=as.numeric(as.POSIXct("2010-03-22 23:59:59", tz="GMT")), by=saving.period)
 Track<-cbind(start[1], start[2], Time.seq)
 
 Parameters=calibration$Parameters
@@ -684,7 +684,7 @@ get.time.correction.function<-function(parameters, measurement.period=60, saving
 To.run<-expand.grid(Slope.ideal=parameters$LogSlope_1_minute[1], SD.ideal=parameters$LogSlope_1_minute[2]) #
 All.slope.runs=get.slopes(Repeats=Repeats, To.run=To.run, Parameters=parameters, Lat=position[2], measurement.period=measurement.period, saving.period=saving.period, short.run=FALSE, Lon=position[1], log.light.borders=log.light.borders, min.max.values=min.max.values, log.irrad.borders=log.irrad.borders)
 
-Solar<-solar.FLightR(as.POSIXct(All.slope.runs$gmt, tz="UTC", origin="1970-01-01"))
+Solar<-solar.FLightR(as.POSIXct(All.slope.runs$gmt, tz="GMT", origin="1970-01-01"))
 All.slope.runs$cosSolarDec<-Solar$cosSolarDec
 #save(All.slope.runs, file="All.slope.runs_time_correction_600.RData")
 
@@ -857,7 +857,7 @@ Track<-simulate.track(measurement.period=measurement.period, saving.period=savin
 #==================================
 # saving and reading track file
 cat("   saving file\n")
-lig.data<-cbind(format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%d/%m/%Y"), format(as.POSIXct(Track$gmt, tz="gmt",origin="1970-01-01"), format="%H:%M:%S"), round(exp(Track$LogLight)))
+lig.data<-cbind(format(as.POSIXct(Track$gmt, tz="GMT",origin="1970-01-01"), format="%d/%m/%Y"), format(as.POSIXct(Track$gmt, tz="GMT",origin="1970-01-01"), format="%H:%M:%S"), round(exp(Track$LogLight)))
 
 File.name<-tempfile(pattern = "sim.no.move.", tmpdir = getwd(), fileext = ".csv")
 utils::write.table(lig.data, file=File.name, sep = ",", dec = ".", qmethod="double", quote = FALSE,row.names = FALSE, col.names=FALSE)
@@ -886,7 +886,7 @@ GLtab[Index[Index%%2==1],3]<-round(mean(GLtab[Index[Index%%2==1],3]))
 GLtab[Index[Index%%2==0],3]<-round(mean(GLtab[Index[Index%%2==0],3]))
 # 
 GLtab1<-GLtab
-Filtered_tw <- data.frame(datetime=as.POSIXct(c(GLtab1$tFirst,GLtab1$tSecond),"UTC"),type=c(GLtab1$type,ifelse(GLtab1$type==1,2,1)))
+Filtered_tw <- data.frame(datetime=as.POSIXct(c(GLtab1$tFirst,GLtab1$tSecond),"GMT"),type=c(GLtab1$type,ifelse(GLtab1$type==1,2,1)))
 Filtered_tw <- Filtered_tw[!duplicated(Filtered_tw$datetime),]
 Filtered_tw <- Filtered_tw[order(Filtered_tw[,1]),]
 

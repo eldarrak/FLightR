@@ -13,8 +13,8 @@
 #' # to run example fast we will cut the real data file by 2013 Aug 20
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-06-25', tz='GMT'))
 #' Calibration.periods<-data.frame(
-#'        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-#'        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+#'        calibration.start=as.POSIXct(c(NA, "2014-05-05"), tz='GMT'),
+#'        calibration.stop=as.POSIXct(c("2013-08-20", NA), tz='GMT'),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -186,7 +186,7 @@ get_ZI_distances<-function(Result) {
        DistancesZI<-rbind(DistancesZI,   c(stats::quantile(Inverse, c(0.25, 0.5, 0.75)), Mean=mean(Inverse)))
     }
   
-    DistancesZI<-cbind(Departure=as.POSIXct(c(NA,Result$Results$Movement.results$time[-length(Result$Results$Movement.results$time)]), origin=c('1970-01-01'), tz='UTC'), Arrival= as.POSIXct(as.numeric(Result$Results$Movement.results$time), tz='UTC', origin='1970-01-01'), as.data.frame(DistancesZI))
+    DistancesZI<-cbind(Departure=as.POSIXct(c(NA,Result$Results$Movement.results$time[-length(Result$Results$Movement.results$time)]), origin=c('1970-01-01'), tz='GMT'), Arrival= as.POSIXct(as.numeric(Result$Results$Movement.results$time), tz='GMT', origin='1970-01-01'), as.data.frame(DistancesZI))
 
 	return(DistancesZI)
 }

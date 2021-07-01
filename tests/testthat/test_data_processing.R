@@ -2,8 +2,8 @@ test_that('plot_slopes_by_location works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File)
    expect_null(plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93)))
-   expect_silent(abline(v=as.POSIXct("2013-08-20"))) # end of first calibration period
-   expect_silent(abline(v=as.POSIXct("2014-05-05"))) # start of the second calibration period
+   expect_silent(abline(v=as.POSIXct("2013-08-20", tz='GMT'))) # end of first calibration period
+   expect_silent(abline(v=as.POSIXct("2014-05-05", tz='GMT'))) # start of the second calibration period
    }
 )
 
@@ -11,8 +11,8 @@ test_that('get.tags.data works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File)
    Calibration.periods<-data.frame(
-        calibration.start=as.POSIXct(c(NA, "2014-05-05")),
-        calibration.stop=as.POSIXct(c("2013-08-20", NA)),
+        calibration.start=as.POSIXct(c(NA, "2014-05-05"), tz='GMT'),
+        calibration.stop=as.POSIXct(c("2013-08-20", NA), tz='GMT'),
         lon=5.43, lat=52.93) 
    Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
    expect_equal(0.15, round(Calibration$Parameters$LogSlope[1],2))
@@ -47,7 +47,7 @@ test_that('parallel setup works works',  {
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
         calibration.start=NA,
-        calibration.stop=as.POSIXct("2013-08-20"),
+        calibration.stop=as.POSIXct("2013-08-20", tz='GMT'),
 		lon=5.43, lat=52.93) 
    Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
    Grid<-make.grid(left=0, bottom=50, right=10, top=56,
@@ -66,7 +66,7 @@ test_that('run.particle.filter works',  {
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
    Calibration.periods<-data.frame(
         calibration.start=NA,
-        calibration.stop=as.POSIXct("2013-08-20"),
+        calibration.stop=as.POSIXct("2013-08-20", tz='GMT'),
 		lon=5.43, lat=52.93) 
    Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
    Grid<-make.grid(left=0, bottom=50, right=10, top=56,

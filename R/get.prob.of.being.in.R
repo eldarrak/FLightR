@@ -51,23 +51,23 @@ find.times.distribution<-function(Result, Spatial.Index) {
    Q4<-find.time(Prob.of.being.in, time, quantiles[4], plot=FALSE)
    Q5<-find.time(Prob.of.being.in, time, quantiles[5], plot=FALSE)
 	if(any(is.na(c(Q1, Q5)))) {
-	   Q1.5 = c(as.POSIXct(Q1), as.POSIXct(Q5))
+	   Q1.5 = c(as.POSIXct(Q1, tz='GMT'), as.POSIXct(Q5, tz='GMT')))
 	} else {Q1.5 = sort(c(Q1, Q5) )}
 
 	if(any(is.na(c(Q2, Q4)))) {
-	   Q2.4 = c(as.POSIXct(Q2), as.POSIXct(Q4)) }
+	   Q2.4 = c(as.POSIXct(Q2, tz='GMT')), as.POSIXct(Q4, tz='GMT'))) }
 	else {Q2.4 = sort(c(Q2, Q4) )}
    
    if (is.na(Q3[1])) {
       return(NA)
    } else {
-   Q.50<-as.POSIXct(Q3,origin='1970-01-01', tz="UTC")
+   Q.50<-as.POSIXct(Q3,origin='1970-01-01', tz="GMT")
       
-   Res<-data.frame(Q.025=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
-                   Q.25=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
+   Res<-data.frame(Q.025=as.POSIXct(NA, origin='1970-01-01', tz="GMT"),
+                   Q.25=as.POSIXct(NA, origin='1970-01-01', tz="GMT"),
                    Q.50=Q.50,
-				   Q.75=as.POSIXct(NA, origin='1970-01-01', tz="UTC"),
-				   Q.975=as.POSIXct(NA, origin='1970-01-01', tz="UTC"))
+				   Q.75=as.POSIXct(NA, origin='1970-01-01', tz="GMT"),
+				   Q.975=as.POSIXct(NA, origin='1970-01-01', tz="GMT"))
 
    for (i in 1:length(Q.50)) {
       Q1_cur<-Q1.5[Q1.5<=Q3[i]]

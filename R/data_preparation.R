@@ -16,16 +16,16 @@
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
 #' plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93))
-#' abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
-#' abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
+#' abline(v=as.POSIXct("2013-08-20", tz='GMT')) # end of first calibration period
+#' abline(v=as.POSIXct("2014-05-05", tz='GMT)) # start of the second calibration period
 #'
 #' @author Eldar Rakhimberdiev
 #' @export plot_slopes_by_location
 plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto', log.irrad.borders='auto', ylim=NULL, xlim=NULL) {
    old.par <- graphics::par(no.readonly = TRUE) 
    Calibration.period<-data.frame(
-         calibration.start=as.POSIXct("1900-01-01"),
-		 calibration.stop=as.POSIXct("2050-01-01"),
+         calibration.start=as.POSIXct("1900-01-01", tz='GMT'),
+		 calibration.stop=as.POSIXct("2050-01-01", tz='GMT'),
 		 lon=location[1], lat=location[2])
    if (log.light.borders[1]=='auto') log.light.borders<-Proc.data$log.light.borders
    if (log.irrad.borders[1]=='auto') log.irrad.borders<-Proc.data$log.irrad.borders
@@ -58,7 +58,7 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
 #' Calibration.periods<-data.frame(
 #'        calibration.start=NA,
-#'        calibration.stop=as.POSIXct("2013-08-20"),
+#'        calibration.stop=as.POSIXct("2013-08-20", tz='GMT'),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -71,10 +71,10 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' @author Eldar Rakhimberdiev
 #' @export
 make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, plot.each=FALSE, plot.final=FALSE, likelihood.correction='auto', fixed.logSlope=c(NA,NA), suggest.irrad.borders=FALSE, return.slopes=FALSE) {
-   Calibration.periods[,1]<-as.POSIXct(Calibration.periods[,1], tz='gmt')
-   Calibration.periods[,2]<-as.POSIXct(Calibration.periods[,2], tz='gmt')
-   Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='gmt')
-   Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-as.POSIXct("2100-01-01", tz='gmt')
+   Calibration.periods[,1]<-as.POSIXct(Calibration.periods[,1], tz='GMT')
+   Calibration.periods[,2]<-as.POSIXct(Calibration.periods[,2], tz='GMT')
+   Calibration.periods$calibration.start[is.na(Calibration.periods$calibration.start)]<-as.POSIXct("1900-01-01", tz='GMT')
+   Calibration.periods$calibration.stop[is.na(Calibration.periods$calibration.stop)]<-as.POSIXct("2100-01-01", tz='GMT')
    for (i in 1:nrow(Calibration.periods)) {
      if (Calibration.periods[i,1]>=Calibration.periods[i,2]) stop('Calibration start in some period is later than calibration end')
 	 if (i>1) if ( Calibration.periods[i,1]<=Calibration.periods[(i-1),2]) stop('Calibration periods overlap')
@@ -171,8 +171,8 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
 #' plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93))
-#' abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
-#' abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
+#' abline(v=as.POSIXct("2013-08-20", tz='GMT')) # end of first calibration period
+#' abline(v=as.POSIXct("2014-05-05", tz='GMT')) # start of the second calibration period
 #' Location<-find.stationary.location(Proc.data, '2013-07-20', '2013-08-20', initial.coords=c(10, 50))
 #' }
 #' @author Eldar Rakhimberdiev
@@ -183,8 +183,8 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE, stage=1) {
    sink("tmp")
         Calibration.period<-data.frame(
-        calibration.start=as.POSIXct(calibration.start, tz='UTC'),
-        calibration.stop=as.POSIXct(calibration.stop, tz='UTC'),
+        calibration.start=as.POSIXct(calibration.start, tz='GMT'),
+        calibration.stop=as.POSIXct(calibration.stop, tz='GMT'),
         lon=initial.coords[1], lat=initial.coords[2])
         #use c() also for the geographic coordinates, if you have more than one calibration location
         # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -273,7 +273,7 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
 #' Calibration.periods<-data.frame(
 #'        calibration.start=NA,
-#'        calibration.stop=as.POSIXct("2013-08-20"),
+#'        calibration.stop=as.POSIXct("2013-08-20", tz='GMT'),
 #'        lon=5.43, lat=52.93) 
 #'        #use c() also for the geographic coordinates, if you have more than one calibration location
 #'        # (e. g.,  lon=c(5.43, 6.00), lat=c(52.93,52.94))
@@ -581,16 +581,16 @@ old.par <- graphics::par(no.readonly = TRUE)
 #on.exit(par(old.par))
 all.slopes$Slopes<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
 if (is.null(xlim)) {
-   graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
+   graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="GMT", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
 } else {
-   graphics::plot(log(all.slopes$Slopes$Slope)~ as.POSIXct(all.slopes$Slopes$Time, tz="UTC", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1, xlim=  as.POSIXct(xlim, tz='UTC'))
+   graphics::plot(log(all.slopes$Slopes$Slope)~ as.POSIXct(all.slopes$Slopes$Time, tz="GMT", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1, xlim=  as.POSIXct(xlim, tz='GMT'))
 
 }
 
-graphics::lines(log(Slope)~ as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
-graphics::points(log(Slope)~ as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
-graphics::points(log(Slope)~ as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
-graphics::lines(log(Slope)~ as.POSIXct(Time, tz="UTC", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
+graphics::lines(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",])
+graphics::points(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dusk",], pch="+")
+graphics::points(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
+graphics::lines(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
 #invisible()
 #par(old.par)
 }
@@ -764,7 +764,7 @@ return(Calibration)
 correct.hours<-function(datetime) {
 	# this function is supposed to correct hours by adding some amount of them.
    hours <- as.numeric(format(datetime,"%H"))+as.numeric(format(datetime,"%M"))/60
-   hours[as.POSIXlt(datetime)$isdst==1] <-hours[as.POSIXlt(datetime)$isdst==1]-1
+   hours[as.POSIXlt(datetime, tz='GMT')$isdst==1] <-hours[as.POSIXlt(datetime, tz='GMT')$isdst==1]-1
 	cor <- rep(NA, 24)
 	for(i in 0:23){
 		cor[i+1] <- max(abs((c(hours[1],hours)+i)%%24 - 
@@ -784,8 +784,8 @@ make.result.list<-function(Data, raw.X, raw.Y) {
 	Res$Hour<-raw.Y
 	Result<-list(Data=Res)
 	Result$Data$gmt.adj<-Result$Data$gmt
-	Result$Data$gmt<- as.POSIXct(Result$Data$gmt, tz="UTC", origin="1970-01-01")
-	Result$Data$gmt.adj<- as.POSIXct(Result$Data$gmt.adj, tz="UTC", origin="1970-01-01")
+	Result$Data$gmt<- as.POSIXct(Result$Data$gmt, tz="GMT", origin="1970-01-01")
+	Result$Data$gmt.adj<- as.POSIXct(Result$Data$gmt.adj, tz="GMT", origin="1970-01-01")
 	return(Result)
 }
 
