@@ -42,8 +42,8 @@ The idea behind the function is that it tries to minimize variance between slope
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 Proc.data<-get.tags.data(File)
 plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93))
-abline(v=as.POSIXct("2013-08-20")) # end of first calibration period
-abline(v=as.POSIXct("2014-05-05")) # start of the second calibration period
+abline(v=as.POSIXct("2013-08-20", tz='GMT')) # end of first calibration period
+abline(v=as.POSIXct("2014-05-05", tz='GMT')) # start of the second calibration period
 Location<-find.stationary.location(Proc.data, '2013-07-20', '2013-08-20', initial.coords=c(10, 50))
 }
 }
