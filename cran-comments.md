@@ -1,5 +1,5 @@
 ## RESUBMISSION
-I have corrected http to https in the references.
+I have corrected http to https in the references. Now no notes on this.
  
 ## R CMD check results
 There were no ERRORs or WARNINGs AND 1 NOTES
