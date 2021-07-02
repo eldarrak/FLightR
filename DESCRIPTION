@@ -33,9 +33,7 @@ Imports:
     mgcv,
     nlme,
     parallel,
-    raster,
     RcppArmadillo,
-    rgdal,
     rgeos,
     sp,
     truncnorm	
