@@ -42,7 +42,7 @@ bibentry(
        number = "4",
        publisher = "Blackwell Publishing Ltd",
        issn = "1600-048X",
-       url = "http://dx.doi.org/10.1111/jav.00891",
+       url = "https://dx.doi.org/10.1111/jav.00891",
        doi = "10.1111/jav.00891",
        pages = "589-596")
        
@@ -58,6 +58,6 @@ bibentry(
        volume = "NA",
        number = "NA",
        publisher = "Blackwell Publishing Ltd",
-       url = "http://dx.doi.org/10.1111/2041-210X.12765",
+       url = "https://dx.doi.org/10.1111/2041-210X.12765",
        doi = "10.1111/2041-210X.12765",
        pages = "NA-NA")

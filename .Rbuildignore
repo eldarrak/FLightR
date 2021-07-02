@@ -8,3 +8,5 @@ examples
 ^cran-comments\.md$
 ^R/NEWS$
 ^CRAN-RELEASE$
+^doc$
+^Meta$

@@ -1,9 +1,9 @@
 [![Travis-CI Build Status](https://travis-ci.org/eldarrak/FLightR.svg?branch=master)](https://travis-ci.org/eldarrak/FLightR)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/eldarrak/FLightR?branch=master&svg=true)](https://ci.appveyor.com/project/eldarrak/FLightR)
 [![Coverage Status](https://img.shields.io/codecov/c/github/eldarrak/FLightR/master.svg)](https://codecov.io/github/eldarrak/FLightR?branch=master)
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/FLightR)](https://CRAN.R-project.org/package=FLightR)
-[![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/FLightR?color=brightgreen)](https://CRAN.R-project.org/package=FLightR)
-[![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/grand-total/FLightR?color=brightgreen)](https://CRAN.R-project.org/package=FLightR)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/FLightR)](https://CRAN.R-project.org/package=FLightR)
+[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/FLightR?color=brightgreen)](https://CRAN.R-project.org/package=FLightR)
+[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/grand-total/FLightR?color=brightgreen)](https://CRAN.R-project.org/package=FLightR)
 
 
 FLightR
@@ -54,14 +54,14 @@ Vignette for the package is available [here](https://github.com/eldarrak/FLightR
 -------------
 
 ## References
-1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25. [Check it](http://movementecologyjournal.biomedcentral.com/articles/10.1186/s40462-015-0062-5)
+1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25. [Check it](https://movementecologyjournal.biomedcentral.com/articles/10.1186/s40462-015-0062-5)
 
-2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596. [Check it](http://onlinelibrary.wiley.com/doi/10.1111/jav.00891/abstract)
+2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596. [Check it](https://onlinelibrary.wiley.com/doi/10.1111/jav.00891/abstract)
 
 3. Rakhimberdiev, E. (2016). Ornithology by light levels today: dealing with a developing teenager. Wader Study, 123, 1–3. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166000.svg)](https://doi.org/10.5281/zenodo.166000)
 
 4. Rakhimberdiev, E.Saveliev A., Piersma, T. & Karagicheva, J. (2017). FLightR: An R package for reconstructing animal paths from solar geolocation loggers. Methods in Ecology and evolution. [Check it](https://doi.org/10.1111/2041-210X.12765)
 
 -------------
-Discussion web forum for solar geolocation is available at [ornithologyexchange](http://ornithologyexchange.org/forums/forum/259-geolocator-discussion-support/). Ask there if you need help with the FLightR _per se_ or with solar geolocation in general.
+Discussion web forum for solar geolocation is available at [ornithologyexchange](https://ornithologyexchange.org/forums/forum/259-geolocator-discussion-support/). Ask there if you need help with the FLightR _per se_ or with solar geolocation in general.
 
