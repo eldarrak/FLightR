@@ -403,6 +403,9 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=FALSE
 
 
 logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=TRUE, plot.final=TRUE,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), impute.on.boundaries=FALSE) {
+
+   oldpar <- par(no.readonly = TRUE)    
+   on.exit(par(oldpar))   
 	# =================
 	# in this function I'll add a new lnorm calibration...
 	#
@@ -579,8 +582,9 @@ return(Res)
 
 
 plot_slopes<-function(all.slopes, ylim=NULL, xlim=NULL) {
-old.par <- graphics::par(no.readonly = TRUE) 
-#on.exit(par(old.par))
+   oldpar <- par(no.readonly = TRUE)   
+   on.exit(par(oldpar))    
+
 all.slopes$Slopes<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
 if (is.null(xlim)) {
    graphics::plot(log(all.slopes$Slopes$Slope)~as.POSIXct(all.slopes$Slopes$Time, tz="GMT", origin="1970-01-01"), type="n", main="red - dawn, black - dusk", xlab="time", ylab="log(Slope)", ylim=ylim, las=1)
@@ -594,7 +598,6 @@ graphics::points(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), da
 graphics::points(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
 graphics::lines(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
 #invisible()
-#par(old.par)
 return(NULL)
 }
 

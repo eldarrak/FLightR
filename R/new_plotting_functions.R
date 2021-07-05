@@ -263,6 +263,8 @@ options('ggmap'= Opt$ggmap)
 #' @author Eldar Rakhimberdiev
 #' @export plot_lon_lat
 plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
+   oldpar <- par(no.readonly = TRUE)    
+   on.exit(par(oldpar))         
    Quantiles<-Result$Results$Quantiles
    	# check whether Grid was over dateline:
 	overdateline<-ifelse(attr(Result$Spatial$Grid, 'left')>	attr(Result$Spatial$Grid, 'right'), TRUE, FALSE)

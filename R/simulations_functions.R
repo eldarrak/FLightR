@@ -258,6 +258,10 @@ if (GeoLight) all.out$positionsGeoLight<-positionsGeoLight
 
 
 get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=FALSE, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50) , plot=TRUE) {
+   if (plot) {
+      oldpar <- par(no.readonly = TRUE)   
+      on.exit(par(oldpar))  
+   }
 To.run.initial<-To.run
 Lat.initial<-Lat
 All.slope.runs<-c()
@@ -423,7 +427,10 @@ return(All.slope.runs)
 simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=FALSE, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59", plot=TRUE) {
 # important here is that min and max values may be different from light.borders.
 # and it is actually better to make them different if there is enough point to make an estimation...
-
+  if (plot) {
+   oldpar <- par(no.readonly = TRUE)   
+   on.exit(par(oldpar))        
+  }
 if (saving.period%%measurement.period !=0) stop("saving period / measurement.period has to be integer!")
 time.shift<-sample(1:saving.period, 1)
 if (is.null(Time.seq) | is.null(Time.seq.saving)) {
@@ -1021,7 +1028,11 @@ return(Res)
 test.deltas<-function(params, Tracks, Spline, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
 # this function should send a spline as a calibration function..
 # params are parameters for delta...
-print(params)
+
+oldpar <- par(no.readonly = TRUE)    # code line i
+on.exit(par(oldpar))            # code line i + 1
+
+message(params)
 
 lat_correction_fun<-stats::approxfun(y= cbind(1, cos(c(-85:85)/180*pi),cos(2*c(-85:85)/180*pi),cos(3*c(-85:85)/180*pi))%*%params, x=-85:85)
 
@@ -1040,7 +1051,10 @@ return(Res)
 test.deltas3<-function(params, Tracks, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
 # this function should send a spline as a calibration function..
 # params are parameters for delta...
-print(params)
+oldpar <- par(no.readonly = TRUE)   
+on.exit(par(oldpar))  
+
+message(params)
 #deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.
 
 lat_correction_fun<-stats::approxfun(y= splines::bs((-85:85), degree=5, Boundary.knots=c(-85,85), intercept=TRUE)%*%params, x=-85:85)

@@ -473,6 +473,8 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	if (verbose) print(Res)
 	# and now we want to return 
 	if (plot) {
+        oldpar <- par(no.readonly = TRUE)    
+        on.exit(par(oldpar))   
 		Coef<-try(stats::coef(stats::lm(Res[,1]~Res[,2])))
 		if (class(Coef)!='try-error') {
 		    graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="GMT", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))

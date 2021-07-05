@@ -122,7 +122,10 @@ if (!requireNamespace("tsoutliers", quietly = TRUE)) {
   }
 if (is.character(Proc.data)) Proc.data=get("Proc.data")
 if (is.character(calibration)) calibration=get("calibration")
-
+if (plot) {
+oldpar <- par(no.readonly = TRUE)    # code line i
+on.exit(par(oldpar))            # code line i + 1
+}
 #calibration$Parameters$log.irrad.borders<-c(-4.5, 4.5)
 
 if (!is.null(Threads)) {
