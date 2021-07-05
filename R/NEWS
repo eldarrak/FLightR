@@ -22,4 +22,4 @@
 # ver 0.4.8 compartible with ggmap >= 3.0.0
 # ver 0.4.9 small bug fixes in calibration function, FLightR2Movebank function added
 # ver 0.5.0 small fixes in test for R 4.1.0 compartibility
-# ver 0.5.1 fixed minor bug in find times distribution, set time zones to gmt everywhere
+# ver 0.5.1 July 2021 fixed minor bug in find times distribution, set time zones to gmt everywhere, replaced cat() with message(), improved documentation.

@@ -92,10 +92,10 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
    if (likelihood.correction=='auto') {
       if (Proc.data$saving.period>=550) {
 	     likelihood.correction<-FALSE
-         cat('likelihood correction switched to FALSE\n')
+         message('likelihood correction switched to FALSE\n')
 	  } else {
 	  likelihood.correction<-TRUE
-	  cat('likelihood correction switched to TRUE\n')
+	  message('likelihood correction switched to TRUE\n')
 	  }
    }
    Proc.data$log.irrad.borders=calibration.parameters$log.irrad.borders
@@ -218,10 +218,10 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	     percent_excluded<-1-(sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope))/Twilights_total)
 
 	if (stage==1) {
-     	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
+     	   if (print.optimization) message(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
 		   #print(table(calibration.parameters$All.slopes$Slopes$Type))
 	   if (length(table(calibration.parameters$All.slopes$Slopes$Type))==1) {
-		   print('only_one_twilight_type_left!\n')
+		   warning('only_one_twilight_type_left!\n')
 		   return(sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope)))
 	   } else {
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded^2)
@@ -229,21 +229,21 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	} else {
 	    Dat<-calibration.parameters$All.slopes$Slopes[is.finite(calibration.parameters$All.slopes$Slopes$logSlope),]
 	    if (length(table(Dat$Type))==1 | min(table(Dat$Type))<=2) {
-	     	   print('only_one_twilight_type_left!\n')
+	     	   warning('only_one_twilight_type_left!\n')
 		       Val<-nrow(Dat)
 	   } else {
 		   #Dat<-subset(calibration.parameters$All.slopes$Slopes, is.finite(logSlope), select=c(logSlope, Time, Type))
 		   #print(Dat)
      	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=Dat),stats::lm(logSlope~Time, data=Dat))[2,6])) +percent_excluded^2 #-log(1/(percent_excluded+0.001)
 		}
-     	if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
+     	if (print.optimization) message(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
         return(Val)
 	   }
    }
 
-   cat('stage 1...\n')
+   message('stage 1...\n')
    tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=1e-2)), finally=try(suppressWarnings(sink())))
-   cat('stage 2...\n')
+   message('stage 2...\n')
    
    tryCatch(Res<-stats::optim(Res$par, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, stage=2,control=list(reltol=reltol)), finally=try(suppressWarnings(sink())))
    
@@ -427,11 +427,11 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	Calib.data.dawn<-data.frame()
 	if (plot.each) graphics::par(ask=FALSE)
 	for (dawn in 1:dim(Twilight.time.mat.Calib.dawn)[2]) {
-    cat("\r checking dawn", dawn)
+    message("\r checking dawn", dawn)
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dawn[, dawn], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dawn[dawn,], Twilight.solar.vector=NULL,  Twilight.log.light.vector = Twilight.log.light.mat.Calib.dawn[,dawn], plot=plot.each, verbose=FALSE,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=FALSE, Twilight.time.vector=Twilight.time.mat.Calib.dawn[, dawn], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
-		cat ("\r dawn", dawn, "was excluded from the calibration")
+		message("\r dawn", dawn, "was excluded from the calibration")
 		} else {
 		Calib.data.dawn<-rbind(Calib.data.dawn, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dawn, Time=Data[,3], Elevs=Data[,4]))	
 		}		
@@ -440,18 +440,18 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 
 	Calib.data.dusk<-data.frame()
 	for (dusk in 1:dim(Twilight.time.mat.Calib.dusk)[2]) {
-    cat("\r checking dusk", dusk )
+    message("\r checking dusk", dusk )
 
 		#Twilight.solar.vector<-solar(as.POSIXct(Twilight.time.mat.Calib.dusk[, dusk], tz="gmt", origin="1970-01-01"))
 		Data<-check.boundaries(positions$dusk[dusk,], Twilight.solar.vector=NULL,  Twilight.log.light.vector=Twilight.log.light.mat.Calib.dusk[,dusk], plot=plot.each, verbose=FALSE,  log.light.borders=log.light.borders, log.irrad.borders=log.irrad.borders, dusk=TRUE,  Twilight.time.vector=Twilight.time.mat.Calib.dusk[, dusk], impute.on.boundaries=impute.on.boundaries)
 		if (length(Data)==0) {
-		cat ("\r dusk", dusk, "was excluded from the calibration")
+		message("\r dusk", dusk, "was excluded from the calibration")
 		} else {
 		Calib.data.dusk<-rbind(Calib.data.dusk, cbind(LogLight=Data[,1], LogIrrad=Data[,2], Day=dim(Twilight.time.mat.Calib.dawn)[2]+dusk, Time=Data[,3], Elevs=Data[,4]))
 		}
 	}
 	if (nrow(Calib.data.dusk)>0) {Calib.data.dusk$type<-"Dusk"}
-	cat('\r')
+	message('\r')
 	if (nrow(Calib.data.dusk)==0 & nrow(Calib.data.dawn)==0) stop('Error: None of twilights could happen in the location... Something went wrong at the previous stages')
 	Calib.data.all<-rbind(Calib.data.dawn, Calib.data.dusk)
 	if (plot.final) {
@@ -462,7 +462,8 @@ logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Tw
 	}
 	
 	Calib.data.all$fDay<-as.factor(Calib.data.all$Day)
-	cat('\r\n')
+	message('\r\n')
+	message('\r\n')
 	return(Calib.data.all)	
 }
 
@@ -479,7 +480,7 @@ logger.template.calibration<-function(Twilight.time.mat.Calib.dawn, Twilight.log
 get.calib.param<-function(Calib.data.all, plot=FALSE, calibration.type=NULL) {
 
 if (is.null(calibration.type)) calibration.type="parametric.slope"
-cat("calibration method used:", calibration.type, "\n")
+message("calibration method used:", calibration.type, "\n")
 
 Calib.data.all$fTwilight<-Calib.data.all$fDay
 
@@ -646,7 +647,7 @@ Twilights_total<-length(c(Dusk.calib.days,Dawn.calib.days))
      Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=c(-10,10), plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
 
      log.irrad.borders<-suggest.irrad.boundaries(Calib.data.all) 
-     cat('!!! log.irrad.borders were updated to new values:', log.irrad.borders[1], log.irrad.borders[2], '\n')
+     warning('!!! log.irrad.borders were updated to new values:', log.irrad.borders[1], log.irrad.borders[2], '\n')
   }
 
 Calib.data.all<-logger.template.calibration(Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=Positions, log.light.borders=log.light.borders,  log.irrad.borders=log.irrad.borders, plot.each=plot.each, plot.final=plot.final, impute.on.boundaries=Proc.data$impute.on.boundaries)
@@ -693,8 +694,8 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    cur_mean_range<-c(exp(calib_log_mean)-5*exp(calib_log_sd), exp(calib_log_mean)+5*exp(calib_log_sd))
    Res<-c()
    for (i in 1:npoints) {
-   	  cat('\r simulation:  ', round(i/npoints*100), '%', sep='')
-	  cat('\r')
+   	  message('\r simulation:  ', round(i/npoints*100), '%', sep='')
+	  message('\r')
       cur_mean<-stats::runif(300, cur_mean_range[1], cur_mean_range[2])
 	  cur_sd<-stats::runif(1, cur_sd_range[1], cur_sd_range[2])
       Cur_max_real<- stats::optimize(f=function(x) 
@@ -704,8 +705,8 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
    }
    Res<-as.data.frame(Res)
    Res$Corr <- exp(Res$calib_log_mean)-Res$cur_mean_max
-   cat('\r  estimating correction function...')
-   cat('\r')
+   message('\r  estimating correction function...')
+   message('\r')
 
    MvExp<-mgcv::gamm(Corr~s(cur_sd), data=Res, weights=nlme::varExp(form =~ cur_sd))
    # now we check for the outliers..
@@ -724,8 +725,8 @@ make_likelihood_correction_function<-function(calib_log_mean, calib_log_sd, cur_
       graphics::lines(exp(Res$calib_log_mean[1])-mgcv::predict.gam(MvExp$gam, newdata=data.frame(cur_sd=XX))~XX, col='red')
 	  }
 	Out<-list(c_fun=c_fun, Res=Res)
-	cat('\r')
-	cat('\n')
+	message('\r')
+	message('\n')
 	return(Out)
 }
 

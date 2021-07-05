@@ -103,7 +103,7 @@ for (i in 1:nrow(Points)) {
 #if (Close_to_coast[i]==1) {
 if (Potential_water[i]==TRUE) {
 Land[i]<-as.numeric(rgeos::gWithinDistance( sp::spTransform(Sp.All.Points.Focus[i,], sp::CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), sp::spTransform(wrld_simpl, sp::CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), distance))
-cat("\r",i)
+message("\r",i)
 }
 
 }
@@ -131,7 +131,7 @@ get.distance.to.water<-function(Points) {
       if (Potential_water[i]==TRUE) {
 	     Point<-Sp.All.Points.Focus[i,]
          Distance[i]<-rgeos::gDistance(sp::spTransform(Point, sp::CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))), sp::spTransform(wrld_simpl_l, sp::CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))))/1000
-         cat("\r",i)
+         message("\r",i)
       }
    }
    return(Distance)

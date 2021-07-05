@@ -85,11 +85,11 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
    Possible.threads=parallel::detectCores()
    if (threads<=0) Threads=max(Possible.threads+threads, 1)
    if (threads>0) Threads=min(Possible.threads,threads)
-    cat("creating cluster with", Threads, "threads")
+    message("creating cluster with", Threads, "threads")
     mycl <- parallel::makeCluster(Threads, type=cluster.type)
     parallel::clusterSetRNGStream(mycl)
 	parallel::clusterEvalQ(mycl, library("FLightR")) 
-	cat('   Done\n')
+	message('   Done\n')
 
     tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers), finally = parallel::stopCluster(mycl))
 	} else {	
@@ -98,23 +98,21 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers)
 	}
     # Part 2. Creating matrix of results.
-    #cat("creating results matrix \n")
-    #All.results.mat<-return.matrix.from.char(Res$All.results)
 	all.out$Results<-list()
 	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp.results<-Res$Results$tmp.results
     # Part 2a. Estimating log likelihood
     LL<- get.LL.PF(all.out, Res$Points)
-    cat("+----------------------------------+\n")
-    cat("|     estimated negative Log Likelihood is",  LL, "\n")
-    cat("+----------------------------------+\n")
+    message("+----------------------------------+\n")
+    message("|     estimated negative Log Likelihood is",  LL, "\n")
+    message("+----------------------------------+\n")
     #save(LL, file=paste(LL, "time", format(Sys.time(), "%H-%m"), ".RData"))
 	# Part 2b comparing the likelihood with previous estimate
     # now we need to save it..
       
 
 	  # Part 3. Updating proposal
-      cat("estimating results object\n")
+      message("estimating results object\n")
       all.out.old<-all.out
       all.out<- get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
       Movement.parameters<- estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
@@ -149,7 +147,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
   all.out$Spatial$tmp<-NULL
   all.out$call<-cl
   all.out$Results$FLightRver<-utils::packageVersion("FLightR")
-  cat("DONE!\n")
+  message("DONE!\n")
   return(all.out)
 }
 
@@ -191,7 +189,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     }
     # this is neede to catch an error 
     if (any(c(Angles.probs, Dists.probs)<0)) {
-      cat("PF produced weird probs \n")
+      warning("PF produced weird probs \n")
       tmp.out<-list(Angles.probs=Angles.probs, Dists.probs=Dists.probs, Current.Proposal=Current.Proposal, Data=x)
       save(tmp.out, file=paste("tmp.out", round(stats::runif(n=1,min=1, max=1000)), "RData", sep="."))
       Biol.proposal<-pmax.int(Dists.probs*Angles.probs, 0)
@@ -215,10 +213,10 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   
   if (any(in.Data$Spatial$Behav.mask!=1)) { 
 	smart.filter=TRUE
-	cat("smart filter is ON\n")
+	message("smart filter is ON\n")
 	} else {
 	smart.filter=FALSE
-	cat("smart filter is OFF\n")
+	message("smart filter is OFF\n")
 	}
   # so, the idea here will be that we don't need to create these complicated Indexes..
   in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
@@ -291,16 +289,14 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     Last.State.List<-split(Last.State, row(Last.State))
     nSeq<-nrow(Last.State)
     if (nSeq==1 | (!parallel)) {
-      #cat("non.parallel\n")
-      #New.Points<-t(lapply(Last.State, 1, pf.par.internal, Current.Proposal))			
       New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
       #New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
     }
     else {
-      cat(" initial diversity is ", nSeq)
+      message(" initial diversity is ", nSeq)
       #New.Points<-clusterApplyLB(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
       New.Points<-parallel::clusterApply(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
-	  cat("  Done\n")
+	  message("  Done\n")
     }
     #=======================================================
     New.Particles<-unlist(New.Points)[sort.list(Order.vector, na.last = NA, method =  "quick")]
@@ -316,11 +312,11 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   for (Time.Period in 1:total_length) {
     steps.from.last=steps.from.last+1
 
-	cat("\n\n##########################\n     Time.Period", Time.Period, "of", total_length, "\n")
+	message("\n\n##########################\n     Time.Period", Time.Period, "of", total_length, "\n")
     #cat("prep. data:")
     Current.Proposal<-in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],]
     #=======================================
-    cat("generating new particles")
+    message("generating new particles")
     New.Particles<-propagate.particles(Last.Particles=Results.stack[,ncol(Results.stack)], Current.Proposal=Current.Proposal, parallel=parallel, Parameters=Parameters, mycl=mycl)
     
     #=====================================================
@@ -344,7 +340,6 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
           Angles.probs<-apply(FromTo,1, FUN=function(x, k) as.numeric(suppressWarnings(circular::dvonmises(x[[2]], mu=x[[1]], kappa=k))), k=k)
         }
         Angles.probs[is.na(Angles.probs)]<-D.kappa
-        #cat("\n min.Kappa:", min(Angles.probs), ", max.Kappa", max(Angles.probs), "\n")
         return(Angles.probs)
       }
       
@@ -373,8 +368,8 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 
 	AC.distance2<-	stats::weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)]*Current.Weights)	
 	
-	cat("AB.distance:", round(AB.distance, 2), "\n")
-	cat("AC.distance2:", round(AC.distance2, 2), "\n")
+	message("AB.distance:", round(AB.distance, 2), "\n")
+	message("AC.distance2:", round(AC.distance2, 2), "\n")
 
 	Dif.ang=180
 	if (AB.distance>50) { # go for angles only if disctances are high!
@@ -385,12 +380,10 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	
 	BA.moved<-which(!is.na(BA.dir))
 	BA.mean<-circular::mean.circular(circular::circular(resample(BA.dir[BA.moved], replace=TRUE,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=TRUE)
-	#cat(BA.mean)	#BC.dir<-in.Data$Spatial$tmp$Azimuths[cbind(Results.stack[,ncol(Results.stack)-1], New.Particles)]
 	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, dir_fun, in.Data)
 	
 	BC.moved<-which(!is.na(BC.dir))
 	BC.mean<-circular::mean.circular(circular::circular(resample(BC.dir[BC.moved], replace=TRUE, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=TRUE)
-	#cat(BC.mean)
 	dif.ang<-function(x,y) {
 	# this function provides the minimum angle between two angles..
 	y=y*pi/180
@@ -400,14 +393,12 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	}
 	if (!is.null(BA.mean) & !is.null(BC.mean)) {
 	Dif.ang<-dif.ang(BA.mean, BC.mean)
-	cat("anglular change", round(Dif.ang,2), "\n" )
+	message("anglular change", round(Dif.ang,2), "\n" )
 	}
 	}	
 	
 #=================================
 # now I want to temporarily save this ..
-#if (is.null(BA.mean)) BA.mean=NA
-#if (is.null(BC.mean)) BC.mean=NA
   in.Data$AB.distance<-c(in.Data$AB.distance, AB.distance)
   #in.Data$AC.distance<-c(in.Data$AC.distance, AC.distance)
   in.Data$AC.distance2<-c(in.Data$AC.distance2, AC.distance2)
@@ -420,7 +411,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	#if ( steps.from.last>2 & ((AB.distance>50 & AB.distance>(AC.distance2*1.3))| (abs(Dif.ang)<90))) {
 	if ( steps.from.last>2 & ((AB.distance>50 & AB.distance>(AC.distance2*1.3))| (AB.distance>AC.distance2 & abs(Dif.ang)<100))) {
 	steps.from.last=0
-	cat("outlier number", length(in.Data$outliers)+1, "detected! removing observations from ", Time.Period-1, "!\n")
+	warning("outlier number", length(in.Data$outliers)+1, "detected! removing observations from ", Time.Period-1, "!\n")
 	in.Data$outliers<-c(in.Data$outliers, Time.Period-1)
 	# and now the main question - how should we remove the weights??
 	# probably the easiest way would be to add 1/nParticles into the last column..
@@ -451,16 +442,11 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     # ver 1.7. 
     # ADAPTIVE RESAMPLING
     if (adaptive.resampling!=1) {
-#cat("min. current.weights.with.prev=", min(Current.Weights.with.Prev), "\n")
-#cat("max. current.weights.with.prev=", max(Current.Weights.with.Prev), "\n")
-#cat("sq.of.sums:",  sum(Current.Weights.with.Prev)^2, "\n")
-#cat("sumofsq:", sum((Current.Weights.with.Prev)^2), "\n")
       ESS<-(sum(Current.Weights.with.Prev)^2)/sum((Current.Weights.with.Prev)^2)
-      cat("ESS is ", ESS)
+      message("ESS is ", ESS)
 if (is.na(ESS)) {
 	ESS=1
 	Current.Weights.with.Prev.mat<-cbind(Weights.stack, Current.Weights)
-
 	save(Current.Weights.with.Prev, Current.Weights.with.Prev.mat, Current.Weights, file="tmp.RData")
 	}		
     } else {
@@ -476,12 +462,12 @@ if (is.na(ESS)) {
 		#}#
 		#}#
       ResampleCount<-ResampleCount+1
-      cat(" - resampling", ResampleCount, "\n")
+      message(" - resampling", ResampleCount, "\n")
       Results.stack<-Results.stack[Rows,]
 	  Weights.stack<-as.matrix(rep(1/nParticles, nParticles))
     } else {
       Rows<-1:nParticles # no resampling
-      cat("\n")
+      message("\n")
     }
 	New.weights<-Current.Weights[Rows]
 
@@ -544,10 +530,10 @@ if (is.na(ESS)) {
     #	if (Time.Period==2) Particles.at.2<-Accepted.Particles
     #	if (Time.Period>2) {
     #		Particles.at.2<-Particles.at.2[Rows]
-    cat("   unique P in point leaving stack", length(unique(Results.stack[,1])), "\n")
+    message("   unique P in point leaving stack", length(unique(Results.stack[,1])), "\n")
     #	}
     
-    if (Time.Period<=L) cat("creating stack\n")
+    if (Time.Period<=L) message("creating stack\n")
 	if (Time.Period==L) 	Points<-vector(mode = "list")
     if (Time.Period>L) {
 	# the new idea is that we could skip the saving all results and save just points and transitions - we are not outputting them anyways... THis will help avoiding the sort of All.results, that proved to be very slow..
@@ -566,7 +552,7 @@ if (is.na(ESS)) {
       Results.stack<-Results.stack[,-1]
       # clean Weights.stack
       Weights.stack<-as.matrix(Weights.stack[,-1])
-cat("******************\n")
+message("******************\n")
     }
   }
   #####################################
@@ -579,7 +565,7 @@ cat("******************\n")
   
   if (!is.list(Points)) Points<-vector(mode = "list")
   # and here we need to add a thing that will finish All.results and Trans from the points that are still in the stack
-  cat("adding last points form the stack to the resutls\n")
+  message("adding last points form the stack to the resutls\n")
   Length<-ncol(Results.stack)
 
   for (rest in 1:Length) {
@@ -623,7 +609,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
   
   #############
   # new part for medians
-  cat("estimating quantiles for positions\n")
+  message("estimating quantiles for positions\n")
 	
 		# check whether Grid was over dateline:
 	overdateline<-ifelse(attr(in.Data$Spatial$Grid, 'left')>	attr(in.Data$Spatial$Grid, 'right'), TRUE, FALSE)
@@ -649,7 +635,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	###########
 	# doing jitter first
 	if (add.jitter) {
-	cat("adding jitter to medians\n")
+	message("adding jitter to medians\n")
 	jitter_coords<-get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
 	Quantiles$MedianlonJ<-jitter_coords[,1]
@@ -663,7 +649,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
 	names(Quantiles)<-gsub("3","T", names(Quantiles))
 	
-	cat("adding 95% credibility intervals to medians\n")
+	message("adding 95% credibility intervals to medians\n")
 	Quantiles$LCI.lat<-CIntervals[,1]
 	Quantiles$UCI.lat<-CIntervals[,2]
 	Quantiles$LCI.lon<-CIntervals[,3]
@@ -703,7 +689,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   #for (i in 1:(dim(output.matrix)[2]-1)) {
   #  Trans[[i]]<-get.transition.rle(output.matrix[,i], output.matrix[,i+1])
   #}
-  cat("   estimating distances\n")
+  message("   estimating distances\n")
   #####   let's try to get distance distribution:
   Distances<-Trans
   dist.fun<-function(x) {
@@ -713,7 +699,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
   }
-  cat("   estimating directions\n")
+  message("   estimating directions\n")
   #ok, now we want to get directions
   
   Directions<-Trans
@@ -721,22 +707,22 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
     Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
     Directions[[i]]$values<-apply(Movement_Points, 1, FUN= dir_fun, in.Data)
   }
-  cat("   estimating mean directions and kappas\n")
+  message("   estimating mean directions and kappas\n")
   
   Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats::circ.mean(circular::circular(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]*pi/180))))*180/pi))
   #plot(Mean.Directions)
-  cat("   estimating kappas\n") #CircStats::est.kappa
+  message("   estimating kappas\n") #CircStats::est.kappa
   Kappas<-unlist(lapply(Directions, FUN=function(x) CircStats::est.kappa(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]*pi/180)))))
   
   
   # now we want to get mean distance
-  cat("   estimating mean dists\n")
+  message("   estimating mean dists\n")
   #
   #cat("   estimating mean and SD to report dists SD\n")
   # attempt to go just for simple distance estimation...
   Mean2report<-unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   SD2report<-unlist(lapply(Distances, FUN=function(x) stats::sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
-  cat("   estimating probs of migration\n")
+  message("   estimating probs of migration\n")
   # ok, now we want to get parameters for distances
   #
   Probability.of.migration<-unlist(lapply(Distances, FUN=function(x) sum(x$lengths[x$values!=0])))/nParticles
@@ -746,7 +732,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Mean.and.Sigma<-lapply(Distances, FUN=function(x)  mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
   #}
   Mean.Dists<-sapply(Mean.and.Sigma, "[[", i=1)
-  cat("   estimating dists SD\n")
+  message("   estimating dists SD\n")
   Mean.SD<-sapply(Mean.and.Sigma, "[[", i=2)
   } else {
   Mean.Dists<-Mean2report
@@ -755,16 +741,10 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
 
   #unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   #plot(Mean.Dists)
-  cat("   estimating median dists\n")
+  message("   estimating median dists\n")
   Median.Dists<-unlist(lapply(Distances, FUN=function(x) stats::median(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
 
-  #unlist(lapply(Distances, FUN=function(x) sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
-  #plot(Kappas)
-  
-  
-  
-  
-  cat("   creating output")
+  message("   creating output")
   ################
   # create new proposal from the posteriors
   #New.Matrix.Index.Table<-data.frame(Direction=Mean.Directions, M.mean=Mean.Dists, M.sd=Mean.SD, Decision=Probability.of.migration, Kappa=Kappas)
@@ -799,7 +779,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
     if ("Direction" %in% names(fixed.parameters)) Movement.results$Direction<-fixed.parameters$Direction
   }
   #all.arrays.object$Indices$Main.Index$Biol.Next=2:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
-  cat(" DONE!\n")
+  message(" DONE!\n")
   Res<-list(Movement.results=Movement.results, Transitions.rle=Trans)
   return(Res)
 }
@@ -906,7 +886,7 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], longlat=TRUE), mean=0, sd=precision.sd)
   Rows<- try(suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights))))
   if (class(Rows) == 'try-error') {
-    cat('final smoothing failed, error data saved to the working directory - smoothing.error.RData!\n')
+    warning('final smoothing failed, error data saved to the working directory - smoothing.error.RData!\n')
 	save(last.particles, Weights, file='smoothing.error.RData')
     return(results.stack)
 	} else {

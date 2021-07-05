@@ -82,10 +82,10 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
       }
    }
    
-   cat("tag saved data every", saving.period, "seconds, and is assumed to measure data every", measurement.period, "seconds, and write down", saves[1], "\n" )
+   message("tag saved data every", saving.period, "seconds, and is assumed to measure data every", measurement.period, "seconds, and write down", saves[1], "\n" )
    if (max(TAGS.twilights$light) ==64 & saving.period>500) {
       impute.on.boundaries=TRUE
-      cat("saving period was too long for this type of tag, FLightR will impute data\n")
+      warning("saving period was too long for this type of tag, FLightR will impute data\n")
    }
    Proc.data<-process.twilights(FLightR.data$Data,FLightR.data$twilights, 
                              measurement.period=measurement.period, saving.period=saving.period, impute.on.boundaries=impute.on.boundaries)
@@ -179,14 +179,12 @@ get.tag.type<-function(TAGS.twilights) {
       log_transformed<-TRUE
 	  recognized<-TRUE
    }
-     
-   
    if (recognized==FALSE) { 
-   cat("tag type was not recognised!\nmail me details of your tag and I will add them to the list!\n")
-   return(NULL)
+    warning("tag type was not recognised!\nmail me details of your tag and I will add them to the list!\n")
+    return(NULL)
    } else {
-   cat("Detected", tagtype, "tag\n")
-   if (log_transformed) cat("Data found to be logtransformed\n")
+   message("Detected", tagtype, "tag\n")
+   if (log_transformed) message("Data found to be logtransformed\n")
    Res<-list(tagtype=tagtype, log_transformed=log_transformed)
    return(Res)
   }
@@ -216,8 +214,8 @@ convert.lux.to.tags<-function(file, log=FALSE, log.light.borders=c(1,10)) {
 	}
 	# now I need to save as csv...
 	utils::write.csv(Dat_new, file=paste(unlist(strsplit(file, ".lux")), "csv", sep="."), quote =FALSE, row.names=FALSE) 
-	cat("Success!\n")
-	cat("file", paste(unlist(strsplit(file, ".lux")), "csv", sep="."), "\nwas saved to", getwd(), "\n")
+	message("Success!\n")
+	message("file", paste(unlist(strsplit(file, ".lux")), "csv", sep="."), "\nwas saved to", getwd(), "\n")
 	return(NULL)
 }
 

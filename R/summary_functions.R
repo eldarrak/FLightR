@@ -46,7 +46,7 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    #print(data.frame(start=unique(c(0, Cutoffs)), end=unique(c(Cutoffs-1, Total_length))))
    #cat('-----\n')
    if (length(Cutoffs)==0) { 
-      cat('bird likely did not move, exiting without result\n')
+      warning('bird likely did not move, exiting without result\n')
 	  return(NULL)
    } else {
    Total_length<-length(Result$Results$Movement.results$Decision)
@@ -96,10 +96,10 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    Total_twilights<-length(Result$Indices$Matrix.Index.Table$time)
    Total_sites<-nrow(Res$Potential_stat_periods)
    
-   cat('\n\n\nFLightR used',round(Duration), attr(Duration, 'units'), 'from', format(Result$Indices$Matrix.Index.Table$time[1], format='%d-%b-%Y'), 'to', format(rev(Result$Indices$Matrix.Index.Table$time)[1], format='%d-%b-%Y') , 'with', Total_twilights, 'twilights\n')
-   cat('During this time tag moved approximately', round(max(Res$Stationary.periods$Distance2cumulative)), 'km with', nrow(Res$Stationary.periods), 'stationary periods from which', length(which(Res$Potential_stat_periods$Duration>30)), 'were longer than two weeks\n')
-   cat('\n\n Detected stationary periods (without any merging!):\n')
-   print(Res$Stationary.periods[,c(4,7, 12,15,23, 24, 27, 32)])
+   message('\n\n\nFLightR used',round(Duration), attr(Duration, 'units'), 'from', format(Result$Indices$Matrix.Index.Table$time[1], format='%d-%b-%Y'), 'to', format(rev(Result$Indices$Matrix.Index.Table$time)[1], format='%d-%b-%Y') , 'with', Total_twilights, 'twilights\n')
+   message('During this time tag moved approximately', round(max(Res$Stationary.periods$Distance2cumulative)), 'km with', nrow(Res$Stationary.periods), 'stationary periods from which', length(which(Res$Potential_stat_periods$Duration>30)), 'were longer than two weeks\n')
+   message('\n\n Detected stationary periods (without any merging!):\n')
+   message(Res$Stationary.periods[,c(4,7, 12,15,23, 24, 27, 32)])
    return(Res)
    }
 }

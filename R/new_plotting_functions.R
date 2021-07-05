@@ -383,7 +383,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 			if (length(twilights.index)==0) stop("dates do not overlap with the track time span!")
 		}
 	  }
-	 cat('function will plot', length(twilights.index), 'twilights\n')
+	 message('function will plot', length(twilights.index), 'twilights\n')
 
   Points_selected<-get_utilisation_points(Result, twilights.index, percentile)
   

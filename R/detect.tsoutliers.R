@@ -80,27 +80,27 @@ mo2 <- tsoutliers::locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=10
 
  Cval=3.5
  if (nrow(mo2$outliers)<length(Lons)*0.075) {
- cat("adjusting cval down\n")
+ message("adjusting cval down\n")
  while(nrow(mo2$outliers)<length(Lons)*0.075) {
  Cval=Cval*0.95
  mo2 <- tsoutliers::locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
  } 
- cat("cval adjusted to", Cval, "\n")
+ message("cval adjusted to", Cval, "\n")
  }
  
  if (nrow(mo2$outliers)>length(Lons)*max.outlier.proportion) {
- cat("adjusting cval up\n")
+ message("adjusting cval up\n")
  while(nrow(mo2$outliers)>length(Lons)*max.outlier.proportion) {
  Cval=Cval*1.05
  mo2 <- tsoutliers::locate.outliers.oloop(.Lons.ts, fit, types = otypes, maxit=100, cval=Cval)
  } 
- cat("cval adjusted to", Cval, "\n")
+ message("cval adjusted to", Cval, "\n")
  }
 
 Outliers1=try(tsoutliers::remove.outliers(mo2, .Lons.ts, method = "en-masse",  tsmethod.call = fit$call, cval=1)$outliers)
 
 if (class(Outliers1)=="try-error") {
-cat("error detected, switching detection method to bottom-up")
+warning("error detected, switching detection method to bottom-up")
 Outliers1=tsoutliers::remove.outliers(mo2, .Lons.ts, method = "bottom-up",  tsmethod.call = fit$call, cval=1)$outliers
 }
 rm(".Lons.ts", envir=globalenv())
@@ -126,16 +126,16 @@ if (is.character(calibration)) calibration=get("calibration")
 #calibration$Parameters$log.irrad.borders<-c(-4.5, 4.5)
 
 if (!is.null(Threads)) {
-	cat("making cluster\n")
+	message("making cluster\n")
 	mycl <- parallel::makeCluster(Threads)
 	tmp<-parallel::clusterSetRNGStream(mycl)
     tmp<-parallel::clusterExport(mycl,c("calibration", "Proc.data"), envir=environment())
-	cat("estimating dusk errors projection on equator\n")
+	message("estimating dusk errors projection on equator\n")
 	
 	Dusks<-1:(dim(Proc.data$Twilight.time.mat.dusk)[2])
 	tryCatch(Lons.dusk<-parallel::parSapply(mycl, Dusks, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=TRUE, x)), finally = parallel::stopCluster(mycl))
 	
-	cat("estimating dawn errors projection on equator\n")
+	message("estimating dawn errors projection on equator\n")
 	
 	Dawns<-1:(dim(Proc.data$Twilight.time.mat.dawn)[2])
 	tryCatch(Lons.dawn<-parallel::parSapply(mycl, Dawns, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=FALSE, x)), finally = parallel::stopCluster(mycl))
@@ -143,21 +143,21 @@ if (!is.null(Threads)) {
 
 } else {
 	###########
-	cat("estimating dusk errors projection on equator\n")
+	message("estimating dusk errors projection on equator\n")
 	Lons=c()
 	for (i in 1:(dim(Proc.data$Twilight.time.mat.dusk)[2])) {
-	cat(i, "\n")
+	message(i, "\r")
 	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=TRUE, i))
 	graphics::plot(Lons)
 	}
 
 	Lons.dusk<-Lons
 
-	cat("estimating dawn errors projection on equator\n")
+	message("estimating dawn errors projection on equator\n")
 
 	Lons=c()
 	for (i in 1:(dim(Proc.data$Twilight.time.mat.dawn)[2])) {
-	cat(i, "\n")
+	message(i, "\r")
 	Lons=c(Lons, get.equatorial.max(Proc.data, calibration, dusk=FALSE, i))
 	graphics::plot(Lons)
 	}
@@ -219,7 +219,7 @@ if (length(Problematic.Dawns$outliers) >0) graphics::abline(v=Proc.data$Twilight
 # for these points I'd like to rerun the estimation..
 if (length(Problematic.Dusks$outliers) >0| length(Problematic.Dawns$outliers)>0) {
 	if (length(Problematic.Dusks$outliers) >0) {
-	cat("reestimating dusk errors projection on equator\n")
+	message("reestimating dusk errors projection on equator\n")
 	Dusks<-cbind(Problematic.Dusks$outliers,  ((Problematic.Dusks$center+Delta_cur_dusk)%%360)-Delta_cur_dusk)
 	Lons.dusk_short<-apply(Dusks, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=TRUE, x[1], center=x[2]))
 	Lons.dusk_short<-((Lons.dusk_short+Delta_cur_dusk)%%360)-Delta_cur_dusk
@@ -227,7 +227,7 @@ if (length(Problematic.Dusks$outliers) >0| length(Problematic.Dawns$outliers)>0)
 	}
 	
 	if (length(Problematic.Dawns$outliers) >0) {
-	cat("reestimating dawn errors projection on equator\n")
+	message("reestimating dawn errors projection on equator\n")
 	Dawns<-cbind(Problematic.Dawns$outliers, ((Problematic.Dawns$center+Delta_cur_dawn)%%360)-Delta_cur_dawn)
 	Lons.dawn_short<-apply(Dawns, 1, FUN=function(x) get.equatorial.max(Proc.data, calibration, dusk=FALSE, x[1], center=x[2]))
 	Lons.dawn_short<-((Lons.dawn_short+Delta_cur_dawn)%%360)-Delta_cur_dawn
@@ -237,14 +237,14 @@ if (length(Problematic.Dusks$outliers) >0| length(Problematic.Dawns$outliers)>0)
 
 }
 }
-cat("detecting outliers\n")
+message("detecting outliers\n")
 
 #par(mfrow=c(2,1))
 #plot(Lons.dusk~Proc.data$Twilight.time.mat.dusk[1,])
 #plot(Lons.dawn~Proc.data$Twilight.time.mat.dawn[1,])
 Dusk.outliers=detect.outliers(Lons=Lons.dusk, plot=FALSE, max.outlier.proportion=max.outlier.proportion)
 Dawn.outliers=detect.outliers(Lons=Lons.dawn, plot=FALSE, max.outlier.proportion=max.outlier.proportion)
-cat(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
+message(length(Dusk.outliers), "detected for Dusks and", length(Dawn.outliers), "for Dawns\n" )
 if (plot) {
 graphics::par(mfrow=c(2,1))
 graphics::plot(Lons.dusk~as.POSIXct(Proc.data$Twilight.time.mat.dusk[1,], tz="GMT", origin="1970-01-01"), main="Dusk")
