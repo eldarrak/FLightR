@@ -385,7 +385,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 			if (length(twilights.index)==0) stop("dates do not overlap with the track time span!")
 		}
 	  }
-	 message('function will plot', length(twilights.index), 'twilights\n')
+	 message('function will plot ', length(twilights.index), ' twilights\n')
 
   Points_selected<-get_utilisation_points(Result, twilights.index, percentile)
   
@@ -499,9 +499,9 @@ res_buffers<-c()
 nPoints<-c()
 
 for (percentile in percentiles) {
-res_cur<- get_time_spent_buffer(Result, dates, percentile, r)
-res_buffers<-c(res_buffers, res_cur$Buffer)
-nPoints<-c(nPoints, res_cur$nPoints)
+   res_cur<- get_time_spent_buffer(Result, dates, percentile, r)
+   res_buffers<-c(res_buffers, res_cur$Buffer)
+   nPoints<-c(nPoints, res_cur$nPoints)
 }
 
 # Now I want to take only the upper levels from identical nPoints
@@ -641,6 +641,7 @@ nPoints<-c(nPoints, res_cur$nPoints)
 	
 	b<-do.call(my.rbind.SpatialPolygons,  c(res_buffers, list(makeUniqueIDs=TRUE))) 
     SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles, row.names=names(b)))
+    
 	return(list(res_buffers=SPDF, p=p, bg=background))
 }
 

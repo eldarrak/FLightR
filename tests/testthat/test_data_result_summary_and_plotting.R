@@ -69,7 +69,7 @@ test_that('map_flightr_ggmap_works',  {
    if (utils::packageVersion('ggmap')[1]>=2.7) {
    if (ggmap::has_google_key()) {
    # not too clever but it looks like that other ways of graphics test are not stable..
-   expect_output(plot_util_distr(Result, zoom=5, save=FALSE))
+   expect_type(plot_util_distr(Result, zoom=5, save=FALSE), 'list')
    } else {
       expect_error(plot_util_distr(Result, zoom=5, save=FALSE))
    }
