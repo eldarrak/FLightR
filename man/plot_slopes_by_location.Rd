@@ -26,6 +26,9 @@ plot_slopes_by_location(
 
 \item{xlim}{the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{as.POSIXct}}.}
 }
+\value{
+'NULL'
+}
 \description{
 The function calculates and plots calibration slopes for sunsets and sunrises for every day of the tracking period, based on the assumption that the tag remained in the same (calibration) location all the time.
 }

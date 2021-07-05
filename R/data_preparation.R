@@ -12,6 +12,7 @@
 #' @param xlim the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{as.POSIXct}}.
 #' @details The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
 #' All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
+#' @return 'NULL'
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
@@ -53,6 +54,7 @@ plot_slopes_by_location<-function(Proc.data, location, log.light.borders='auto',
 #' @param fixed.logSlope these are mean (1) and SD (2) for distribution of slopes. Should normally be estimated from the data (and thus default is c(NA, NA)). Change any of these two finite values if you want them to be predetermined and not estimated from the calibration data.
 #' @param suggest.irrad.borders experimental parameter! If set to TRUE function will try to find the best values for the log.irrad.borders
 #' @param return.slopes if true function will return estimated individual twilight slopes.
+#' @return calibration object to be uses in the \code{\link{make.prerun.object}}
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-08-20', tz='GMT'))
@@ -165,6 +167,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @param print.optimization do you want every optimization iteration to be printed? If TRUE - Lon, Lat, calibration mean and calibration sd are being printed. Optimization tries to minimize the latter.
 #' @param reltol tolerance for optimization, see \code{\link{optim}} for more details
 #' @details The idea behind the function is that it tries to minimize variance between slopes for the whole period by optimizing location. It can be seen as an extension of Hill-Ekstrom calibration idea.
+#' @return vector with coordinates - longitude and latitude. 
 #' @examples
 #' #this example takes about 15 minutes to run
 #' \dontrun{
@@ -178,8 +181,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @author Eldar Rakhimberdiev
 #' @export		
 find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
-
-  if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very close but within few thousand km!')
+   if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very close but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE, stage=1) {
    sink("tmp")
         Calibration.period<-data.frame(
@@ -210,33 +212,32 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   log.irrad.borders=log.irrad.borders, 
        plot.each = FALSE, plot.final = FALSE, 
 	   suggest.irrad.borders=FALSE))
-	   
 	}   
-       if (plot) plot_slopes(calibration.parameters$All.slopes)
-	   suppressWarnings(sink())
-	   percent_excluded<-1-(sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope))/Twilights_total)
+    if (plot) plot_slopes(calibration.parameters$All.slopes)
+	     suppressWarnings(sink())
+	     percent_excluded<-1-(sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope))/Twilights_total)
 
-	   if (stage==1) {
+	if (stage==1) {
      	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2], percent_excluded), '\n')
 		   #print(table(calibration.parameters$All.slopes$Slopes$Type))
 	   if (length(table(calibration.parameters$All.slopes$Slopes$Type))==1) {
 		   print('only_one_twilight_type_left!\n')
 		   return(sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope)))
-		  } else {
+	   } else {
           return(calibration.parameters$All.slopes$Parameters$LogSlope[2]^2+percent_excluded^2)
 		  }
-	   } else {
-	       Dat<-calibration.parameters$All.slopes$Slopes[is.finite(calibration.parameters$All.slopes$Slopes$logSlope),]
-	       if (length(table(Dat$Type))==1 | min(table(Dat$Type))<=2) {
+	} else {
+	    Dat<-calibration.parameters$All.slopes$Slopes[is.finite(calibration.parameters$All.slopes$Slopes$logSlope),]
+	    if (length(table(Dat$Type))==1 | min(table(Dat$Type))<=2) {
 	     	   print('only_one_twilight_type_left!\n')
 		       Val<-nrow(Dat)
-		   } else {
+	   } else {
 		   #Dat<-subset(calibration.parameters$All.slopes$Slopes, is.finite(logSlope), select=c(logSlope, Time, Type))
 		   #print(Dat)
      	   Val<-log(1/(stats::anova(stats::lm(logSlope~Time+I(Time^2)+Type, data=Dat),stats::lm(logSlope~Time, data=Dat))[2,6])) +percent_excluded^2 #-log(1/(percent_excluded+0.001)
-		   }
-     	   if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
-           return(Val)
+		}
+     	if (print.optimization) cat(paste(initial.coords[1], initial.coords[2], calibration.parameters$All.slopes$Parameters$LogSlope[1], calibration.parameters$All.slopes$Parameters$LogSlope[2]), Val,  percent_excluded, '\n')
+        return(Val)
 	   }
    }
 
@@ -593,6 +594,7 @@ graphics::points(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), da
 graphics::lines(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
 #invisible()
 #par(old.par)
+return(NULL)
 }
 
 

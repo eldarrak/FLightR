@@ -35,6 +35,9 @@ make.calibration(
 
 \item{return.slopes}{if true function will return estimated individual twilight slopes.}
 }
+\value{
+calibration object to be uses in the \code{\link{make.prerun.object}}
+}
 \description{
 Function estimates all necessary parameters from the calibration data logged in a known location or locations.
 }

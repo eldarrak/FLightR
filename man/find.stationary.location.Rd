@@ -29,6 +29,9 @@ find.stationary.location(
 
 \item{reltol}{tolerance for optimization, see \code{\link{optim}} for more details}
 }
+\value{
+vector with coordinates - longitude and latitude.
+}
 \description{
 Functions attempts to find a location where 
 The function attempts to find a location for a time period assuming animal was not moving. Does not work well will shaded data!

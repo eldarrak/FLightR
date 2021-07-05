@@ -13,6 +13,9 @@ plot_likelihood(object, date = NULL, twilight.index = NULL)
 
 \item{twilight.index}{number of likelihood surface to be plotted}
 }
+\value{
+'NULL'
+}
 \description{
 plots specific likelihood surface over map
 }

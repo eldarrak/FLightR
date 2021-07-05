@@ -14,6 +14,7 @@
 #' @param seasonal.donut.proportion how much of X axis should color wheel occupy.
 #' return either NULL or ggplot2 class object
 #' @param save should function save results with \code{\link[ggplot2]{ggsave}}?
+#' @return if 'return.ggobj=TRUE' return ggplot object otherwise returns 'NULL'.
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20
@@ -221,7 +222,7 @@ options('ggmap'= Opt$ggmap)
 	if (is.null(save.options$filename)) save.options$filename<-"FLightR.map.pdf"
 	do.call(ggplot2::ggsave, save.options)
 	}
-	if (return.ggobj) return(p)
+	if (return.ggobj) {return(p)} else {return(NULL)}
 	}
 
 #' plots result by longitude and latitude
@@ -229,7 +230,7 @@ options('ggmap'= Opt$ggmap)
 #' This function plots result by latitude and longitude in either vertical or horizontal layout.
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param scheme either 'vertical' or 'horizontal' layouts
-#' return NULL
+#' return 'NULL'
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20
@@ -262,10 +263,7 @@ options('ggmap'= Opt$ggmap)
 #' @author Eldar Rakhimberdiev
 #' @export plot_lon_lat
 plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
-
    Quantiles<-Result$Results$Quantiles
-   
-   
    	# check whether Grid was over dateline:
 	overdateline<-ifelse(attr(Result$Spatial$Grid, 'left')>	attr(Result$Spatial$Grid, 'right'), TRUE, FALSE)
 
@@ -292,10 +290,8 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    Years<-unique(format(Quantiles$time, format="%Y"))
    eq<-c(as.POSIXct(paste(Years, "-09-22 00:00:00 GMT", sep="")), as.POSIXct(paste(Years, "-03-20 12:00:00 GMT", sep="")))
    eq<-eq[eq>min(Quantiles$time) & eq<max(Quantiles$time)]
-   #-------
-   
+
    #------- vert grid
-   
    Vert_grid<-seq(as.POSIXct("2000-01-01", tz='GMT'), as.POSIXct("2030-01-01", tz='GMT'), by="month")
    Vert_grid<-Vert_grid[Vert_grid>=min(Quantiles$time) & Vert_grid<=max(Quantiles$time)]
   
@@ -307,7 +303,6 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    graphics::axis.POSIXct(1, x=Quantiles$time,  format="1-%b")
    graphics::box()
 
-   #################
    # add vertical lines for the first day of every month
    
    graphics::abline(v=Vert_grid, col=grDevices::grey(0.5), lty=2)
@@ -325,7 +320,6 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
    col=grDevices::grey(0.7), border=grDevices::grey(0.5))
 
    graphics::lines(Quantiles$Medianlon~Quantiles$time, col=grDevices::grey(0.1),lwd=2)
-   
 
    #Latitude
    graphics::par(mar=c(3,4,1,1))
@@ -348,7 +342,7 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
            col=grDevices::grey(0.7), border=grDevices::grey(0.5))
 
    graphics::lines(Quantiles$Medianlat~Quantiles$time, col=grDevices::grey(0.1),lwd=2)
-
+   return(NULL)
 }
 
 
@@ -682,6 +676,7 @@ seasonal_donut<-function() {
 #' @param object either output from \code{\link{make.prerun.object}} or \code{\link{run.particle.filter}}
 #' @param date either NULL or a date (possibly with time) closest to the twilight you wan to be plotted
 #' @param twilight.index number of likelihood surface to be plotted 
+#' @return 'NULL'
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20
@@ -720,6 +715,7 @@ plot_likelihood<-function(object, date=NULL, twilight.index=NULL) {
    wrld_simpl<-NA				   
    load(system.file("data", "wrld_simpl.rda", package = "maptools"))
    sp::plot(wrld_simpl, add=TRUE)
+   return(NULL)
 }
 
 get_points_distribution<-function(Result, twilights.index) {

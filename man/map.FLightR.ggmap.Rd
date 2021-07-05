@@ -45,6 +45,9 @@ return either NULL or ggplot2 class object}
 
 \item{save}{should function save results with \code{\link[ggplot2]{ggsave}}?}
 }
+\value{
+if 'return.ggobj=TRUE' return ggplot object otherwise returns 'NULL'.
+}
 \description{
 plots track over map with probability cloud. Can plot only part of the track if dates are specified. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
 }
