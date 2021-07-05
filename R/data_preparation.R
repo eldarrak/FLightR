@@ -404,8 +404,8 @@ get.Irradiance<-function(alpha, r=6378, s=6.9, intigeo.template.correction=FALSE
 
 logger.template.calibrarion.internal<-function( Twilight.time.mat.Calib.dawn, Twilight.log.light.mat.Calib.dawn, Twilight.time.mat.Calib.dusk, Twilight.log.light.mat.Calib.dusk, positions=NA, plot.each=TRUE, plot.final=TRUE,log.light.borders=NA,  log.irrad.borders=c(-8, 1.3), impute.on.boundaries=FALSE) {
 
-   oldpar <- par(no.readonly = TRUE)    
-   on.exit(par(oldpar))   
+   oldpar <- graphics::par(no.readonly = TRUE)    
+   on.exit(graphics::par(oldpar))   
 	# =================
 	# in this function I'll add a new lnorm calibration...
 	#
@@ -582,8 +582,8 @@ return(Res)
 
 
 plot_slopes<-function(all.slopes, ylim=NULL, xlim=NULL) {
-   oldpar <- par(no.readonly = TRUE)   
-   on.exit(par(oldpar))    
+   oldpar <- graphics::par(no.readonly = TRUE)   
+   on.exit(graphics::par(oldpar))    
 
 all.slopes$Slopes<-all.slopes$Slopes[all.slopes$Slopes$Slope>0,]
 if (is.null(xlim)) {

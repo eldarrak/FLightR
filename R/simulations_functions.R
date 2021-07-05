@@ -259,8 +259,8 @@ if (GeoLight) all.out$positionsGeoLight<-positionsGeoLight
 
 get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=FALSE, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50) , plot=TRUE) {
    if (plot) {
-      oldpar <- par(no.readonly = TRUE)   
-      on.exit(par(oldpar))  
+      oldpar <- graphics::par(no.readonly = TRUE)   
+      on.exit(graphics::par(oldpar))  
    }
 To.run.initial<-To.run
 Lat.initial<-Lat
@@ -428,8 +428,8 @@ simulate.track<-function(measurement.period=60, saving.period=600, To.run, Param
 # important here is that min and max values may be different from light.borders.
 # and it is actually better to make them different if there is enough point to make an estimation...
   if (plot) {
-   oldpar <- par(no.readonly = TRUE)   
-   on.exit(par(oldpar))        
+   oldpar <- graphics::par(no.readonly = TRUE)   
+   on.exit(graphics::par(oldpar))        
   }
 if (saving.period%%measurement.period !=0) stop("saving period / measurement.period has to be integer!")
 time.shift<-sample(1:saving.period, 1)
@@ -1029,8 +1029,8 @@ test.deltas<-function(params, Tracks, Spline, calibration, min.max.values=c(1, 1
 # this function should send a spline as a calibration function..
 # params are parameters for delta...
 
-oldpar <- par(no.readonly = TRUE)    # code line i
-on.exit(par(oldpar))            # code line i + 1
+oldpar <- graphics::par(no.readonly = TRUE)    
+on.exit(graphics::par(oldpar))            
 
 message(params)
 
@@ -1051,8 +1051,8 @@ return(Res)
 test.deltas3<-function(params, Tracks, calibration, min.max.values=c(1, 1150), log.light.borders=log(c(2, 1100)), log.irrad.borders=c(-15, 50), cluster=NULL) {
 # this function should send a spline as a calibration function..
 # params are parameters for delta...
-oldpar <- par(no.readonly = TRUE)   
-on.exit(par(oldpar))  
+oldpar <- graphics::par(no.readonly = TRUE)   
+on.exit(graphics::par(oldpar))  
 
 message(params)
 #deltas=params[1] + Spline%*%params[2:4] # for params - first for the intercept.

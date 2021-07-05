@@ -263,8 +263,8 @@ options('ggmap'= Opt$ggmap)
 #' @author Eldar Rakhimberdiev
 #' @export plot_lon_lat
 plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
-   oldpar <- par(no.readonly = TRUE)    
-   on.exit(par(oldpar))         
+   oldpar <- graphics::par(no.readonly = TRUE)    
+   on.exit(graphics::par(oldpar))         
    Quantiles<-Result$Results$Quantiles
    	# check whether Grid was over dateline:
 	overdateline<-ifelse(attr(Result$Spatial$Grid, 'left')>	attr(Result$Spatial$Grid, 'right'), TRUE, FALSE)
@@ -641,7 +641,6 @@ for (percentile in percentiles) {
 	
 	b<-do.call(my.rbind.SpatialPolygons,  c(res_buffers, list(makeUniqueIDs=TRUE))) 
     SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles, row.names=names(b)))
-    
 	return(list(res_buffers=SPDF, p=p, bg=background))
 }
 
