@@ -12,10 +12,6 @@ install:
 
 # Adapt as necessary starting from here
 
-
-environment:
-  GITHUB_PAT:
-    secure: SCSbqeoITOpmrsoAuZB3tfGrW/YJG6fB+ohVvP/WUaTWGPPx3NnQ6J4WWDwXew9j  
   
 build_script:
   - travis-tool.sh install_deps
@@ -34,6 +30,8 @@ on_success:
   
 environment:
     USE_RTOOLS: true
+ GITHUB_PAT:
+    secure: SCSbqeoITOpmrsoAuZB3tfGrW/YJG6fB+ohVvP/WUaTWGPPx3NnQ6J4WWDwXew9j  
 
 artifacts:
   - path: '*.Rcheck\**\*.log'
