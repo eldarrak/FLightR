@@ -12,10 +12,11 @@ install:
 
 # Adapt as necessary starting from here
 
-env:
-  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-  
 
+environment:
+  GITHUB_PAT:
+    secure: SCSbqeoITOpmrsoAuZB3tfGrW/YJG6fB+ohVvP/WUaTWGPPx3NnQ6J4WWDwXew9j  
+  
 build_script:
   - travis-tool.sh install_deps
   - travis-tool.sh github_package r-lib/covr
