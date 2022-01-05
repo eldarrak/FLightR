@@ -104,13 +104,13 @@ get.tag.type<-function(TAGS.twilights) {
 
    Max_light<-max(TAGS.twilights$light)
    recognized<-FALSE
-   if(round(Max_light,2) %in% c(11.22, 11.15, 10.93, 10.32, 10.05)) {
+   if(round(Max_light,2) >= 10.05 &  round(Max_light,2) <= 11.22) {
       tagtype<-"Intigeo_Mode_1"
       log_transformed<-TRUE
 	  recognized<-TRUE
    }
    
-   if (round(Max_light/10) %in% c(7442, 6977, 5582, 3023, 2326)) {
+   if (round(Max_light/10) >= 2000 & round(Max_light/10)<= 7000) {
      tagtype<-"Intigeo_Mode_1"
 	 log_transformed<-FALSE
      recognized<-TRUE

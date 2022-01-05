@@ -12,7 +12,7 @@ install:
 
 # Adapt as necessary starting from here
 
-env: 
+env:
   GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
   
 
