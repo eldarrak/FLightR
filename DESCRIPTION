@@ -26,7 +26,6 @@ Imports:
     ggplot2,
     CircStats,
     circular,
-    GeoLight,
     fields,
     maptools,
     methods,
@@ -34,14 +33,15 @@ Imports:
     nlme,
     parallel,
     RcppArmadillo,
-	rgdal,
+    rgdal,
     rgeos,
     sp,
-    truncnorm	
+    truncnorm
 License: GPL-3
 ByteCompile: true
 RoxygenNote: 7.1.1
 Suggests:
+    GeoLight,
     covr,
     testthat,
     knitr,

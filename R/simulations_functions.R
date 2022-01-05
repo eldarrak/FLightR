@@ -2,6 +2,13 @@
 # these functions were used right befre the 0.2.1 version so they should work
 
 get.shifts<-function(Track, Parameters, log.light.borders=log(c(2,64)), log.irrad.borders=c(-9,3), min.max.values=c(0,64), Grid, start, ask=FALSE, slopes.only=FALSE, delta=NULL, short.run=FALSE, measurement.period=60, saving.period=NULL, Time.seq=NULL, Time.seq.saving=NULL, calibration=NULL, GeoLight=FALSE) {
+
+  if (!requireNamespace("GeoLight", quietly = TRUE)) {
+    stop(
+      "Package GeoLight must be installed to use this function.",
+      call. = FALSE
+    )
+  }
 #========================================
 if (length(unique(Track[,2])) !=1) stop("moving track is not implemented yet!")
 # here is the lnorm distr that we currently use..
@@ -258,6 +265,14 @@ if (GeoLight) all.out$positionsGeoLight<-positionsGeoLight
 
 
 get.slopes<-function(Repeats=1, file.head="tmp", Lon=0, Lat=NULL, measurement.period=60, saving.period=NULL, To.run, Parameters=NULL, short.run=FALSE, Time.seq=NULL, Time.seq.saving=NULL, log.light.borders=log(c(2,64)), min.max.values=c(0, 64), log.irrad.borders=c(-15, 50) , plot=TRUE) {
+
+  if (!requireNamespace("GeoLight", quietly = TRUE)) {
+    stop(
+      "Package GeoLight must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
    if (plot) {
       oldpar <- graphics::par(no.readonly = TRUE)   
       on.exit(graphics::par(oldpar))  
@@ -293,9 +308,6 @@ Track<-simulate.track(measurement.period=measurement.period, saving.period=savin
 #Grid<-cbind(start[1], start[2], 1)
 
 # now we will be measuring evey 60 seconds and save max inside a period for the future.
-
-
-
 
 #================================================================
 # estimation
@@ -427,6 +439,13 @@ return(All.slope.runs)
 simulate.track<-function(measurement.period=60, saving.period=600, To.run, Parameters=Parameters, short.run=FALSE, Time.seq=NULL, Time.seq.saving=NULL, Lon=0, min.max.values=c(0, 64), first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59", plot=TRUE) {
 # important here is that min and max values may be different from light.borders.
 # and it is actually better to make them different if there is enough point to make an estimation...
+  if (!requireNamespace("GeoLight", quietly = TRUE)) {
+    stop(
+      "Package GeoLight must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
   if (plot) {
    oldpar <- graphics::par(no.readonly = TRUE)   
    on.exit(graphics::par(oldpar))        
@@ -853,6 +872,12 @@ return(RES)
 
 
 simulate.and.prepare.track<-function(measurement.period=60, saving.period=600, Parameters=Parameters, short.run=TRUE, min.max.values=c(0, 64),log.light.borders=log(c(2,64)),Lat, first.date="2010-01-01 00:00:00", last.date="2010-03-20 23:59:59") {
+  if (!requireNamespace("GeoLight", quietly = TRUE)) {
+    stop(
+      "Package GeoLight must be installed to use this function.",
+      call. = FALSE
+    )
+  }
 
 # for this we will have to create a To.run.object...
 To.run<-data.frame(Slope.ideal=Parameters$LogSlope_1_minute[1], SD.ideal=Parameters$LogSlope_1_minute[2], Latitude=Lat) #
