@@ -29,7 +29,8 @@ on_success:
   - Rscript -e 'covr::codecov()'
   
 environment:
-    USE_RTOOLS: true
+ USE_RTOOLS: true
+ 
  GITHUB_PAT:
     secure: SCSbqeoITOpmrsoAuZB3tfGrW/YJG6fB+ohVvP/WUaTWGPPx3NnQ6J4WWDwXew9j  
 
