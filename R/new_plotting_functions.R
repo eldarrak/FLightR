@@ -739,7 +739,7 @@ get_utilisation_points<-function(Result, twilights.index, percentile) {
   
   nParticles<- sum(Result$Results$Points.rle[[1]]$lengths)
   
-  Cum_probs<-cumsum(Order_rle$values/nParticles/length(twilights.index))
+  Cum_probs<-cumsum(Order_rle$values*Order_rle$length/nParticles/length(twilights.index))
   
   tmp<-which(Cum_probs<=percentile)
   if (length(tmp)==0) { 
