@@ -596,7 +596,7 @@ graphics::points(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), da
 graphics::points(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], pch="+", col="red")
 graphics::lines(log(Slope)~ as.POSIXct(Time, tz="GMT", origin="1970-01-01"), data=all.slopes$Slopes[all.slopes$Slopes$Type=="Dawn",], col="red")
    oldpar$usr<-graphics::par()$usr
-   on.exit(graphics::par(oldpar);  graphics::par()$usr)  
+   on.exit(graphics::par(oldpar))  
    #invisible()
 return(NULL)
 }
