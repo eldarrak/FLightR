@@ -10,3 +10,4 @@ examples
 ^CRAN-RELEASE$
 ^doc$
 ^Meta$
+^\.github$
