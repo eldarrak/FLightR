@@ -1,18 +1,36 @@
-# DO NOT CHANGE the "init" and "install" sections below
-
 # Download script file from GitHub
 init:
   ps: |
+        Get-Date
         $ErrorActionPreference = "Stop"
-        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
-        Import-Module '..\appveyor-tool.ps1'
 
 install:
-  ps: Bootstrap
+  ps: |
+        Import-Module '.\scripts\appveyor-tool.ps1'
+        Bootstrap
 
 # Adapt as necessary starting from here
 
-  
+environment:
+ USE_RTOOLS: true
+
+ global:
+    R_REMOTES_STANDALONE: true
+    WARNINGS_ARE_ERRORS: 1
+
+ matrix:
+  - R_VERSION: devel
+    GCC_PATH: mingw_32
+
+  - R_VERSION: devel
+    R_ARCH: x64
+    GCC_PATH: mingw_64
+
+  - R_VERSION: release
+    R_ARCH: x64
+
+  - R_VERSION: stable
+
 build_script:
   - travis-tool.sh install_deps
   - travis-tool.sh github_package r-lib/covr
@@ -28,9 +46,6 @@ on_failure:
 on_success:
   - Rscript -e 'covr::codecov()'
   
-environment:
- USE_RTOOLS: true
- 
  GITHUB_PAT:
     secure: SCSbqeoITOpmrsoAuZB3tfGrW/YJG6fB+ohVvP/WUaTWGPPx3NnQ6J4WWDwXew9j  
 
