@@ -13,6 +13,10 @@ install:
 
 # Adapt as necessary starting from here
 
+  env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+
 environment:
  USE_RTOOLS: true
 
