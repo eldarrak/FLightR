@@ -46,8 +46,6 @@ on_failure:
 on_success:
   - Rscript -e 'covr::codecov()'
   
- GITHUB_PAT:
-    secure: SCSbqeoITOpmrsoAuZB3tfGrW/YJG6fB+ohVvP/WUaTWGPPx3NnQ6J4WWDwXew9j  
 
 artifacts:
   - path: '*.Rcheck\**\*.log'
