@@ -13,8 +13,8 @@ install:
 
 # Adapt as necessary starting from here
 
-GITHUB_PAT:  
-  secure: SCSbqeoITOpmrsoAuZB3tfGrW/YJG6fB+ohVvP/WUaTWGPPx3NnQ6J4WWDwXew9j    
+  env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
 
 environment:
