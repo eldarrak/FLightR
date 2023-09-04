@@ -3,10 +3,13 @@ init:
   ps: |
         Get-Date
         $ErrorActionPreference = "Stop"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Import-Module '..\appveyor-tool.ps1'
+
 
 install:
   ps: |
-        Import-Module 'r-appveyor\scripts\appveyor-tool.ps1'
+        Import-Module '.\scripts\appveyor-tool.ps1'
         Bootstrap
 
 # Adapt as necessary starting from here
