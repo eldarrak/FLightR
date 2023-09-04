@@ -24,3 +24,5 @@
 # ver 0.5.0 small fixes in test for R 4.1.0 compartibility
 # ver 0.5.1 July 2021 fixed minor bug in find times distribution, set time zones to gmt everywhere, replaced cat() with message(), improved documentation, conserved par values throughout the code
 # ver 0.5.2 Jan 2022 Moved GeoLight from Imports to suggests. Corrected significant bug in get_utilisation_points that affected size of the estimated error distributions in plotting and summary functions!!! 
+
+# ver 0.5.4 Sept 2023 minor change in testhat part to comply with new CRAN checks.
