@@ -1,5 +1,4 @@
-[![Travis-CI Build Status](https://travis-ci.org/eldarrak/FLightR.svg?branch=master)](https://travis-ci.org/eldarrak/FLightR)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/eldarrak/FLightR?branch=master&svg=true)](https://ci.appveyor.com/project/eldarrak/FLightR)
+[![R-CMD-check](https://github.com/eldarrak/FLightR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/eldarrak/FLightR/actions/workflows/R-CMD-check.yaml)
 [![Coverage Status](https://img.shields.io/codecov/c/github/eldarrak/FLightR/master.svg)](https://codecov.io/github/eldarrak/FLightR?branch=master)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/FLightR)](https://CRAN.R-project.org/package=FLightR)
 [![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/FLightR?color=brightgreen)](https://CRAN.R-project.org/package=FLightR)
