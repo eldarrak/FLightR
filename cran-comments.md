@@ -11,5 +11,5 @@ This update solves r check error on numeric input in the package version.
 
 * ubuntu 
 * macOS
-* win-builder (R devel, R release, R old release) r-cmd-check and local
+* win-builder (R devel, R release, R old release) r-hub r-cmd-check on GitHub and locally
 ---
