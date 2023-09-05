@@ -797,7 +797,7 @@ mu.sigma.truncnorm<-function(x, a=45, b=500) {
       sum(-log(truncnorm::dtruncnorm(as.numeric(x),a=a,b=b,mean=prm[1],sd=prm[2])))
     }
     Res=try(stats::optim(c(mean(x),stats::sd(x)), tr.norm, method="BFGS"))
-    if (class(Res)=="try-error") {
+    if (inherits(Res, "try-error")) {
       save(x, Res, file="x.RData")
       Res$par<-c(mean(x), stats::sd(x))
     }
@@ -840,7 +840,7 @@ get.coords.jitter<-function(in.Data) {
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
 	tmp<-try(apply(coords, 1,  coords.aeqd.jitter, r=JitRadius, n=1 ))
 	jitter_coords<-NULL
-	if (class(tmp)!="try-error") {
+	if( !inherits(tmp, "try-error")) {
 	jitter_coords<-t(sapply(tmp, sp::coordinates))
 	}
 	return(jitter_coords)
@@ -885,7 +885,7 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Final.points.modeled=last.particles
   Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], longlat=TRUE), mean=0, sd=precision.sd)
   Rows<- try(suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights))))
-  if (class(Rows) == 'try-error') {
+  if (inherits(Rows ,'try-error')) {
     warning('final smoothing failed, error data saved to the working directory - smoothing.error.RData!\n')
 	save(last.particles, Weights, file='smoothing.error.RData')
     return(results.stack)

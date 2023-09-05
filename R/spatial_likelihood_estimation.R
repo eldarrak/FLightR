@@ -476,7 +476,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
         oldpar <- graphics::par(no.readonly = TRUE)    
         on.exit(graphics::par(oldpar))   
 		Coef<-try(stats::coef(stats::lm(Res[,1]~Res[,2])))
-		if (class(Coef)!='try-error') {
+		if (!inherits(Coef, 'try-error')) {
 		    graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="GMT", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
 		    print(Coef)
 		} else {
@@ -484,7 +484,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		}
 		   graphics::points(Res[,1]~Res[,2], col="red", lwd=2, pch="+")
 		   graphics::par(ask = TRUE)
-	    if (class(Coef)!='try-error') {
+	    if (!inherits( Coef, 'try-error')) {
 		   graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz="GMT", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept", Coef[1], "slope", Coef[2]), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3), ylim=c(log.light.borders[1]-1, log.light.borders[2]+1))
 		} else {
 		   graphics::plot(LogLight~LogIrrad, main=paste(twilight=as.POSIXct(Twilight.time.vector[24], tz= "GMT", origin="1970-01-01"), ifelse(dusk, "dusk", "dawn"), "intercept NA slope NA"), xlim=c(log.irrad.borders[1]-3, log.irrad.borders[2]+3))

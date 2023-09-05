@@ -6,7 +6,7 @@ citHeader("When citing the 'FLightR' package in publications please include one 
 bibentry(
 	bibtype ="Manual",
     title = "FLightR: SSM for solar geolocation",
-    author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
+    author = c(person(given="Eldar", family="Rakhimberdiev",role="aut"),
 	person(given="Anatoly", family="Saveliev",role="ctb")),
             year = sub("-.*", "", meta$Date),
 			note = paste("R package version", meta$Version),
@@ -15,7 +15,7 @@ bibentry(
 bibentry(
 	bibtype ="Article",
     title = "A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity",
-    author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
+    author = c(person(given="Eldar", family="Rakhimberdiev",role="aut"),
         person(given="David W.", family="Winkler",role="aut"),
 		person(given="Eli", family="Bridge",role="aut"),
 		person(given="Nathaniel E.", family="Seavy",role="aut"),
@@ -30,7 +30,7 @@ bibentry(
 bibentry(
        bibtype ="Article",
        title = "Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit",
-       author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
+       author = c(person(given="Eldar", family="Rakhimberdiev",role="aut"),
        author = person(given="Nathan R.", family="Senner",role="aut"),
        author = person(given="Mo A.", family="Verhoeven",role="aut"),
        author = person(given="David W.", family="Winkler",role="aut"),
@@ -49,7 +49,7 @@ bibentry(
  bibentry(
        bibtype ="Article",
        title = "FLightR: An R package for reconstructing animal paths from solar geolocation loggers",
-       author = personList(person(given="Eldar", family="Rakhimberdiev",role="aut"),
+       author = c(person(given="Eldar", family="Rakhimberdiev",role="aut"),
        author = person(given="Anatoly", family="Saveliev",role="aut"),
        author = person(given="Theunis", family="Piersma",role="aut"),
        author = person(given="Julia", family="Karagicheva",role="aut")),
