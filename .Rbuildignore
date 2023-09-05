@@ -11,3 +11,4 @@ examples
 ^doc$
 ^Meta$
 ^\.github$
+^CRAN-SUBMISSION$
