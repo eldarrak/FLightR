@@ -78,17 +78,19 @@ Sp.All.Points.Focus<-sf::st_as_sf(as.data.frame(Points), crs=sf::st_crs("+proj=l
 #############
 # ok, let's check
 #wrld_simpl<-NA
-wrld_simpl_t<-sf::st_as_sf(maps::map('world2', plot = FALSE, fill = TRUE))
+wrld_simpl<-sf::st_as_sf(maps::map('world2', plot = FALSE, fill = TRUE))
+wrld_simpl_cor<-wrld_simpl |> sf::st_make_valid()
+
 #load(system.file("data", "wrld_simpl.rda", package = "maptools"))
 
 #Potential_water<-is.na(sp::over( sp::spTransform(Sp.All.Points.Focus, sp::CRS("+proj=longlat +datum=WGS84")), sp::spTransform(wrld_simpl, sp::CRS("+proj=longlat +datum=WGS84")))[,1])
-Potential_water<-is.na(sapply(st_intersects(sf::st_transform(Sp.All.Points.Focus, crs=sf::st_crs("+proj=longlat +datum=WGS84")), sf::st_transform(wrld_simpl, crs=sf::st_crs("+proj=longlat +datum=WGS84"))), x,y, function(z) if (length(z)==0) NA_integer_ else z[1])[,1])
+Potential_water<-is.na(sapply(sf::st_intersects(sf::st_transform(Sp.All.Points.Focus, crs=sf::st_crs("+proj=longlat +datum=WGS84")), sf::st_transform(wrld_simpl_cor, crs=sf::st_crs("+proj=longlat +datum=WGS84"))), function(z) if (length(z)==0) NA_integer_ else z[1]))
 
 
 # Now we have potential water and we could try to estimate distance on lonlat (first) and after it in km
 
-wrld_simpl_t<-sf::st_as_sf(maps::map('world2', plot = FALSE, fill = TRUE)) |>
-sf::st_transform( CRS=sf:st_crs(sp::proj4string(Sp.All.Points.Focus)))
+#wrld_simpl_t<-sf::st_as_sf(maps::map('world2', plot = FALSE, fill = TRUE)) |>
+#sf::st_transform( CRS=sf:st_crs(sp::proj4string(Sp.All.Points.Focus)))
 
 #-----------------
 #Close_to_coast<-rep(0, length(Potential_water))
@@ -106,7 +108,12 @@ Land<-as.numeric(!Potential_water)
 for (i in 1:nrow(Points)) {
 #if (Close_to_coast[i]==1) {
 if (Potential_water[i]==TRUE) {
-Land[i]<-as.numeric(rgeos::gWithinDistance( sp::spTransform(Sp.All.Points.Focus[i,], sp::CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), sp::spTransform(wrld_simpl, sp::CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), distance))
+Land[i]<-as.numeric(min(as.numeric(sf::st_distance( 
+     sf::st_transform(Sp.All.Points.Focus[i,],
+     sf::st_crs(paste("+proj=aeqd +lon=", sf::st_coordinates(Sp.All.Points.Focus[i,])[1], "lat=", sf::st_coordinates(Sp.All.Points.Focus[i,])[2], sep=""))), 
+     sf::st_transform(wrld_simpl, sf::st_crs(paste("+proj=aeqd +lon=", sf::st_coordinates(Sp.All.Points.Focus[i,])[1], "lat=", sf::st_coordinates(Sp.All.Points.Focus[i,])[2], sep="")))))) <= distance)
+
+#Land[i]<-as.numeric(rgeos::gWithinDistance( sp::spTransform(Sp.All.Points.Focus[i,], sp::CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), sp::spTransform(wrld_simpl, sp::CRS(paste("+proj=aeqd +lon=", Sp.All.Points.Focus[i,]@coords[1], "lat=", Sp.All.Points.Focus[i,]@coords[2], sep=""))), distance))
 message("\r",i)
 }
 
@@ -117,16 +124,16 @@ return(Land)
 get.distance.to.water<-function(Points) {
   Points[,2]<-pmin(Points[,2], 89.9)
   Points[,2]<-pmax(Points[,2], -89.9)
-   Sp.All.Points.Focus<-sp::SpatialPoints(Points, 
-         proj4string=sp::CRS( "+proj=longlat +datum=WGS84"))
+   Sp.All.Points.Focus<-sf::st_as_sf(as.data.frame(Points), crs=sf::st_crs("+proj=longlat +datum=WGS84"), dim='XY', coords = c("lon","lat"))
 
-  	wrld_simpl<-NA
-   load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-   wrld_simpl_l <- methods::as(wrld_simpl, 'SpatialLines')
+   #wrld_simpl<-NA
+   #load(system.file("data", "wrld_simpl.rda", package = "maptools"))
+   wrld_simpl<-sf::st_as_sf(maps::map('world', plot = FALSE, fill = TRUE))# |> sf::st_make_valid() |> sf::st_simplify() 
 
-   Potential_water<-is.na(sp::over(
-        sp::spTransform(Sp.All.Points.Focus, sp::CRS("+proj=longlat +datum=WGS84")),
-		sp::spTransform(wrld_simpl, sp::CRS("+proj=longlat +datum=WGS84")))[,1])
+   wrld_simpl_l <- sf::st_cast(wrld_simpl, "MULTILINESTRING")  
+   wrld_simpl_cor<-wrld_simpl |> sf::st_make_valid()
+
+   Potential_water<-is.na(sapply(sf::st_intersects(sf::st_transform(Sp.All.Points.Focus, crs=sf::st_crs("+proj=longlat +datum=WGS84")), sf::st_transform(wrld_simpl_cor, crs=sf::st_crs("+proj=longlat +datum=WGS84"))), function(z) if (length(z)==0) NA_integer_ else z[1]))
 
    Distance<-as.numeric(Potential_water)
 
@@ -134,7 +141,12 @@ get.distance.to.water<-function(Points) {
    for (i in 1:nrow(Points)) {
       if (Potential_water[i]==TRUE) {
 	     Point<-Sp.All.Points.Focus[i,]
-         Distance[i]<-rgeos::gDistance(sp::spTransform(Point, sp::CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))), sp::spTransform(wrld_simpl_l, sp::CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))))/1000
+         Distance[i]<-as.numeric(min(sf::st_distance(
+              sf::st_transform(Point,
+              sf::st_crs(paste("+proj=aeqd +R=6371000 +lon=", sf::st_coordinates(Point)[1], "lat=", sf::st_coordinates(Point)[2], sep=""))), 
+              sf::st_transform(wrld_simpl_l, sf::st_crs(paste("+proj=aeqd +R=6371000 +lon=", sf::st_coordinates(Point)[1], "lat=", sf::st_coordinates(Point)[2], sep=""))))))/1000
+              
+         #Distance[i]<-rgeos::gDistance(sp::spTransform(Point, sp::CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))), sp::spTransform(wrld_simpl_l, sp::CRS(paste("+proj=aeqd +R=6371000 +lon_0=", Point@coords[1], " +lat_0=", Point@coords[2], sep=""))))/1000
          message("\r",i)
       }
    }
