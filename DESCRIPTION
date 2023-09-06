@@ -1,8 +1,8 @@
 Package: FLightR
 Type: Package
 Title: Reconstruct Animal Paths from Solar Geolocation Loggers Data
-Version: 0.5.3
-Date: 2023-09-04
+Version: 0.5.4
+Date: 2023-09-xx
 Authors@R: c(
     person("Eldar", "Rakhimberdiev", email = "eldar.rakhimberdiev@uva.nl", role = c("aut","cre")),
     person("Anatoly", "Saveliev", role = "aut"),
