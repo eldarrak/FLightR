@@ -35,7 +35,9 @@ Imports:
     RcppArmadillo,
     rgdal,
     rgeos,
+	sf,
     sp,
+	suntools,
     truncnorm
 License: GPL-3
 ByteCompile: true

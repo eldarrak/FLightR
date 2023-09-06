@@ -827,11 +827,11 @@ All.Days.extended<-seq(min(All.Days)-86400, max(All.Days)+86400, by="days")
    start_no_polar[2]<-min(abs(start_no_polar[2]), 65.73) * sign(start_no_polar[2])
 
 # these are all potential twilights that we would have for the start point...
-Potential.twilights<-sort(c(maptools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], maptools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
+Potential.twilights<-sort(c(suntools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunrise", POSIXct.out=TRUE)[,2], suntools::sunriset(matrix(start_no_polar, nrow=1), All.Days.extended, direction="sunset", POSIXct.out=TRUE)[,2]))
 # now we need to add dask or dawn to it..
-Sunrise<-maptools::sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunrise", POSIXct.out=TRUE)[,2]
+Sunrise<-suntools::sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunrise", POSIXct.out=TRUE)[,2]
 Sunrises<-c(Sunrise-(3600*24), Sunrise, Sunrise+(3600*24))
-Sunset<-maptools::sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunset", POSIXct.out=TRUE)[,2]
+Sunset<-suntools::sunriset(matrix(start_no_polar, nrow=1), Potential.twilights[1], direction="sunset", POSIXct.out=TRUE)[,2]
 Sunsets<-c(Sunset-(3600*24), Sunset, Sunset+(3600*24))
 First.twilight<-ifelse(which.min(c(min(abs(difftime(Sunrises,Potential.twilights[1], units="mins"))), min(abs(difftime(Sunsets,Potential.twilights[1], units="mins")))))==1, "dawn", "dusk")
 
@@ -868,7 +868,10 @@ for (i in 1:length(processed.light$Final.dawn$Data$gmt)) {
 while (is.na(Index.tab$Curr.mat[1])) Index.tab<-Index.tab[-1,]
 while (is.na(Index.tab$Curr.mat[nrow(Index.tab)])) Index.tab<-Index.tab[-nrow(Index.tab),]
 Index.tab$Point<-NA
-First.Point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
+#First.Point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
+Grid_sf<-Grid[,1:2] |> st_multipoint() |>   st_sfc() |>   st_cast('POINT')
+First.Point<-sf::st_nearest_feature(sf::st_point(start),Grid_sf, longlat = TRUE)
+
 Index.tab$Point[1]<-First.Point
 #
 # I decided that Curr.mat is not needed anymore
@@ -930,11 +933,15 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 
 	output$Spatial$Behav.mask<-as.integer(Grid[,3])
 
-	output$Spatial$start.point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
-    
+	#output$Spatial$start.point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
+    Grid_sf<-Grid[,1:2] |> st_multipoint() |>   st_sfc() |>   st_cast('POINT')
+    output$Spatial$start.point<-sf::st_nearest_feature(sf::st_point(start),Grid_sf, longlat = TRUE)
+        
 	output$Spatial$start.location<-start
 	if (!is.na(stop[1]) ) {
-	   output$Spatial$stop.point<-which.min(sp::spDistsN1(Grid[,1:2], stop,  longlat=TRUE))
+	   #output$Spatial$stop.point<-which.min(sp::spDistsN1(Grid[,1:2], stop,  longlat=TRUE))
+	   output$Spatial$stop.point<- output$Spatial$start.point<-sf::st_nearest_feature(sf::st_point(start),Grid_sf, longlat = TRUE)
+       
 	   output$Spatial$stop.location<-stop
 	} else {
 	   output$Spatial$stop.point<-NA
