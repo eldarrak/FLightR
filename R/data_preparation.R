@@ -183,7 +183,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
    if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very close but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE, stage=1) {
-   sink("tmp")
+   sink("flightr_tmp")
         Calibration.period<-data.frame(
         calibration.start=as.POSIXct(calibration.start, tz='GMT'),
         calibration.stop=as.POSIXct(calibration.stop, tz='GMT'),
@@ -869,7 +869,7 @@ while (is.na(Index.tab$Curr.mat[1])) Index.tab<-Index.tab[-1,]
 while (is.na(Index.tab$Curr.mat[nrow(Index.tab)])) Index.tab<-Index.tab[-nrow(Index.tab),]
 Index.tab$Point<-NA
 #First.Point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
-Grid_sf<-Grid[,1:2] |> st_multipoint() |>   st_sfc() |>   st_cast('POINT')
+Grid_sf<-Grid[,1:2] |> sf::st_multipoint() |>  sf::st_sfc() |>   sf::st_cast('POINT')
 First.Point<-sf::st_nearest_feature(sf::st_point(start),Grid_sf, longlat = TRUE)
 
 Index.tab$Point[1]<-First.Point
@@ -934,7 +934,7 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	output$Spatial$Behav.mask<-as.integer(Grid[,3])
 
 	#output$Spatial$start.point<-which.min(sp::spDistsN1(Grid[,1:2], start,  longlat=TRUE))
-    Grid_sf<-Grid[,1:2] |> st_multipoint() |>   st_sfc() |>   st_cast('POINT')
+    Grid_sf<-Grid[,1:2] |> sf::st_multipoint() |>  sf::st_sfc() |>   sf::st_cast('POINT')
     output$Spatial$start.point<-sf::st_nearest_feature(sf::st_point(start),Grid_sf, longlat = TRUE)
         
 	output$Spatial$start.location<-start
