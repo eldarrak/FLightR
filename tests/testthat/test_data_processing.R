@@ -60,7 +60,6 @@ test_that('parallel setup works works',  {
 )
 
 
-
 test_that('run.particle.filter works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))

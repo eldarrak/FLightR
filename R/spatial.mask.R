@@ -55,9 +55,10 @@ make.grid<-function(left=-180, bottom=-90,
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
         graphics::plot(Grid, type="n")
-    	wrld_simpl<-NA
-		load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-        sp::plot(wrld_simpl, lwd=1.5, add=TRUE)
+    	#wrld_simpl<-NA
+        maps::map('world2', add=TRUE)
+		#load(system.file("data", "wrld_simpl.rda", package = "maptools"))
+        #sp::plot(wrld_simpl, lwd=1.5, add=TRUE)
         graphics::points(Grid[,1:2], pch=".", col="grey", cex=2) 
         graphics::points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
 	}	
@@ -73,18 +74,21 @@ make.grid<-function(left=-180, bottom=-90,
 
 create.land.mask<-function(Points, distance_km=25) {
 distance<-distance_km*1000
-Sp.All.Points.Focus<-sp::SpatialPoints(Points, proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
+Sp.All.Points.Focus<-sf::st_as_sf(as.data.frame(Points), crs=sf::st_crs("+proj=longlat +datum=WGS84"), dim='XY', coords = c("lon","lat"))
 #############
 # ok, let's check
-wrld_simpl<-NA
- 
-load(system.file("data", "wrld_simpl.rda", package = "maptools"))
+#wrld_simpl<-NA
+wrld_simpl_t<-sf::st_as_sf(maps::map('world2', plot = FALSE, fill = TRUE))
+#load(system.file("data", "wrld_simpl.rda", package = "maptools"))
 
-Potential_water<-is.na(sp::over( sp::spTransform(Sp.All.Points.Focus, sp::CRS("+proj=longlat +datum=WGS84")), sp::spTransform(wrld_simpl, sp::CRS("+proj=longlat +datum=WGS84")))[,1])
+#Potential_water<-is.na(sp::over( sp::spTransform(Sp.All.Points.Focus, sp::CRS("+proj=longlat +datum=WGS84")), sp::spTransform(wrld_simpl, sp::CRS("+proj=longlat +datum=WGS84")))[,1])
+Potential_water<-is.na(sapply(st_intersects(sf::st_transform(Sp.All.Points.Focus, crs=sf::st_crs("+proj=longlat +datum=WGS84")), sf::st_transform(wrld_simpl, crs=sf::st_crs("+proj=longlat +datum=WGS84"))), x,y, function(z) if (length(z)==0) NA_integer_ else z[1])[,1])
+
 
 # Now we have potential water and we could try to estimate distance on lonlat (first) and after it in km
 
-wrld_simpl_t<-sp::spTransform(wrld_simpl,  CRS=sp::CRS(sp::proj4string(Sp.All.Points.Focus)))
+wrld_simpl_t<-sf::st_as_sf(maps::map('world2', plot = FALSE, fill = TRUE)) |>
+sf::st_transform( CRS=sf:st_crs(sp::proj4string(Sp.All.Points.Focus)))
 
 #-----------------
 #Close_to_coast<-rep(0, length(Potential_water))
