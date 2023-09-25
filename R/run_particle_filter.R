@@ -715,13 +715,14 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Distances<-Trans
   dist.fun<-function(x) {
    #in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
-    sp::spDists(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE],
-                in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],
-                longlat=TRUE,
-                diagonal=TRUE)
-    # sf::st_distance(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], 
+    # sp::spDists(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE],
     #             in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],
-    #             by_element = TRUE)
+    #             longlat=TRUE,
+    #             diagonal=TRUE)
+    
+    sf::st_distance(sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                by_element = TRUE)
   }
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
@@ -890,9 +891,9 @@ coords.aeqd.jitter <- function(coords, r, n)
 # wrapper for jitter
 get.coords.jitter<-function(in.Data) {
 	Distance<-in.Data$Spatial$tmp$Distance
-	 if (is.null(Distance)) Distance=sp::spDists(in.Data$Spatial$Grid[,1:2], longlat=TRUE)
-	# if (is.null(Distance)) Distance=sf::st_distance(in.Data$Spatial$Grid, by_element = TRUE)
-	Distance<-Distance[,1]
+	 #if (is.null(Distance)) Distance=sp::spDists(in.Data$Spatial$Grid[,1:2], longlat=TRUE)
+   if (is.null(Distance)) Distance=sf::st_distance(sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[,1:2]),coords=c('lon','lat'),crs=4326))/1000
+	Distance<-as.numeric(Distance[,1])
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
@@ -943,18 +944,18 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
-  Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE],
-                                      in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE],
-                                      longlat=TRUE),
+  # Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE],
+  #                                     in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE],
+  #                                     longlat=TRUE),
+  #                         mean=0,
+  #                         sd=precision.sd)
+  Weights<-stats::dnorm(as.numeric(sf::st_distance(
+    sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+    sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326)
+                                          )/1000),
                           mean=0,
                           sd=precision.sd)
-  # Weights<-stats::dnorm(  sf::st_distance(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], 
-  #                                         in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE]
-  #                                         )/1000, 
-  #                         mean=0, 
-  #                         sd=precision.sd)  
-  #sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326)
-  
+
   Rows<- try(suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights))))
   if (inherits(Rows ,'try-error')) {
     warning('final smoothing failed, error data saved to the working directory - smoothing.error.RData!\n')
