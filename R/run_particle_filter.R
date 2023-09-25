@@ -179,7 +179,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     #
     if (Current.Proposal$Kappa>0) {
       #Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
-      Angles.dir<-maptools::gzAzimuth(from=in.Data$Spatial$Grid[,c(1,2)], to=in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], type="abdali")
+      Angles.dir<-geosphere::bearing(in.Data$Spatial$Grid[,c(1,2)], iin.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE])
 	  
       Angles.probs<-as.numeric(suppressWarnings(circular::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
       Angles.probs[is.na(Angles.probs)]<-0
@@ -895,9 +895,9 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
 }
 
 dir_fun<-function(x, in.Data) {
-	  maptools::gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
+	  geosphere::bearing(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE])
 }
-	
+    
 dist.fun<-function(x, Result) {
     sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
 }
@@ -906,8 +906,6 @@ lazy.result.plot<-function(Result) {
     graphics::plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean positions")
     graphics::points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
     graphics::lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
-	wrld_simpl<-NA
-    load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-    sp::plot(wrld_simpl, add=TRUE)
+    maps::map('world2', add=TRUE)
 }
 

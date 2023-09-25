@@ -55,10 +55,7 @@ make.grid<-function(left=-180, bottom=-90,
 	if (return.distances) Grid<-cbind(Grid, All.Points.Focus[,3])
 	if (plot) {
         graphics::plot(Grid, type="n")
-    	#wrld_simpl<-NA
         maps::map('world2', add=TRUE)
-		#load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-        #sp::plot(wrld_simpl, lwd=1.5, add=TRUE)
         graphics::points(Grid[,1:2], pch=".", col="grey", cex=2) 
         graphics::points(Grid[Grid[,3]==1,1:2], pch=".", col="orange", cex=2) 
 	}	
@@ -81,9 +78,6 @@ Sp.All.Points.Focus<-sf::st_as_sf(as.data.frame(Points), crs=sf::st_crs("+proj=l
 wrld_simpl<-sf::st_as_sf(maps::map('world2', plot = FALSE, fill = TRUE))
 wrld_simpl_cor<-wrld_simpl |> sf::st_make_valid()
 
-#load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-
-#Potential_water<-is.na(sp::over( sp::spTransform(Sp.All.Points.Focus, sp::CRS("+proj=longlat +datum=WGS84")), sp::spTransform(wrld_simpl, sp::CRS("+proj=longlat +datum=WGS84")))[,1])
 Potential_water<-is.na(sapply(sf::st_intersects(sf::st_transform(Sp.All.Points.Focus, crs=sf::st_crs("+proj=longlat +datum=WGS84")), sf::st_transform(wrld_simpl_cor, crs=sf::st_crs("+proj=longlat +datum=WGS84"))), function(z) if (length(z)==0) NA_integer_ else z[1]))
 
 
@@ -126,8 +120,6 @@ get.distance.to.water<-function(Points) {
   Points[,2]<-pmax(Points[,2], -89.9)
    Sp.All.Points.Focus<-sf::st_as_sf(as.data.frame(Points), crs=sf::st_crs("+proj=longlat +datum=WGS84"), dim='XY', coords = c("lon","lat"))
 
-   #wrld_simpl<-NA
-   #load(system.file("data", "wrld_simpl.rda", package = "maptools"))
    wrld_simpl<-sf::st_as_sf(maps::map('world', plot = FALSE, fill = TRUE))# |> sf::st_make_valid() |> sf::st_simplify() 
 
    wrld_simpl_l <- sf::st_cast(wrld_simpl, "MULTILINESTRING")  
