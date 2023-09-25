@@ -182,7 +182,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     #
     if (Current.Proposal$Kappa>0) {
       #Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
-      Angles.dir<-geosphere::bearing(in.Data$Spatial$Grid[,c(1,2)], iin.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE])
+      Angles.dir<-geosphere::bearing(in.Data$Spatial$Grid[,c(1,2)], in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE])
 	  
       Angles.probs<-as.numeric(suppressWarnings(circular::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
       Angles.probs[is.na(Angles.probs)]<-0
