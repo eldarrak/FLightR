@@ -943,16 +943,17 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
-  # Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], 
-  #                                     in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], 
-  #                                     longlat=TRUE), 
+  Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE],
+                                      in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE],
+                                      longlat=TRUE),
+                          mean=0,
+                          sd=precision.sd)
+  # Weights<-stats::dnorm(  sf::st_distance(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], 
+  #                                         in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE]
+  #                                         )/1000, 
   #                         mean=0, 
-  #                         sd=precision.sd)
-  Weights<-stats::dnorm(  sf::st_distance(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], 
-                                          in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE]
-                                          ), 
-                          mean=0, 
-                          sd=precision.sd)  
+  #                         sd=precision.sd)  
+  #sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326)
   
   Rows<- try(suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights))))
   if (inherits(Rows ,'try-error')) {
