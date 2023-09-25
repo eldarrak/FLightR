@@ -971,7 +971,13 @@ dir_fun<-function(x, in.Data) {
 }
     
 dist.fun<-function(x, Result) {
-    sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
+  # sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], 
+  #             Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],
+  #             longlat=TRUE, 
+  #             diagonal=TRUE)
+  sf::st_distance(sf::st_as_sf(as.data.frame(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
+                  sf::st_as_sf(as.data.frame(Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                  by_element = TRUE)/1000
 }
 
 lazy.result.plot<-function(Result) {
