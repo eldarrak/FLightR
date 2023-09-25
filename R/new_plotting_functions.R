@@ -425,7 +425,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
   }
   #Buff_comb_simpl<-rgeos::gSimplify(Buff_comb, tol=0.01, topologyPreserve=TRUE)
   Buff_comb_simpl<-sf::st_simplify(Buff_comb,preserveTopology = FALSE, dTolerance = 0.01)
-  return(list(Buffer=Buff_comb_simpl, nPoints=length(Points)))
+  return(list(Buffer=Buff_comb_simpl, nPoints=length(Points_selected))) # Points before
   }
 
 #' plots resulting track over map with uncertainty shown by space utilisation distribution
@@ -538,10 +538,12 @@ for (percentile in percentiles) {
 	#if (is.null(map.options$location)) map.options$location<-location
 	if (is.null(map.options$zoom) & is.numeric(zoom)) map.options$zoom=zoom
 	if (is.null(map.options$col)) map.options$col="bw"
-	location<-res_buffers[[length(res_buffers)]]@bbox
-
-    if (is.null(map.options$location)) map.options$location<-rowMeans(res_buffers[[length(res_buffers)]]@bbox)
-
+	#location<-res_buffers[[length(res_buffers)]]@bbox
+	location<-sf::st_bbox(res_buffers[[length(res_buffers)]])
+	
+    #if (is.null(map.options$location)) map.options$location<-rowMeans(res_buffers[[length(res_buffers)]]@bbox)
+	  if (is.null(map.options$location)) map.options$location<-sf::st_coordinates(sf::st_centroid(sf::st_as_sfc(sf::st_bbox(res_buffers[[length(res_buffers)]]))))
+	
 	if (zoom=="auto") {
 
 	    for (zoom_cur in (2:10)) {
