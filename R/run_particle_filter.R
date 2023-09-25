@@ -174,7 +174,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	#Dists.distr<- sp::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=TRUE)
 	Dists.distr <- sf::st_distance(
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
-	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[, c(1,2)]),coords=c('lon','lat'),crs=4326))
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[, c(1,2)]),coords=c('lon','lat'),crs=4326))/1000
 	
     Dists.probs<-truncnorm::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
@@ -374,7 +374,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 
 	AB.distance <- stats::weighted.mean(sf::st_distance(
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
-	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326)), 
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326))/1000, 
 	  Weights.stack[,ncol(Weights.stack)])
 	
 	# AC.distance2<-	stats::weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], 
@@ -386,7 +386,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
 	  by_element=TRUE
-	  ), 
+	  )/1000, 
 	  Weights.stack[,ncol(Weights.stack)]*Current.Weights)
 	
 	message("AB.distance:", round(AB.distance, 2), "\n")
