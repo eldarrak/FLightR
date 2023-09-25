@@ -349,17 +349,36 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
 
 get_buffer<-function(coords, r){
-  p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
+  # p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
+  # aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+  #                   p@coords[[2]], p@coords[[1]])
+  # projected <- sp::spTransform(p, sp::CRS(aeqd))
+  # buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
+  # buffer_lonlat <- sp::spTransform(buffered, CRS=p@proj4string)
+
+  p <- sf::st_as_sf(as.data.frame(matrix(coords, ncol=2)), coords=c('V1','V2'),crs = 4326)  
   aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-                    p@coords[[2]], p@coords[[1]])
-  projected <- sp::spTransform(p, sp::CRS(aeqd))
-  buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
-  buffer_lonlat <- sp::spTransform(buffered, CRS=p@proj4string)
+                  sf::st_coordinates(p)[[2]], sf::st_coordinates(p)[[1]])  
+  projected <- sf::st_transform(p,sf::st_crs(aeqd))
+  buffered <- sf::st_buffer(projected, dist = r)
+
+  # projected$ID <- 1:nrow(projected)
+  # buffered <- projected %>%
+  #   dplyr::group_by(ID) %>%
+  #   dplyr::summarize(geometry = sf::st_buffer(geometry, dist = r)) %>%
+  #   dplyr::ungroup() %>%
+  #   sf::st_cast("POLYGON")
+  
+  buffer_lonlat <- sf::st_transform(buffered,sf::st_crs(p)) 
+  
   return(buffer_lonlat)
   }
   
 get_gunion_r<-function(Result) {
-    Distances=  sp::spDists(Result$Spatial$Grid[1:min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=TRUE)
+    #Distances=  sp::spDists(Result$Spatial$Grid[1:min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=TRUE)
+    Distances=  as.numeric(sf::st_distance(sf::st_as_sf(as.data.frame(Result$Spatial$Grid[1:min(c(nrow(Result$Spatial$Grid), 1000)),1:2]),
+                                             coords=c('lon','lat'),
+                                             crs=4326))/1000)
     # ok, distances go up to 51.2.. the next step is 62.. 
     # so if I round them 
     Selected_dist<-unique(sort(round(Distances/10)*10))[2]
@@ -400,10 +419,12 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
    Buff_comb<-Buffers[[1]] 
    if (length(Buffers)>1) {
    for (i in 2:length(Buffers)) {
-       Buff_comb<-rgeos::gUnion(Buff_comb, Buffers[[i]])
+       #Buff_comb<-rgeos::gUnion(Buff_comb, Buffers[[i]])
+       Buff_comb<-sf::st_union(Buff_comb, Buffers[[i]])
   }
   }
-  Buff_comb_simpl<-rgeos::gSimplify(Buff_comb, tol=0.01, topologyPreserve=TRUE)
+  #Buff_comb_simpl<-rgeos::gSimplify(Buff_comb, tol=0.01, topologyPreserve=TRUE)
+  Buff_comb_simpl<-sf::st_simplify(Buff_comb,preserveTopology = FALSE, dTolerance = 0.01)
   return(list(Buffer=Buff_comb_simpl, nPoints=length(Points)))
   }
 
