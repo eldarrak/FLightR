@@ -722,7 +722,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
     
     sf::st_distance(sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
                 sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
-                by_element = TRUE)
+                by_element = TRUE)/1000
   }
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
@@ -900,8 +900,8 @@ get.coords.jitter<-function(in.Data) {
 	tmp<-try(apply(coords, 1,  coords.aeqd.jitter, r=JitRadius, n=1 ))
 	jitter_coords<-NULL
 	if( !inherits(tmp, "try-error")) {
-	jitter_coords<-t(sapply(tmp, sp::coordinates))
-	#jitter_coords<-t(sapply(tmp, sf::st_coordinates))
+	#jitter_coords<-t(sapply(tmp, sp::coordinates))
+	jitter_coords<-t(sapply(tmp, sf::st_coordinates))
 	
 	}
 	return(jitter_coords)
