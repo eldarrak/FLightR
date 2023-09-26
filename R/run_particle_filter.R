@@ -657,10 +657,6 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	# doing jitter first
 	if (add.jitter) {
     in.Data$Results$Quantiles<-Quantiles
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 	message("adding jitter to medians\n")
 	jitter_coords<-get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
