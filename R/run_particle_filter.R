@@ -866,6 +866,7 @@ coords.aeqd.jitter <- function(coords, r, n)
 	#buffered_eqarea <- sp::spTransform(buffered, sp::CRS(lambert))
 	buffered_eqarea <- sf::st_transform(buffered,sf::st_crs(lambert))
 	
+	
 	#random_points<-sp::spsample(buffered_eqarea,n=n,type="random")
 	random_points <- st_sample(buffered_eqarea, size = n, type = "random")
 	
