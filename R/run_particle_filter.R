@@ -171,7 +171,10 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
 	#if (in.Data$Spatial$Grid[x[[1]],3]==0) x[[3]]=x[[2]]
 	# end of addition
 	#Dists.distr<-in.Data$Spatial$tmp$Distance[x[[1]],]	
-	Dists.distr<- sp::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=TRUE)
+	#Dists.distr<- sp::spDists(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE] ,  in.Data$Spatial$Grid[,c(1,2)], longlat=TRUE)
+	Dists.distr <- sf::st_distance(
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[, c(1,2)]),coords=c('lon','lat'),crs=4326))/1000
 	
     Dists.probs<-truncnorm::dtruncnorm(as.numeric(Dists.distr), a=a, b=b, Current.Proposal$M.mean, Current.Proposal$M.sd)
     ###
@@ -179,7 +182,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     #
     if (Current.Proposal$Kappa>0) {
       #Angles.dir<-in.Data$Spatial$tmp$Azimuths[x[[1]],]
-      Angles.dir<-maptools::gzAzimuth(from=in.Data$Spatial$Grid[,c(1,2)], to=in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], type="abdali")
+      Angles.dir<-geosphere::bearing(in.Data$Spatial$Grid[,c(1,2)], in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE])
 	  
       Angles.probs<-as.numeric(suppressWarnings(circular::dvonmises(Angles.dir/180*pi, mu=Current.Proposal$Direction/180*pi, kappa=Current.Proposal$Kappa)))
       Angles.probs[is.na(Angles.probs)]<-0
@@ -364,9 +367,27 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	# 
 	#=================================================================
 
-	AB.distance<-stats::weighted.mean(	sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)])
+	# AB.distance<-stats::weighted.mean(	sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], 
+	#                                                in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE], 
+	#                                                longlat=TRUE, diagonal=TRUE), 
+	#                                    Weights.stack[,ncol(Weights.stack)])
 
-	AC.distance2<-	stats::weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE], longlat=TRUE, diagonal=TRUE), Weights.stack[,ncol(Weights.stack)]*Current.Weights)	
+	AB.distance <- stats::weighted.mean(sf::st_distance(
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326))/1000, 
+	  Weights.stack[,ncol(Weights.stack)])
+	
+	# AC.distance2<-	stats::weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], 
+	#                                                 in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE], 
+	#                                                 longlat=TRUE, 
+	#                                                 diagonal=TRUE), 
+	#                                     Weights.stack[,ncol(Weights.stack)]*Current.Weights)	
+	AB.distance2 <- stats::weighted.mean(sf::st_distance(
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+	  by_element=TRUE
+	  )/1000, 
+	  Weights.stack[,ncol(Weights.stack)]*Current.Weights)
 	
 	message("AB.distance:", round(AB.distance, 2), "\n")
 	message("AC.distance2:", round(AC.distance2, 2), "\n")
@@ -635,6 +656,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	###########
 	# doing jitter first
 	if (add.jitter) {
+    in.Data$Results$Quantiles<-Quantiles
 	message("adding jitter to medians\n")
 	jitter_coords<-get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
@@ -694,7 +716,14 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Distances<-Trans
   dist.fun<-function(x) {
    #in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
-    sp::spDists(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
+    # sp::spDists(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE],
+    #             in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],
+    #             longlat=TRUE,
+    #             diagonal=TRUE)
+    
+    sf::st_distance(sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                by_element = TRUE)/1000
   }
   for (i in 1:length(Trans)) {
     Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
@@ -815,33 +844,67 @@ coords.aeqd.jitter <- function(coords, r, n)
 # made on te basis of this:
 #"http://gis.stackexchange.com/questions/121489/1km-circles-around-lat-long-points-in-many-places-in-world"
  stopifnot(length(coords) == 2)
+  
+  	#p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
+  	p = sf::st_as_sf(as.data.frame(matrix(coords, ncol=2)), coords=c('V1','V2'),crs = 4326)  
+  	
+     # aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+     #                 p@coords[[2]], p@coords[[1]])
+     aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+                     sf::st_coordinates(p)[[2]], sf::st_coordinates(p)[[1]])  
+    
+    #projected <- sp::spTransform(p, sp::CRS(aeqd))
+    projected <- sf::st_transform(p,sf::st_crs(aeqd))
+    
+    #buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
+    buffered <- sf::st_buffer(projected, dist = r)
+    
+     # lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+     #                 p@coords[[2]], p@coords[[1]])
+     lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+                     sf::st_coordinates(p)[[2]], sf::st_coordinates(p)[[1]])  
+    
+	#buffered_eqarea <- sp::spTransform(buffered, sp::CRS(lambert))
+	buffered_eqarea <- sf::st_transform(buffered,sf::st_crs(lambert))
+	
+	
+	#random_points<-sp::spsample(buffered_eqarea,n=n,type="random")
+	random_points <- sf::st_sample(buffered_eqarea, size = n, type = "random")
+	
+	# if (is.null(random_points)) random_points<-sp::spsample(buffered_eqarea,n=n,type="random", iter=40) 
+	if (is.null(random_points)){
+	  # Loop until you have the desired number of samples
+	  counter<-1
+	  while (nrow(random_points) == 0 & counter <= 40) {
+	    # Sample a subset of points
+	    random_points <- sf::st_sample(buffered_eqarea, size = n, type = "random")
+	    counter<-counter+1
+	  }
 
-	p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
-    aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-                    p@coords[[2]], p@coords[[1]])
-    projected <- sp::spTransform(p, sp::CRS(aeqd))
-    buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
-    lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-                    p@coords[[2]], p@coords[[1]])
-	buffered_eqarea <- sp::spTransform(buffered, sp::CRS(lambert))
-	random_points<-sp::spsample(buffered_eqarea,n=n,type="random")
-	if (is.null(random_points)) random_points<-sp::spsample(buffered_eqarea,n=n,type="random", iter=40) 
+	  }
+
+	
 	if (is.null(random_points)) random_points<-p
-    sp::spTransform(random_points, p@proj4string)
+    #sp::spTransform(random_points, p@proj4string)
+    sf::st_transform(random_points, crs = sf::st_crs(p))
+    
 }
 
 # wrapper for jitter
 get.coords.jitter<-function(in.Data) {
 	Distance<-in.Data$Spatial$tmp$Distance
-	if (is.null(Distance)) Distance=sp::spDists(in.Data$Spatial$Grid[,1:2], longlat=TRUE)
-	Distance<-Distance[,1]
+	 #if (is.null(Distance)) Distance=sp::spDists(in.Data$Spatial$Grid[,1:2], longlat=TRUE)
+   if (is.null(Distance)) Distance=sf::st_distance(sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[,1:2]),coords=c('lon','lat'),crs=4326))/1000
+	Distance<-as.numeric(Distance[,1])
 	JitRadius<-min(Distance[Distance>0])/2*1000 # in meters
 	#now I want to generate random poitns in the radius of this
 	coords=cbind(in.Data$Results$Quantiles$Medianlon, in.Data$Results$Quantiles$Medianlat)
 	tmp<-try(apply(coords, 1,  coords.aeqd.jitter, r=JitRadius, n=1 ))
 	jitter_coords<-NULL
 	if( !inherits(tmp, "try-error")) {
-	jitter_coords<-t(sapply(tmp, sp::coordinates))
+	#jitter_coords<-t(sapply(tmp, sp::coordinates))
+	jitter_coords<-t(sapply(tmp, sf::st_coordinates))
+	
 	}
 	return(jitter_coords)
 }
@@ -883,7 +946,18 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
   Final.point.real<-in.Data$Spatial$stop.point
   # now we want to get distances.. I'll not index it as we will do this only once..
   Final.points.modeled=last.particles
-  Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE], in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE], longlat=TRUE), mean=0, sd=precision.sd)
+  # Weights<-stats::dnorm(  sp::spDists(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE],
+  #                                     in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE],
+  #                                     longlat=TRUE),
+  #                         mean=0,
+  #                         sd=precision.sd)
+  Weights<-stats::dnorm(as.numeric(sf::st_distance(
+    sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Final.points.modeled, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+    sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Final.point.real, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326)
+                                          )/1000),
+                          mean=0,
+                          sd=precision.sd)
+
   Rows<- try(suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights))))
   if (inherits(Rows ,'try-error')) {
     warning('final smoothing failed, error data saved to the working directory - smoothing.error.RData!\n')
@@ -895,19 +969,23 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
 }
 
 dir_fun<-function(x, in.Data) {
-	  maptools::gzAzimuth(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE], type="abdali")
+	  geosphere::bearing(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE])
 }
-	
+    
 dist.fun<-function(x, Result) {
-    sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],longlat=TRUE, diagonal=TRUE)
+  # sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], 
+  #             Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],
+  #             longlat=TRUE, 
+  #             diagonal=TRUE)
+  sf::st_distance(sf::st_as_sf(as.data.frame(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
+                  sf::st_as_sf(as.data.frame(Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                  by_element = TRUE)/1000
 }
 
 lazy.result.plot<-function(Result) {
     graphics::plot(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue", main="mean positions")
     graphics::points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
     graphics::lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
-	wrld_simpl<-NA
-    load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-    sp::plot(wrld_simpl, add=TRUE)
+    maps::map('world2', add=TRUE)
 }
 

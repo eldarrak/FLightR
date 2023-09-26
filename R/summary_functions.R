@@ -85,7 +85,9 @@ stationary.migration.summary<-function(Result, prob.cutoff=0.1, min.stay=3) {
    for (period in 2:nrow(Quantiles)) {
       Longitudes<-c(Quantiles$Meanlon[period-1], Result$Results$Quantiles$Meanlon[Potential_movement_periods$start[period-1]:Potential_movement_periods$end[period-1]], Quantiles$Meanlon[period])
       Latitudes<-c(Quantiles$Meanlat[period-1], Result$Results$Quantiles$Meanlat[Potential_movement_periods$start[period-1]:Potential_movement_periods$end[period-1]], Quantiles$Meanlat[period])
-	  Distance2<-c(Distance2, sum(sp::spDists(cbind(Longitudes, Latitudes), longlat=TRUE, segments=TRUE)))
+	  #Distance2<-c(Distance2, sum(sp::spDists(cbind(Longitudes, Latitudes), longlat=TRUE, segments=TRUE)))
+	  Distance2<-c(Distance2, sum(sf::st_distance(sf::st_as_sf(cbind(Longitudes, Latitudes),coords=c('lon','lat'),crs=4326))/1000))
+	  
    }
    Distance2cumulative<-c(0, cumsum(Distance2))
    Quantiles$Distance2<-c(0, Distance2)

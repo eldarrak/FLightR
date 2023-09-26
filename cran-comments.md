@@ -5,7 +5,7 @@ There were no ERRORs or WARNINGs AND 1 NOTES
 This note on RcppArmadillo, I get every time: I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
 
 ## Update
-This update solves r check error on numeric input in the package version.
+This update removes dependencies from sp, maptools, rgdal and rgeos.
 
 ## Test environments
 

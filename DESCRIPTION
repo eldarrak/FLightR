@@ -2,12 +2,13 @@ Package: FLightR
 Type: Package
 Title: Reconstruct Animal Paths from Solar Geolocation Loggers Data
 Version: 0.5.4
-Date: 2023-09-xx
+Date: 2023-09-26
 Authors@R: c(
     person("Eldar", "Rakhimberdiev", email = "eldar.rakhimberdiev@uva.nl", role = c("aut","cre")),
     person("Anatoly", "Saveliev", role = "aut"),
     person("Julia", "Karagicheva", role = "aut"),
-    person("Simeon", "Lisovski", role = "ctb"))
+    person("Simeon", "Lisovski", role = "ctb"),
+	person("Johannes", "de Groeve", email = "j.degroeve@uva.nl", role = "ctb"))
 Description: Spatio-temporal locations of an animal are computed 
     from annotated data with a hidden Markov  model via particle
     filter algorithm. The package is relatively robust to varying
@@ -18,24 +19,24 @@ Description: Spatio-temporal locations of an animal are computed
 URL: https://CRAN.R-project.org/package=FLightR
 BugReports: https://github.com/eldarrak/FLightR/issues
 Depends:
-    R (>= 3.0.2)
+    R (>= 4.1.0)
 Imports:
     bit,
+	geosphere,
     ggsn,
     ggmap,
     ggplot2,
     CircStats,
     circular,
     fields,
-    maptools,
+	maps,
     methods,
     mgcv,
     nlme,
     parallel,
     RcppArmadillo,
-    rgdal,
-    rgeos,
-    sp,
+	sf,
+	suntools,
     truncnorm
 License: GPL-3
 ByteCompile: true

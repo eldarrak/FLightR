@@ -349,17 +349,28 @@ plot_lon_lat<-function(Result, scheme=c("vertical", "horizontal")) {
 
 
 get_buffer<-function(coords, r){
-  p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
+  # p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
+  # aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+  #                   p@coords[[2]], p@coords[[1]])
+  # projected <- sp::spTransform(p, sp::CRS(aeqd))
+  # buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
+  # buffer_lonlat <- sp::spTransform(buffered, CRS=p@proj4string)
+
+  p <- sf::st_as_sf(as.data.frame(matrix(coords, ncol=2)), coords=c('V1','V2'),crs = 4326)  
   aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-                    p@coords[[2]], p@coords[[1]])
-  projected <- sp::spTransform(p, sp::CRS(aeqd))
-  buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
-  buffer_lonlat <- sp::spTransform(buffered, CRS=p@proj4string)
+                  sf::st_coordinates(p)[[2]], sf::st_coordinates(p)[[1]])  
+  projected <- sf::st_transform(p,sf::st_crs(aeqd))
+  buffered <- sf::st_buffer(projected, dist = r)
+  buffer_lonlat <- sf::st_transform(buffered,sf::st_crs(p)) 
+  
   return(buffer_lonlat)
   }
   
 get_gunion_r<-function(Result) {
-    Distances=  sp::spDists(Result$Spatial$Grid[1:min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=TRUE)
+    #Distances=  sp::spDists(Result$Spatial$Grid[1:min(c(nrow(Result$Spatial$Grid), 1000)),1:2], longlat=TRUE)
+    Distances=  as.numeric(sf::st_distance(sf::st_as_sf(as.data.frame(Result$Spatial$Grid[1:min(c(nrow(Result$Spatial$Grid), 1000)),1:2]),
+                                             coords=c('lon','lat'),
+                                             crs=4326))/1000)
     # ok, distances go up to 51.2.. the next step is 62.. 
     # so if I round them 
     Selected_dist<-unique(sort(round(Distances/10)*10))[2]
@@ -400,11 +411,13 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
    Buff_comb<-Buffers[[1]] 
    if (length(Buffers)>1) {
    for (i in 2:length(Buffers)) {
-       Buff_comb<-rgeos::gUnion(Buff_comb, Buffers[[i]])
+       #Buff_comb<-rgeos::gUnion(Buff_comb, Buffers[[i]])
+       Buff_comb<-sf::st_union(Buff_comb, Buffers[[i]])
   }
   }
-  Buff_comb_simpl<-rgeos::gSimplify(Buff_comb, tol=0.01, topologyPreserve=TRUE)
-  return(list(Buffer=Buff_comb_simpl, nPoints=length(Points)))
+  #Buff_comb_simpl<-rgeos::gSimplify(Buff_comb, tol=0.01, topologyPreserve=TRUE)
+  Buff_comb_simpl<-sf::st_simplify(Buff_comb,preserveTopology = FALSE, dTolerance = 0.01)
+  return(list(Buffer=Buff_comb_simpl, nPoints=length(Points_selected))) # Points before
   }
 
 #' plots resulting track over map with uncertainty shown by space utilisation distribution
@@ -517,10 +530,12 @@ for (percentile in percentiles) {
 	#if (is.null(map.options$location)) map.options$location<-location
 	if (is.null(map.options$zoom) & is.numeric(zoom)) map.options$zoom=zoom
 	if (is.null(map.options$col)) map.options$col="bw"
-	location<-res_buffers[[length(res_buffers)]]@bbox
-
-    if (is.null(map.options$location)) map.options$location<-rowMeans(res_buffers[[length(res_buffers)]]@bbox)
-
+	#location<-res_buffers[[length(res_buffers)]]@bbox
+	location<-sf::st_bbox(res_buffers[[length(res_buffers)]])
+	
+    #if (is.null(map.options$location)) map.options$location<-rowMeans(res_buffers[[length(res_buffers)]]@bbox)
+	  if (is.null(map.options$location)) map.options$location<-sf::st_coordinates(sf::st_centroid(sf::st_as_sfc(sf::st_bbox(res_buffers[[length(res_buffers)]]))))
+	
 	if (zoom=="auto") {
 
 	    for (zoom_cur in (2:10)) {
@@ -618,29 +633,10 @@ for (percentile in percentiles) {
 	   save.options$dpi <-600
 	   tmp<-do.call(ggplot2::ggsave, save.options)
 	}
+
+	b<-do.call(rbind, res_buffers) 
+  SPDF = cbind(b, data.frame(percentile = percentiles, row.names=names(b)))
 	
-    my.rbind.SpatialPolygons = function(..., makeUniqueIDs = FALSE) {
-       dots = list(...)
-       names(dots) <- NULL
-       stopifnot(sp::identicalCRS(dots))
-       # checkIDSclash(dots)
-       pl = do.call(c, lapply(dots, function(x) methods::slot(x, "polygons")))
-       if (makeUniqueIDs)
-               pl = makeUniqueIDs(pl)
-       sp::SpatialPolygons(pl, proj4string = sp::CRS(sp::proj4string(dots[[1]])))
-	}
-    makeUniqueIDs <- function(lst) {
-	   ids = sapply(lst, function(i) methods::slot(i, "ID"))
-	   if (any(duplicated(ids))) {
-		  ids <- make.unique(as.character(unlist(ids)), sep = "")
-		  for (i in seq(along = ids))
-			lst[[i]]@ID = ids[i]
-	   }
-	   lst
-    }
-	
-	b<-do.call(my.rbind.SpatialPolygons,  c(res_buffers, list(makeUniqueIDs=TRUE))) 
-    SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles, row.names=names(b)))
 	return(list(res_buffers=SPDF, p=p, bg=background))
 }
 
@@ -714,9 +710,7 @@ plot_likelihood<-function(object, date=NULL, twilight.index=NULL) {
 	  
    fields::image.plot(fields::as.image(object$Spatial$Phys.Mat[,twilight.index], x=object$Spatial$Grid[,1:2],nrow=60, ncol=60),
                    col=my.golden.colors(64), main=paste("twilight number",twilight.index, format(object$Indices$Matrix.Index.Table$time[twilight.index], tz='UTC')))     
-   wrld_simpl<-NA				   
-   load(system.file("data", "wrld_simpl.rda", package = "maptools"))
-   sp::plot(wrld_simpl, add=TRUE)
+   maps::map('world2', add=TRUE)
    return(NULL)
 }
 
