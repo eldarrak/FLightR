@@ -361,14 +361,6 @@ get_buffer<-function(coords, r){
                   sf::st_coordinates(p)[[2]], sf::st_coordinates(p)[[1]])  
   projected <- sf::st_transform(p,sf::st_crs(aeqd))
   buffered <- sf::st_buffer(projected, dist = r)
-
-  # projected$ID <- 1:nrow(projected)
-  # buffered <- projected %>%
-  #   dplyr::group_by(ID) %>%
-  #   dplyr::summarize(geometry = sf::st_buffer(geometry, dist = r)) %>%
-  #   dplyr::ungroup() %>%
-  #   sf::st_cast("POLYGON")
-  
   buffer_lonlat <- sf::st_transform(buffered,sf::st_crs(p)) 
   
   return(buffer_lonlat)
@@ -641,35 +633,8 @@ for (percentile in percentiles) {
 	   save.options$dpi <-600
 	   tmp<-do.call(ggplot2::ggsave, save.options)
 	}
-	
-    # my.rbind.SpatialPolygons = function(..., makeUniqueIDs = FALSE) {
-#     dots = list(...)
-#       names(dots) <- NULL
-       
-       #stopifnot(sp::identicalCRS(dots))
-  #     crs_first <- st_crs(dots[[1]])
-  #     stopifnot(all(sapply(dots, function(x) identical(crs_first, sf::st_crs(x)))))
-       
-       # checkIDSclash(dots)
-       #pl = do.call(c, lapply(dots, function(x) methods::slot(x, "polygons")))
-      # pl = do.call(rbind, dots)
-       # if (makeUniqueIDs)
-       #         pl = makeUniqueIDs(pl)
-       # sp::SpatialPolygons(pl, proj4string = sp::CRS(sp::proj4string(dots[[1]])))
-#	}
-#     makeUniqueIDs <- function(lst) {
-# 	   ids = sapply(lst, function(i) methods::slot(i, "ID"))
-# 	   if (any(duplicated(ids))) {
-# 		  ids <- make.unique(as.character(unlist(ids)), sep = "")
-# 		  for (i in seq(along = ids))
-# 			lst[[i]]@ID = ids[i]
-# 	   }
-# 	   lst
-#     }
-  # b<-do.call(my.rbind.SpatialPolygons,  c(res_buffers, list(makeUniqueIDs=TRUE))) 
-       
+
 	b<-do.call(rbind, res_buffers) 
-    # SPDF = sp::SpatialPolygonsDataFrame(b, data.frame(percentile = percentiles, row.names=names(b)))
   SPDF = cbind(b, data.frame(percentile = percentiles, row.names=names(b)))
 	
 	return(list(res_buffers=SPDF, p=p, bg=background))
