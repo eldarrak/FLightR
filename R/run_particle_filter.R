@@ -869,7 +869,7 @@ coords.aeqd.jitter <- function(coords, r, n)
 	
 	
 	#random_points<-sp::spsample(buffered_eqarea,n=n,type="random")
-	random_points <- st_sample(buffered_eqarea, size = n, type = "random")
+	random_points <- sf::st_sample(buffered_eqarea, size = n, type = "random")
 	
 	# if (is.null(random_points)) random_points<-sp::spsample(buffered_eqarea,n=n,type="random", iter=40) 
 	if (is.null(random_points)){
@@ -877,7 +877,7 @@ coords.aeqd.jitter <- function(coords, r, n)
 	  counter<-1
 	  while (nrow(random_points) == 0 & counter <= 40) {
 	    # Sample a subset of points
-	    random_points <- st_sample(buffered_eqarea, size = n, type = "random")
+	    random_points <- sf::st_sample(buffered_eqarea, size = n, type = "random")
 	    counter<-counter+1
 	  }
 
@@ -886,7 +886,7 @@ coords.aeqd.jitter <- function(coords, r, n)
 	
 	if (is.null(random_points)) random_points<-p
     #sp::spTransform(random_points, p@proj4string)
-    st_transform(random_points, crs = st_crs(p))
+    sf::st_transform(random_points, crs = sf::st_crs(p))
     
 }
 
