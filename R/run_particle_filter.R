@@ -843,48 +843,48 @@ coords.aeqd.jitter <- function(coords, r, n)
 # made on te basis of this:
 #"http://gis.stackexchange.com/questions/121489/1km-circles-around-lat-long-points-in-many-places-in-world"
  stopifnot(length(coords) == 2)
-
-  	p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
-	  #p <- st_sfc(st_point(coords), crs = st_crs("+proj=longlat +datum=WGS84"))
-	
+  
+  	#p = sp::SpatialPoints(matrix(coords, ncol=2), proj4string=sp::CRS("+proj=longlat +datum=WGS84"))
+  	p = sf::st_as_sf(as.data.frame(matrix(coords, ncol=2)), coords=c('V1','V2'),crs = 4326)  
+  	
+     # aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+     #                 p@coords[[2]], p@coords[[1]])
      aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-                     p@coords[[2]], p@coords[[1]])
-    #aeqd <- sprintf("+proj=aeqd +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-    #                coords[2], coords[1])
+                     sf::st_coordinates(p)[[2]], sf::st_coordinates(p)[[1]])  
     
-    projected <- sp::spTransform(p, sp::CRS(aeqd))
-    #projected <- st_transform(p, crs = aeqd)
+    #projected <- sp::spTransform(p, sp::CRS(aeqd))
+    projected <- sf::st_transform(p,sf::st_crs(aeqd))
     
-    buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
-    #buffered <- st_buffer(projected, dist = r)
+    #buffered <- rgeos::gBuffer(projected, width=r, byid=TRUE)
+    buffered <- sf::st_buffer(projected, dist = r)
     
+     # lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
+     #                 p@coords[[2]], p@coords[[1]])
      lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-                     p@coords[[2]], p@coords[[1]])
-    #lambert <- sprintf("+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0",
-    #                   coords[2], coords[1])
+                     sf::st_coordinates(p)[[2]], sf::st_coordinates(p)[[1]])  
     
-	buffered_eqarea <- sp::spTransform(buffered, sp::CRS(lambert))
-	#buffered_eqarea <- st_transform(buffered, crs = lambert)
+	#buffered_eqarea <- sp::spTransform(buffered, sp::CRS(lambert))
+	buffered_eqarea <- sf::st_transform(buffered,sf::st_crs(lambert))
 	
-	random_points<-sp::spsample(buffered_eqarea,n=n,type="random")
-	#random_points <- st_sample(buffered_eqarea, size = n, type = "random")
+	#random_points<-sp::spsample(buffered_eqarea,n=n,type="random")
+	random_points <- st_sample(buffered_eqarea, size = n, type = "random")
 	
-	if (is.null(random_points)) random_points<-sp::spsample(buffered_eqarea,n=n,type="random", iter=40) 
-	# if (is.null(random_points)){
-	#   # Loop until you have the desired number of samples
-	#   while (nrow(random_points) < 40) {
-	#     # Sample a subset of points
-	#     sampled_subset <- st_sample(buffered_eqarea, size = n, type = "random")
-	#     # Add the sampled subset to the result
-	#     random_points <- rbind(random_points, sampled_subset)
-	#   }
-	#   
-	#   }
+	# if (is.null(random_points)) random_points<-sp::spsample(buffered_eqarea,n=n,type="random", iter=40) 
+	if (is.null(random_points)){
+	  # Loop until you have the desired number of samples
+	  counter<-1
+	  while (nrow(random_points) == 0 & counter <= 40) {
+	    # Sample a subset of points
+	    random_points <- st_sample(buffered_eqarea, size = n, type = "random")
+	    counter<-counter+1
+	  }
+
+	  }
 
 	
 	if (is.null(random_points)) random_points<-p
-    sp::spTransform(random_points, p@proj4string)
-    #st_transform(random_points, crs = st_crs(p))
+    #sp::spTransform(random_points, p@proj4string)
+    st_transform(random_points, crs = st_crs(p))
     
 }
 
