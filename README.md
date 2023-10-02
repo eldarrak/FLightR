@@ -13,11 +13,10 @@ The scope of the package is to position animal using data from solar geolocation
 the package is in the active development.
 
 ---------------	
-FLightR is on CRAN now, so 
 ```{r}
     install.packages("FLightR")
 ```
-I will try to update CRAN version several times a year, but to get the latest version from GitHub try:
+I update CRAN version several times a year, but to get the latest version from GitHub try:
 ```{r}
     devtools::install_github("eldarrak/FLightR")
 ```
