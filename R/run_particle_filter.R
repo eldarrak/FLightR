@@ -382,7 +382,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	#                                                 longlat=TRUE, 
 	#                                                 diagonal=TRUE), 
 	#                                     Weights.stack[,ncol(Weights.stack)]*Current.Weights)	
-	AB.distance2 <- stats::weighted.mean(sf::st_distance(
+	AC.distance2 <- stats::weighted.mean(sf::st_distance(
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
 	  by_element=TRUE
