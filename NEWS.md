@@ -1,3 +1,6 @@
+# ver 0.5.5 Oct 2023
+Small (and not affecting the results) bug was corrected in the summary function
+
 # ver 0.5.4 Sept 2023
 Removed dependencies from sp, maptools, rgeos and rgdal
 
