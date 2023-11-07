@@ -23,7 +23,6 @@ Depends:
 Imports:
     bit,
 	geosphere,
-    ggsn,
     ggmap,
     ggplot2,
     CircStats,

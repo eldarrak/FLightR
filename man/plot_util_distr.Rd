@@ -16,9 +16,7 @@ plot_util_distr(
   use.palette = TRUE,
   background = NULL,
   plot = TRUE,
-  save = TRUE,
-  add.scale.bar = FALSE,
-  scalebar.options = NULL
+  save = TRUE
 )
 }
 \arguments{
@@ -45,10 +43,6 @@ plot_util_distr(
 \item{plot}{should function produce a plot?}
 
 \item{save}{should function save results with \code{\link[ggplot2]{ggsave}}?}
-
-\item{add.scale.bar}{will add scalebar with the \code{\link[ggsn]{scalebar}}}
-
-\item{scalebar.options}{options passed to \code{\link[ggsn]{scalebar}}}
 }
 \value{
 list with two parts 

@@ -436,8 +436,6 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #' @param background if provided will be used as a background. Must be created by \code{link[ggmap]{get_map}}
 #' @param plot should function produce a plot?
 #' @param save should function save results with \code{\link[ggplot2]{ggsave}}?
-#' @param add.scale.bar will add scalebar with the \code{\link[ggsn]{scalebar}}
-#' @param scalebar.options options passed to \code{\link[ggsn]{scalebar}}
 #' @return list with two parts 
 #'         \item{res_buffers}{spatial buffers for defined probability values}
 #'         \item{p}{\code{\link[ggplot2]{ggplot}} object}
@@ -474,7 +472,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #'
 #' @author Eldar Rakhimberdiev
 #' @export plot_util_distr
-plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE, add.scale.bar=FALSE, scalebar.options=NULL) {
+plot_util_distr<-function(Result, dates=NULL, map.options=NULL, percentiles=c(0.4, 0.6, 0.8), zoom="auto", geom_polygon.options=NULL, save.options=NULL, color.palette=NULL, use.palette=TRUE, background=NULL, plot=TRUE, save=TRUE) {
 
 if (utils::packageVersion('ggmap')[1]<2.7) {stop('plot_util_distr function works only with ggmap >= 2.7.x')}
 
@@ -609,22 +607,6 @@ for (percentile in percentiles) {
 	
 	}
     if (plot) print(p)
-	if (add.scale.bar) {
-	if (is.null(scalebar.options)) scalebar.options=list()
-	BB<-attr(background, 'bb')
-
-	if (is.null(scalebar.options$dist)) scalebar.options$dist=max(((abs(as.numeric(BB[1, 4])-as.numeric(BB[1, 2]))*100*0.1)%/%25)*25, 25)
-	
-	scalebar.options$dd2km <- TRUE
-	scalebar.options$model <- 'WGS84'
-	if (is.null(scalebar.options$location)) scalebar.options$location <- 'topright'
-	scalebar.options$y.min=as.numeric(BB[1, 1])+(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05
-	scalebar.options$y.max=as.numeric(BB[1, 3])-(as.numeric(BB[1, 3])-as.numeric(BB[1, 1]))*0.05
-	scalebar.options$x.min=as.numeric(BB[1, 2])-(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05
-	scalebar.options$x.max=as.numeric(BB[1, 4])+(as.numeric(BB[1, 2])-as.numeric(BB[1, 4]))*0.05
-	
-	p=p+do.call(ggsn::scalebar, scalebar.options)
-	}
 	
 	if (save) {
 	   if (is.null(save.options))  save.options=list()
