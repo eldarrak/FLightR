@@ -5,7 +5,7 @@ There were no ERRORs or WARNINGs AND 1 NOTES
 This note on RcppArmadillo, I get every time: I use RcppArmadillo::fastLmPure in FLightR, so RcppArmadillo has to be in Imports but not LinkingTo
 
 ## Update
-This update corrects a small bug caused by switch to sf package.
+This update removes dependency on the archived package ggsn.
 
 ## Test environments
 
