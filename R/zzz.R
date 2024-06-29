@@ -1,4 +1,4 @@
-print.FLightR.version <- function() {
+print_FLightR_version <- function() {
     library(help=FLightR)$info[[1]] -> version
 	version <- version[pmatch("Version",version)]
 	if(!is.null(version))
@@ -11,5 +11,5 @@ print.FLightR.version <- function() {
 }
 
 .onAttach <- function(...) { 
-	print.FLightR.version()
+	print_FLightR_version()
 }
