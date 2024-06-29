@@ -1,7 +1,7 @@
 # spatial_likelihood_estimation.R
 
 
-get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL, likelihood.correction=TRUE ) {
+get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL, likelihood.correction=TRUE cluster.type='PSOCK') {
 
 if (likelihood.correction & is.null(calibration$c_fun)) {
     cat('likelihood correction turned off as no correction found in the calibration\n')
