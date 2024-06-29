@@ -8,7 +8,7 @@ Authors@R: c(
     person("Anatoly", "Saveliev", role = "aut"),
     person("Julia", "Karagicheva", role = "aut"),
     person("Simeon", "Lisovski", role = "ctb"),
-	person("Johannes", "de Groeve", email = "j.degroeve@uva.nl", role = "ctb"))
+    person("Johannes", "de Groeve", email = "j.degroeve@uva.nl", role = "ctb"))
 Description: Spatio-temporal locations of an animal are computed 
     from annotated data with a hidden Markov  model via particle
     filter algorithm. The package is relatively robust to varying
@@ -22,24 +22,25 @@ Depends:
     R (>= 4.1.0)
 Imports:
     bit,
-	geosphere,
+    geosphere,
     ggmap,
     ggplot2,
     CircStats,
     circular,
     fields,
-	maps,
+    maps,
     methods,
     mgcv,
     nlme,
     parallel,
     RcppArmadillo,
-	sf,
-	suntools,
+    sf,
+    suntools,
     truncnorm
 License: GPL-3
 ByteCompile: true
-RoxygenNote: 7.2.3
+Encoding: UTF-8
+RoxygenNote: 7.3.1
 Suggests:
     covr,
     testthat,
