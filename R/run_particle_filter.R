@@ -86,7 +86,9 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
    if (threads<=0) Threads=max(Possible.threads+threads, 1)
    if (threads>0) Threads=min(Possible.threads,threads)
     message("creating cluster with", Threads, "threads")
-    mycl <- parallel::makeCluster(Threads, type=cluster.type)
+    hosts <- rep("localhost",Threads)
+    mycl <- parallel::makeCluster(hosts, type=cluster.type)
+    #mycl <- parallel::makeCluster(Threads, type=cluster.type)
     parallel::clusterSetRNGStream(mycl)
 	parallel::clusterEvalQ(mycl, library("FLightR")) 
 	message('   Done\n')
@@ -231,7 +233,9 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   #if (!is.null(Parameters$in.Data$Spatial$tmp$dAzimuths)) Parameters$in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths)
   if (parallel) {
     if (length(existing.cluster)==1) {
-      mycl <- parallel::makeCluster(threads, type=cluster.type)
+      hosts <- rep("localhost",threads)
+      mycl <- parallel::makeCluster(hosts, type=cluster.type)    
+      #mycl <- parallel::makeCluster(threads, type=cluster.type)
       parallel::clusterSetRNGStream(mycl)
       ### we don' need to send all parameters to node. so keep it easy..
       # cleaning dataset

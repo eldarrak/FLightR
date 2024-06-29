@@ -115,7 +115,7 @@ graphics::abline(v=Outliers1$ind[Outliers1$type=="TC"], col="brown")
 return(Outliers1_c)
 }
 
-detect.tsoutliers<-function(calibration, Proc.data, plot=TRUE, Threads=NULL, max.outlier.proportion=0.2, simple.version=FALSE) {
+detect.tsoutliers<-function(calibration, Proc.data, plot=TRUE, Threads=NULL, max.outlier.proportion=0.2, simple.version=FALSE, cluster.type='PSOCK') {
 if (!requireNamespace("tsoutliers", quietly = TRUE)) {
     stop("Pkg tsoutliers needed for this function to work. Please install it.",
       call. = FALSE)
@@ -130,7 +130,9 @@ on.exit(graphics::par(oldpar))
 
 if (!is.null(Threads)) {
 	message("making cluster\n")
-	mycl <- parallel::makeCluster(Threads)
+    hosts <- rep("localhost",Threads)
+    mycl <- parallel::makeCluster(hosts, type=cluster.type)
+	#mycl <- parallel::makeCluster(Threads)
 	tmp<-parallel::clusterSetRNGStream(mycl)
     tmp<-parallel::clusterExport(mycl,c("calibration", "Proc.data"), envir=environment())
 	message("estimating dusk errors projection on equator\n")

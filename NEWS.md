@@ -1,5 +1,5 @@
 # ver 0.5.5 Jun 2024
-Small (and not affecting the results) bug was corrected in the summary function; removed dependcy on ggsn, as the package was archived (so scalebar cannot be plotted anymore); checked for the new ggmap 
+Small (and not affecting the results) bug was corrected in the summary function; removed dependcy on ggsn, as the package was archived (so scalebar cannot be plotted anymore); checked for the new ggmap; imporved unix cluster handling
 
 # ver 0.5.4 Sept 2023
 Removed dependencies from sp, maptools, rgeos and rgdal
