@@ -59,7 +59,6 @@ test_that('parallel setup works works',  {
 }
 )
 
-
 test_that('run.particle.filter works without outlier detection',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
@@ -76,8 +75,7 @@ test_that('run.particle.filter works without outlier detection',  {
            nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
    expect_equal(dim(Result$Results$Quantiles), c(27, 21))
    expect_equal(dim(Result$Results$Movement.results), c(27, 12))
-   }
-   
+   } ) 
    
 test_that('run.particle.filter works with outlier detection',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
@@ -95,5 +93,5 @@ test_that('run.particle.filter works with outlier detection',  {
            nParticles=1e3, known.last=TRUE, check.outliers=TRUE)
    expect_equal(dim(Result$Results$Quantiles), c(27, 21))
    expect_equal(dim(Result$Results$Movement.results), c(27, 12))
-   }
-)
+   } )
+
