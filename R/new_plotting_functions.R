@@ -599,7 +599,7 @@ for (percentile in percentiles) {
 	#geom_path.options$mapping=geom_polygon.options$mapping
 	
 	#geom_polygon.options$data=buff_cur
-	geom_polygon.options$data=st_coordinates(buff_cur) [, c(1:2)]|> data.frame() |> setNames(c('lon', 'lat' ))
+	geom_polygon.options$data=st_coordinates(buff_cur) [, c(1:2)]|> data.frame() |> stats::setNames(c('lon', 'lat' ))
     
 	geom_path.options$data=geom_polygon.options$data
 	p<-p+do.call(ggplot2::geom_polygon, geom_polygon.options)
