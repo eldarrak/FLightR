@@ -296,7 +296,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     Last.State.List<-split(Last.State, row(Last.State))
     nSeq<-nrow(Last.State)
     if (nSeq==1 | (!parallel)) {
-      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
+      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(FLightR:::generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
       #New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
     }
     else {
@@ -378,8 +378,8 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 
 	AB.distance <- stats::weighted.mean(sf::st_distance(
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
-	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326))/1000, 
-	  Weights.stack[,ncol(Weights.stack)])
+	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), by_element=TRUE)/1000, 
+	  Weights.stack[,ncol(Weights.stack)]) |> as.numeric()
 	
 	# AC.distance2<-	stats::weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], 
 	#                                                 in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE], 
@@ -391,7 +391,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
 	  by_element=TRUE
 	  )/1000, 
-	  Weights.stack[,ncol(Weights.stack)]*Current.Weights)
+	  Weights.stack[,ncol(Weights.stack)]*Current.Weights) |> as.numeric()
 	
 	message("AB.distance:", round(AB.distance, 2), "\n")
 	message("AC.distance2:", round(AC.distance2, 2), "\n")
