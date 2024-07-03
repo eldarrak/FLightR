@@ -96,6 +96,6 @@ test_that('map_flightr_ggmap_works',  {
     all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
     Result<-run.particle.filter(all.in, threads=1,
             nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
-    expect_null(stationary.migration.summary(Result, prob.cutoff=1))
+    expect_warning(stationary.migration.summary(Result, prob.cutoff=1))
     }
  )
