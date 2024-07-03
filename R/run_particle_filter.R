@@ -283,7 +283,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	  in.Data$AB.distance<-c()
 	  #in.Data$AC.distance<-c()
 	  in.Data$AC.distance2<-c()
-	  in.Data$Dif.ang-c()
+	  in.Data$Dif.ang<-c()
 	  #in.Data$BC.mean<-c()
   }
   
