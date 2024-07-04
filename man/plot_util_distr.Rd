@@ -79,7 +79,7 @@ Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-\donttest{
+\dontrun{
 plot_util_distr(Result, zoom=6, save=FALSE)
 }
 

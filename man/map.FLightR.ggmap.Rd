@@ -78,7 +78,7 @@ Result<-run.particle.filter(all.in, threads=1,
            nParticles=1e3, known.last=TRUE,
            precision.sd=25, check.outliers=FALSE)
 
-\donttest{
+\dontrun{
 map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)
 } 
 # for this short track without variance seasonal donut does not work,
