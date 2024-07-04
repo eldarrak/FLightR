@@ -183,7 +183,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
    if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very close but within few thousand km!')
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE, stage=1) {
-   sink("flightr_tmp")
+   sink()
         Calibration.period<-data.frame(
         calibration.start=as.POSIXct(calibration.start, tz='GMT'),
         calibration.stop=as.POSIXct(calibration.stop, tz='GMT'),

@@ -17,7 +17,7 @@ Done
 > \dontrun{} should only be used if the example really cannot be executed (e.g. because of missing additional software, missing API keys, ...) by the user. That's why wrapping examples in \dontrun{} adds the comment ("# Not run:") as a warning for the user. Does not seem necessary. 
 > Please replace \dontrun with \donttest.
 
-Done
+Done where but in the other places the google api is required for mapping so left this one as donotrun
 
 > Please unwrap the examples if they are executable in < 5 sec, or replace dontrun{} with \donttest{}.
 

@@ -298,7 +298,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     Last.State.List<-split(Last.State, row(Last.State))
     nSeq<-nrow(Last.State)
     if (nSeq==1 | (!parallel)) {
-      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(FLightR:::generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
+      New.Points<-lapply(Last.State.List, FUN=function(x,Current.Proposal, Parameters) do.call(generate.points.dirs, c(x=list(x), Parameters, Current.Proposal=list(Current.Proposal))), Current.Proposal, Parameters)
       #New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
     }
     else {
