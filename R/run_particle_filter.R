@@ -196,7 +196,9 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
     if (any(c(Angles.probs, Dists.probs)<0)) {
       warning("PF produced weird probs \n")
       tmp.out<-list(Angles.probs=Angles.probs, Dists.probs=Dists.probs, Current.Proposal=Current.Proposal, Data=x)
-      save(tmp.out, file=paste("tmp.out", round(stats::runif(n=1,min=1, max=1000)), "RData", sep="."))
+      tmpfile<-paste0(tempfile(), '.RData')
+      warning(paste('PF produced weird probs find them saved in', tmpfile))
+      save(tmp.out, file=tmpfile)
       Biol.proposal<-pmax.int(Dists.probs*Angles.probs, 0)
     } else {
       Biol.proposal<-Dists.probs*Angles.probs
@@ -472,7 +474,9 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 if (is.na(ESS)) {
 	ESS=1
 	Current.Weights.with.Prev.mat<-cbind(Weights.stack, Current.Weights)
-	save(Current.Weights.with.Prev, Current.Weights.with.Prev.mat, Current.Weights, file="tmp.RData")
+	tmpfile<-paste0(tempfile(), '.RData')
+    save(Current.Weights.with.Prev, Current.Weights.with.Prev.mat, Current.Weights, file=tmpfile)
+    warning(paste('find the unexpected weights saved in', tmpfile))
 	}		
     } else {
       ESS<-1
@@ -831,8 +835,10 @@ mu.sigma.truncnorm<-function(x, a=45, b=500) {
     }
     Res=try(stats::optim(c(mean(x),stats::sd(x)), tr.norm, method="BFGS"))
     if (inherits(Res, "try-error")) {
-      save(x, Res, file="x.RData")
+	tmpfile<-paste0(tempfile(), '.RData')
+      save(x, Res, file=tmpfile)
       Res$par<-c(mean(x), stats::sd(x))
+     warning(paste('find the unexpected mu.sigma.truncnorm estimates saved in', tmpfile))
     }
     return(c(Res$par[1], Res$par[2]))
   } else {
@@ -964,8 +970,9 @@ pf.final.smoothing<-function(in.Data, results.stack, precision.sd=25, nParticles
 
   Rows<- try(suppressWarnings(sample.int(nParticles, replace = TRUE, prob = Weights/sum(Weights))))
   if (inherits(Rows ,'try-error')) {
-    warning('final smoothing failed, error data saved to the working directory - smoothing.error.RData!\n')
-	save(last.particles, Weights, file='smoothing.error.RData')
+    tmpfile<-paste0(tempfile(), '.RData')
+	save(last.particles, Weights, file=tmpfile)
+    warning(paste('final smoothing failed, error data saved to the', tmpfile))
     return(results.stack)
 	} else {
     return(results.stack[Rows,])

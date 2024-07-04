@@ -42,7 +42,7 @@
 #'            nParticles=1e3, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#'\dontrun{
+#'\donttest{
 #' map.FLightR.ggmap(Result, seasonal.donut.location=NULL, zoom=6, save=FALSE)
 #'} 
 #' # for this short track without variance seasonal donut does not work,
@@ -230,7 +230,7 @@ options('ggmap'= Opt$ggmap)
 #' This function plots result by latitude and longitude in either vertical or horizontal layout.
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param scheme either 'vertical' or 'horizontal' layouts
-#' return 'NULL'
+#' @return 'NULL'
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20
@@ -466,7 +466,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #'            nParticles=1e3, known.last=TRUE,
 #'            precision.sd=25, check.outliers=FALSE)
 #'
-#'\dontrun{
+#'\donttest{
 #' plot_util_distr(Result, zoom=6, save=FALSE)
 #'}
 #'

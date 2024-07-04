@@ -170,7 +170,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @return vector with coordinates - longitude and latitude. 
 #' @examples
 #' #this example takes about 15 minutes to run
-#' \dontrun{
+#' \donttest{
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
 #' plot_slopes_by_location(Proc.data=Proc.data, location=c(5.43, 52.93))

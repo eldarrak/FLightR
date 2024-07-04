@@ -4,7 +4,7 @@
 get.Phys.Mat.parallel<-function(all.out=NULL, Twilight.time.mat.dusk=NULL, Twilight.log.light.mat.dusk=NULL, Twilight.time.mat.dawn=NULL, Twilight.log.light.mat.dawn=NULL,  threads=2,  calibration=NULL, log.light.borders=NULL, log.irrad.borders=NULL, likelihood.correction=TRUE, cluster.type='PSOCK') {
 
 if (likelihood.correction & is.null(calibration$c_fun)) {
-    cat('likelihood correction turned off as no correction found in the calibration\n')
+    message('likelihood correction turned off as no correction found in the calibration\n')
 likelihood.correction<-FALSE
 }
 
@@ -20,7 +20,7 @@ if (is.character(calibration)) calibration=get("calibration")
 
 Grid<-all.out$Spatial$Grid
 if (threads!=1) {
-   cat("making cluster\n")
+   message("making cluster\n")
     hosts <- rep("localhost",threads)
     mycl <- parallel::makeCluster(hosts, type=cluster.type)
    #mycl <- parallel::makeCluster(threads)
@@ -30,13 +30,13 @@ if (threads!=1) {
 
 #====================
    tryCatch( {
-      cat("estimating dusks\n")
+      message("estimating dusks\n")
 
 	   Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
 	   All.probs.dusk<-parallel::parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 		 	
-       cat("estimating dawns\n")
+       message("estimating dawns\n")
 	 
 	   Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
 	   All.probs.dawn<-parallel::parSapplyLB(mycl, Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
@@ -45,18 +45,18 @@ if (threads!=1) {
 
 
 } else {
-      cat("estimating dusks\n")
+      message("estimating dusks\n")
 
 	   Twilight.vector<-1:(dim(Twilight.time.mat.dusk)[2])
 	
 	   All.probs.dusk<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dusk, Twilight.time.mat=Twilight.time.mat.dusk, dusk=TRUE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 		 	
-       cat("estimating dawns\n")
+       message("estimating dawns\n")
 	 
 	   Twilight.vector<-1:(dim(Twilight.time.mat.dawn)[2])
 	   All.probs.dawn<-sapply(Twilight.vector, FUN=get.prob.surface, Twilight.log.light.mat=Twilight.log.light.mat.dawn, Twilight.time.mat=Twilight.time.mat.dawn, dusk=FALSE, Calib.param=calibration$Parameters$LogSlope, log.light.borders=calibration$Parameters$log.light.borders, log.irrad.borders=calibration$Parameters$log.irrad.borders, delta=NULL, Grid=Grid, calibration=calibration, impute.on.boundaries=calibration$Parameters$impute.on.boundaries, likelihood.correction=likelihood.correction)
 }	
-cat("processing results\n")
+message("processing results\n")
 All.probs.dusk.tmp<-All.probs.dusk
 All.probs.dawn.tmp<-All.probs.dawn
 	Phys.Mat<-c()
@@ -78,7 +78,7 @@ return(Phys.Mat)
 
 get.prob.surface<-function(Twilight.ID, dusk=TRUE, Twilight.time.mat, Twilight.log.light.mat, return.slopes=FALSE,  Calib.param, log.irrad.borders=c(-9, 3), delta=0, Grid, log.light.borders=log(c(2,64)), calibration=NULL, impute.on.boundaries=FALSE, likelihood.correction=TRUE) {
  
-		if (Twilight.ID%%10== 1) cat("doing", Twilight.ID, "\n")	
+		if (Twilight.ID%%10== 1) message("doing", Twilight.ID, "\n")	
 		
 		Twilight.solar.vector<-solar.FLightR(as.POSIXct(Twilight.time.mat[c(1:24, 26:49), Twilight.ID], tz="GMT", origin="1970-01-01"))
 		Twilight.log.light.vector<-Twilight.log.light.mat[c(1:24, 26:49), Twilight.ID]
@@ -254,7 +254,7 @@ get.current.slope.prob <-function (x, calibration = NULL, Twilight.solar.vector 
                 Probability <- c(Probability, NA, NA)
             if (verbose) {
                 print(utils::str(calibration, max.level = 1))
-                cat("calibration$Parameters:\n")
+                message("calibration$Parameters:\n")
                 print(calibration$Parameters)
             }
         }
@@ -276,7 +276,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	LogIrrad<-log(get.Irradiance(Elevs*pi/180)+1e-20)
 	LogLight<-Twilight.log.light.vector
 	if (verbose) {
-		cat("Elevs:\n")
+		message("Elevs:\n")
 		print(cbind(ID=1:length(LogLight), LogLight=LogLight, LogIrrad=LogIrrad))
 			}
 	#NotZero<-	which(LogLight>=log.light.borders[1] & LogLight<=log.light.borders[2] & LogIrrad<log.irrad.borders[2])
@@ -393,8 +393,8 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 		}
 	}
 	if (verbose) {
-		cat("First.LogIrrad:", First.LogIrrad, "\n")
-		cat("Last.LogIrrad:", Last.LogIrrad, "\n")
+		message("First.LogIrrad:", First.LogIrrad, "\n")
+		message("Last.LogIrrad:", Last.LogIrrad, "\n")
 	}
 	if (any(is.na(First.LogIrrad))) First.LogIrrad<-c()
 	if (any(First.LogIrrad<=log.irrad.borders[1]) | any(First.LogIrrad>=log.irrad.borders[2])) First.LogIrrad<-c()
@@ -455,7 +455,7 @@ check.boundaries<-function(x, Twilight.solar.vector=NULL,  Twilight.log.light.ve
 	}
 	New.Index<-which(c(Left.LogIrrad, LogIrrad[NotZero], Right.LogIrrad)>log.irrad.borders[1])
 
-	if (verbose) {cat("nz\n"); print(NotZero)}
+	if (verbose) {message("nz\n"); print(NotZero)}
 
 	Res<-cbind(c(Left.LogLight, LogLight[NotZero], Right.LogLight)[New.Index], c(Left.LogIrrad, LogIrrad[NotZero], Right.LogIrrad)[New.Index])
 	if (!is.null(Twilight.time.vector)) Res<-cbind(Res, c(Left.Time, Twilight.time.vector[NotZero], Right.Time)[New.Index])

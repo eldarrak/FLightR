@@ -9,8 +9,10 @@ plot_lon_lat(Result, scheme = c("vertical", "horizontal"))
 \arguments{
 \item{Result}{FLightR result object obtained from \code{\link{run.particle.filter}}}
 
-\item{scheme}{either 'vertical' or 'horizontal' layouts
-return 'NULL'}
+\item{scheme}{either 'vertical' or 'horizontal' layouts}
+}
+\value{
+'NULL'
 }
 \description{
 This function plots result by latitude and longitude in either vertical or horizontal layout.
