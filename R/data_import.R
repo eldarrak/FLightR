@@ -41,6 +41,12 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
 	     if (saves[1] =='auto') saves<-"max"
       }
+      
+      if(detected$tagtype=="Intigeo_Mode_6_clipped") {
+	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 7)
+	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
+	     if (saves[1] =='auto') saves<-"max"
+      }
       if(detected$tagtype=="mk") {
 	     if (log.light.borders[1]=='auto') log.light.borders<-log(c(4, 61)) 
 	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,4)
@@ -103,7 +109,28 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
 get.tag.type<-function(TAGS.twilights) {
 
    Max_light<-max(TAGS.twilights$light)
+   Min_light<-min(TAGS.twilights$light)
    recognized<-FALSE
+   
+   if(Max_light == 1146.681 &  Min_light == 0.32 ) {
+      tagtype<-"Intigeo_Mode_6_clipped"
+      log_transformed<-FALSE
+	  recognized<-TRUE
+   }
+   
+      
+   if(Max_light == log(1146.681) &  Min_light == log(0.32) ) {
+      tagtype<-"Intigeo_Mode_6_clipped"
+      log_transformed<-TRUE
+	  recognized<-TRUE
+   }
+   
+   if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=11.35)) {
+      tagtype<-"Intigeo_Mode_1"
+      log_transformed<-TRUE
+	  recognized<-TRUE
+   }
+   
    if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=11.35)) {
       tagtype<-"Intigeo_Mode_1"
       log_transformed<-TRUE
