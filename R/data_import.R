@@ -73,6 +73,11 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
 	     if (saves[1] =='auto') saves<-"max"
          measurement.period<-10
     }
+      if(detected$tagtype=="mutag") {
+        if (log.light.borders[1]=='auto') log.light.borders<-c()
+        if (log.irrad.borders[1]=='auto') log.irrad.borders<-c()
+        if (saves[1] =='auto') saves<-"max"
+      }
    }
 
    FLightR.data<-read.tags.light.twilight(TAGS.twilights,
@@ -207,7 +212,14 @@ get.tag.type<-function(TAGS.twilights) {
       log_transformed<-TRUE
 	  recognized<-TRUE
    }
-   if (recognized==FALSE) { 
+
+   if (Max_light == 10240) {
+     tagtype <- "mutag"
+     log_transformed <- FALSE
+     recognized <- TRUE
+   }
+
+   if (recognized==FALSE) {
     warning("tag type was not recognised!\nmail me details of your tag and I will add them to the list!\n")
     return(NULL)
    } else {
