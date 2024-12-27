@@ -259,7 +259,7 @@ read.tags.light.twilight<-function(lig.raw, start.date=NULL, end.date=NULL) {
 
 	## and also I want to exclude the interpolated and excluded afterwards points
 		
-	lig<-lig.raw[-which(lig.raw$interp==TRUE),]
+	lig <- lig.raw[!lig.raw$interp,]
 
 ##########################################################################
 ##Convert the datetime/light fields into the format that FLightR works on##
