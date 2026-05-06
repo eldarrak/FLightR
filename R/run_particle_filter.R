@@ -21,6 +21,12 @@
 #' @param check.outliers switches ON the online outlier routine 
 #' @param sink2file will write run details in a file instead of showing on the screen
 #' @param add.jitter will add spatial jitter inside a grid cell for the median estimates
+#' @param save.checkpoint Logical. Whether to save checkpoints during the run (default: FALSE)
+#' @param checkpoint.path Character. Directory path for saving checkpoint files (default: "FLightR_checkpoints")  
+#' @param checkpoint.every Integer. Save checkpoint every N time periods (default: 10)
+#' @param resume.checkpoint Character. Path to specific checkpoint file to resume from (default: NULL)
+#' @param auto.resume Logical. Automatically resume from latest checkpoint if available (default: FALSE)
+#' @param fixed.seed Integer. Fixed seed for reproducible results (default: NULL)
 #' @return FLightR object, containing output and extracted results. It is a list with the following elements 
 #' 
 #'    \item{Indices}{List with prior information and indices}
@@ -68,7 +74,8 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE,   save.checkpoint = FALSE, checkpoint.path = "FLightR_checkpoints", checkpoint.every = 10, resume.checkpoint = NULL, auto.resume = FALSE, fixed.seed = NULL
+) {
    cl<-match.call()
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
@@ -89,15 +96,33 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     hosts <- rep("localhost",Threads)
     mycl <- parallel::makeCluster(hosts, type=cluster.type)
     #mycl <- parallel::makeCluster(Threads, type=cluster.type)
-    parallel::clusterSetRNGStream(mycl)
+    # parallel::clusterSetRNGStream(mycl)
+    if (!is.null(fixed.seed)) {
+      message("Setting fixed seed in internal cluster creation: ", fixed.seed)
+      set.seed(fixed.seed)
+      parallel::clusterSetRNGStream(mycl, iseed = fixed.seed)
+    } else {
+      parallel::clusterSetRNGStream(mycl)
+    }
+    parallel::clusterExport(mycl, varlist = c("generate.points.dirs", "pf.par.internal", "dir_fun"), envir = environment())
+    
 	parallel::clusterEvalQ(mycl, library("FLightR")) 
 	message('   Done\n')
-
-    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers), finally = parallel::stopCluster(mycl))
+	# auto.resume 
+	if (auto.resume && is.null(resume.checkpoint) && save.checkpoint) {
+	  latest_cp <- find.latest.checkpoint(checkpoint.path)
+	  if (!is.null(latest_cp)) {
+	    message("Auto-resuming from latest checkpoint: ", latest_cp)
+	    resume.checkpoint <- latest_cp
+	  } else {
+	    message("No checkpoint found in '", checkpoint.path, "', starting from scratch.")
+	  }
+	}
+    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, save.checkpoint = save.checkpoint, checkpoint.path = checkpoint.path, checkpoint.every = checkpoint.every, resume.checkpoint = resume.checkpoint, fixed.seed = fixed.seed), finally = parallel::stopCluster(mycl))
 	} else {	
 	mycl=NA
     parallel=FALSE
-    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers)
+    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, save.checkpoint = save.checkpoint, checkpoint.path = checkpoint.path, checkpoint.every = checkpoint.every, resume.checkpoint = resume.checkpoint, fixed.seed = fixed.seed)
 	}
     # Part 2. Creating matrix of results.
 	all.out$Results<-list()
@@ -211,7 +236,7 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   }
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE) {
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE,save.checkpoint = FALSE, checkpoint.path = "FLightR_checkpoints", checkpoint.every = 10, resume.checkpoint = NULL, fixed.seed = NULL) {
   ### to make algorhythm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
   if (sink2file & RStudio) sink()
@@ -235,14 +260,20 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   #if (!is.null(Parameters$in.Data$Spatial$tmp$dAzimuths)) Parameters$in.Data$Spatial$tmp$Azimuths<-attach.big.matrix(Parameters$in.Data$Spatial$tmp$dAzimuths)
   if (parallel) {
     if (length(existing.cluster)==1) {
+      # print("Creating cluster")
       hosts <- rep("localhost",threads)
-      mycl <- parallel::makeCluster(hosts, type=cluster.type)    
+      if (!is.null(fixed.seed)) {
+        message("Setting fixed seed: ", fixed.seed)
+        set.seed(fixed.seed)
+      }
+      mycl <- parallel::makeCluster(hosts, type=cluster.type)
       #mycl <- parallel::makeCluster(threads, type=cluster.type)
-      parallel::clusterSetRNGStream(mycl)
+      parallel::clusterSetRNGStream(mycl, iseed = fixed.seed)
       ### we don' need to send all parameters to node. so keep it easy..
       # cleaning dataset
     }
     else {
+      # print("Using existing cluster")
       mycl<-existing.cluster
     }
     parallel::clusterExport(mycl, "Parameters", envir=environment())
@@ -312,16 +343,59 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     return(New.Particles)
   }
   
-  
+  if (!is.null(resume.checkpoint)) {
+    message("Resuming from checkpoint: ", resume.checkpoint)
+    load(resume.checkpoint)
+    
+    if (!exists("checkpoint.meta")) stop("Checkpoint missing meta info.")
+    
+    # make sure checkpoint match current setting
+    current.meta <- list(
+      Grid.hash = digest::digest(in.Data$Spatial$Grid),
+      nParticles = nParticles,
+      a = a,
+      b = b,
+      L = L,
+      fixed.seed = fixed.seed
+    )
+    if (!identical(current.meta, checkpoint.meta)) {
+      print("current.meta:")
+      print(current.meta)
+      print("checkpoint.meta:")
+      print(checkpoint.meta)
+      stop("Checkpoint settings do not match current run. Aborting.")
+    }
+    
+    # prepare to continue
+    if (!exists("ResampleCount")) ResampleCount <- 0
+    if (!exists("steps.from.last")) steps.from.last <- 2
+    if (exists("outliers")) in.Data$outliers <- outliers
+    if (exists("Points")) in.Data$Results$Points.rle <- Points
+    if (exists("Trans"))  in.Data$Results$Transitions.rle <- Trans
+    Time.Period.start <- Time.Period + 1
+  } else {
+    ResampleCount <- 0
+    steps.from.last <- 2
+    Time.Period.start <- 1
+  }
+  total_length <- nrow(in.Data$Indices$Main.Index)
   ## for ver 1.6 
   #Prev.Weights<-rep(1, nParticles) 
-  ResampleCount<-0
-  steps.from.last<-2
-  total_length<-nrow(in.Data$Indices$Main.Index)
-  for (Time.Period in 1:total_length) {
+  # ResampleCount<-0
+  # steps.from.last<-2
+  # total_length<-nrow(in.Data$Indices$Main.Index)
+  
+  # For diagnostic purposes
+  # save(
+  #   Results.stack, Weights.stack, Points, Trans, Time.Period,
+  #   file = file.path(dirname(resume.checkpoint), paste0("debug_resume_TP", Time.Period, ".RData"))
+  # )
+  for (Time.Period in Time.Period.start:total_length) {
     steps.from.last=steps.from.last+1
 
 	message("\n\n##########################\n     Time.Period", Time.Period, "of", total_length, "\n")
+	
+	
     #cat("prep. data:")
     Current.Proposal<-in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],]
     #=======================================
@@ -581,8 +655,53 @@ if (is.na(ESS)) {
       Results.stack<-Results.stack[,-1]
       # clean Weights.stack
       Weights.stack<-as.matrix(Weights.stack[,-1])
+      
+      if (save.checkpoint && (Time.Period %% checkpoint.every == 0 || Time.Period == total_length)) {
+        if (!dir.exists(checkpoint.path)) dir.create(checkpoint.path, recursive = TRUE)
+        
+        checkpoint.file <- file.path(checkpoint.path, paste0("checkpoint_TP", Time.Period, ".RData"))
+        checkpoint.meta <- list(
+          Grid.hash = digest::digest(in.Data$Spatial$Grid),
+          nParticles = nParticles,
+          a = a,
+          b = b,
+          L = L,
+          fixed.seed = fixed.seed
+        )
+        if (!exists("Points")) Points <- NULL
+        if (!exists("Trans")) Trans <- NULL
+        if (is.null(in.Data$outliers)) outliers <- NULL 
+        else outliers <- in.Data$outliers
+        save(Results.stack, Weights.stack, Points, Trans, Time.Period,
+             ResampleCount, steps.from.last, outliers,
+             checkpoint.meta,
+             file = checkpoint.file)
+        
+        log.checkpoint.meta(checkpoint.file, checkpoint.meta, checkpoint.path)
+        message("Checkpoint saved to: ", checkpoint.file)
+      }
 message("******************\n")
     }
+    # additional save at the end of the loop
+    if (Time.Period <= L && save.checkpoint && (Time.Period %% checkpoint.every == 0)) {
+      if (!dir.exists(checkpoint.path)) dir.create(checkpoint.path, recursive = TRUE)
+      
+      checkpoint.file <- file.path(checkpoint.path, paste0("checkpoint_TP", Time.Period, ".RData"))
+      checkpoint.meta <- list(
+        Grid.hash = digest::digest(in.Data$Spatial$Grid),
+        nParticles = nParticles,
+        a = a,
+        b = b,
+        L = L,
+        fixed.seed = fixed.seed
+      )
+      if (is.null(in.Data$outliers)) outliers <- NULL else outliers <- in.Data$outliers
+      
+      save(Results.stack, Weights.stack, Time.Period, ResampleCount, steps.from.last, outliers, checkpoint.meta, file = checkpoint.file)
+      log.checkpoint.meta(checkpoint.file, checkpoint.meta, checkpoint.path)
+      message("Checkpoint saved to: ", checkpoint.file)
+    }
+    
   }
   #####################################
   #save(All.results, file="All.results.usmoothed.RData")
@@ -998,5 +1117,56 @@ lazy.result.plot<-function(Result) {
     graphics::points(Meanlat~Meanlon, type="p", data=Result$Results$Quantiles, pch=3, col="blue")
     graphics::lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
     maps::map('world2', add=TRUE)
+}
+
+# Log checkpoint metadata to CSV file
+log.checkpoint.meta <- function(file.name, meta, checkpoint.path = "FLightR_checkpoints") {
+  log.file <- file.path(checkpoint.path, "checkpoint_log.csv")
+  log.row <- data.frame(
+    checkpoint = basename(file.name),
+    time = as.character(Sys.time()),
+    nParticles = meta$nParticles,
+    a = meta$a,
+    b = meta$b,
+    L = meta$L,
+    Grid.hash = meta$Grid.hash,
+    fixed.seed = ifelse(is.null(meta$fixed.seed), NA, meta$fixed.seed),
+    stringsAsFactors = FALSE
+  )
+  if (!file.exists(log.file)) {
+    write.csv(log.row, file = log.file, row.names = FALSE)
+  } else {
+    existing <- read.csv(log.file, stringsAsFactors = FALSE)
+    updated <- rbind(existing, log.row)
+    write.csv(updated, file = log.file, row.names = FALSE)
+  }
+}
+
+# Find latest checkpoint file in directory
+find.latest.checkpoint <- function(checkpoint.path = "FLightR_checkpoints") {
+  files <- list.files(checkpoint.path, pattern = "^checkpoint_TP[0-9]+\\.RData$", full.names = TRUE)
+  if (length(files) == 0) return(NULL)
+  time.points <- as.numeric(gsub(".*_TP([0-9]+)\\.RData$", "\\1", files))
+  return(files[which.max(time.points)])
+}
+
+#' Clean up old checkpoint files
+#' @param checkpoint.path Directory containing checkpoint files
+#' @param keep.last Number of recent checkpoints to keep
+#' @param dry.run If TRUE, shows what would be removed without deleting
+#' @export
+clean.checkpoints <- function(checkpoint.path = "FLightR_checkpoints", keep.last = 3, dry.run = TRUE) {
+  files <- list.files(checkpoint.path, pattern = "^checkpoint_TP[0-9]+\\.RData$", full.names = TRUE)
+  if (length(files) <= keep.last) return(invisible(NULL))
+  time.points <- as.numeric(gsub(".*_TP([0-9]+)\\.RData$", "\\1", files))
+  keep.idx <- order(time.points, decreasing = TRUE)[1:keep.last]
+  to.remove <- files[-keep.idx]
+  if (dry.run) {
+    message("Dry run: would remove:")
+    print(to.remove)
+  } else {
+    file.remove(to.remove)
+    message("Removed ", length(to.remove), " files.")
+  }
 }
 
