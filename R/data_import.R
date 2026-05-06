@@ -125,20 +125,20 @@ get.tag.type<-function(TAGS.twilights) {
 	  recognized<-TRUE
    }
    
-   if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=11.35)) {
+   if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=12.50)) {
       tagtype<-"Intigeo_Mode_1"
       log_transformed<-TRUE
 	  recognized<-TRUE
    }
    
-   if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=11.35)) {
+   if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=12.50)) {
       tagtype<-"Intigeo_Mode_1"
       log_transformed<-TRUE
 	  recognized<-TRUE
    }
    
   #if (round(Max_light/10) >= 2000 & round(Max_light/10)<= 7000) {
-   if(round(Max_light,2) >= exp(10.05) &  (round(Max_light,2) <= exp(11.22) | round(Max_light,2) >= exp(11.22) & round(Max_light,2) <= exp(11.35))) {
+   if(round(Max_light,2) >= exp(10.05) &  (round(Max_light,2) <= exp(11.22) | round(Max_light,2) >= exp(11.22) & round(Max_light,2) <= exp(12.50))) {
      tagtype<-"Intigeo_Mode_1"
 	 log_transformed<-FALSE
      recognized<-TRUE
