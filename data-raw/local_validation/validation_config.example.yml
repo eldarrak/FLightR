@@ -1,0 +1,15 @@
+# Example local validation config for private double-tagged data.
+# Copy to validation_config.local.yml and replace placeholders locally.
+# Do not commit local configs or real GPS/GLS/TAGS data.
+
+inputs:
+  result_object_name: "Result"
+  result_path: "data-raw/local_validation/private_data/example_Result.rds"
+  gps_track_path: "data-raw/local_validation/private_data/example_gps.csv"
+
+outputs:
+  output_dir: "data-raw/local_validation/outputs"
+  summary_csv: "double_tag_validation_summary.csv"
+
+matching:
+  max_time_diff_hours: 6
