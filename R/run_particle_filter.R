@@ -577,7 +577,7 @@ if (is.na(ESS)) {
       #  All.results<-paste(All.results, Results.stack[,1], sep=".")
       #}
       # save transitions
-      Trans[[Time.Period-L]]<-get.transition.rle(Results.stack[,1], Results.stack[,2])
+      Trans[[Time.Period-L]]<-get.transition.rle(Results.stack[,1], Results.stack[,2], n_grid=nrow(in.Data$Spatial$Grid))
       # clean Results.stack
       Results.stack<-Results.stack[,-1]
       # clean Weights.stack
@@ -608,7 +608,7 @@ message("******************\n")
     if (rest<Length) {
       # save transitions
       #Trans[[Time.Period-L+rest]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
-      Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1])
+      Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1], n_grid=nrow(in.Data$Spatial$Grid))
     }
   }
   #if (parallel)   parallel::clusterEvalQ(mycl, rm(Parameters)) 
@@ -723,26 +723,27 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   message("   estimating distances\n")
   #####   let's try to get distance distribution:
   Distances<-Trans
-  dist.fun<-function(x) {
-   #in.Data$Spatial$tmp$Distance[x%/%1e5, x%%1e5]
-    # sp::spDists(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE],
-    #             in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],
+  dist.fun<-function(Movement_Points) {
+   #in.Data$Spatial$tmp$Distance[Movement_Points[,1], Movement_Points[,2]]
+    # sp::spDists(in.Data$Spatial$Grid[Movement_Points[,1], c(1,2), drop=FALSE],
+    #             in.Data$Spatial$Grid[Movement_Points[,2], c(1,2), drop=FALSE],
     #             longlat=TRUE,
     #             diagonal=TRUE)
     
-    sf::st_distance(sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
-                sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
-                by_element = TRUE)/1000
+    as.numeric(sf::st_distance(sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Movement_Points[,1], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Movement_Points[,2], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                by_element = TRUE)/1000)
   }
   for (i in 1:length(Trans)) {
-    Distances[[i]]$values<-sapply(Trans[[i]]$values, FUN=function(x) dist.fun(x))
+    Movement_Points<-decode_transition_rle_values(Trans[[i]], n_grid=nrow(in.Data$Spatial$Grid))
+    Distances[[i]]$values<-dist.fun(Movement_Points)
   }
   message("   estimating directions\n")
   #ok, now we want to get directions
   
   Directions<-Trans
   for (i in 1:length(Trans)) {
-    Movement_Points<-matrix(c(Trans[[i]]$values%/%1e5, Trans[[i]]$values%%1e5), ncol=2)
+    Movement_Points<-decode_transition_rle_values(Trans[[i]], n_grid=nrow(in.Data$Spatial$Grid))
     Directions[[i]]$values<-apply(Movement_Points, 1, FUN= dir_fun, in.Data)
   }
   message("   estimating mean directions and kappas\n")
@@ -823,8 +824,45 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
 }
 
 
-get.transition.rle=function(From, To) {
-  rle(sort.int(From*1e5+To, method = "quick"))
+transition_base<-function(n_grid) {
+  if (length(n_grid)!=1 || is.na(n_grid) || n_grid<1) stop("n_grid must be a positive scalar")
+  as.numeric(n_grid)+1
+}
+
+encode_transition<-function(from, to, n_grid) {
+  base<-transition_base(n_grid)
+  if (any(from<1 | to<1 | from>n_grid | to>n_grid, na.rm=TRUE)) stop("Transition indices must be between 1 and n_grid")
+  as.numeric(from)*base+as.numeric(to)
+}
+
+decode_transition<-function(key, n_grid=NULL, transition_base=NULL, warn_legacy=FALSE) {
+  if (is.null(transition_base)) {
+    if (!is.null(n_grid) && n_grid>=1e5 && isTRUE(warn_legacy)) {
+      warning("Transition base metadata is missing; decoding with legacy base 1e5. Large-grid legacy objects may decode incorrectly.", call.=FALSE)
+    }
+    transition_base<-1e5
+  }
+  Movement_Points<-cbind(from=as.numeric(key)%/%transition_base,
+                         to=as.numeric(key)%%transition_base)
+  storage.mode(Movement_Points)<-"integer"
+  Movement_Points
+}
+
+decode_transition_rle_values<-function(transition_rle, values=transition_rle$values, n_grid=NULL) {
+  base<-attr(transition_rle, "transition_base", exact=TRUE)
+  if (is.null(base)) {
+    attr_n_grid<-attr(transition_rle, "n_grid", exact=TRUE)
+    if (!is.null(attr_n_grid)) base<-transition_base(attr_n_grid)
+  }
+  decode_transition(values, n_grid=n_grid, transition_base=base, warn_legacy=TRUE)
+}
+
+get.transition.rle=function(From, To, n_grid=max(c(From, To), na.rm=TRUE)) {
+  base<-transition_base(n_grid)
+  Res<-rle(sort.int(encode_transition(From, To, n_grid), method = "quick"))
+  attr(Res, "transition_base")<-base
+  attr(Res, "n_grid")<-as.integer(n_grid)
+  Res
 }
 
 
@@ -984,14 +1022,15 @@ dir_fun<-function(x, in.Data) {
 	  geosphere::bearing(in.Data$Spatial$Grid[x[[1]], c(1,2), drop=FALSE], in.Data$Spatial$Grid[x[[2]], c(1,2), drop=FALSE])
 }
     
-dist.fun<-function(x, Result) {
-  # sp::spDists(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE], 
-  #             Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE],
+dist.fun<-function(x, Result, transition_rle=NULL) {
+  Movement_Points<-decode_transition_rle_values(transition_rle, x, n_grid=nrow(Result$Spatial$Grid))
+  # sp::spDists(Result$Spatial$Grid[Movement_Points[,1], c(1,2), drop=FALSE], 
+  #             Result$Spatial$Grid[Movement_Points[,2], c(1,2), drop=FALSE],
   #             longlat=TRUE, 
   #             diagonal=TRUE)
-  sf::st_distance(sf::st_as_sf(as.data.frame(Result$Spatial$Grid[x%/%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
-                  sf::st_as_sf(as.data.frame(Result$Spatial$Grid[x%%1e5, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
-                  by_element = TRUE)/1000
+  as.numeric(sf::st_distance(sf::st_as_sf(as.data.frame(Result$Spatial$Grid[Movement_Points[,1], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
+                  sf::st_as_sf(as.data.frame(Result$Spatial$Grid[Movement_Points[,2], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
+                  by_element = TRUE)/1000)
 }
 
 lazy.result.plot<-function(Result) {
