@@ -79,7 +79,9 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     all.out$Results$SD<-vector(mode = "double")
     all.out$Results$LL<-vector(mode = "double")
 
-  
+   Threads<-1
+   parallel=FALSE
+
    if (threads!=1){
    parallel=TRUE
    Possible.threads=parallel::detectCores()
@@ -96,7 +98,6 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers), finally = parallel::stopCluster(mycl))
 	} else {	
 	mycl=NA
-    parallel=FALSE
     Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers)
 	}
     # Part 2. Creating matrix of results.
