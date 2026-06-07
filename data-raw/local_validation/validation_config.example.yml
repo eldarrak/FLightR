@@ -13,3 +13,32 @@ outputs:
 
 matching:
   max_time_diff_hours: 6
+
+benchmark:
+  run_label: "example_subset"
+  tags_file: "data-raw/local_validation/private_data/example_TAGS.csv"
+  gps_file: "data-raw/local_validation/private_data/example_gps.csv"
+  output_dir: "data-raw/local_validation/outputs"
+  subset_start_date: "YYYY-MM-DD"
+  subset_end_date: "YYYY-MM-DD"
+  random_seed: 1
+  nParticles: 1000
+  threads: 1
+  known.last: true
+  start: [0, 0]
+  stop: [0, 0]
+  calibration_periods:
+    - calibration.start: null
+      calibration.stop: "YYYY-MM-DD"
+      lon: 0
+      lat: 0
+  grid:
+    left: -10
+    bottom: 45
+    right: 10
+    top: 60
+    distance.from.land.allowed.to.use: [-Inf, Inf]
+    distance.from.land.allowed.to.stay: [-Inf, Inf]
+    probability.of.staying: 0.5
+  matching:
+    max_time_diff_hours: 6
