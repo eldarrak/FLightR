@@ -68,8 +68,10 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE, profile.phases=FALSE, profile.top.level=FALSE, propagation.backend=c("auto", "cached", "legacy")) {
+   run_pf_start<-proc.time()[["elapsed"]]
    cl<-match.call()
+   propagation.backend<-match.arg(propagation.backend)
    if (!is.null(cpus)) {
       warning("use threads instead of cpus! cpus will be supressed in the newer versions\n")
       threads<-cpus
@@ -81,6 +83,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 
    Threads<-1
    parallel=FALSE
+   if (threads!=1) warning("Current PSOCK particle-filter execution with threads != 1 may be much slower than sequential execution; recent validation benchmarks found run.particle.filter(..., threads = 1) faster than threads = 4. Use threads = 1 for run.particle.filter() unless this exact dataset/backend has been benchmarked.", call.=FALSE)
 
    if (threads!=1){
    parallel=TRUE
@@ -95,17 +98,23 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	parallel::clusterEvalQ(mycl, library("FLightR")) 
 	message('   Done\n')
 
-    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers), finally = parallel::stopCluster(mycl))
+    pf_core_start<-proc.time()[["elapsed"]]
+    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, profile.phases=profile.phases, propagation.backend=propagation.backend), finally = parallel::stopCluster(mycl))
+    pf_core_seconds<-proc.time()[["elapsed"]]-pf_core_start
 	} else {	
 	mycl=NA
-    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers)
+    pf_core_start<-proc.time()[["elapsed"]]
+    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, profile.phases=profile.phases, propagation.backend=propagation.backend)
+    pf_core_seconds<-proc.time()[["elapsed"]]-pf_core_start
 	}
     # Part 2. Creating matrix of results.
 	all.out$Results<-list()
 	all.out$Results$outliers <- Res$Results$outliers
 	all.out$Results$tmp.results<-Res$Results$tmp.results
     # Part 2a. Estimating log likelihood
+    get_ll_start<-proc.time()[["elapsed"]]
     LL<- get.LL.PF(all.out, Res$Points)
+    get_ll_seconds<-proc.time()[["elapsed"]]-get_ll_start
     message("+----------------------------------+\n")
     message("|     estimated negative Log Likelihood is",  LL, "\n")
     message("+----------------------------------+\n")
@@ -117,14 +126,20 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	  # Part 3. Updating proposal
       message("estimating results object\n")
       all.out.old<-all.out
+      coordinates_start<-proc.time()[["elapsed"]]
       all.out<- get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
+      coordinates_seconds<-proc.time()[["elapsed"]]-coordinates_start
+      movement_start<-proc.time()[["elapsed"]]
       Movement.parameters<- estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
+      movement_seconds<-proc.time()[["elapsed"]]-movement_start
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
 	all.out$Results$Transitions.rle=Movement.parameters$Transitions.rle	
 	
 	  all.out$Results$LL<-LL
 	  
+	phase_profile<-if (isTRUE(profile.phases)) Res$Results$phase_profile else NULL
+	final_assembly_start<-proc.time()[["elapsed"]]
 	all.out$Results<-list(
 
         #Final.Means=cbind(all.out$Results$Final.Means[-1,],
@@ -137,6 +152,9 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 		Points.rle=all.out$Results$Points.rle[-1],
 		Transitions.rle=all.out$Results$Transitions.rle,
 		tmp.results=all.out$Results$tmp.results)
+	if (isTRUE(profile.phases)) {
+	  all.out$Results$phase_profile<-phase_profile
+	}
 	# [-1] was added in ver 0.3.5, and it makes schedules correct.
 	# still there are problems with transitions - the first transition we have is from the starting point and it has no Dawn or Dusk! So one should remove that one if he/she wants to pair these transitions with the time
     rm(Res)
@@ -150,11 +168,49 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
   all.out$Spatial$tmp<-NULL
   all.out$call<-cl
   all.out$Results$FLightRver<-utils::packageVersion("FLightR")
+  if (isTRUE(profile.phases) || isTRUE(profile.top.level)) {
+    final_assembly_seconds<-proc.time()[["elapsed"]]-final_assembly_start
+    total_run_seconds<-proc.time()[["elapsed"]]-run_pf_start
+    top_level_profile<-data.frame(
+      phase=c("pf.run.parallel.SO.resample", "get.LL.PF", "get.coordinates.PF", "estimate.movement.parameters", "final_result_assembly_cleanup_plotting", "total_run.particle.filter"),
+      elapsed_seconds=c(pf_core_seconds, get_ll_seconds, coordinates_seconds, movement_seconds, final_assembly_seconds, total_run_seconds),
+      nParticles=nParticles,
+      threads=Threads,
+      backend=propagation.backend,
+      n_twilights=nrow(all.out$Indices$Main.Index),
+      LL=LL,
+      run_label=Sys.getenv("FLIGHTR_RUN_LABEL", unset=NA_character_),
+      stringsAsFactors=FALSE
+    )
+    all.out$Results$top_level_profile<-top_level_profile
+  }
   message("DONE!\n")
   return(all.out)
 }
 
-generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
+build.grid.movement.candidates<-function(Grid, a=45, b=500) {
+  Grid.lonlat<-as.matrix(Grid[, c(1, 2), drop=FALSE])
+  Grid.df<-as.data.frame(Grid.lonlat)
+  names(Grid.df)<-c("lon", "lat")
+  Grid.sf<-sf::st_as_sf(Grid.df, coords=c("lon", "lat"), crs=4326)
+  n.grid<-nrow(Grid.lonlat)
+  to<-vector("list", n.grid)
+  distance<-vector("list", n.grid)
+  bearing<-vector("list", n.grid)
+  for (from in seq_len(n.grid)) {
+    dists<-as.numeric(sf::st_distance(Grid.sf[from,], Grid.sf))/1000
+    candidates<-which(is.finite(dists) & dists>=a & dists<=b)
+    if (length(candidates)==0) {
+      candidates<-from
+    }
+    to[[from]]<-as.integer(candidates)
+    distance[[from]]<-as.numeric(dists[candidates])
+    bearing[[from]]<-as.numeric(geosphere::bearing(Grid.lonlat[from, , drop=FALSE], Grid.lonlat[candidates, , drop=FALSE]))
+  }
+  list(to=to, distance=distance, bearing=bearing, a=a, b=b, grid_n=n.grid)
+}
+
+generate.points.dirs.legacy<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   # this function is needed to generate new points - it works as from input point Index and biological proposal
   ################
   # x has 3 columns
@@ -212,7 +268,68 @@ generate.points.dirs<-function(x , in.Data, Current.Proposal, a=45, b=500) {
   }
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE) {
+generate.points.dirs.cached<-function(x, in.Data, Current.Proposal, a=45, b=500) {
+  resample <- function(x, ...) x[sample.int(length(x), ...)]
+  from<-as.integer(x[[1]])
+  n.total<-as.integer(x[[2]])
+  n.moving<-as.integer(x[[3]])
+  if (n.moving<=0) return(as.integer(rep(from, n.total)))
+
+  candidates<-in.Data$Spatial$tmp$movement_candidates
+  if (is.null(candidates) || candidates$grid_n!=nrow(in.Data$Spatial$Grid) ||
+      candidates$a!=a || candidates$b!=b) {
+    return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+  }
+
+  to<-candidates$to[[from]]
+  dists<-candidates$distance[[from]]
+  bearings<-candidates$bearing[[from]]
+  if (length(to)==0 || length(dists)!=length(to)) {
+    return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+  }
+
+  sd<-Current.Proposal$M.sd
+  if (!is.finite(sd) || sd<=0) return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+
+  Biol.proposal<-exp(-0.5*((dists-Current.Proposal$M.mean)/sd)^2)
+  if (is.finite(Current.Proposal$Kappa) && Current.Proposal$Kappa>0) {
+    angle.diff<-(bearings-Current.Proposal$Direction)*pi/180
+    Biol.proposal<-Biol.proposal*exp(Current.Proposal$Kappa*cos(angle.diff))
+  }
+  Biol.proposal[!is.finite(Biol.proposal)]<-0
+  if (all(Biol.proposal<=0)) return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+
+  Full.proposal<-numeric(nrow(in.Data$Spatial$Grid))
+  Full.proposal[to]<-Biol.proposal
+  pos.biol<-suppressWarnings(sample.int(length(Full.proposal), size=n.moving, replace=TRUE, prob=Full.proposal))
+  return(resample(as.integer(c(pos.biol, rep(from, n.total-n.moving)))))
+}
+
+generate.points.dirs<-function(x, in.Data, Current.Proposal, a=45, b=500) {
+  if (!is.null(in.Data$Spatial$tmp$movement_candidates)) {
+    generate.points.dirs.cached(x, in.Data, Current.Proposal, a=a, b=b)
+  } else {
+    generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b)
+  }
+}
+
+weight_stack_columns<-function(start_col, active_cols, max_columns) {
+  ((start_col-1L+seq_len(active_cols)-1L) %% max_columns)+1L
+}
+
+weight_stack_matrix<-function(values, start_col, active_cols) {
+  values[, weight_stack_columns(start_col, active_cols, ncol(values)), drop=FALSE]
+}
+
+weight_stack_last_column<-function(start_col, active_cols, max_columns) {
+  ((start_col+active_cols-2L) %% max_columns)+1L
+}
+
+weight_stack_last<-function(values, start_col, active_cols) {
+  values[, weight_stack_last_column(start_col, active_cols, ncol(values))]
+}
+
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE, profile.phases=FALSE, propagation.backend=c("auto", "cached", "legacy")) {
   ### to make algorhythm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
   if (sink2file & RStudio) sink()
@@ -226,6 +343,22 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	smart.filter=FALSE
 	message("smart filter is OFF\n")
 	}
+  propagation.backend<-match.arg(propagation.backend)
+  if (propagation.backend!="legacy") {
+    movement_candidates<-try(build.grid.movement.candidates(in.Data$Spatial$Grid, a=a, b=b), silent=TRUE)
+    if (inherits(movement_candidates, "try-error")) {
+      if (propagation.backend=="cached") stop("Cached propagation candidate construction failed: ", conditionMessage(attr(movement_candidates, "condition")), call.=FALSE)
+      warning("Cached propagation candidate construction failed; using legacy propagation backend.", call.=FALSE)
+      propagation.backend<-"legacy"
+    } else {
+      if (is.null(in.Data$Spatial$tmp)) in.Data$Spatial$tmp<-list()
+      in.Data$Spatial$tmp$movement_candidates<-movement_candidates
+      message("cached propagation backend is ON\n")
+    }
+  } else {
+    if (!is.null(in.Data$Spatial$tmp)) in.Data$Spatial$tmp$movement_candidates<-NULL
+    message("legacy propagation backend is ON\n")
+  }
   # so, the idea here will be that we don't need to create these complicated Indexes..
   in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
   in.Data.short$Spatial$Behav.mask<-NULL
@@ -275,7 +408,11 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   
   Results.stack<-as.matrix(rep(as.integer(in.Data$Spatial$start.point), nParticles))
   
-  Weights.stack<-as.matrix(rep(1/nParticles, nParticles))
+  Weights.stack.max.cols<-L+2L
+  Weights.stack<-matrix(NA_real_, nrow=nParticles, ncol=Weights.stack.max.cols)
+  Weights.stack[,1]<-1/nParticles
+  Weights.stack.active<-1L
+  Weights.stack.start<-1L
   
   New.weights<-rep(1/nParticles, nParticles)
   #All.results<-NULL
@@ -288,6 +425,21 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	  in.Data$AC.distance2<-c()
 	  in.Data$Dif.ang<-c()
 	  #in.Data$BC.mean<-c()
+  }
+  
+  phase_names<-c("proposal_lookup", "propagate_particles", "physical_weights",
+                 "directional_weights", "smart_filter", "outlier_check",
+                 "cumulative_weight_product", "ESS_calculation", "resampling",
+                 "accepted_particles_assignment", "results_stack_append",
+                 "weights_stack_append", "point_rle_creation",
+                 "transition_rle_creation", "stack_drop", "final_smoothing",
+                 "final_stack_flush")
+  phase_profile<-NULL
+  profile_phase<-function(name, expr) {
+    start<-proc.time()[["elapsed"]]
+    value<-force(expr)
+    phase_times[[name]]<<-phase_times[[name]]+(proc.time()[["elapsed"]]-start)
+    value
   }
   
   propagate.particles<-function(Last.Particles, Current.Proposal, parallel=TRUE, Parameters, mycl) {
@@ -310,6 +462,10 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     }
     #=======================================================
     New.Particles<-unlist(New.Points)[sort.list(Order.vector, na.last = NA, method =  "quick")]
+    if (isTRUE(profile.phases)) {
+      attr(New.Particles, "n_groups")<-nSeq
+      attr(New.Particles, "n_moving_groups")<-sum(Last.State[,"nMoving"]>0)
+    }
     return(New.Particles)
   }
   
@@ -319,20 +475,50 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
   ResampleCount<-0
   steps.from.last<-2
   total_length<-nrow(in.Data$Indices$Main.Index)
+  if (isTRUE(profile.phases)) phase_profile<-vector("list", total_length+1L)
   for (Time.Period in 1:total_length) {
+    if (isTRUE(profile.phases)) {
+      iteration_start<-proc.time()[["elapsed"]]
+      phase_times<-stats::setNames(rep(0, length(phase_names)), phase_names)
+      n_unique_last_particles<-length(unique(Results.stack[,ncol(Results.stack)]))
+      n_groups<-NA_integer_
+      n_moving_groups<-NA_integer_
+      n_unique_new_particles<-NA_integer_
+      n_unique_point_rle_values<-NA_integer_
+      n_unique_transition_rle_values<-NA_integer_
+      did_resample<-FALSE
+      ESS<-NA_real_
+    }
     steps.from.last=steps.from.last+1
 
 	message("\n\n##########################\n     Time.Period", Time.Period, "of", total_length, "\n")
     #cat("prep. data:")
-    Current.Proposal<-in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],]
+    Current.Proposal<-if (isTRUE(profile.phases)) {
+      profile_phase("proposal_lookup", in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],])
+    } else {
+      in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],]
+    }
     #=======================================
     message("generating new particles")
-    New.Particles<-propagate.particles(Last.Particles=Results.stack[,ncol(Results.stack)], Current.Proposal=Current.Proposal, parallel=parallel, Parameters=Parameters, mycl=mycl)
+    New.Particles<-if (isTRUE(profile.phases)) {
+      profile_phase("propagate_particles", propagate.particles(Last.Particles=Results.stack[,ncol(Results.stack)], Current.Proposal=Current.Proposal, parallel=parallel, Parameters=Parameters, mycl=mycl))
+    } else {
+      propagate.particles(Last.Particles=Results.stack[,ncol(Results.stack)], Current.Proposal=Current.Proposal, parallel=parallel, Parameters=Parameters, mycl=mycl)
+    }
+    if (isTRUE(profile.phases)) {
+      n_groups<-attr(New.Particles, "n_groups", exact=TRUE)
+      n_moving_groups<-attr(New.Particles, "n_moving_groups", exact=TRUE)
+      n_unique_new_particles<-length(unique(as.integer(New.Particles)))
+    }
     
     #=====================================================
     # resampling step 
     # we need to estimate weights of resulting points and then resample them proportionally to weights..
-    Current.Phys.Weights<-in.Data$Spatial$Phys.Mat[New.Particles,Time.Period]
+    Current.Phys.Weights<-if (isTRUE(profile.phases)) {
+      profile_phase("physical_weights", in.Data$Spatial$Phys.Mat[New.Particles,Time.Period])
+    } else {
+      in.Data$Spatial$Phys.Mat[New.Particles,Time.Period]
+    }
     
     if (!is.na(k) & Time.Period >1) {
       get.directional.weights<-function(in.Data, Last.Last.Particles, Last.Particles, New.Particles, k, parallel, mycl, D.kappa) {
@@ -353,12 +539,24 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
         return(Angles.probs)
       }
       
-      Angles.probs<-get.directional.weights(in.Data, Results.stack[,ncol(Results.stack)-1], Results.stack[,ncol(Results.stack)], New.Particles, k, parallel, mycl, D.kappa)
+      Angles.probs<-if (isTRUE(profile.phases)) {
+        profile_phase("directional_weights", get.directional.weights(in.Data, Results.stack[,ncol(Results.stack)-1], Results.stack[,ncol(Results.stack)], New.Particles, k, parallel, mycl, D.kappa))
+      } else {
+        get.directional.weights(in.Data, Results.stack[,ncol(Results.stack)-1], Results.stack[,ncol(Results.stack)], New.Particles, k, parallel, mycl, D.kappa)
+      }
       Current.Weights<- Current.Phys.Weights*Angles.probs
     }
     else {Current.Weights<-Current.Phys.Weights*D.kappa}
 
-	if (smart.filter) {
+	if (isTRUE(profile.phases)) {
+	  profile_phase("smart_filter", {
+	    if (smart.filter) {
+	      Index.Stable<-which(New.Particles == Results.stack[,ncol(Results.stack)])
+	      Current.Weights[Index.Stable]<-Current.Weights[Index.Stable]*(in.Data$Spatial$Behav.mask[New.Particles][Index.Stable])
+	    }
+	    NULL
+	  })
+	} else if (smart.filter) {
 	#=========================
 	# here we should introduce clever mask..
 	# this will be something like that
@@ -368,6 +566,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	#=======================================================
 	# now I want to add 3.3
 	# the idea is following - we should compare distances from the last t-2 to t-1 and to t
+	outlier_start<-if (isTRUE(profile.phases)) proc.time()[["elapsed"]] else NA_real_
 	if (Time.Period>2 & check.outliers) {
 	# here I want to try directiondl outliers..
 	# so we need to pick up particles that moved..
@@ -382,7 +581,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	AB.distance <- stats::weighted.mean(sf::st_distance(
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), 
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[Results.stack[,ncol(Results.stack)], c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326), by_element=TRUE)/1000, 
-	  Weights.stack[,ncol(Weights.stack)]) |> as.numeric()
+	  weight_stack_last(Weights.stack, Weights.stack.start, Weights.stack.active)) |> as.numeric()
 	
 	# AC.distance2<-	stats::weighted.mean(sp::spDists(in.Data$Spatial$Grid[Results.stack[,(ncol(Results.stack)-1)], c(1,2), drop=FALSE], 
 	#                                                 in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE], 
@@ -394,7 +593,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	  sf::st_as_sf(as.data.frame(in.Data$Spatial$Grid[New.Particles, c(1,2), drop=FALSE]),coords=c('lon','lat'),crs=4326),
 	  by_element=TRUE
 	  )/1000, 
-	  Weights.stack[,ncol(Weights.stack)]*Current.Weights) |> as.numeric()
+	  weight_stack_last(Weights.stack, Weights.stack.start, Weights.stack.active)*Current.Weights) |> as.numeric()
 	
 	message("AB.distance:", round(AB.distance, 2), "\n")
 	message("AC.distance2:", round(AC.distance2, 2), "\n")
@@ -407,11 +606,11 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	BA.dir<-apply(Results.stack[,ncol(Results.stack):(ncol(Results.stack)-1), drop=FALSE], 1, dir_fun, in.Data)
 	
 	BA.moved<-which(!is.na(BA.dir))
-	BA.mean<-circular::mean.circular(circular::circular(resample(BA.dir[BA.moved], replace=TRUE,prob=Weights.stack[,ncol(Weights.stack)][BA.moved]), units="degrees"), na.rm=TRUE)
+	BA.mean<-circular::mean.circular(circular::circular(resample(BA.dir[BA.moved], replace=TRUE,prob=weight_stack_last(Weights.stack, Weights.stack.start, Weights.stack.active)[BA.moved]), units="degrees"), na.rm=TRUE)
 	BC.dir<-apply(matrix(c(Results.stack[,ncol(Results.stack)], New.Particles), ncol=2), 1, dir_fun, in.Data)
 	
 	BC.moved<-which(!is.na(BC.dir))
-	BC.mean<-circular::mean.circular(circular::circular(resample(BC.dir[BC.moved], replace=TRUE, prob=(Weights.stack[,ncol(Weights.stack)]*Current.Weights)[BC.moved]), units="degrees"), na.rm=TRUE)
+	BC.mean<-circular::mean.circular(circular::circular(resample(BC.dir[BC.moved], replace=TRUE, prob=(weight_stack_last(Weights.stack, Weights.stack.start, Weights.stack.active)*Current.Weights)[BC.moved]), units="degrees"), na.rm=TRUE)
 	dif.ang<-function(x,y) {
 	# this function provides the minimum angle between two angles..
 	y=y*pi/180
@@ -424,7 +623,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	message("anglular change", round(Dif.ang,2), "\n" )
 	}
 	}	
-	
+
 #=================================
 # now I want to temporarily save this ..
   in.Data$AB.distance<-c(in.Data$AB.distance, AB.distance)
@@ -443,11 +642,11 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	in.Data$outliers<-c(in.Data$outliers, Time.Period-1)
 	# and now the main question - how should we remove the weights??
 	# probably the easiest way would be to add 1/nParticles into the last column..
-	Weights.stack[,ncol(Weights.stack)]<-rep(1/nParticles, nParticles)
+	Weights.stack[, weight_stack_last_column(Weights.stack.start, Weights.stack.active, Weights.stack.max.cols)]<-rep(1/nParticles, nParticles)
 	# ok and now I have to change the resample to t-1
 	}
 	}
-	
+	if (isTRUE(profile.phases)) phase_times[["outlier_check"]]<-phase_times[["outlier_check"]]+(proc.time()[["elapsed"]]-outlier_start)
 	
     #=====================================================
     # here is the change from 1.6 - Adding cumulative weights now..
@@ -459,22 +658,35 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	
 	#Current.Weights.with.Prev<-	pmax(rowProds(Current.Weights.with.Prev.mat), 1e-323)
 	
+	Current.Weights.with.Prev<-if (isTRUE(profile.phases)) {
+	  profile_phase("cumulative_weight_product", {
 	if (Time.Period != total_length) {
 	   	# here is the place - I'll check weights without use of the last stage information! 
-     	Current.Weights.with.Prev<-	pmax(rowProds(Weights.stack), 1e-323)
+     	pmax(rowProds(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active)), 1e-323)
     } else {
-	    Current.Weights.with.Prev<-	pmax(rowProds(cbind(Weights.stack, Current.Weights)) , 1e-323)
+	    pmax(rowProds(cbind(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active), Current.Weights)) , 1e-323)
+	}
+	  })
+	} else {
+	if (Time.Period != total_length) {
+	   	# here is the place - I'll check weights without use of the last stage information! 
+     	pmax(rowProds(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active)), 1e-323)
+    } else {
+	    pmax(rowProds(cbind(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active), Current.Weights)) , 1e-323)
+	}
 	}
 	#
     #================================================================
     # ver 1.7. 
     # ADAPTIVE RESAMPLING
+    if (isTRUE(profile.phases)) {
+      profile_phase("ESS_calculation", {
     if (adaptive.resampling!=1) {
       ESS<-(sum(Current.Weights.with.Prev)^2)/sum((Current.Weights.with.Prev)^2)
       message("ESS is ", ESS)
 if (is.na(ESS)) {
 	ESS=1
-	Current.Weights.with.Prev.mat<-cbind(Weights.stack, Current.Weights)
+	Current.Weights.with.Prev.mat<-cbind(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active), Current.Weights)
 	tmpfile<-paste0(tempfile(), '.RData')
     save(Current.Weights.with.Prev, Current.Weights.with.Prev.mat, Current.Weights, file=tmpfile)
     warning(paste('find the unexpected weights saved in', tmpfile))
@@ -482,7 +694,27 @@ if (is.na(ESS)) {
     } else {
       ESS<-1
     }
-    if ((ESS<(nParticles*adaptive.resampling) & Time.Period>1) | Time.Period == nrow(in.Data$Indices$Main.Index)) {	
+      NULL
+      })
+    } else {
+    if (adaptive.resampling!=1) {
+      ESS<-(sum(Current.Weights.with.Prev)^2)/sum((Current.Weights.with.Prev)^2)
+      message("ESS is ", ESS)
+if (is.na(ESS)) {
+	ESS=1
+	Current.Weights.with.Prev.mat<-cbind(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active), Current.Weights)
+	tmpfile<-paste0(tempfile(), '.RData')
+    save(Current.Weights.with.Prev, Current.Weights.with.Prev.mat, Current.Weights, file=tmpfile)
+    warning(paste('find the unexpected weights saved in', tmpfile))
+	}		
+    } else {
+      ESS<-1
+    }
+    }
+    did_resample<-((ESS<(nParticles*adaptive.resampling) & Time.Period>1) | Time.Period == nrow(in.Data$Indices$Main.Index))
+    if (isTRUE(profile.phases)) {
+      profile_phase("resampling", {
+    if (did_resample) {	
 	  if (length(unique(Current.Weights.with.Prev))==1) Current.Weights.with.Prev<-rep(1, nParticles)
 	  Rows<-try(sample.int(nParticles, replace = TRUE, prob = Current.Weights.with.Prev))
 			#if (class(Rows)=="try-error") {
@@ -494,7 +726,24 @@ if (is.na(ESS)) {
       ResampleCount<-ResampleCount+1
       message(" - resampling", ResampleCount, "\n")
       Results.stack<-Results.stack[Rows,]
-	  Weights.stack<-as.matrix(rep(1/nParticles, nParticles))
+	  Weights.stack[,1]<-1/nParticles
+	  Weights.stack.active<-1L
+	  Weights.stack.start<-1L
+    } else {
+      Rows<-1:nParticles # no resampling
+      message("\n")
+    }
+      NULL
+      })
+    } else if (did_resample) {	
+	  if (length(unique(Current.Weights.with.Prev))==1) Current.Weights.with.Prev<-rep(1, nParticles)
+	  Rows<-try(sample.int(nParticles, replace = TRUE, prob = Current.Weights.with.Prev))
+      ResampleCount<-ResampleCount+1
+      message(" - resampling", ResampleCount, "\n")
+      Results.stack<-Results.stack[Rows,]
+	  Weights.stack[,1]<-1/nParticles
+	  Weights.stack.active<-1L
+	  Weights.stack.start<-1L
     } else {
       Rows<-1:nParticles # no resampling
       message("\n")
@@ -540,14 +789,36 @@ if (is.na(ESS)) {
     
     #============================================
     # this line is needed instead of all MH stuff
-    Accepted.Particles<-New.Particles[Rows]
+    Accepted.Particles<-if (isTRUE(profile.phases)) {
+      profile_phase("accepted_particles_assignment", New.Particles[Rows])
+    } else {
+      New.Particles[Rows]
+    }
     
     #All.results<-paste(All.results, Accepted.Particles, sep=".")
     ## adding points to the results matrix
-    Results.stack<-cbind(Results.stack, Accepted.Particles)
+    if (isTRUE(profile.phases)) {
+      profile_phase("results_stack_append", {
+        Results.stack<-cbind(Results.stack, Accepted.Particles)
+        NULL
+      })
+    } else {
+      Results.stack<-cbind(Results.stack, Accepted.Particles)
+    }
     #==============================================================
     # 1.6
-    Weights.stack<-cbind(Weights.stack, New.weights)
+    if (isTRUE(profile.phases)) {
+      profile_phase("weights_stack_append", {
+        Weights.stack.active<-Weights.stack.active+1L
+        if (Weights.stack.active>Weights.stack.max.cols) stop("Weights.stack exceeded preallocated capacity")
+        Weights.stack[, weight_stack_last_column(Weights.stack.start, Weights.stack.active, Weights.stack.max.cols)]<-New.weights
+        NULL
+      })
+    } else {
+      Weights.stack.active<-Weights.stack.active+1L
+      if (Weights.stack.active>Weights.stack.max.cols) stop("Weights.stack exceeded preallocated capacity")
+      Weights.stack[, weight_stack_last_column(Weights.stack.start, Weights.stack.active, Weights.stack.max.cols)]<-New.weights
+    }
     
     #Prev.Weights<-(Prev.Weights[Rows]) * New.weights
     #Prev.Weights<-Prev.Weights/mean(Prev.Weights)
@@ -569,28 +840,80 @@ if (is.na(ESS)) {
 	# the new idea is that we could skip the saving all results and save just points and transitions - we are not outputting them anyways... THis will help avoiding the sort of All.results, that proved to be very slow..
       # save points
       #if (is.null(Points))  Points<-vector(mode = "list")
-	  Rle<-bit::intrle(sort.int(Results.stack[,1], method="quick"))
-      if (is.null(Rle)) Rle<-rle(sort.int(Results.stack[,1], method="quick"))
+	  Rle<-if (isTRUE(profile.phases)) {
+	    profile_phase("point_rle_creation", {
+	      tmp_rle<-bit::intrle(sort.int(Results.stack[,1], method="quick"))
+          if (is.null(tmp_rle)) tmp_rle<-rle(sort.int(Results.stack[,1], method="quick"))
+          tmp_rle
+	    })
+	  } else {
+	    tmp_rle<-bit::intrle(sort.int(Results.stack[,1], method="quick"))
+        if (is.null(tmp_rle)) tmp_rle<-rle(sort.int(Results.stack[,1], method="quick"))
+        tmp_rle
+	  }
+	  if (isTRUE(profile.phases)) n_unique_point_rle_values<-length(Rle$values)
 	  Points[length(Points)+1]<-list(Rle)
       #  All.results<-paste(Results.stack[,1], sep=".")
       #} else {
       #  All.results<-paste(All.results, Results.stack[,1], sep=".")
       #}
       # save transitions
-      Trans[[Time.Period-L]]<-get.transition.rle(Results.stack[,1], Results.stack[,2], n_grid=nrow(in.Data$Spatial$Grid))
+      Trans[[Time.Period-L]]<-if (isTRUE(profile.phases)) {
+        profile_phase("transition_rle_creation", get.transition.rle(Results.stack[,1], Results.stack[,2], n_grid=nrow(in.Data$Spatial$Grid)))
+      } else {
+        get.transition.rle(Results.stack[,1], Results.stack[,2], n_grid=nrow(in.Data$Spatial$Grid))
+      }
+      if (isTRUE(profile.phases)) n_unique_transition_rle_values<-length(Trans[[Time.Period-L]]$values)
       # clean Results.stack
-      Results.stack<-Results.stack[,-1]
-      # clean Weights.stack
-      Weights.stack<-as.matrix(Weights.stack[,-1])
+      if (isTRUE(profile.phases)) {
+        profile_phase("stack_drop", {
+          Results.stack<-Results.stack[,-1]
+          Weights.stack.start<-(Weights.stack.start %% Weights.stack.max.cols)+1L
+          Weights.stack.active<-Weights.stack.active-1L
+          NULL
+        })
+      } else {
+        Results.stack<-Results.stack[,-1]
+        # clean Weights.stack
+        Weights.stack.start<-(Weights.stack.start %% Weights.stack.max.cols)+1L
+        Weights.stack.active<-Weights.stack.active-1L
+      }
 message("******************\n")
+    }
+    if (isTRUE(profile.phases)) {
+      phase_profile[[Time.Period]]<-data.frame(
+        Time.Period=Time.Period,
+        nParticles=nParticles,
+        total_length=total_length,
+        n_unique_last_particles=n_unique_last_particles,
+        n_groups=n_groups,
+        n_moving_groups=n_moving_groups,
+        n_unique_new_particles=n_unique_new_particles,
+        ESS=ESS,
+        did_resample=did_resample,
+        ResampleCount=ResampleCount,
+        Results.stack_ncol=ncol(Results.stack),
+        Weights.stack_ncol=Weights.stack.active,
+        n_unique_point_rle_values=n_unique_point_rle_values,
+        n_unique_transition_rle_values=n_unique_transition_rle_values,
+        n_outliers=length(in.Data$outliers),
+        Results.stack_size_bytes=as.numeric(utils::object.size(Results.stack)),
+        Weights.stack_size_bytes=as.numeric(utils::object.size(Weights.stack)),
+        total_iteration_time=proc.time()[["elapsed"]]-iteration_start,
+        as.list(phase_times),
+        stringsAsFactors=FALSE
+      )
     }
   }
   #####################################
   #save(All.results, file="All.results.usmoothed.RData")
   # now we need to add final point!
   
+  final_phase_times<-stats::setNames(rep(0, length(phase_names)), phase_names)
   if (known.last) {
+    final_start<-proc.time()[["elapsed"]]
     Results.stack<-pf.final.smoothing(in.Data, Results.stack, precision.sd=precision.sd, nParticles=nParticles, last.particles=Results.stack[,ncol(Results.stack)])
+    if (isTRUE(profile.phases)) final_phase_times[["final_smoothing"]]<-proc.time()[["elapsed"]]-final_start
   }
   
   if (!is.list(Points)) Points<-vector(mode = "list")
@@ -598,6 +921,7 @@ message("******************\n")
   message("adding last points form the stack to the resutls\n")
   Length<-ncol(Results.stack)
 
+  final_flush_start<-proc.time()[["elapsed"]]
   for (rest in 1:Length) {
     # save points
 	  Rle<-bit::intrle(sort.int(Results.stack[,rest], method="quick"))
@@ -611,12 +935,43 @@ message("******************\n")
       Trans[[length(Trans)+1]]<-get.transition.rle(Results.stack[,rest], Results.stack[,rest+1], n_grid=nrow(in.Data$Spatial$Grid))
     }
   }
+  if (isTRUE(profile.phases)) {
+    final_phase_times[["final_stack_flush"]]<-proc.time()[["elapsed"]]-final_flush_start
+    phase_profile[[total_length+1L]]<-data.frame(
+      Time.Period=NA_integer_,
+      nParticles=nParticles,
+      total_length=total_length,
+      n_unique_last_particles=NA_integer_,
+      n_groups=NA_integer_,
+      n_moving_groups=NA_integer_,
+      n_unique_new_particles=NA_integer_,
+      ESS=NA_real_,
+      did_resample=NA,
+      ResampleCount=ResampleCount,
+      Results.stack_ncol=ncol(Results.stack),
+      Weights.stack_ncol=Weights.stack.active,
+      n_unique_point_rle_values=NA_integer_,
+      n_unique_transition_rle_values=NA_integer_,
+      n_outliers=length(in.Data$outliers),
+      Results.stack_size_bytes=as.numeric(utils::object.size(Results.stack)),
+      Weights.stack_size_bytes=as.numeric(utils::object.size(Weights.stack)),
+      total_iteration_time=sum(final_phase_times),
+      as.list(final_phase_times),
+      stringsAsFactors=FALSE
+    )
+  }
   #if (parallel)   parallel::clusterEvalQ(mycl, rm(Parameters)) 
   #if (length(existing.cluster)==1) parallel::stopCluster(cl = mycl)
   if (sink2file) sink()
   tmp.results<-list(AB.distance=in.Data$AB.distance, AC.distance2=in.Data$AC.distance2, Dif.ang=in.Data$Dif.ang)
 
-  return(list(Points=Points, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results)))
+  if (isTRUE(profile.phases)) {
+    phase_profile<-do.call(rbind, phase_profile[!vapply(phase_profile, is.null, logical(1))])
+  } else {
+    phase_profile<-NULL
+  }
+
+  return(list(Points=Points, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results, phase_profile=phase_profile)))
 }
 
 
