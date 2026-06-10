@@ -17,7 +17,8 @@ notes_path <- file.path(output_root, "particle_filter_hotspot_notes.txt")
 Sys.setenv(
   FLIGHTR_RUN_LABEL = run_label,
   FLIGHTR_NPARTICLES = "1000",
-  FLIGHTR_THREADS = "1",
+  FLIGHTR_PRERUN_THREADS = "4",
+  FLIGHTR_PF_THREADS = "1",
   FLIGHTR_SEED = "123",
   FLIGHTR_PROC_START_DATE = "NA",
   FLIGHTR_PROC_END_DATE = "2014-01-15",

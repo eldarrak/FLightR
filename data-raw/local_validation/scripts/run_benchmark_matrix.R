@@ -87,7 +87,8 @@ run_one_benchmark <- function(row) {
   Sys.setenv(
     FLIGHTR_RUN_LABEL = row$run_label,
     FLIGHTR_NPARTICLES = as.character(row$nParticles),
-    FLIGHTR_THREADS = as.character(row$threads),
+    FLIGHTR_PRERUN_THREADS = as.character(row$threads),
+    FLIGHTR_PF_THREADS = "1",
     FLIGHTR_SEED = as.character(row$seed),
     FLIGHTR_KNOWN_LAST = known_last,
     FLIGHTR_PROC_START_DATE = proc_start_date,
