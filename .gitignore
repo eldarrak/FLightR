@@ -17,3 +17,9 @@ data-raw/local_validation/*.local.yaml
 *.RData
 *.rds
 *.Rds
+data-raw/local_validation/outputs/prerun_cache/
+data-raw/local_validation/outputs/prerun_cache/*.rds
+data-raw/local_validation/outputs/prerun_cache/*metadata*
+data-raw/local_validation/outputs/logs/
+data-raw/local_validation/outputs/*.csv
+Rplots.pdf

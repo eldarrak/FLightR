@@ -33,13 +33,16 @@ proc_end_date <- if (identical(tolower(proc_end_date), "na") || !nzchar(proc_end
 model.ageing <- FALSE
 likelihood.correction <- FALSE    # use FALSE for smoke tests; later try "auto" or TRUE
 
-grid_left   <- -14
-grid_right  <- 13
-grid_bottom <- 30
-grid_top    <- 57
+grid_left <- as.numeric(Sys.getenv("FLIGHTR_GRID_LEFT", unset = "-14"))
+grid_right <- as.numeric(Sys.getenv("FLIGHTR_GRID_RIGHT", unset = "13"))
+grid_bottom <- as.numeric(Sys.getenv("FLIGHTR_GRID_BOTTOM", unset = "30"))
+grid_top <- as.numeric(Sys.getenv("FLIGHTR_GRID_TOP", unset = "57"))
 
 nParticles <- as.integer(Sys.getenv("FLIGHTR_NPARTICLES", unset = "100"))
-threads    <- as.integer(Sys.getenv("FLIGHTR_THREADS", unset = "8"))
+legacy_threads <- Sys.getenv("FLIGHTR_THREADS", unset = NA)
+prerun_threads <- as.integer(Sys.getenv("FLIGHTR_PRERUN_THREADS", unset = ifelse(is.na(legacy_threads), "4", legacy_threads)))
+pf_threads <- as.integer(Sys.getenv("FLIGHTR_PF_THREADS", unset = ifelse(is.na(legacy_threads), "1", legacy_threads)))
+# Prerun/preparation parallelism can be beneficial; particle-filter PSOCK parallelism should be benchmarked before use.
 
 known.last <- tolower(Sys.getenv("FLIGHTR_KNOWN_LAST", unset = "false")) %in% c("1", "true", "yes")
 # For a truncated subset, use known.last = FALSE unless the subset ends at a real known location.
@@ -48,6 +51,9 @@ precision.sd <- 25
 check.outliers <- FALSE
 
 random_seed <- as.integer(Sys.getenv("FLIGHTR_SEED", unset = "123"))
+profile.phases <- tolower(Sys.getenv("FLIGHTR_PROFILE_PHASES", unset = "false")) %in% c("1", "true", "yes")
+profile.top.level <- tolower(Sys.getenv("FLIGHTR_PROFILE_TOP_LEVEL", unset = "false")) %in% c("1", "true", "yes")
+propagation.backend <- Sys.getenv("FLIGHTR_PROPAGATION_BACKEND", unset = "auto")
 
 run_label <- Sys.getenv("FLIGHTR_RUN_LABEL", unset = NA)
 if (is.na(run_label) || !nzchar(run_label)) {
@@ -59,6 +65,7 @@ if (is.na(run_label) || !nzchar(run_label)) {
 # ----------------------------
 
 dir.create(output_root, recursive = TRUE, showWarnings = FALSE)
+source("D:/GitHub/FLightR/data-raw/local_validation/scripts/prerun_cache_helpers.R")
 
 repo_root <- normalizePath(getwd(), winslash = "/", mustWork = TRUE)
 
@@ -72,6 +79,8 @@ git_value <- function(args) {
 
 git_commit <- git_value(c("rev-parse", "--short", "HEAD"))
 git_branch <- git_value(c("branch", "--show-current"))
+git_status_porcelain <- git_value(c("status", "--porcelain"))
+git_dirty <- !is.na(git_status_porcelain) && nzchar(git_status_porcelain)
 
 safe_label <- gsub("[^A-Za-z0-9_\\-]+", "_", run_label)
 prefix <- paste0(
@@ -227,7 +236,8 @@ message("Loaded FLightR using: ", load_method)
 message("Repo: ", repo_root)
 message("Branch: ", git_branch, " commit: ", git_commit)
 message("Run label: ", run_label)
-message("Particles: ", nParticles, " threads: ", threads)
+message("Particles: ", nParticles, " prerun threads: ", prerun_threads, " PF threads: ", pf_threads)
+message("Propagation backend: ", propagation.backend)
 
 if (!file.exists(tags_file)) {
   stop("TAGS file does not exist: ", tags_file)
@@ -273,26 +283,70 @@ grid_step <- time_it({
 })
 Grid <- grid_step$value
 
-prerun_step <- time_it({
-  make.prerun.object(
-    Proc.data,
-    Grid,
-    start = start,
-    end = stop,
-    Calibration = Calibration,
-    threads = threads
-  )
-})
-all.in <- prerun_step$value
+prerun_key_components <- list(
+  cache_schema = "local_validation_prerun_v1",
+  tags_file = as.list(file_fingerprint(tags_file)),
+  proc_start_date = ifelse(is.null(start_date), NA, format(start_date, "%Y-%m-%d %H:%M:%S %Z")),
+  proc_end_date = ifelse(is.null(end_date), NA, format(end_date, "%Y-%m-%d %H:%M:%S %Z")),
+  calibration_periods = paste(utils::capture.output(print(Calibration.periods)), collapse = " | "),
+  model_ageing = model.ageing,
+  likelihood_correction = as.character(likelihood.correction),
+  grid_left = grid_left,
+  grid_right = grid_right,
+  grid_bottom = grid_bottom,
+  grid_top = grid_top,
+  grid_size = nrow(Grid),
+  distance_from_land_allowed_to_use = "-Inf;Inf",
+  distance_from_land_allowed_to_stay = "-Inf;Inf",
+  start = paste(start, collapse = ";"),
+  stop = paste(stop, collapse = ";"),
+  make_prerun_threads = prerun_threads,
+  propagation_backend_in_prerun = "none_currently_backend_independent",
+  git_commit = git_commit,
+  git_dirty = git_dirty,
+  FLightR_version = as.character(utils::packageVersion("FLightR"))
+)
+prerun_key <- make_prerun_cache_key(prerun_key_components)
+prerun_cached <- load_or_build_prerun(
+  key = prerun_key,
+  expected = list(grid_size = nrow(Grid)),
+  output_root = output_root,
+  build_fun = function() {
+    make.prerun.object(
+      Proc.data,
+      Grid,
+      start = start,
+      end = stop,
+      Calibration = Calibration,
+      threads = prerun_threads
+    )
+  }
+)
+all.in <- prerun_cached$value
+prerun_cache <- prerun_cached$cache
+prerun_step <- list(
+  value = all.in,
+  elapsed_seconds = prerun_cache$effective_seconds,
+  wall_seconds = prerun_cache$effective_seconds
+)
+message("Prerun cache enabled: ", prerun_cache$enabled)
+message("Prerun cache hit: ", prerun_cache$hit)
+message("Prerun cache key: ", prerun_cache$key)
+message("Prerun cache file: ", prerun_cache$file)
+if (!is.na(prerun_cache$warning)) warning(prerun_cache$warning, call. = FALSE)
 
+set.seed(random_seed)  # Keep PF RNG comparable across prerun cache rebuild/hit paths.
 pf_step <- time_it({
   run.particle.filter(
     all.in,
-    threads = threads,
+    threads = pf_threads,
     nParticles = nParticles,
     known.last = known.last,
     precision.sd = precision.sd,
     check.outliers = check.outliers,
+    profile.phases = profile.phases,
+    profile.top.level = profile.top.level,
+    propagation.backend = propagation.backend,
     plot = FALSE
   )
 })
@@ -300,6 +354,46 @@ Result <- pf_step$value
 
 result_path <- file.path(output_root, paste0("Result_", prefix, ".rds"))
 saveRDS(Result, result_path)
+
+phase_profile_path <- NA_character_
+if (isTRUE(profile.phases) && !is.null(Result$Results$phase_profile)) {
+  phase_profile_path <- file.path(output_root, paste0("pf_phase_profile_", prefix, ".csv"))
+  utils::write.csv(Result$Results$phase_profile, phase_profile_path, row.names = FALSE)
+}
+
+top_level_profile <- data.frame(
+  phase = c(
+    "get.tags.data",
+    "make.calibration",
+    "make.grid",
+    "make.prerun.object",
+    "run.particle.filter",
+    if (!is.null(Result$Results$top_level_profile)) {
+      paste0("run.particle.filter::", Result$Results$top_level_profile$phase)
+    } else {
+      character()
+    },
+    "total_benchmark_runtime"
+  ),
+  elapsed_seconds = c(
+    proc_step$elapsed_seconds,
+    cal_step$elapsed_seconds,
+    grid_step$elapsed_seconds,
+    prerun_step$elapsed_seconds,
+    pf_step$elapsed_seconds,
+    if (!is.null(Result$Results$top_level_profile)) {
+      Result$Results$top_level_profile$elapsed_seconds
+    } else {
+      numeric()
+    },
+    proc_step$elapsed_seconds + cal_step$elapsed_seconds +
+      grid_step$elapsed_seconds + prerun_step$elapsed_seconds + pf_step$elapsed_seconds
+  ),
+  stringsAsFactors = FALSE
+)
+
+top_level_profile_path <- file.path(output_root, paste0("pf_top_level_timing_", prefix, ".csv"))
+utils::write.csv(top_level_profile, top_level_profile_path, row.names = FALSE)
 
 benchmark <- data.frame(
   run_label = run_label,
@@ -310,10 +404,16 @@ benchmark <- data.frame(
   proc_start_date = ifelse(is.null(start_date), NA, format(start_date, "%Y-%m-%d %H:%M:%S")),
   proc_end_date = ifelse(is.null(end_date), NA, format(end_date, "%Y-%m-%d %H:%M:%S")),
   nParticles = nParticles,
-  threads = threads,
+  threads = pf_threads,
+  prerun_threads = prerun_threads,
+  pf_threads = pf_threads,
+  legacy_threads_env = ifelse(is.na(legacy_threads), NA, legacy_threads),
   known_last = known.last,
   precision_sd = precision.sd,
   check_outliers = check.outliers,
+  profile_phases = profile.phases,
+  profile_top_level = profile.top.level,
+  propagation_backend = propagation.backend,
   model_ageing = model.ageing,
   likelihood_correction = as.character(likelihood.correction),
   grid_left = grid_left,
@@ -327,9 +427,19 @@ benchmark <- data.frame(
   calibration_seconds = cal_step$elapsed_seconds,
   grid_seconds = grid_step$elapsed_seconds,
   prerun_seconds = prerun_step$elapsed_seconds,
+  prerun_cache_enabled = prerun_cache$enabled,
+  prerun_cache_hit = prerun_cache$hit,
+  prerun_cache_file = prerun_cache$file,
+  prerun_cache_key = prerun_cache$key,
+  prerun_build_seconds = prerun_cache$build_seconds,
+  prerun_load_seconds = prerun_cache$load_seconds,
+  prerun_save_seconds = prerun_cache$save_seconds,
+  make_prerun_seconds_effective = prerun_cache$effective_seconds,
   particle_filter_seconds = pf_step$elapsed_seconds,
   total_seconds = proc_step$elapsed_seconds + cal_step$elapsed_seconds +
     grid_step$elapsed_seconds + prerun_step$elapsed_seconds + pf_step$elapsed_seconds,
+  phase_profile_path = phase_profile_path,
+  top_level_profile_path = top_level_profile_path,
   result_path = result_path
 )
 
@@ -353,6 +463,8 @@ if (!is.null(matched)) {
 message("DONE")
 message("Result saved to: ", result_path)
 message("Benchmark saved to: ", benchmark_path)
+if (!is.na(phase_profile_path)) message("Phase profile saved to: ", phase_profile_path)
+message("Top-level timing saved to: ", top_level_profile_path)
 message("GPS summary saved to: ", gps_summary_path)
 if (!is.na(gps_matched_path)) message("GPS matched errors saved to: ", gps_matched_path)
 
@@ -362,6 +474,8 @@ invisible(list(
   gps_summary = gps_summary,
   result_path = result_path,
   benchmark_path = benchmark_path,
+  phase_profile_path = phase_profile_path,
+  top_level_profile_path = top_level_profile_path,
   gps_summary_path = gps_summary_path,
   gps_matched_path = gps_matched_path
 ))
