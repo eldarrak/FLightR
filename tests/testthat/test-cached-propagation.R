@@ -126,7 +126,7 @@ test_that("legacy backend and run.particle.filter backend argument remain availa
     call.args<<-list(...)
     stop("stubbed particle filter", call.=FALSE)
   }
-  for (backend in c("legacy", "cached", "auto")) {
+  for (backend in c("legacy", "cached", "auto", "partial_cached")) {
     expect_error(
       env$run.particle.filter(list(), threads=1, nParticles=1, plot=FALSE, propagation.backend=backend),
       "stubbed particle filter"
@@ -134,3 +134,4 @@ test_that("legacy backend and run.particle.filter backend argument remain availa
     expect_equal(call.args$propagation.backend, backend)
   }
 })
+

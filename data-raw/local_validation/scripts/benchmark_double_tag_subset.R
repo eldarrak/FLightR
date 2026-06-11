@@ -395,6 +395,14 @@ top_level_profile <- data.frame(
 top_level_profile_path <- file.path(output_root, paste0("pf_top_level_timing_", prefix, ".csv"))
 utils::write.csv(top_level_profile, top_level_profile_path, row.names = FALSE)
 
+partial_diag <- Result$Results$partial_cache_diagnostics
+if (is.null(partial_diag)) partial_diag <- data.frame(
+  cached_origins = NA_integer_, visited_origins = NA_integer_, cache_hits = NA_integer_, cache_misses = NA_integer_,
+  cache_builds = NA_integer_, cache_evictions = NA_integer_, total_candidate_entries = NA_integer_, median_candidate_count = NA_real_,
+  max_candidate_count = NA_integer_, median_candidate_fraction_of_grid = NA_real_,
+  max_candidate_fraction_of_grid = NA_real_, approximate_cache_object_bytes = NA_real_
+)
+
 benchmark <- data.frame(
   run_label = run_label,
   git_branch = git_branch,
@@ -440,6 +448,18 @@ benchmark <- data.frame(
     grid_step$elapsed_seconds + prerun_step$elapsed_seconds + pf_step$elapsed_seconds,
   phase_profile_path = phase_profile_path,
   top_level_profile_path = top_level_profile_path,
+  partial_cache_cached_origins = partial_diag$cached_origins[1],
+  partial_cache_visited_origins = partial_diag$visited_origins[1],
+  partial_cache_hits = partial_diag$cache_hits[1],
+  partial_cache_misses = partial_diag$cache_misses[1],
+  partial_cache_builds = partial_diag$cache_builds[1],
+  partial_cache_evictions = partial_diag$cache_evictions[1],
+  partial_cache_total_candidate_entries = partial_diag$total_candidate_entries[1],
+  partial_cache_median_candidate_count = partial_diag$median_candidate_count[1],
+  partial_cache_max_candidate_count = partial_diag$max_candidate_count[1],
+  partial_cache_median_candidate_fraction_of_grid = partial_diag$median_candidate_fraction_of_grid[1],
+  partial_cache_max_candidate_fraction_of_grid = partial_diag$max_candidate_fraction_of_grid[1],
+  partial_cache_approximate_object_bytes = partial_diag$approximate_cache_object_bytes[1],
   result_path = result_path
 )
 
@@ -472,6 +492,18 @@ invisible(list(
   Result = Result,
   benchmark = benchmark,
   gps_summary = gps_summary,
+  partial_cache_cached_origins = partial_diag$cached_origins[1],
+  partial_cache_visited_origins = partial_diag$visited_origins[1],
+  partial_cache_hits = partial_diag$cache_hits[1],
+  partial_cache_misses = partial_diag$cache_misses[1],
+  partial_cache_builds = partial_diag$cache_builds[1],
+  partial_cache_evictions = partial_diag$cache_evictions[1],
+  partial_cache_total_candidate_entries = partial_diag$total_candidate_entries[1],
+  partial_cache_median_candidate_count = partial_diag$median_candidate_count[1],
+  partial_cache_max_candidate_count = partial_diag$max_candidate_count[1],
+  partial_cache_median_candidate_fraction_of_grid = partial_diag$median_candidate_fraction_of_grid[1],
+  partial_cache_max_candidate_fraction_of_grid = partial_diag$max_candidate_fraction_of_grid[1],
+  partial_cache_approximate_object_bytes = partial_diag$approximate_cache_object_bytes[1],
   result_path = result_path,
   benchmark_path = benchmark_path,
   phase_profile_path = phase_profile_path,
@@ -479,3 +511,4 @@ invisible(list(
   gps_summary_path = gps_summary_path,
   gps_matched_path = gps_matched_path
 ))
+

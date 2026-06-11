@@ -68,7 +68,7 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE, profile.phases=FALSE, profile.top.level=FALSE, propagation.backend=c("auto", "cached", "legacy")) {
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE, profile.phases=FALSE, profile.top.level=FALSE, propagation.backend=c("auto", "cached", "legacy", "partial_cached")) {
    run_pf_start<-proc.time()[["elapsed"]]
    cl<-match.call()
    propagation.backend<-match.arg(propagation.backend)
@@ -84,6 +84,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
    Threads<-1
    parallel=FALSE
    if (threads!=1) warning("Current PSOCK particle-filter execution with threads != 1 may be much slower than sequential execution; recent validation benchmarks found run.particle.filter(..., threads = 1) faster than threads = 4. Use threads = 1 for run.particle.filter() unless this exact dataset/backend has been benchmarked.", call.=FALSE)
+   if (propagation.backend=="partial_cached" && threads!=1) warning("The experimental partial_cached propagation backend is sequential-first; with PSOCK threads > 1 each worker may build an independent cache and performance has not been validated.", call.=FALSE)
 
    if (threads!=1){
    parallel=TRUE
@@ -139,6 +140,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 	  all.out$Results$LL<-LL
 	  
 	phase_profile<-if (isTRUE(profile.phases)) Res$Results$phase_profile else NULL
+	partial_cache_diagnostics<-Res$Results$partial_cache_diagnostics
 	final_assembly_start<-proc.time()[["elapsed"]]
 	all.out$Results<-list(
 
@@ -151,7 +153,8 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
 		SD=all.out$Results$SD,
 		Points.rle=all.out$Results$Points.rle[-1],
 		Transitions.rle=all.out$Results$Transitions.rle,
-		tmp.results=all.out$Results$tmp.results)
+		tmp.results=all.out$Results$tmp.results,
+		partial_cache_diagnostics=partial_cache_diagnostics)
 	if (isTRUE(profile.phases)) {
 	  all.out$Results$phase_profile<-phase_profile
 	}
@@ -208,6 +211,135 @@ build.grid.movement.candidates<-function(Grid, a=45, b=500) {
     bearing[[from]]<-as.numeric(geosphere::bearing(Grid.lonlat[from, , drop=FALSE], Grid.lonlat[candidates, , drop=FALSE]))
   }
   list(to=to, distance=distance, bearing=bearing, a=a, b=b, grid_n=n.grid)
+}
+
+
+wrap.longitudes<-function(lon) {
+  ((lon+180) %% 360)-180
+}
+
+candidate.bbox.indices<-function(grid_lonlat, point_lonlat, b) {
+  lon<-wrap.longitudes(grid_lonlat[,1])
+  lat<-grid_lonlat[,2]
+  lon0<-wrap.longitudes(point_lonlat[1])
+  lat0<-point_lonlat[2]
+  lat_delta<-b/100
+  lat_min<-max(-90, lat0-lat_delta)
+  lat_max<-min(90, lat0+lat_delta)
+  lat_ok<-lat>=lat_min & lat<=lat_max
+  cos_lat<-cos(lat0*pi/180)
+  if (!is.finite(cos_lat) || abs(cos_lat)<1e-6) {
+    lon_ok<-rep(TRUE, length(lon))
+  } else {
+    lon_delta<-min(180, b/(100*abs(cos_lat)))
+    if (!is.finite(lon_delta) || lon_delta>=180) {
+      lon_ok<-rep(TRUE, length(lon))
+    } else {
+      lon_min<-lon0-lon_delta
+      lon_max<-lon0+lon_delta
+      if (lon_min < -180) {
+        lon_ok<-lon>=wrap.longitudes(lon_min) | lon<=lon_max
+      } else if (lon_max > 180) {
+        lon_ok<-lon>=lon_min | lon<=wrap.longitudes(lon_max)
+      } else {
+        lon_ok<-lon>=lon_min & lon<=lon_max
+      }
+    }
+  }
+  which(lat_ok & lon_ok)
+}
+
+build.partial.movement.cache<-function(Grid, a=45, b=500, max_cache_mb=512) {
+  cache<-new.env(parent=emptyenv())
+  cache$grid_lonlat<-as.matrix(Grid[, c(1, 2), drop=FALSE])
+  cache$grid_n<-nrow(cache$grid_lonlat)
+  cache$a<-a
+  cache$b<-b
+  cache$entries<-new.env(parent=emptyenv())
+  cache$order<-integer()
+  cache$hits<-0L
+  cache$misses<-0L
+  cache$builds<-0L
+  cache$evictions<-0L
+  cache$visited_origins<-integer()
+  cache$total_candidate_entries<-0L
+  cache$approx_cache_bytes<-0
+  cache$max_cache_bytes<-max_cache_mb*1024^2
+  cache
+}
+
+build.partial.movement.entry<-function(cache, from) {
+  from<-as.integer(from)
+  point<-cache$grid_lonlat[from,]
+  idx<-candidate.bbox.indices(cache$grid_lonlat, point, cache$b)
+  if (length(idx)>0) {
+    src.df<-data.frame(lon=point[1], lat=point[2])
+    dst.df<-data.frame(lon=cache$grid_lonlat[idx,1], lat=cache$grid_lonlat[idx,2])
+    dists<-as.numeric(sf::st_distance(
+      sf::st_as_sf(src.df, coords=c("lon", "lat"), crs=4326),
+      sf::st_as_sf(dst.df, coords=c("lon", "lat"), crs=4326)
+    ))/1000
+    keep<-which(is.finite(dists) & dists>=cache$a & dists<=cache$b)
+    to<-as.integer(idx[keep])
+    dists<-as.numeric(dists[keep])
+  } else {
+    to<-integer()
+    dists<-numeric()
+  }
+  if (length(to)==0) {
+    to<-from
+    dists<-0
+  }
+  bearings<-as.numeric(geosphere::bearing(cache$grid_lonlat[from, , drop=FALSE], cache$grid_lonlat[to, , drop=FALSE]))
+  bearings[!is.finite(bearings)]<-0
+  entry<-list(from=from, to=as.integer(to), distance=as.numeric(dists), bearing=as.numeric(bearings), n_candidates=length(to))
+  entry$object_size_bytes<-as.numeric(utils::object.size(entry))
+  entry
+}
+
+get.partial.movement.entry<-function(cache, from) {
+  from<-as.integer(from)
+  key<-as.character(from)
+  cache$visited_origins<-unique(c(cache$visited_origins, from))
+  if (exists(key, envir=cache$entries, inherits=FALSE)) {
+    cache$hits<-cache$hits+1L
+    return(get(key, envir=cache$entries, inherits=FALSE))
+  }
+  cache$misses<-cache$misses+1L
+  entry<-build.partial.movement.entry(cache, from)
+  entry_size<-entry$object_size_bytes
+  if ((cache$approx_cache_bytes+entry_size) <= cache$max_cache_bytes) {
+    assign(key, entry, envir=cache$entries)
+    cache$order<-c(cache$order, from)
+    cache$builds<-cache$builds+1L
+    cache$total_candidate_entries<-cache$total_candidate_entries+entry$n_candidates
+    cache$approx_cache_bytes<-cache$approx_cache_bytes+entry_size
+  }
+  entry
+}
+
+partial.movement.cache.diagnostics<-function(cache) {
+  if (is.null(cache)) return(NULL)
+  keys<-ls(cache$entries, all.names=TRUE)
+  counts<-if (length(keys)>0) vapply(keys, function(key) get(key, envir=cache$entries, inherits=FALSE)$n_candidates, integer(1)) else integer()
+  fractions<-if (length(counts)>0 && cache$grid_n>0) counts/cache$grid_n else numeric()
+  data.frame(
+    propagation_backend="partial_cached",
+    grid_size=cache$grid_n,
+    cached_origins=length(keys),
+    visited_origins=length(unique(cache$visited_origins)),
+    cache_hits=cache$hits,
+    cache_misses=cache$misses,
+    cache_builds=cache$builds,
+    cache_evictions=cache$evictions,
+    total_candidate_entries=sum(counts),
+    median_candidate_count=if (length(counts)>0) stats::median(counts) else NA_real_,
+    max_candidate_count=if (length(counts)>0) max(counts) else NA_integer_,
+    median_candidate_fraction_of_grid=if (length(fractions)>0) stats::median(fractions) else NA_real_,
+    max_candidate_fraction_of_grid=if (length(fractions)>0) max(fractions) else NA_real_,
+    approximate_cache_object_bytes=cache$approx_cache_bytes,
+    stringsAsFactors=FALSE
+  )
 }
 
 generate.points.dirs.legacy<-function(x , in.Data, Current.Proposal, a=45, b=500) {
@@ -305,9 +437,48 @@ generate.points.dirs.cached<-function(x, in.Data, Current.Proposal, a=45, b=500)
   return(resample(as.integer(c(pos.biol, rep(from, n.total-n.moving)))))
 }
 
+
+generate.points.dirs.partial<-function(x, in.Data, Current.Proposal, a=45, b=500) {
+  resample <- function(x, ...) x[sample.int(length(x), ...)]
+  from<-as.integer(x[[1]])
+  n.total<-as.integer(x[[2]])
+  n.moving<-as.integer(x[[3]])
+  if (n.moving<=0) return(as.integer(rep(from, n.total)))
+
+  cache<-in.Data$Spatial$tmp$partial_movement_cache
+  if (is.null(cache) || cache$grid_n!=nrow(in.Data$Spatial$Grid) || cache$a!=a || cache$b!=b) {
+    return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+  }
+  entry<-get.partial.movement.entry(cache, from)
+  to<-entry$to
+  dists<-entry$distance
+  bearings<-entry$bearing
+  if (length(to)==0 || length(dists)!=length(to)) {
+    return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+  }
+
+  sd<-Current.Proposal$M.sd
+  if (!is.finite(sd) || sd<=0) return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+
+  Biol.proposal<-exp(-0.5*((dists-Current.Proposal$M.mean)/sd)^2)
+  if (is.finite(Current.Proposal$Kappa) && Current.Proposal$Kappa>0) {
+    angle.diff<-(bearings-Current.Proposal$Direction)*pi/180
+    Biol.proposal<-Biol.proposal*exp(Current.Proposal$Kappa*cos(angle.diff))
+  }
+  Biol.proposal[!is.finite(Biol.proposal)]<-0
+  if (all(Biol.proposal<=0)) return(generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b))
+
+  Full.proposal<-numeric(nrow(in.Data$Spatial$Grid))
+  Full.proposal[to]<-Biol.proposal
+  pos.biol<-suppressWarnings(sample.int(length(Full.proposal), size=n.moving, replace=TRUE, prob=Full.proposal))
+  return(resample(as.integer(c(pos.biol, rep(from, n.total-n.moving)))))
+}
+
 generate.points.dirs<-function(x, in.Data, Current.Proposal, a=45, b=500) {
   if (!is.null(in.Data$Spatial$tmp$movement_candidates)) {
     generate.points.dirs.cached(x, in.Data, Current.Proposal, a=a, b=b)
+  } else if (!is.null(in.Data$Spatial$tmp$partial_movement_cache)) {
+    generate.points.dirs.partial(x, in.Data, Current.Proposal, a=a, b=b)
   } else {
     generate.points.dirs.legacy(x, in.Data, Current.Proposal, a=a, b=b)
   }
@@ -329,7 +500,7 @@ weight_stack_last<-function(values, start_col, active_cols) {
   values[, weight_stack_last_column(start_col, active_cols, ncol(values))]
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE, profile.phases=FALSE, propagation.backend=c("auto", "cached", "legacy")) {
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE, profile.phases=FALSE, propagation.backend=c("auto", "cached", "legacy", "partial_cached")) {
   ### to make algorhythm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
   if (sink2file & RStudio) sink()
@@ -344,7 +515,13 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	message("smart filter is OFF\n")
 	}
   propagation.backend<-match.arg(propagation.backend)
-  if (propagation.backend!="legacy") {
+  if (propagation.backend=="partial_cached") {
+    if (parallel) warning("The experimental partial_cached propagation backend is sequential-first; PSOCK workers will not share cache state and may be slower.", call.=FALSE)
+    if (is.null(in.Data$Spatial$tmp)) in.Data$Spatial$tmp<-list()
+    in.Data$Spatial$tmp$movement_candidates<-NULL
+    in.Data$Spatial$tmp$partial_movement_cache<-build.partial.movement.cache(in.Data$Spatial$Grid, a=a, b=b)
+    message("partial cached propagation backend is ON\n")
+  } else if (propagation.backend!="legacy") {
     movement_candidates<-try(build.grid.movement.candidates(in.Data$Spatial$Grid, a=a, b=b), silent=TRUE)
     if (inherits(movement_candidates, "try-error")) {
       if (propagation.backend=="cached") stop("Cached propagation candidate construction failed: ", conditionMessage(attr(movement_candidates, "condition")), call.=FALSE)
@@ -352,14 +529,17 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
       propagation.backend<-"legacy"
     } else {
       if (is.null(in.Data$Spatial$tmp)) in.Data$Spatial$tmp<-list()
+      in.Data$Spatial$tmp$partial_movement_cache<-NULL
       in.Data$Spatial$tmp$movement_candidates<-movement_candidates
       message("cached propagation backend is ON\n")
     }
   } else {
-    if (!is.null(in.Data$Spatial$tmp)) in.Data$Spatial$tmp$movement_candidates<-NULL
+    if (!is.null(in.Data$Spatial$tmp)) {
+      in.Data$Spatial$tmp$movement_candidates<-NULL
+      in.Data$Spatial$tmp$partial_movement_cache<-NULL
+    }
     message("legacy propagation backend is ON\n")
-  }
-  # so, the idea here will be that we don't need to create these complicated Indexes..
+  }  # so, the idea here will be that we don't need to create these complicated Indexes..
   in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
   in.Data.short$Spatial$Behav.mask<-NULL
   in.Data.short$Spatial$Phys.Mat<-NULL
@@ -971,7 +1151,8 @@ message("******************\n")
     phase_profile<-NULL
   }
 
-  return(list(Points=Points, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results, phase_profile=phase_profile)))
+  partial_cache_diagnostics<-partial.movement.cache.diagnostics(in.Data$Spatial$tmp$partial_movement_cache)
+  return(list(Points=Points, Trans=Trans, Results=list(outliers=in.Data$outliers, tmp.results=tmp.results, phase_profile=phase_profile, partial_cache_diagnostics=partial_cache_diagnostics)))
 }
 
 
@@ -1394,4 +1575,5 @@ lazy.result.plot<-function(Result) {
     graphics::lines(Meanlat~Meanlon, data=Result$Results$Quantiles, col="blue")
     maps::map('world2', add=TRUE)
 }
+
 
