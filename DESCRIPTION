@@ -39,10 +39,10 @@ Imports:
 License: GPL-3
 ByteCompile: true
 Encoding: UTF-8
-RoxygenNote: 7.3.1
 Suggests:
     covr,
     testthat,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

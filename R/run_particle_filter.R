@@ -34,9 +34,13 @@
 #'   uses the fast cached backend when possible and falls back to legacy on
 #'   construction failure. \code{"partial_cached"} lazily caches reachable
 #'   destinations only for visited grid cells and is recommended for larger
-#'   spatial extents. \code{"cached"} eagerly builds candidate lists for all
-#'   grid cells and can be fastest on moderate grids. \code{"legacy"} keeps the
-#'   original per-proposal distance calculation for fallback/reproducibility.
+#'   spatial extents; local validation benchmarks observed about 20-25x faster
+#'   particle-filter runtime for a full-length 1e6-particle run on one tested
+#'   dataset and machine. Actual speedups depend on grid size, backend, particle
+#'   count, hardware, and thread settings. \code{"cached"} eagerly builds
+#'   candidate lists for all grid cells and can be fastest on moderate grids.
+#'   \code{"legacy"} keeps the original per-proposal distance calculation for
+#'   fallback/reproducibility.
 #' @param verbose Controls particle-filter console output. The default
 #'   \code{FALSE} is quiet and suppresses normal progress messages while keeping
 #'   warnings and errors visible. Use \code{TRUE} for normal progress messages,

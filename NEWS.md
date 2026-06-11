@@ -5,6 +5,11 @@ validation workflow.
 * Added fast cached and partial-cached movement proposal backends for
   `run.particle.filter()`, while keeping the legacy backend available for
   fallback and reproducibility.
+* In local double-tag validation benchmarks, the new `partial_cached`
+  propagation backend reduced particle-filter runtime by about 20-25x for a
+  full-length 1e6-particle run on the tested dataset and machine. Actual
+  speedups depend on grid size, backend, particle count, hardware, and thread
+  settings.
 * Added focused fixes for sequential `threads = 1`, start/stop point handling,
   directional bearing orientation, and transition encoding on large grids.
 * Added quiet-by-default particle-filter logging via `verbose = FALSE`; use
