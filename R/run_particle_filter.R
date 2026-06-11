@@ -5,7 +5,12 @@
 #' 
 #' Main function of FLightR, it takes fully prepared object created by \code{\link{make.prerun.object}} and produces a result object that can be used for plotting etc.
 #' @param all.out An object created by \code{\link{make.prerun.object}}.
-#' @param threads An amount of threads to use while running in parallel. default is -1. if value 1 submitted package will run sequentially
+#' @param threads An amount of threads to use for the particle-filter step.
+#'   Default is -1. Value 1 forces sequential evaluation. Note that
+#'   parallelism in \code{\link{make.prerun.object}} can be useful, but recent
+#'   validation benchmarks found the particle-filter PSOCK path slower than
+#'   \code{threads = 1} for the tested data/backend; benchmark your own data
+#'   before using \code{threads > 1} here.
 #' @param cpus another way to specify  \code{threads}
 #' @param nParticles  total amount of particles to be used with the run. 10 000 (1e4) is recommended for the preliminary run and 1 000 000 (1e6) for the final
 #' @param known.last Set to FALSE if your bird was not at a known place during last twilight in the data
@@ -21,6 +26,17 @@
 #' @param check.outliers switches ON the online outlier routine 
 #' @param sink2file will write run details in a file instead of showing on the screen
 #' @param add.jitter will add spatial jitter inside a grid cell for the median estimates
+#' @param profile.phases logical; if \code{TRUE}, stores detailed particle-filter
+#'   phase timings in the returned object. Intended for diagnostics.
+#' @param profile.top.level logical; if \code{TRUE}, stores top-level timing for
+#'   particle-filter post-processing phases in the returned object.
+#' @param propagation.backend Movement proposal backend. \code{"auto"} currently
+#'   uses the fast cached backend when possible and falls back to legacy on
+#'   construction failure. \code{"partial_cached"} lazily caches reachable
+#'   destinations only for visited grid cells and is recommended for larger
+#'   spatial extents. \code{"cached"} eagerly builds candidate lists for all
+#'   grid cells and can be fastest on moderate grids. \code{"legacy"} keeps the
+#'   original per-proposal distance calculation for fallback/reproducibility.
 #' @param verbose Controls particle-filter console output. The default
 #'   \code{FALSE} is quiet and suppresses normal progress messages while keeping
 #'   warnings and errors visible. Use \code{TRUE} for normal progress messages,
