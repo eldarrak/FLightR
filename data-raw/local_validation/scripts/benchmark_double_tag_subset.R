@@ -54,6 +54,12 @@ random_seed <- as.integer(Sys.getenv("FLIGHTR_SEED", unset = "123"))
 profile.phases <- tolower(Sys.getenv("FLIGHTR_PROFILE_PHASES", unset = "false")) %in% c("1", "true", "yes")
 profile.top.level <- tolower(Sys.getenv("FLIGHTR_PROFILE_TOP_LEVEL", unset = "false")) %in% c("1", "true", "yes")
 propagation.backend <- Sys.getenv("FLIGHTR_PROPAGATION_BACKEND", unset = "auto")
+verbose_env <- tolower(Sys.getenv("FLIGHTR_VERBOSE", unset = "quiet"))
+verbose <- if (verbose_env %in% c("debug")) {
+  "debug"
+} else {
+  verbose_env %in% c("1", "true", "yes", "normal", "verbose")
+}
 
 run_label <- Sys.getenv("FLIGHTR_RUN_LABEL", unset = NA)
 if (is.na(run_label) || !nzchar(run_label)) {
@@ -238,6 +244,7 @@ message("Branch: ", git_branch, " commit: ", git_commit)
 message("Run label: ", run_label)
 message("Particles: ", nParticles, " prerun threads: ", prerun_threads, " PF threads: ", pf_threads)
 message("Propagation backend: ", propagation.backend)
+message("Particle-filter verbose mode: ", if (identical(verbose, "debug")) "debug" else if (isTRUE(verbose)) "normal" else "quiet")
 
 if (!file.exists(tags_file)) {
   stop("TAGS file does not exist: ", tags_file)
@@ -347,6 +354,7 @@ pf_step <- time_it({
     profile.phases = profile.phases,
     profile.top.level = profile.top.level,
     propagation.backend = propagation.backend,
+    verbose = verbose,
     plot = FALSE
   )
 })
@@ -421,6 +429,7 @@ benchmark <- data.frame(
   check_outliers = check.outliers,
   profile_phases = profile.phases,
   profile_top_level = profile.top.level,
+  verbose = if (identical(verbose, "debug")) "debug" else if (isTRUE(verbose)) "normal" else "quiet",
   propagation_backend = propagation.backend,
   model_ageing = model.ageing,
   likelihood_correction = as.character(likelihood.correction),

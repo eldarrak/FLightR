@@ -21,6 +21,10 @@
 #' @param check.outliers switches ON the online outlier routine 
 #' @param sink2file will write run details in a file instead of showing on the screen
 #' @param add.jitter will add spatial jitter inside a grid cell for the median estimates
+#' @param verbose Controls particle-filter console output. The default
+#'   \code{FALSE} is quiet and suppresses normal progress messages while keeping
+#'   warnings and errors visible. Use \code{TRUE} for normal progress messages,
+#'   or \code{"debug"} for detailed loop diagnostics.
 #' @return FLightR object, containing output and extracted results. It is a list with the following elements 
 #' 
 #'    \item{Indices}{List with prior information and indices}
@@ -68,7 +72,15 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE, profile.phases=FALSE, profile.top.level=FALSE, propagation.backend=c("auto", "cached", "legacy", "partial_cached")) {
+pf_message<-function(..., verbose=FALSE) {
+  if (isTRUE(verbose) || identical(verbose, "debug")) message(...)
+}
+
+pf_debug<-function(..., verbose=FALSE) {
+  if (identical(verbose, "debug")) message(...)
+}
+
+run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE, profile.phases=FALSE, profile.top.level=FALSE, propagation.backend=c("auto", "cached", "legacy", "partial_cached"), verbose=FALSE) {
    run_pf_start<-proc.time()[["elapsed"]]
    cl<-match.call()
    propagation.backend<-match.arg(propagation.backend)
@@ -91,21 +103,21 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
    Possible.threads=parallel::detectCores()
    if (threads<=0) Threads=max(Possible.threads+threads, 1)
    if (threads>0) Threads=min(Possible.threads,threads)
-    message("creating cluster with", Threads, "threads")
+    pf_message("creating cluster with", Threads, "threads", verbose=verbose)
     hosts <- rep("localhost",Threads)
     mycl <- parallel::makeCluster(hosts, type=cluster.type)
     #mycl <- parallel::makeCluster(Threads, type=cluster.type)
     parallel::clusterSetRNGStream(mycl)
 	parallel::clusterEvalQ(mycl, library("FLightR")) 
-	message('   Done\n')
+	pf_message('   Done\n', verbose=verbose)
 
     pf_core_start<-proc.time()[["elapsed"]]
-    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, profile.phases=profile.phases, propagation.backend=propagation.backend), finally = parallel::stopCluster(mycl))
+    tryCatch(Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, profile.phases=profile.phases, propagation.backend=propagation.backend, verbose=verbose), finally = parallel::stopCluster(mycl))
     pf_core_seconds<-proc.time()[["elapsed"]]-pf_core_start
 	} else {	
 	mycl=NA
     pf_core_start<-proc.time()[["elapsed"]]
-    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, profile.phases=profile.phases, propagation.backend=propagation.backend)
+    Res<- pf.run.parallel.SO.resample(in.Data=all.out, threads=Threads, nParticles=nParticles, known.last=known.last, precision.sd=precision.sd, behav.mask.low.value=behav.mask.low.value, k=k, parallel=parallel, plot=FALSE, existing.cluster=mycl, cluster.type=cluster.type, a=a, b=b, L=L, sink2file=sink2file, adaptive.resampling=adaptive.resampling, RStudio=FALSE, check.outliers=check.outliers, profile.phases=profile.phases, propagation.backend=propagation.backend, verbose=verbose)
     pf_core_seconds<-proc.time()[["elapsed"]]-pf_core_start
 	}
     # Part 2. Creating matrix of results.
@@ -116,22 +128,22 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     get_ll_start<-proc.time()[["elapsed"]]
     LL<- get.LL.PF(all.out, Res$Points)
     get_ll_seconds<-proc.time()[["elapsed"]]-get_ll_start
-    message("+----------------------------------+\n")
-    message("|     estimated negative Log Likelihood is",  LL, "\n")
-    message("+----------------------------------+\n")
+    pf_message("+----------------------------------+\n", verbose=verbose)
+    pf_message("|     estimated negative Log Likelihood is",  LL, "\n", verbose=verbose)
+    pf_message("+----------------------------------+\n", verbose=verbose)
     #save(LL, file=paste(LL, "time", format(Sys.time(), "%H-%m"), ".RData"))
 	# Part 2b comparing the likelihood with previous estimate
     # now we need to save it..
       
 
 	  # Part 3. Updating proposal
-      message("estimating results object\n")
+      pf_message("estimating results object\n", verbose=verbose)
       all.out.old<-all.out
       coordinates_start<-proc.time()[["elapsed"]]
-      all.out<- get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter)
+      all.out<- get.coordinates.PF(Res$Points, all.out, add.jitter=add.jitter, verbose=verbose)
       coordinates_seconds<-proc.time()[["elapsed"]]-coordinates_start
       movement_start<-proc.time()[["elapsed"]]
-      Movement.parameters<- estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles)
+      Movement.parameters<- estimate.movement.parameters(Res$Trans, all.out, fixed.parameters=NA, a=a, b=b, parallel=parallel, existing.cluster=mycl, nParticles=nParticles, verbose=verbose)
       movement_seconds<-proc.time()[["elapsed"]]-movement_start
 	  
 	all.out$Results$Movement.results=Movement.parameters$Movement.results
@@ -187,7 +199,7 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
     )
     all.out$Results$top_level_profile<-top_level_profile
   }
-  message("DONE!\n")
+  pf_message("DONE!\n", verbose=verbose)
   return(all.out)
 }
 
@@ -500,19 +512,19 @@ weight_stack_last<-function(values, start_col, active_cols) {
   values[, weight_stack_last_column(start_col, active_cols, ncol(values))]
 }
 
-pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE, profile.phases=FALSE, propagation.backend=c("auto", "cached", "legacy", "partial_cached")) {
+pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.01, k=NA, parallel=TRUE, plot=TRUE, existing.cluster=NA, cluster.type="PSOCK", a=45, b=500, sink2file=FALSE, L=25, adaptive.resampling=0.5, RStudio=FALSE, check.outliers=FALSE, profile.phases=FALSE, propagation.backend=c("auto", "cached", "legacy", "partial_cached"), verbose=FALSE) {
   ### to make algorhythm work in a fast mode w/o directional proposal use k=NA
   if (sink2file & !RStudio)  sink(file=paste("pf.run.parallel.SO.resample", format(Sys.time(), "%H-%m"), "txt", sep="."))
   if (sink2file & RStudio) sink()
   #### if save.rle=TRUE function will save a out.rle object in out.rle.RData file in working directory BUT to make it work There have to be out.rle column in Main.Index that will contain true for the twilights where results needed.
   ####
   
-  if (any(in.Data$Spatial$Behav.mask!=1)) { 
+ if (any(in.Data$Spatial$Behav.mask!=1)) { 
 	smart.filter=TRUE
-	message("smart filter is ON\n")
+	pf_message("smart filter is ON\n", verbose=verbose)
 	} else {
 	smart.filter=FALSE
-	message("smart filter is OFF\n")
+	pf_message("smart filter is OFF\n", verbose=verbose)
 	}
   propagation.backend<-match.arg(propagation.backend)
   if (propagation.backend=="partial_cached") {
@@ -520,7 +532,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     if (is.null(in.Data$Spatial$tmp)) in.Data$Spatial$tmp<-list()
     in.Data$Spatial$tmp$movement_candidates<-NULL
     in.Data$Spatial$tmp$partial_movement_cache<-build.partial.movement.cache(in.Data$Spatial$Grid, a=a, b=b)
-    message("partial cached propagation backend is ON\n")
+    pf_message("partial cached propagation backend is ON\n", verbose=verbose)
   } else if (propagation.backend!="legacy") {
     movement_candidates<-try(build.grid.movement.candidates(in.Data$Spatial$Grid, a=a, b=b), silent=TRUE)
     if (inherits(movement_candidates, "try-error")) {
@@ -531,14 +543,14 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
       if (is.null(in.Data$Spatial$tmp)) in.Data$Spatial$tmp<-list()
       in.Data$Spatial$tmp$partial_movement_cache<-NULL
       in.Data$Spatial$tmp$movement_candidates<-movement_candidates
-      message("cached propagation backend is ON\n")
+      pf_message("cached propagation backend is ON\n", verbose=verbose)
     }
   } else {
     if (!is.null(in.Data$Spatial$tmp)) {
       in.Data$Spatial$tmp$movement_candidates<-NULL
       in.Data$Spatial$tmp$partial_movement_cache<-NULL
     }
-    message("legacy propagation backend is ON\n")
+    pf_message("legacy propagation backend is ON\n", verbose=verbose)
   }  # so, the idea here will be that we don't need to create these complicated Indexes..
   in.Data.short<-list(Indices=in.Data$Indices,  Spatial=in.Data$Spatial)
   in.Data.short$Spatial$Behav.mask<-NULL
@@ -635,10 +647,10 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
       #New.Points<-lapply(Last.State.List, pf.par.internal, Current.Proposal)
     }
     else {
-      message(" initial diversity is ", nSeq)
+      pf_debug(" initial diversity is ", nSeq, verbose=verbose)
       #New.Points<-clusterApplyLB(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
       New.Points<-parallel::clusterApply(mycl, Last.State.List,  pf.par.internal, Current.Proposal)
-	  message("  Done\n")
+	  pf_debug("  Done\n", verbose=verbose)
     }
     #=======================================================
     New.Particles<-unlist(New.Points)[sort.list(Order.vector, na.last = NA, method =  "quick")]
@@ -671,7 +683,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
     }
     steps.from.last=steps.from.last+1
 
-	message("\n\n##########################\n     Time.Period", Time.Period, "of", total_length, "\n")
+	pf_debug("\n\n##########################\n     Time.Period", Time.Period, "of", total_length, "\n", verbose=verbose)
     #cat("prep. data:")
     Current.Proposal<-if (isTRUE(profile.phases)) {
       profile_phase("proposal_lookup", in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],])
@@ -679,7 +691,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
       in.Data$Indices$Matrix.Index.Table[in.Data$Indices$Main.Index$Biol.Prev[Time.Period],]
     }
     #=======================================
-    message("generating new particles")
+    pf_debug("generating new particles", verbose=verbose)
     New.Particles<-if (isTRUE(profile.phases)) {
       profile_phase("propagate_particles", propagate.particles(Last.Particles=Results.stack[,ncol(Results.stack)], Current.Proposal=Current.Proposal, parallel=parallel, Parameters=Parameters, mycl=mycl))
     } else {
@@ -775,8 +787,8 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	  )/1000, 
 	  weight_stack_last(Weights.stack, Weights.stack.start, Weights.stack.active)*Current.Weights) |> as.numeric()
 	
-	message("AB.distance:", round(AB.distance, 2), "\n")
-	message("AC.distance2:", round(AC.distance2, 2), "\n")
+	pf_debug("AB.distance:", round(AB.distance, 2), "\n", verbose=verbose)
+	pf_debug("AC.distance2:", round(AC.distance2, 2), "\n", verbose=verbose)
 
 	Dif.ang=180
 	if (AB.distance>50) { # go for angles only if disctances are high!
@@ -800,7 +812,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
 	}
 	if (!is.null(BA.mean) & !is.null(BC.mean)) {
 	Dif.ang<-dif.ang(BA.mean, BC.mean)
-	message("anglular change", round(Dif.ang,2), "\n" )
+	pf_debug("anglular change", round(Dif.ang,2), "\n", verbose=verbose)
 	}
 	}	
 
@@ -863,7 +875,7 @@ pf.run.parallel.SO.resample<-function(in.Data, threads=2, nParticles=1e6, known.
       profile_phase("ESS_calculation", {
     if (adaptive.resampling!=1) {
       ESS<-(sum(Current.Weights.with.Prev)^2)/sum((Current.Weights.with.Prev)^2)
-      message("ESS is ", ESS)
+      pf_debug("ESS is ", ESS, verbose=verbose)
 if (is.na(ESS)) {
 	ESS=1
 	Current.Weights.with.Prev.mat<-cbind(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active), Current.Weights)
@@ -879,7 +891,7 @@ if (is.na(ESS)) {
     } else {
     if (adaptive.resampling!=1) {
       ESS<-(sum(Current.Weights.with.Prev)^2)/sum((Current.Weights.with.Prev)^2)
-      message("ESS is ", ESS)
+      pf_debug("ESS is ", ESS, verbose=verbose)
 if (is.na(ESS)) {
 	ESS=1
 	Current.Weights.with.Prev.mat<-cbind(weight_stack_matrix(Weights.stack, Weights.stack.start, Weights.stack.active), Current.Weights)
@@ -904,14 +916,14 @@ if (is.na(ESS)) {
 		#}#
 		#}#
       ResampleCount<-ResampleCount+1
-      message(" - resampling", ResampleCount, "\n")
+      pf_debug(" - resampling", ResampleCount, "\n", verbose=verbose)
       Results.stack<-Results.stack[Rows,]
 	  Weights.stack[,1]<-1/nParticles
 	  Weights.stack.active<-1L
 	  Weights.stack.start<-1L
     } else {
       Rows<-1:nParticles # no resampling
-      message("\n")
+      pf_debug("\n", verbose=verbose)
     }
       NULL
       })
@@ -919,14 +931,14 @@ if (is.na(ESS)) {
 	  if (length(unique(Current.Weights.with.Prev))==1) Current.Weights.with.Prev<-rep(1, nParticles)
 	  Rows<-try(sample.int(nParticles, replace = TRUE, prob = Current.Weights.with.Prev))
       ResampleCount<-ResampleCount+1
-      message(" - resampling", ResampleCount, "\n")
+      pf_debug(" - resampling", ResampleCount, "\n", verbose=verbose)
       Results.stack<-Results.stack[Rows,]
 	  Weights.stack[,1]<-1/nParticles
 	  Weights.stack.active<-1L
 	  Weights.stack.start<-1L
     } else {
       Rows<-1:nParticles # no resampling
-      message("\n")
+      pf_debug("\n", verbose=verbose)
     }
 	New.weights<-Current.Weights[Rows]
 
@@ -1011,10 +1023,10 @@ if (is.na(ESS)) {
     #	if (Time.Period==2) Particles.at.2<-Accepted.Particles
     #	if (Time.Period>2) {
     #		Particles.at.2<-Particles.at.2[Rows]
-    message("   unique P in point leaving stack", length(unique(Results.stack[,1])), "\n")
+    pf_debug("   unique P in point leaving stack", length(unique(Results.stack[,1])), "\n", verbose=verbose)
     #	}
     
-    if (Time.Period<=L) message("creating stack\n")
+    if (Time.Period<=L) pf_debug("creating stack\n", verbose=verbose)
 	if (Time.Period==L) 	Points<-vector(mode = "list")
     if (Time.Period>L) {
 	# the new idea is that we could skip the saving all results and save just points and transitions - we are not outputting them anyways... THis will help avoiding the sort of All.results, that proved to be very slow..
@@ -1058,7 +1070,7 @@ if (is.na(ESS)) {
         Weights.stack.start<-(Weights.stack.start %% Weights.stack.max.cols)+1L
         Weights.stack.active<-Weights.stack.active-1L
       }
-message("******************\n")
+pf_debug("******************\n", verbose=verbose)
     }
     if (isTRUE(profile.phases)) {
       phase_profile[[Time.Period]]<-data.frame(
@@ -1098,7 +1110,7 @@ message("******************\n")
   
   if (!is.list(Points)) Points<-vector(mode = "list")
   # and here we need to add a thing that will finish All.results and Trans from the points that are still in the stack
-  message("adding last points form the stack to the resutls\n")
+  pf_message("adding last points form the stack to the resutls\n", verbose=verbose)
   Length<-ncol(Results.stack)
 
   final_flush_start<-proc.time()[["elapsed"]]
@@ -1156,7 +1168,7 @@ message("******************\n")
 }
 
 
-get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
+get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE, verbose=FALSE) {
   #library("aspace")
   # this function will extract point coordinates from the output matrix.. 
   # the question is do we need only mean and sd or also median and quantiles?
@@ -1175,7 +1187,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
   
   #############
   # new part for medians
-  message("estimating quantiles for positions\n")
+  pf_message("estimating quantiles for positions\n", verbose=verbose)
 	
 		# check whether Grid was over dateline:
 	overdateline<-ifelse(attr(in.Data$Spatial$Grid, 'left')>	attr(in.Data$Spatial$Grid, 'right'), TRUE, FALSE)
@@ -1202,7 +1214,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	# doing jitter first
 	if (add.jitter) {
     in.Data$Results$Quantiles<-Quantiles
-	message("adding jitter to medians\n")
+	pf_message("adding jitter to medians\n", verbose=verbose)
 	jitter_coords<-get.coords.jitter(in.Data)
 	if (!is.null(jitter_coords)) {
 	Quantiles$MedianlonJ<-jitter_coords[,1]
@@ -1216,7 +1228,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 	names(Quantiles)<-gsub("1","F", names(Quantiles))
 	names(Quantiles)<-gsub("3","T", names(Quantiles))
 	
-	message("adding 95% credibility intervals to medians\n")
+	pf_message("adding 95% credibility intervals to medians\n", verbose=verbose)
 	Quantiles$LCI.lat<-CIntervals[,1]
 	Quantiles$UCI.lat<-CIntervals[,2]
 	Quantiles$LCI.lon<-CIntervals[,3]
@@ -1240,7 +1252,7 @@ get.coordinates.PF<-function(Points, in.Data, add.jitter=FALSE) {
 }
 
 
-estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=FALSE, existing.cluster=NULL, estimatetruncnorm=FALSE, nParticles=1e6) {
+estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45, b=500, parallel=FALSE, existing.cluster=NULL, estimatetruncnorm=FALSE, nParticles=1e6, verbose=FALSE) {
   mycl=existing.cluster
   
   # old name update.proposal.PF
@@ -1256,7 +1268,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   #for (i in 1:(dim(output.matrix)[2]-1)) {
   #  Trans[[i]]<-get.transition.rle(output.matrix[,i], output.matrix[,i+1])
   #}
-  message("   estimating distances\n")
+  pf_message("   estimating distances\n", verbose=verbose)
   #####   let's try to get distance distribution:
   Distances<-Trans
   dist.fun<-function(Movement_Points) {
@@ -1274,7 +1286,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
     Movement_Points<-decode_transition_rle_values(Trans[[i]], n_grid=nrow(in.Data$Spatial$Grid))
     Distances[[i]]$values<-dist.fun(Movement_Points)
   }
-  message("   estimating directions\n")
+  pf_message("   estimating directions\n", verbose=verbose)
   #ok, now we want to get directions
   
   Directions<-Trans
@@ -1282,22 +1294,22 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
     Movement_Points<-decode_transition_rle_values(Trans[[i]], n_grid=nrow(in.Data$Spatial$Grid))
     Directions[[i]]$values<-apply(Movement_Points, 1, FUN= dir_fun, in.Data)
   }
-  message("   estimating mean directions and kappas\n")
+  pf_message("   estimating mean directions and kappas\n", verbose=verbose)
   
   Mean.Directions<-unlist(lapply(Directions, FUN=function(x) CircStats::circ.mean(circular::circular(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]*pi/180))))*180/pi))
   #plot(Mean.Directions)
-  message("   estimating kappas\n") #CircStats::est.kappa
+  pf_message("   estimating kappas\n", verbose=verbose) #CircStats::est.kappa
   Kappas<-unlist(lapply(Directions, FUN=function(x) CircStats::est.kappa(inverse.rle(list(lengths=x$lengths[!is.na(x$values)], values=x$values[!is.na(x$values)]*pi/180)))))
   
   
   # now we want to get mean distance
-  message("   estimating mean dists\n")
+  pf_message("   estimating mean dists\n", verbose=verbose)
   #
   #cat("   estimating mean and SD to report dists SD\n")
   # attempt to go just for simple distance estimation...
   Mean2report<-unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   SD2report<-unlist(lapply(Distances, FUN=function(x) stats::sd(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
-  message("   estimating probs of migration\n")
+  pf_message("   estimating probs of migration\n", verbose=verbose)
   # ok, now we want to get parameters for distances
   #
   Probability.of.migration<-unlist(lapply(Distances, FUN=function(x) sum(x$lengths[x$values!=0])))/nParticles
@@ -1307,7 +1319,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
   Mean.and.Sigma<-lapply(Distances, FUN=function(x)  mu.sigma.truncnorm(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])), a=a, b=b))
   #}
   Mean.Dists<-sapply(Mean.and.Sigma, "[[", i=1)
-  message("   estimating dists SD\n")
+  pf_message("   estimating dists SD\n", verbose=verbose)
   Mean.SD<-sapply(Mean.and.Sigma, "[[", i=2)
   } else {
   Mean.Dists<-Mean2report
@@ -1316,10 +1328,10 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
 
   #unlist(lapply(Distances, FUN=function(x) mean(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
   #plot(Mean.Dists)
-  message("   estimating median dists\n")
+  pf_message("   estimating median dists\n", verbose=verbose)
   Median.Dists<-unlist(lapply(Distances, FUN=function(x) stats::median(inverse.rle(list(lengths=x$lengths[x$values!=0], values=x$values[x$values!=0])))))
 
-  message("   creating output")
+  pf_message("   creating output", verbose=verbose)
   ################
   # create new proposal from the posteriors
   #New.Matrix.Index.Table<-data.frame(Direction=Mean.Directions, M.mean=Mean.Dists, M.sd=Mean.SD, Decision=Probability.of.migration, Kappa=Kappas)
@@ -1354,7 +1366,7 @@ estimate.movement.parameters<-function(Trans, in.Data, fixed.parameters=NA, a=45
     if ("Direction" %in% names(fixed.parameters)) Movement.results$Direction<-fixed.parameters$Direction
   }
   #all.arrays.object$Indices$Main.Index$Biol.Next=2:(nrow(all.arrays.object$Indices$Matrix.Index.Table))
-  message(" DONE!\n")
+  pf_message(" DONE!\n", verbose=verbose)
   Res<-list(Movement.results=Movement.results, Transitions.rle=Trans)
   return(Res)
 }

@@ -30,7 +30,7 @@ estimate_cache_bytes <- function(grid_size) {
 
 run_one <- function(ext, backend) {
   run_label <- paste0('backend_extent_', ext$extent_name, '_', backend, '_Np', nParticles, '_seed', seed)
-  old <- Sys.getenv(c('FLIGHTR_RUN_LABEL','FLIGHTR_NPARTICLES','FLIGHTR_PRERUN_THREADS','FLIGHTR_PF_THREADS','FLIGHTR_THREADS','FLIGHTR_SEED','FLIGHTR_KNOWN_LAST','FLIGHTR_PROC_START_DATE','FLIGHTR_PROC_END_DATE','FLIGHTR_PROPAGATION_BACKEND','FLIGHTR_PROFILE_TOP_LEVEL','FLIGHTR_PROFILE_PHASES','FLIGHTR_GRID_LEFT','FLIGHTR_GRID_RIGHT','FLIGHTR_GRID_BOTTOM','FLIGHTR_GRID_TOP'))
+  old <- Sys.getenv(c('FLIGHTR_RUN_LABEL','FLIGHTR_NPARTICLES','FLIGHTR_PRERUN_THREADS','FLIGHTR_PF_THREADS','FLIGHTR_THREADS','FLIGHTR_SEED','FLIGHTR_KNOWN_LAST','FLIGHTR_PROC_START_DATE','FLIGHTR_PROC_END_DATE','FLIGHTR_PROPAGATION_BACKEND','FLIGHTR_PROFILE_TOP_LEVEL','FLIGHTR_PROFILE_PHASES','FLIGHTR_VERBOSE','FLIGHTR_GRID_LEFT','FLIGHTR_GRID_RIGHT','FLIGHTR_GRID_BOTTOM','FLIGHTR_GRID_TOP'))
   on.exit(do.call(Sys.setenv, as.list(old)), add = TRUE)
   Sys.setenv(
     FLIGHTR_RUN_LABEL = run_label,
@@ -44,6 +44,7 @@ run_one <- function(ext, backend) {
     FLIGHTR_PROPAGATION_BACKEND = backend,
     FLIGHTR_PROFILE_TOP_LEVEL = 'true',
     FLIGHTR_PROFILE_PHASES = 'false',
+    FLIGHTR_VERBOSE = Sys.getenv('FLIGHTR_VERBOSE', unset='quiet'),
     FLIGHTR_GRID_LEFT = as.character(ext$left),
     FLIGHTR_GRID_RIGHT = as.character(ext$right),
     FLIGHTR_GRID_BOTTOM = as.character(ext$bottom),

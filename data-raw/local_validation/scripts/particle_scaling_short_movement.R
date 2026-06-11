@@ -24,7 +24,7 @@ cases <- data.frame(
 
 run_one <- function(row) {
   run_label <- paste0('particle_scaling_short_movement_', row$backend, '_Np', row$nParticles, '_threads1_seed', seed)
-  old <- Sys.getenv(c('FLIGHTR_RUN_LABEL','FLIGHTR_NPARTICLES','FLIGHTR_PRERUN_THREADS','FLIGHTR_PF_THREADS','FLIGHTR_THREADS','FLIGHTR_SEED','FLIGHTR_KNOWN_LAST','FLIGHTR_PROC_START_DATE','FLIGHTR_PROC_END_DATE','FLIGHTR_PROPAGATION_BACKEND','FLIGHTR_PROFILE_TOP_LEVEL','FLIGHTR_PROFILE_PHASES'))
+  old <- Sys.getenv(c('FLIGHTR_RUN_LABEL','FLIGHTR_NPARTICLES','FLIGHTR_PRERUN_THREADS','FLIGHTR_PF_THREADS','FLIGHTR_THREADS','FLIGHTR_SEED','FLIGHTR_KNOWN_LAST','FLIGHTR_PROC_START_DATE','FLIGHTR_PROC_END_DATE','FLIGHTR_PROPAGATION_BACKEND','FLIGHTR_PROFILE_TOP_LEVEL','FLIGHTR_PROFILE_PHASES','FLIGHTR_VERBOSE'))
   on.exit(do.call(Sys.setenv, as.list(old)), add = TRUE)
   Sys.setenv(
     FLIGHTR_RUN_LABEL = run_label,
@@ -37,7 +37,8 @@ run_one <- function(row) {
     FLIGHTR_PROC_END_DATE = subset_end,
     FLIGHTR_PROPAGATION_BACKEND = row$backend,
     FLIGHTR_PROFILE_TOP_LEVEL = 'true',
-    FLIGHTR_PROFILE_PHASES = 'false'
+    FLIGHTR_PROFILE_PHASES = 'false',
+    FLIGHTR_VERBOSE = Sys.getenv('FLIGHTR_VERBOSE', unset='quiet')
   )
   value <- source(script, local = new.env())$value
   b <- value$benchmark
