@@ -92,14 +92,6 @@
 #'
 #' @author Eldar Rakhimberdiev
 #' @export
-pf_message<-function(..., verbose=FALSE) {
-  if (isTRUE(verbose) || identical(verbose, "debug")) message(...)
-}
-
-pf_debug<-function(..., verbose=FALSE) {
-  if (identical(verbose, "debug")) message(...)
-}
-
 run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, known.last=TRUE, precision.sd=25, behav.mask.low.value=0.00, k=NA, plot=TRUE, cluster.type="PSOCK", a=45, b=1500, L=90, adaptive.resampling=0.99, check.outliers=FALSE, sink2file=FALSE, add.jitter=FALSE, profile.phases=FALSE, profile.top.level=FALSE, propagation.backend=c("auto", "cached", "legacy", "partial_cached"), verbose=FALSE) {
    run_pf_start<-proc.time()[["elapsed"]]
    cl<-match.call()
@@ -221,6 +213,14 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
   }
   pf_message("DONE!\n", verbose=verbose)
   return(all.out)
+}
+
+pf_message<-function(..., verbose=FALSE) {
+  if (isTRUE(verbose) || identical(verbose, "debug")) message(...)
+}
+
+pf_debug<-function(..., verbose=FALSE) {
+  if (identical(verbose, "debug")) message(...)
 }
 
 build.grid.movement.candidates<-function(Grid, a=45, b=500) {

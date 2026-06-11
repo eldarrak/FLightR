@@ -2,7 +2,7 @@ test_that("partial cached candidates match full cached candidates on a small gri
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("geosphere")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,
@@ -33,7 +33,7 @@ test_that("partial cached propagation matches full cached sampling on a small gr
   testthat::skip_if_not_installed("truncnorm")
   testthat::skip_if_not_installed("circular")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,
@@ -62,7 +62,7 @@ test_that("partial cached diagnostics show lazy origin caching", {
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("geosphere")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,
@@ -89,7 +89,7 @@ test_that("partial cached diagnostics show lazy origin caching", {
 
 test_that("partial cached backend argument is accepted by run.particle.filter", {
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   call.args<-NULL
   env$pf.run.parallel.SO.resample<-function(...) {

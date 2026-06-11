@@ -1,6 +1,6 @@
 load_run_pf_env <- function() {
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
   env
 }
 
@@ -107,15 +107,14 @@ test_that("LL and returned results are unchanged between verbose modes", {
   install_deterministic_pf_stubs(env)
 
   run_one<-function(verbose) {
-    out<-capture.output(
+    out<-testthat::capture_messages(
       res<-env$run.particle.filter(
         stub_run_input(),
         threads=1,
         nParticles=1,
         plot=FALSE,
         verbose=verbose
-      ),
-      type="message"
+      )
     )
     list(result=res, output=out)
   }

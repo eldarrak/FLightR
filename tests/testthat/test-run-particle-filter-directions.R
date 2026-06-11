@@ -1,6 +1,6 @@
 test_that("directional proposal uses bearings from current point to candidates", {
    env<-new.env(parent=globalenv())
-   sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+   source_checkout_r("run_particle_filter.R", env=env)
 
    Grid<-matrix(c(0, 0, 1,
                   1, 0, 1,

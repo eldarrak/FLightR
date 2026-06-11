@@ -1,7 +1,7 @@
 context("transition encoding")
 
 env<-new.env(parent=globalenv())
-sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+source_checkout_r("run_particle_filter.R", env=env)
 
 test_that("transition encoding round-trips on small grids", {
   from<-c(1L, 12L, 99L)

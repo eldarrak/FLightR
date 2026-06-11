@@ -1,4 +1,4 @@
-source(testthat::test_path("../../R/validation_metrics.R"))
+source_checkout_r("validation_metrics.R", env=globalenv())
 
 fake_result <- function() {
   list(

@@ -1,7 +1,7 @@
 test_that("cached movement candidates respect distance bounds", {
   testthat::skip_if_not_installed("geosphere")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,
@@ -20,7 +20,7 @@ test_that("cached movement candidates respect distance bounds", {
 test_that("cached propagation returns valid indices and preserves non-moving particles", {
   testthat::skip_if_not_installed("geosphere")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,
@@ -52,7 +52,7 @@ test_that("cached distance-only proposal is close to legacy on a simple grid", {
   testthat::skip_if_not_installed("truncnorm")
   testthat::skip_if_not_installed("circular")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,
@@ -78,7 +78,7 @@ test_that("cached distance-only proposal is close to legacy on a simple grid", {
 test_that("cached directional proposal favors intended direction", {
   testthat::skip_if_not_installed("geosphere")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,
@@ -108,7 +108,7 @@ test_that("legacy backend and run.particle.filter backend argument remain availa
   testthat::skip_if_not_installed("truncnorm")
   testthat::skip_if_not_installed("circular")
   env<-new.env(parent=globalenv())
-  sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+  source_checkout_r("run_particle_filter.R", env=env)
 
   Grid<-matrix(c(0, 0, 1,
                  1, 0, 1,

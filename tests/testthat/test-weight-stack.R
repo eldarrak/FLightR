@@ -1,6 +1,6 @@
 test_that("preallocated weight stack matches repeated cbind", {
    env<-new.env(parent=globalenv())
-   sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+   source_checkout_r("run_particle_filter.R", env=env)
 
    columns<-list(
       c(0.2, 0.3, 0.5),
@@ -28,7 +28,7 @@ test_that("preallocated weight stack matches repeated cbind", {
 
 test_that("preallocated weight stack row products match old matrix path", {
    env<-new.env(parent=globalenv())
-   sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+   source_checkout_r("run_particle_filter.R", env=env)
 
    columns<-list(
       c(0.2, 0.3, 0.5),
@@ -59,7 +59,7 @@ test_that("preallocated weight stack row products match old matrix path", {
 
 test_that("preallocated weight stack handles reset, set last, and drop first", {
    env<-new.env(parent=globalenv())
-   sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+   source_checkout_r("run_particle_filter.R", env=env)
 
    values<-matrix(NA_real_, nrow=4, ncol=4)
    values[,1]<-rep(0.25, 4)
@@ -90,7 +90,7 @@ test_that("preallocated weight stack handles reset, set last, and drop first", {
 
 test_that("preallocated weight stack preserves logical order after circular wrap", {
    env<-new.env(parent=globalenv())
-   sys.source(testthat::test_path("../../R/run_particle_filter.R"), envir=env)
+   source_checkout_r("run_particle_filter.R", env=env)
 
    values<-matrix(NA_real_, nrow=3, ncol=4)
    values[,1]<-c(1, 1, 1)
