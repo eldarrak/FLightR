@@ -40,7 +40,6 @@ License: GPL-3
 ByteCompile: true
 Encoding: UTF-8
 Suggests:
-    covr,
     testthat,
     knitr,
     rmarkdown,

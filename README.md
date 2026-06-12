@@ -57,7 +57,7 @@ Vignette for the package is available [here](https://github.com/eldarrak/FLightR
 -------------
 
 ## References
-1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25. [Check it](https://movementecologyjournal.biomedcentral.com/articles/10.1186/s40462-015-0062-5)
+1. Rakhimberdiev, E., Winkler, D.W., Bridge, E., Seavy, N.E., Sheldon, D., Piersma, T. & Saveliev, A. (2015). A hidden Markov model for reconstructing animal paths from solar geolocation loggers using templates for light intensity. Movement Ecology, 3, 25. [Check it](https://link.springer.com/article/10.1186/s40462-015-0062-5)
 
 2. Rakhimberdiev, E., Senner, N.R., Verhoeven, M.A., Winkler, D.W., Bouten, W. & Piersma, T. (2016). Comparing inferences of solar geolocation data against high-precision GPS data: annual movements of a double-tagged black-tailed godwit. Journal of Avian Biology, 47, 589–596. [Check it](https://onlinelibrary.wiley.com/doi/10.1111/jav.00891)
 
