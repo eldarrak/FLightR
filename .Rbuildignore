@@ -12,3 +12,6 @@ examples
 ^Meta$
 ^\.github$
 ^CRAN-SUBMISSION$
+^data-raw$
+^Rplots\.pdf$
+^AGENTS\.md$

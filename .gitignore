@@ -6,3 +6,20 @@
 inst/doc
 /doc/
 /Meta/
+
+# Local private validation data
+data-raw/local_validation/private_data/
+data-raw/local_validation/outputs/
+data-raw/local_validation/*.local.yml
+data-raw/local_validation/*.local.yaml
+
+# Large local outputs
+*.RData
+*.rds
+*.Rds
+data-raw/local_validation/outputs/prerun_cache/
+data-raw/local_validation/outputs/prerun_cache/*.rds
+data-raw/local_validation/outputs/prerun_cache/*metadata*
+data-raw/local_validation/outputs/logs/
+data-raw/local_validation/outputs/*.csv
+Rplots.pdf

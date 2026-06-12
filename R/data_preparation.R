@@ -940,7 +940,7 @@ geologger.sampler.create.arrays<-function(Index.tab, Grid, start, stop=start) {
 	output$Spatial$start.location<-start
 	if (!is.na(stop[1]) ) {
 	   #output$Spatial$stop.point<-which.min(sp::spDistsN1(Grid[,1:2], stop,  longlat=TRUE))
-	   output$Spatial$stop.point<- output$Spatial$start.point<-sf::st_nearest_feature(sf::st_point(start),Grid_sf, longlat = TRUE)
+	   output$Spatial$stop.point<-sf::st_nearest_feature(sf::st_point(stop),Grid_sf, longlat = TRUE)
        
 	   output$Spatial$stop.location<-stop
 	} else {
