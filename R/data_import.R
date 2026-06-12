@@ -3,9 +3,9 @@
 #' 
 #' Reads the data frame with detected twilight events into the FLightR
 #' 
-#' @param filename the name of the file which the data are to be read from. File is supposed to be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file (see \code{\link[base]{file}}). Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL. For the supported URL schemes, see help for \code{\link[base]{url}}.
-#' @param start.date date of beginning of relevant data collection in \code{\link[base]{POSIXct}} format.
-#' @param end.date date of end of relevant data collection in \code{\link[base]{POSIXct}} format.
+#' @param filename the name of the file which the data are to be read from. File is supposed to be comma separated file of TAGS format. If it does not contain an absolute path, the file name is relative to the current working directory, getwd(). Tilde-expansion is performed where supported. This can be a compressed file. Alternatively, file can be a readable text-mode connection (which will be opened for reading if necessary, and if so closed (and hence destroyed) at the end of the function call). File can also be a complete URL.
+#' @param start.date date of beginning of relevant data collection in \code{POSIXct} format.
+#' @param end.date date of end of relevant data collection in \code{POSIXct} format.
 #' @param log.light.borders Numeric vector with length of 2 for minimum and maximum log(light) levels to use. Alternatively character value 'auto', that will allow FLightR to assign these values according to detected tag type.
 #' @param log.irrad.borders Numeric vector with length of 2 for minimum and maximum log(irradiance) values to use. Alternatively character value 'auto', that will allow FLightR to assign these values according to detected tag type.
 #' @param saves character values informing FLightR if min or max values were used by logger.

@@ -27,7 +27,7 @@ find.stationary.location(
 
 \item{print.optimization}{do you want every optimization iteration to be printed? If TRUE - Lon, Lat, calibration mean and calibration sd are being printed. Optimization tries to minimize the latter.}
 
-\item{reltol}{tolerance for optimization, see \code{\link{optim}} for more details}
+\item{reltol}{tolerance for optimization, see \code{stats::optim()} for more details}
 }
 \value{
 vector with coordinates - longitude and latitude.

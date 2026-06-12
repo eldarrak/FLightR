@@ -9,7 +9,7 @@
 #' @param log.light.borders numeric vector with length of 2 for minimum and maximum log(light) levels to use. Default value 'auto', will take these values from the Proc.data object.
 #' @param log.irrad.borders numeric vector with length of 2 for minimum and maximum log(irradiance) values to use. Default value 'auto', will take these values from the Proc.data object.
 #' @param ylim the y limits of the plot. The default value, NULL, indicates that the range of the finite values to be plotted should be used.
-#' @param xlim the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{\link{as.POSIXct}}.
+#' @param xlim the x limits of the plot. The default value, NULL, otherwise can be POSIXct or character in a form readable by \code{as.POSIXct()}.
 #' @details The plot of calibration slopes is used for finding start and end dates of a calibration period (the time period, during which the tag remained in the calibration location with coordinates (x,y)). During the calibration period, the calibration slopes vary little both, between the twilight events (sunrises and sunsets) and in time. When the tag changes location, the slopes for sunrises and sunsets start to deviate. There may potentially be several calibration periods for the same location (if the bird returned to the same location several times). The boundaries (start and end dates) of each of these periods are captured visually. If there were more than one calibration location, the procedure is repeated, once for each location. 
 #' All the obtained calibration periods can be entered in a data frame 'Calibration.periods', for further analysis. Each line of the data frame contains start and end dates (if applicable) of the calibration period and geographic coordinates of the location.
 #' @return 'NULL'
@@ -165,7 +165,7 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @param plot plots every iteration
 #' @param initial.coords location vector with initial values for location (longitude and latitude). Should be close (+-2000 km from the real location)
 #' @param print.optimization do you want every optimization iteration to be printed? If TRUE - Lon, Lat, calibration mean and calibration sd are being printed. Optimization tries to minimize the latter.
-#' @param reltol tolerance for optimization, see \code{\link{optim}} for more details
+#' @param reltol tolerance for optimization, see \code{stats::optim()} for more details
 #' @details The idea behind the function is that it tries to minimize variance between slopes for the whole period by optimizing location. It can be seen as an extension of Hill-Ekstrom calibration idea.
 #' @return vector with coordinates - longitude and latitude. 
 #' @examples

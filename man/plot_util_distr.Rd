@@ -24,30 +24,30 @@ plot_util_distr(
 
 \item{dates}{Use NULL if all twilights will be used for plotting, one integer if specific twilight should be plotted (line number in Result$Results$Quantiles). Use data.frame with first column - start of the period and second - end of the period and each line represents a new period to plot specific periods, e.g. wintering or migration.}
 
-\item{map.options}{options passed to \code{\link[ggmap]{get_map}}, note that \code{zoom} option is defined separately}
+\item{map.options}{options passed to \code{ggmap::get_map()}, note that \code{zoom} option is defined separately}
 
 \item{percentiles}{Probability breaks for utilisation distribution}
 
 \item{zoom}{Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.}
 
-\item{geom_polygon.options}{options passed to \code{\link[ggplot2]{geom_polygon}}}
+\item{geom_polygon.options}{options passed to \code{ggplot2::geom_polygon()}}
 
-\item{save.options}{options passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.}
+\item{save.options}{options passed to \code{ggplot2::ggsave()}. Filename should be defined here.}
 
-\item{color.palette}{colors for probability contours. Either NULL or \code{\link[grDevices]{colorRampPalette}} object}
+\item{color.palette}{colors for probability contours. Either NULL or \code{grDevices::colorRampPalette()} object}
 
 \item{use.palette}{should the same colors be used for polygon boundaries as for polygon filling?}
 
-\item{background}{if provided will be used as a background. Must be created by \code{link[ggmap]{get_map}}}
+\item{background}{if provided will be used as a background. Must be created by \code{ggmap::get_map()}}
 
 \item{plot}{should function produce a plot?}
 
-\item{save}{should function save results with \code{\link[ggplot2]{ggsave}}?}
+\item{save}{should function save results with \code{ggplot2::ggsave()}?}
 }
 \value{
 list with two parts 
         \item{res_buffers}{spatial buffers for defined probability values}
-        \item{p}{\code{\link[ggplot2]{ggplot}} object}
+        \item{p}{\code{ggplot2::ggplot()} object}
 }
 \description{
 May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).

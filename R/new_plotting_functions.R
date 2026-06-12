@@ -3,17 +3,17 @@
 #' plots track over map with probability cloud. Can plot only part of the track if dates are specified. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param dates either NULL if all twilights should be included or data.frame with first column - start of the period and second end of the period. Each line represents a new period
-#' @param plot.cloud Should probability cloud be plotted? If TRUE cloud is estimated by \code{\link[ggplot2]{stat_density2d}}
-#' @param map.options options passed to \code{\link[ggmap]{get_map}}, note that \code{zoom} option is defined separately
+#' @param plot.cloud Should probability cloud be plotted? If TRUE cloud is estimated by \code{ggplot2::stat_density2d()}.
+#' @param map.options options passed to \code{ggmap::get_map()}, note that \code{zoom} option is defined separately
 #' @param plot.options plotting options. Not defined yet!
-#' @param save.options options passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.
+#' @param save.options options passed to \code{ggplot2::ggsave()}. Filename should be defined here.
 #' @param zoom Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.
 #' @param return.ggobj Should ggobj be returned for subsequent checks and/or replotting
 #' @param seasonal.colors if true points of the track will have seasonal colors
 #' @param seasonal.donut.location if NULL - no color wheel placed, otherwise select one of 'bottomleft', 'bottomright', 'topleft'
 #' @param seasonal.donut.proportion how much of X axis should color wheel occupy.
 #' return either NULL or ggplot2 class object
-#' @param save should function save results with \code{\link[ggplot2]{ggsave}}?
+#' @param save should function save results with \code{ggplot2::ggsave()}?
 #' @return if 'return.ggobj=TRUE' return ggplot object otherwise returns 'NULL'.
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
@@ -426,19 +426,19 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 #' 
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param dates Use NULL if all twilights will be used for plotting, one integer if specific twilight should be plotted (line number in Result$Results$Quantiles). Use data.frame with first column - start of the period and second - end of the period and each line represents a new period to plot specific periods, e.g. wintering or migration.
-#' @param map.options options passed to \code{\link[ggmap]{get_map}}, note that \code{zoom} option is defined separately
+#' @param map.options options passed to \code{ggmap::get_map()}, note that \code{zoom} option is defined separately
 #' @param percentiles Probability breaks for utilisation distribution
 #' @param zoom Zoom for map. If 'auto' FLightR will try to find optimal zoom level by downloading different size maps and checking whether all the points fit the map.
-#' @param geom_polygon.options options passed to \code{\link[ggplot2]{geom_polygon}}
-#' @param save.options options passed to \code{\link[ggplot2]{ggsave}}. Filename should be defined here.
-#' @param color.palette colors for probability contours. Either NULL or \code{\link[grDevices]{colorRampPalette}} object
+#' @param geom_polygon.options options passed to \code{ggplot2::geom_polygon()}
+#' @param save.options options passed to \code{ggplot2::ggsave()}. Filename should be defined here.
+#' @param color.palette colors for probability contours. Either NULL or \code{grDevices::colorRampPalette()} object
 #' @param use.palette should the same colors be used for polygon boundaries as for polygon filling?
-#' @param background if provided will be used as a background. Must be created by \code{link[ggmap]{get_map}}
+#' @param background if provided will be used as a background. Must be created by \code{ggmap::get_map()}
 #' @param plot should function produce a plot?
-#' @param save should function save results with \code{\link[ggplot2]{ggsave}}?
+#' @param save should function save results with \code{ggplot2::ggsave()}?
 #' @return list with two parts 
 #'         \item{res_buffers}{spatial buffers for defined probability values}
-#'         \item{p}{\code{\link[ggplot2]{ggplot}} object}
+#'         \item{p}{\code{ggplot2::ggplot()} object}
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' # to run example fast we will cut the real data file by 2013 Aug 20
