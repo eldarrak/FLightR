@@ -49,5 +49,9 @@ This update removes dependency on the archived package ggsn.
 
 * ubuntu 
 * macOS
-* win-builder (R devel, R release, R old release) r-hub r-cmd-check on GitHub and locally
+* win-builder (R devel, R release, R old release)
+* R-hub v2, using:
+  * `rhub::rhub_setup()`
+  * `rhub::rhub_check()`
+* r-cmd-check on GitHub and locally
 ---

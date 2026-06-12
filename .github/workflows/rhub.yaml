@@ -1,8 +1,9 @@
 # R-hub's generic GitHub Actions workflow file. It's canonical location is at
 # https://github.com/r-hub/actions/blob/v1/workflows/rhub.yaml
-# You can update this file to a newer version using the rhub2 package:
+# You can update this file using rhub v2:
 #
 # rhub::rhub_setup()
+# rhub::rhub_check()
 #
 # It is unlikely that you need to modify this file manually.
 
