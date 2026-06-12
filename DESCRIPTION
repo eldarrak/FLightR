@@ -2,7 +2,7 @@ Package: FLightR
 Type: Package
 Title: Reconstruct Animal Paths from Solar Geolocation Loggers Data
 Version: 0.5.6
-Date: 2024-xx-xx
+Date: 2026-06-11
 Authors@R: c(
     person("Eldar", "Rakhimberdiev", email = "eldar.rakhimberdiev@uva.nl", role = c("aut","cre")),
     person("Anatoly", "Saveliev", role = "aut"),
@@ -39,10 +39,11 @@ Imports:
 License: GPL-3
 ByteCompile: true
 Encoding: UTF-8
-RoxygenNote: 7.3.1
 Suggests:
     covr,
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    yaml
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

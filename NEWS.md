@@ -1,3 +1,27 @@
+# ver 0.5.6 Jun 2026
+Release-candidate updates for the particle-filter implementation and local
+validation workflow.
+
+* Added fast cached and partial-cached movement proposal backends for
+  `run.particle.filter()`, while keeping the legacy backend available for
+  fallback and reproducibility.
+* In local double-tag validation benchmarks, the new `partial_cached`
+  propagation backend reduced particle-filter runtime by about 20-25x for a
+  full-length 1e6-particle run on the tested dataset and machine. Actual
+  speedups depend on grid size, backend, particle count, hardware, and thread
+  settings.
+* Added focused fixes for sequential `threads = 1`, start/stop point handling,
+  directional bearing orientation, and transition encoding on large grids.
+* Added quiet-by-default particle-filter logging via `verbose = FALSE`; use
+  `verbose = TRUE` for normal progress and `verbose = "debug"` for detailed
+  loop diagnostics.
+* Added warnings that particle-filter PSOCK parallel execution can be slower
+  than sequential execution for tested cached backends. Preparation-stage
+  parallelism in `make.prerun.object()` remains available and can still be
+  beneficial.
+* Added local-only validation and benchmarking utilities for private
+  double-tagged data. These files are excluded from CRAN builds.
+
 # ver 0.5.5 Jun 2024
 Small (and not affecting the results) bug was corrected in the summary function; removed dependcy on ggsn, as the package was archived (so scalebar cannot be plotted anymore); checked for the new ggmap; imporved unix cluster handling
 

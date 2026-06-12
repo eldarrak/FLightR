@@ -42,6 +42,36 @@ test_that('make.grid works',  {
    }
 )
 
+test_that('geologger.sampler.create.arrays uses separate start and stop points', {
+   Index.tab<-data.frame(
+      Decision=c(0, 0),
+      Direction=c(0, 0),
+      Kappa=c(0, 0),
+      M.mean=c(0, 0),
+      M.sd=c(1, 1),
+      yday=c(1, 2),
+      Real.time=as.POSIXct(c('2020-01-01 06:00:00', '2020-01-01 18:00:00'), tz='GMT'),
+      time=as.POSIXct(c('2020-01-01 06:00:00', '2020-01-01 18:00:00'), tz='GMT'),
+      Dusk=c(FALSE, TRUE),
+      Loess.se.fit=c(0, 0),
+      Loess.n=c(1, 1),
+      Curr.mat=c(1, 2)
+   )
+   Grid<-matrix(c(0, 0, 1, 10, 0, 1), ncol=3, byrow=TRUE)
+   colnames(Grid)<-c("lon", "lat", "mask")
+
+   all.in<-geologger.sampler.create.arrays(
+      Index.tab,
+      Grid,
+      start=c(0, 0),
+      stop=c(10, 0)
+   )
+
+   expect_equal(as.integer(all.in$Spatial$start.point), 1)
+   expect_equal(as.integer(all.in$Spatial$stop.point), 2)
+   expect_false(all.in$Spatial$start.point == all.in$Spatial$stop.point)
+})
+
 test_that('parallel setup works works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))

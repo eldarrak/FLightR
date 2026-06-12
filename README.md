@@ -28,6 +28,11 @@ I update CRAN version several times a year, but to get the latest version from G
 ---------------
 
 ## NB
+Version 0.5.6 adds fast cached particle-filter backends. In local validation
+benchmarks, the `partial_cached` backend made a full-length 1e6-particle run
+about 20-25x faster on the tested dataset and machine. Actual speedups depend
+on grid size, backend, particle count, hardware, and thread settings.
+
 Version 0.4.4 All function names started from `plot.` are replaced wit `plot_`, e.g. `plot.lon.lat()` became `plot_lon_lat()`
 Version 0.3.9 has got two major changes:
 
