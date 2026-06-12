@@ -1,6 +1,6 @@
 #' plots result over map
 #'
-#' plots track over map with probability cloud. Can plot only part of the track if dates are specified. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
+#' plots track over map with probability cloud. Can plot only part of the track if dates are specified. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key, see \url{https://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/}.
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param dates either NULL if all twilights should be included or data.frame with first column - start of the period and second end of the period. Each line represents a new period
 #' @param plot.cloud Should probability cloud be plotted? If TRUE cloud is estimated by \code{ggplot2::stat_density2d()}.
@@ -422,7 +422,7 @@ get_time_spent_buffer<-function(Result, dates=NULL, percentile=0.5, r=NULL) {
 
 #' plots resulting track over map with uncertainty shown by space utilisation distribution
 #' 
-#' May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
+#' May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key, see \url{https://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/}.
 #' 
 #' @param Result FLightR result object obtained from \code{\link{run.particle.filter}}
 #' @param dates Use NULL if all twilights will be used for plotting, one integer if specific twilight should be plotted (line number in Result$Results$Quantiles). Use data.frame with first column - start of the period and second - end of the period and each line represents a new period to plot specific periods, e.g. wintering or migration.

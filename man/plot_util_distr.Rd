@@ -50,7 +50,7 @@ list with two parts
         \item{p}{\code{ggplot2::ggplot()} object}
 }
 \description{
-May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key check [here](http://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error).
+May be use not only for the whole track but for a set of specific dates, e.g. to show spatial uncertainty during migration. Note that you can use it only after obtaining and registering in you current session Google Api Key. For details on the API key, see \url{https://ornithologyexchange.org/forums/topic/38315-mapflightrggmap-error/}.
 }
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
