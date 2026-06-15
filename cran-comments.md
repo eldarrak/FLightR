@@ -1,3 +1,9 @@
+## Resubmission
+
+This is a resubmission. In this version I have changed the Journal of Avian
+Biology link in README.md from the publisher webpage URL to the persistent DOI
+URL requested by CRAN.
+
 ## Test environments
 
 * local Windows 11 x64, R 4.6.0 ucrt
