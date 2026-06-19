@@ -1,5 +1,3 @@
-source_checkout_r("validation_metrics.R", env=globalenv())
-
 fake_result <- function() {
   list(
     twilight = as.POSIXct(
