@@ -1,3 +1,5 @@
+source_checkout_r("detect.tsoutliers.R", env=globalenv())
+
 test_that("tsoutliers.test returns a numeric score for each observation", {
   series <- c(1, 1.1, 0.9, 1.05, 8, 1, 0.95, 1.1, 1)
 
