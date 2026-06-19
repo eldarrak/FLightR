@@ -194,6 +194,21 @@ run.particle.filter<-function(all.out, cpus=NULL, threads=-1, nParticles=1e6, kn
   
   all.out$Spatial$tmp<-NULL
   all.out$call<-cl
+  if (is.null(all.out$Metadata)) all.out$Metadata<-list()
+  all.out$Metadata$ParticleFilter<-list(
+    nParticles=nParticles,
+    known.last=known.last,
+    precision.sd=precision.sd,
+    threads=Threads,
+    requested.threads=threads,
+    propagation.backend=propagation.backend,
+    a=a,
+    b=b,
+    L=L,
+    adaptive.resampling=adaptive.resampling,
+    check.outliers=check.outliers,
+    add.jitter=add.jitter
+  )
   all.out$Results$FLightRver<-utils::packageVersion("FLightR")
   if (isTRUE(profile.phases) || isTRUE(profile.top.level)) {
     final_assembly_seconds<-proc.time()[["elapsed"]]-final_assembly_start

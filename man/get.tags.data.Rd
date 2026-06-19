@@ -12,7 +12,12 @@ get.tags.data(
   log.irrad.borders = "auto",
   saves = c("auto", "max", "mean"),
   measurement.period = NULL,
-  impute.on.boundaries = FALSE
+  impute.on.boundaries = FALSE,
+  tag.type = "auto",
+  light.scale = "auto",
+  logger.mode = NULL,
+  raw.light.bounds = NULL,
+  tag.settings = NULL
 )
 }
 \arguments{
@@ -31,6 +36,16 @@ get.tags.data(
 \item{measurement.period}{Value in seconds defining how often tag was measuring light levels. If NULL value will be taken from known values for detected tag type.}
 
 \item{impute.on.boundaries}{logical, if FLightR should approximate values at boundaries. Set it to TRUE only if you have vary few active points at each twilight, e.g if tag was saving every 10 minutes or so.}
+
+\item{tag.type}{Logger type. The default, \code{"auto"}, keeps the historical automatic detection from light minimum and maximum values. Explicit values such as \code{"mk"}, \code{"intigeo"}, \code{"intigeo_mode_1"}, \code{"gdl1"}, \code{"gdl2v1"}, \code{"gdl2v2_gdlpam"}, and \code{"lat2000"} bypass automatic tag-type detection.}
+
+\item{light.scale}{Scale of the light values in the TAGS file. Use \code{"auto"} for historical automatic detection, \code{"raw"} for untransformed positive light values, or \code{"log"} when the file already contains log-light values. If \code{"log"} is supplied, FLightR converts values back to raw light internally so downstream processing does not log-transform them twice.}
+
+\item{logger.mode}{Optional convenience alias combining \code{tag.type} and \code{light.scale}, e.g. \code{"mk-real"}, \code{"mk-raw"}, \code{"mk-log"}, \code{"intigeo-real"}, or \code{"intigeo-log"}. If supplied, it overrides \code{tag.type} and \code{light.scale}.}
+
+\item{raw.light.bounds}{Optional raw light-value bounds for a custom logger. These are stored in \code{Proc.data$tag.settings} and \code{Proc.data$Metadata$Import} for diagnostics.}
+
+\item{tag.settings}{Optional list with any of \code{tag.type}, \code{light.scale}, \code{logger.mode}, or \code{raw.light.bounds}. Values in this list override the corresponding arguments.}
 }
 \value{
 list, which is to be further processed with the FLightR.
@@ -39,9 +54,10 @@ list, which is to be further processed with the FLightR.
 Reads the data frame with detected twilight events into the FLightR
 }
 \details{
-The returned object has many parts, the important are: (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data).
+The returned object has many parts, the important are: (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data). Import settings are stored both in the historical top-level fields, such as \code{tagtype}, \code{log_transformed}, \code{log.light.borders}, and \code{log.irrad.borders}, and in \code{Proc.data$Metadata$Import} for structured provenance.
 }
 \examples{
 File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 Proc.data<-get.tags.data(File)
+Proc.data<-get.tags.data(File, tag.type = "intigeo", light.scale = "log")
 }

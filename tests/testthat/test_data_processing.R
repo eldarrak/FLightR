@@ -25,6 +25,44 @@ test_that('get.tags.data works',  {
    }
 )
 
+test_that('make.calibration records import and calibration metadata',  {
+   File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
+   Calibration.periods<-data.frame(
+        calibration.start=NA,
+        calibration.stop=as.POSIXct("2013-07-02", tz='GMT'),
+        lon=5.43, lat=52.93)
+   Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+   expect_equal(c(1.5,9), Calibration$Parameters$log.light.borders)
+   expect_equal(c(1.5,9), Calibration$Metadata$Import$log.light.borders)
+   expect_equal(c(1.5,9), Calibration$Metadata$Calibration$log.light.borders)
+   expect_false(Calibration$Metadata$Calibration$likelihood.correction)
+   }
+)
+
+test_that('metadata is carried through prerun and particle filter objects',  {
+   File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
+   Proc.data<-get.tags.data(File, end.date=as.POSIXct('2013-07-02', tz='GMT'))
+   Calibration.periods<-data.frame(
+        calibration.start=NA,
+        calibration.stop=as.POSIXct("2013-08-20", tz='GMT'),
+        lon=5.43, lat=52.93)
+   Calibration<-make.calibration(Proc.data, Calibration.periods, likelihood.correction=FALSE)
+   Grid<-make.grid(left=0, bottom=50, right=10, top=56,
+     distance.from.land.allowed.to.use=c(-Inf, Inf),
+     distance.from.land.allowed.to.stay=c(-Inf, Inf))
+   all.in<-make.prerun.object(Proc.data, Grid, start=c(5.43, 52.93), Calibration=Calibration, threads=1)
+   expect_equal(all.in$Metadata$Import$resolved.tag.type, Proc.data$Metadata$Import$resolved.tag.type)
+   expect_equal(all.in$Metadata$Calibration$log.irrad.borders, Calibration$Metadata$Calibration$log.irrad.borders)
+   Result<-run.particle.filter(all.in, threads=1,
+           nParticles=1e3, known.last=TRUE, check.outliers=FALSE)
+   expect_equal(Result$Metadata$Import$resolved.tag.type, Proc.data$Metadata$Import$resolved.tag.type)
+   expect_equal(Result$Metadata$Calibration$log.light.borders, Calibration$Metadata$Calibration$log.light.borders)
+   expect_equal(Result$Metadata$ParticleFilter$nParticles, 1e3)
+   expect_equal(Result$Metadata$ParticleFilter$threads, 1)
+   }
+)
+
 test_that('find.stationary.location works',  {
    File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
    Proc.data<-get.tags.data(File)

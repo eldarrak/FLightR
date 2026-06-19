@@ -1,3 +1,15 @@
+# ver 0.5.7 Jun 2026
+
+* Improved `get.tags.data()` import controls for newer or custom loggers:
+  users can now specify logger type, raw/log light scale, custom raw and
+  log-light bounds, and combined
+  `tag.settings`. Automatic tag/light-scale detection now records structured
+  diagnostics and stops when detection is ambiguous or fails; use
+  explicit settings for custom or newly supported trackers. Import
+  and calibration settings are also carried in structured `Metadata` blocks
+  through `Proc.data`, `Calibration`, prerun objects, and particle-filter
+  results while preserving existing top-level fields.
+
 # ver 0.5.6 Jun 2026
 Release-candidate updates for the particle-filter implementation and local
 validation workflow.

@@ -149,6 +149,18 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 				 ageing.model=calibration.parameters$ageing.model,
 				 location=NA, likelihood.correction=likelihood.correction)
    Calibration$Calibration.periods<-Calibration.periods
+   if (is.null(Calibration$Metadata)) Calibration$Metadata<-list()
+   if (is.null(Calibration$Metadata$Import)) Calibration$Metadata$Import<-get.import.metadata.from.proc.data(Proc.data)
+   Calibration$Metadata$Calibration<-list(
+      log.light.borders=Proc.data$log.light.borders,
+      log.irrad.borders=Proc.data$log.irrad.borders,
+      model.ageing=model.ageing,
+      likelihood.correction=likelihood.correction,
+      calibration.periods=Calibration.periods,
+      fixed.logSlope=fixed.logSlope,
+      suggest.irrad.borders=suggest.irrad.borders,
+      return.slopes=return.slopes
+   )
    if (return.slopes) Calibration$Calibration.Slopes<-calibration.parameters$All.slopes$Slopes
    return(Calibration)
    }
@@ -182,8 +194,14 @@ make.calibration<-function(Proc.data, Calibration.periods, model.ageing=FALSE, p
 #' @export		
 find.stationary.location<-function(Proc.data, calibration.start,  calibration.stop, plot=TRUE, initial.coords=NULL, print.optimization=TRUE, reltol=1e-4) {
    if (is.null(initial.coords)) stop('current function vesrion requires some inital coordinates to start search, they should not be very close but within few thousand km!')
+   restore.output.sinks<-function(target) {
+      while (sink.number(type="output")>target) {
+         sink(type="output")
+      }
+   }
    ll_function<-function(initial.coords, Proc.data, calibration.start, calibration.stop, plot=TRUE, stage=1) {
-   sink()
+   sink.target<-sink.number(type="output")
+   on.exit(restore.output.sinks(sink.target), add=TRUE)
         Calibration.period<-data.frame(
         calibration.start=as.POSIXct(calibration.start, tz='GMT'),
         calibration.stop=as.POSIXct(calibration.stop, tz='GMT'),
@@ -214,7 +232,6 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
 	   suggest.irrad.borders=FALSE))
 	}   
     if (plot) plot_slopes(calibration.parameters$All.slopes)
-	     suppressWarnings(sink())
 	     percent_excluded<-1-(sum(is.finite(calibration.parameters$All.slopes$Slopes$logSlope))/Twilights_total)
 
 	if (stage==1) {
@@ -242,10 +259,12 @@ find.stationary.location<-function(Proc.data, calibration.start,  calibration.st
    }
 
    message('stage 1...\n')
-   tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=1e-2)), finally=try(suppressWarnings(sink())))
+   sink.target<-sink.number(type="output")
+   tryCatch(Res<-stats::optim(initial.coords, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, control=list(reltol=1e-2)), finally=restore.output.sinks(sink.target))
    message('stage 2...\n')
    
-   tryCatch(Res<-stats::optim(Res$par, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, stage=2,control=list(reltol=reltol)), finally=try(suppressWarnings(sink())))
+   sink.target<-sink.number(type="output")
+   tryCatch(Res<-stats::optim(Res$par, fn=ll_function, Proc.data=Proc.data, calibration.start=calibration.start, calibration.stop=calibration.stop, plot=plot, stage=2,control=list(reltol=reltol)), finally=restore.output.sinks(sink.target))
    
    return(Res$par)
  }
@@ -316,6 +335,10 @@ make.prerun.object<-function(Proc.data, Grid, start, end=start, Calibration, thr
 
    all.in$Calibration<-Calibration
    all.in$Data<-Proc.data$FLightR.data
+   all.in$Metadata<-Calibration$Metadata
+   if (is.null(all.in$Metadata)) all.in$Metadata<-list()
+   if (is.null(all.in$Metadata$Import)) all.in$Metadata$Import<-get.import.metadata.from.proc.data(Proc.data)
+   if (is.null(all.in$Metadata$Calibration) && !is.null(Calibration$Metadata$Calibration)) all.in$Metadata$Calibration<-Calibration$Metadata$Calibration
 
    if (threads!=1 ) {
       Possible.threads<-parallel::detectCores()
@@ -762,8 +785,62 @@ if (likelihood.correction) {
      c_fun=make_likelihood_correction_function(Parameters$LogSlope[1], Parameters$LogSlope[2], cur_sd_range=cur_sd_range)$c_fun
 }
 Calibration<-list(Parameters=Parameters, time_correction_fun=time_correction_fun, lat_correction_fun=lat_correction_fun, c_fun=c_fun)
+Calibration$Metadata<-list(
+   Import=get.import.metadata.from.proc.data(Proc.data),
+   Calibration=list(
+      log.light.borders=log.light.borders,
+      log.irrad.borders=log.irrad.borders,
+      likelihood.correction=likelihood.correction,
+      location=location
+   )
+)
 
 return(Calibration)
+}
+
+
+get.import.metadata.from.proc.data<-function(Proc.data) {
+   if (!is.null(Proc.data$Metadata$Import)) {
+      Import<-Proc.data$Metadata$Import
+      if (!is.null(Proc.data$tag.settings)) {
+         if (is.null(Import$raw.light.bounds)) Import$raw.light.bounds<-Proc.data$tag.settings$raw.light.bounds
+         if (is.null(Import$log.light.borders)) Import$log.light.borders<-if (!is.null(Proc.data$tag.settings$log.light.borders)) Proc.data$tag.settings$log.light.borders else Proc.data$log.light.borders
+         if (is.null(Import$observed.light.range)) Import$observed.light.range<-Proc.data$tag.settings$observed.light.range
+         if (is.null(Import$detection.status)) Import$detection.status<-Proc.data$tag.settings$detection.status
+         if (is.null(Import$detection.message)) Import$detection.message<-if (!is.null(Proc.data$tag.settings$detection.message)) Proc.data$tag.settings$detection.message else Proc.data$tag.settings$detection.reason
+         if (is.null(Import$detection.candidate.modes)) Import$detection.candidate.modes<-Proc.data$tag.settings$detection.candidate.modes
+         if (is.null(Import$inferred)) Import$inferred<-Proc.data$tag.settings$inferred
+      }
+      return(Import)
+   }
+   if (!is.null(Proc.data$tag.settings)) {
+      return(list(
+         requested.tag.type=if (!is.null(Proc.data$tag.settings$requested.tag.type)) Proc.data$tag.settings$requested.tag.type else Proc.data$tag.settings$tag.type,
+         requested.light.scale=if (!is.null(Proc.data$tag.settings$requested.light.scale)) Proc.data$tag.settings$requested.light.scale else Proc.data$tag.settings$light.scale,
+         requested.logger.mode=Proc.data$tag.settings$requested.logger.mode,
+         resolved.tag.type=Proc.data$tag.settings$tag.type,
+         resolved.light.scale=Proc.data$tag.settings$light.scale,
+         raw.light.bounds=Proc.data$tag.settings$raw.light.bounds,
+         log.light.borders=if (!is.null(Proc.data$tag.settings$log.light.borders)) Proc.data$tag.settings$log.light.borders else Proc.data$log.light.borders,
+         observed.light.range=Proc.data$tag.settings$observed.light.range,
+         observed.min.light=Proc.data$tag.settings$observed.light.range[1],
+         observed.max.light=Proc.data$tag.settings$observed.light.range[2],
+         transformation.applied=Proc.data$tag.settings$transformation.applied,
+         detection.status=Proc.data$tag.settings$detection.status,
+         detection.message=if (!is.null(Proc.data$tag.settings$detection.message)) Proc.data$tag.settings$detection.message else Proc.data$tag.settings$detection.reason,
+         detection.candidate.modes=Proc.data$tag.settings$detection.candidate.modes,
+         inferred=Proc.data$tag.settings$inferred
+      ))
+   }
+   list(
+      resolved.tag.type=Proc.data$tagtype,
+      resolved.light.scale=if (isTRUE(Proc.data$log_transformed)) "log" else if (!is.null(Proc.data$log_transformed)) "raw" else NA_character_,
+      log.light.borders=Proc.data$log.light.borders,
+      transformation.applied=NA_character_,
+      detection.status=NA_character_,
+      detection.message=NA_character_,
+      inferred=list()
+   )
 }
 
 

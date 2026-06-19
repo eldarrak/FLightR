@@ -11,68 +11,56 @@
 #' @param saves character values informing FLightR if min or max values were used by logger.
 #' @param measurement.period Value in seconds defining how often tag was measuring light levels. If NULL value will be taken from known values for detected tag type.
 #' @param impute.on.boundaries logical, if FLightR should approximate values at boundaries. Set it to TRUE only if you have vary few active points at each twilight, e.g if tag was saving every 10 minutes or so.
+#' @param tag.type Logger type. The default, \code{"auto"}, keeps the historical automatic detection from light minimum and maximum values. Explicit values such as \code{"mk"}, \code{"intigeo"}, \code{"intigeo_mode_1"}, \code{"gdl1"}, \code{"gdl2v1"}, \code{"gdl2v2_gdlpam"}, and \code{"lat2000"} bypass automatic tag-type detection.
+#' @param light.scale Scale of the light values in the TAGS file. Use \code{"auto"} for historical automatic detection, \code{"raw"} for untransformed positive light values, or \code{"log"} when the file already contains log-light values. If \code{"log"} is supplied, FLightR converts values back to raw light internally so downstream processing does not log-transform them twice.
+#' @param logger.mode Optional convenience alias combining \code{tag.type} and \code{light.scale}, e.g. \code{"mk-real"}, \code{"mk-raw"}, \code{"mk-log"}, \code{"intigeo-real"}, or \code{"intigeo-log"}. If supplied, it overrides \code{tag.type} and \code{light.scale}.
+#' @param raw.light.bounds Optional raw light-value bounds for a custom logger. These are stored in \code{Proc.data$tag.settings} and \code{Proc.data$Metadata$Import} for diagnostics.
+#' @param tag.settings Optional list with any of \code{tag.type}, \code{light.scale}, \code{logger.mode}, or \code{raw.light.bounds}. Values in this list override the corresponding arguments.
 #' @return list, which is to be further processed with the FLightR.
-#' @details The returned object has many parts, the important are: (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data).
+#' @details The returned object has many parts, the important are: (1) the recorded light data, (2) the detected twilight events, (3) light level data at the moment of each determined sunrise and sunset and around them (24 fixes before and 24 after), and (4) technical parameters of the tag, i. e. its type, saving and measuring period (the periodicity, in seconds, at which a tag measures and saves data). Import settings are stored both in the historical top-level fields, such as \code{tagtype}, \code{log_transformed}, \code{log.light.borders}, and \code{log.irrad.borders}, and in \code{Proc.data$Metadata$Import} for structured provenance.
 #' @examples
 #' File<-system.file("extdata", "Godwit_TAGS_format.csv", package = "FLightR")
 #' Proc.data<-get.tags.data(File)
+#' Proc.data<-get.tags.data(File, tag.type = "intigeo", light.scale = "log")
 #' @export
-get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("auto", "max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE) {
+get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light.borders='auto', log.irrad.borders='auto', saves=c("auto", "max", "mean"), measurement.period=NULL,  impute.on.boundaries=FALSE, tag.type="auto", light.scale="auto", logger.mode=NULL, raw.light.bounds=NULL, tag.settings=NULL) {
  # measurement.period should be set to saving period for swiss tags
+   if (!is.null(tag.settings)) {
+      if (!is.null(tag.settings$tag.type)) tag.type<-tag.settings$tag.type
+      if (!is.null(tag.settings$light.scale)) light.scale<-tag.settings$light.scale
+      if (!is.null(tag.settings$logger.mode)) logger.mode<-tag.settings$logger.mode
+      if (!is.null(tag.settings$raw.light.bounds)) raw.light.bounds<-tag.settings$raw.light.bounds
+   }
+   user.raw.light.bounds<-!is.null(raw.light.bounds)
+   if (!is.null(raw.light.bounds) & (length(raw.light.bounds)!=2 | !is.numeric(raw.light.bounds))) stop("raw.light.bounds should be NULL or a numeric vector of length 2\n")
+   requested.tag.type<-tag.type
+   requested.light.scale<-light.scale
+   requested.logger.mode<-logger.mode
+
    TAGS.twilights<-utils::read.csv(filename, stringsAsFactors =FALSE)
+   observed.light.range<-range(TAGS.twilights$light, na.rm=TRUE)
 
    # now we have to find tag type and figure out whether data were logtransformed..
 
-   detected<-get.tag.type(TAGS.twilights)
+   detected<-resolve.tag.type(TAGS.twilights, tag.type=tag.type, light.scale=light.scale, logger.mode=logger.mode)
 
    if (is.null(detected)) {
-      if (log.light.borders[1]=='auto') stop("Unrecognized tag type, please supply log.light.borders\n")
-      if (log.irrad.borders[1]=='auto') stop("Unrecognized tag type, please supply log.irrad.borders\n")
-      if (length(saves)==3 | saves[1]=='auto') stop("Unrecognized tag type, please  tell FLightR what was tag saving - max or mean over saving period\n")
+      if (log.light.borders[1]=='auto') stop("Unrecognized tag type, please supply log.light.borders or set tag.type/light.scale explicitly\n")
+      if (log.irrad.borders[1]=='auto') stop("Unrecognized tag type, please supply log.irrad.borders or set tag.type/light.scale explicitly\n")
+      if (length(saves)==3 | saves[1]=='auto') stop("Unrecognized tag type, please tell FLightR what the tag was saving - max or mean over saving period\n")
    } else {
       if (detected$log_transformed) TAGS.twilights$light<-exp(TAGS.twilights$light)
-      if(detected$tagtype=="Intigeo_Mode_1") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 9)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
-	     if (saves[1] =='auto') saves<-"max"
-	  }
-      if(detected$tagtype=="Intigeo_Mode_4") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 7)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
-	     if (saves[1] =='auto') saves<-"max"
+      if (detected$tagtype=="tags") {
+         if (log.light.borders[1]=='auto') stop("Generic tag.type='tags' has no default log.light.borders; please supply log.light.borders\n")
+         if (log.irrad.borders[1]=='auto') stop("Generic tag.type='tags' has no default log.irrad.borders; please supply log.irrad.borders\n")
+         if (length(saves)==3 | saves[1]=='auto') stop("Generic tag.type='tags' has no default saves setting; please supply saves='max' or saves='mean'\n")
+      } else {
+         defaults<-get.tag.type.defaults(detected$tagtype)
+         if (log.light.borders[1]=='auto') log.light.borders<-defaults$log.light.borders
+         if (log.irrad.borders[1]=='auto') log.irrad.borders<-defaults$log.irrad.borders
+         if (saves[1] =='auto') saves<-defaults$saves
       }
-      
-      if(detected$tagtype=="Intigeo_Mode_6_clipped") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-c(1.5, 7)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-3,3)
-	     if (saves[1] =='auto') saves<-"max"
-      }
-      if(detected$tagtype=="mk") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-log(c(4, 61)) 
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,4)
-	     if (saves[1] =='auto') saves<-"max"
-      }
-	  if(detected$tagtype=="GDL2v2_GDLpam") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-c(2.5, 8)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-6.5,1.5)
-	     if (saves[1] =='auto') saves<-"mean"
-      }
-	  if(detected$tagtype=="GDL1") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-c(3, 7)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-4,1)
-	     if (saves[1] =='auto') saves<-"mean"
-      }
-	  if(detected$tagtype=="GDL2v1") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-c(2.2,7)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-2.7,0)
-	     if (saves[1] =='auto') saves<-"mean"
-      }
-    if(detected$tagtype=="Lat_2000") {
-	     if (log.light.borders[1]=='auto') log.light.borders<-c(100,360)
-	     if (log.irrad.borders[1]=='auto') log.irrad.borders<-c(-8,2)
-	     if (saves[1] =='auto') saves<-"max"
-         measurement.period<-10
-    }
+      if(detected$tagtype=="Lat_2000" & is.null(measurement.period)) measurement.period<-10
    }
 
    FLightR.data<-read.tags.light.twilight(TAGS.twilights,
@@ -101,121 +89,294 @@ get.tags.data<-function(filename=NULL, start.date=NULL, end.date=NULL, log.light
    }
    Proc.data$log.light.borders=log.light.borders
    Proc.data$log.irrad.borders=log.irrad.borders
+   import.metadata<-make.import.metadata(
+      requested.tag.type=requested.tag.type,
+      requested.light.scale=requested.light.scale,
+      requested.logger.mode=requested.logger.mode,
+      detected=detected,
+      raw.light.bounds=raw.light.bounds,
+      log.light.borders=log.light.borders,
+      observed.light.range=observed.light.range,
+      user.raw.light.bounds=user.raw.light.bounds
+   )
+   Proc.data$tag.settings<-list(
+      requested.tag.type=import.metadata$requested.tag.type,
+      requested.light.scale=import.metadata$requested.light.scale,
+      requested.logger.mode=import.metadata$requested.logger.mode,
+      tag.type=import.metadata$resolved.tag.type,
+      light.scale=import.metadata$resolved.light.scale,
+      raw.light.bounds=import.metadata$raw.light.bounds,
+      log.light.borders=import.metadata$log.light.borders,
+      observed.light.range=import.metadata$observed.light.range,
+      detection.status=import.metadata$detection.status,
+      detection.reason=import.metadata$detection.message,
+      detection.message=import.metadata$detection.message,
+      detection.candidate.modes=import.metadata$detection.candidate.modes,
+      detection=if (!is.null(detected$detection)) detected$detection else NULL,
+      transformation.applied=import.metadata$transformation.applied,
+      inferred=import.metadata$inferred
+   )
+   Proc.data$Metadata<-list(Import=import.metadata)
+   attr(Proc.data, "tag.settings")<-Proc.data$tag.settings
    Proc.data$FLightR.data<-FLightR.data
    return(Proc.data)			
 }
 
 
+make.import.metadata<-function(requested.tag.type=NULL, requested.light.scale=NULL, requested.logger.mode=NULL, detected=NULL, raw.light.bounds=NULL, log.light.borders=NULL, observed.light.range=c(NA_real_, NA_real_), user.raw.light.bounds=FALSE) {
+   resolved.tag.type<-if (!is.null(detected)) detected$tagtype else requested.tag.type
+   resolved.light.scale<-if (!is.null(detected) && isTRUE(detected$log_transformed)) "log" else if (!is.null(detected)) "raw" else requested.light.scale
+   detection<-if (!is.null(detected$detection)) detected$detection else NULL
+   list(
+      requested.tag.type=requested.tag.type,
+      requested.light.scale=requested.light.scale,
+      requested.logger.mode=requested.logger.mode,
+      resolved.tag.type=resolved.tag.type,
+      resolved.light.scale=resolved.light.scale,
+      raw.light.bounds=raw.light.bounds,
+      log.light.borders=log.light.borders,
+      observed.light.range=observed.light.range,
+      observed.min.light=observed.light.range[1],
+      observed.max.light=observed.light.range[2],
+      transformation.applied=if (!is.null(detected) && isTRUE(detected$log_transformed)) "exp(light) before processing; process.twilights uses log(light)" else "process.twilights uses log(light)",
+      detection.status=if (!is.null(detection)) detection$status else NA_character_,
+      detection.message=if (!is.null(detection)) detection$message else NA_character_,
+      detection.candidate.modes=if (!is.null(detection)) detection$candidate.modes else character(0),
+      inferred=list(
+         tag.type=is.null(requested.logger.mode) && identical(requested.tag.type, "auto"),
+         light.scale=is.null(requested.logger.mode) && identical(requested.light.scale, "auto"),
+         raw.light.bounds=!user.raw.light.bounds,
+         log.light.borders=identical(log.light.borders, "auto")
+      )
+   )
+}
+
+
+resolve.tag.type<-function(TAGS.twilights, tag.type="auto", light.scale="auto", logger.mode=NULL) {
+
+   explicit.mode<-!is.null(logger.mode)
+   if (explicit.mode) {
+      mode<-tolower(gsub("_", "-", logger.mode))
+      parts<-strsplit(mode, "-", fixed=TRUE)[[1]]
+      if (length(parts)<2) stop("logger.mode should combine tag type and light scale, for example 'mk-real', 'mk-log', 'intigeo-real', or 'intigeo-log'\n")
+      scale.alias<-parts[length(parts)]
+      type.alias<-paste(parts[-length(parts)], collapse="-")
+      tag.type<-type.alias
+      light.scale<-scale.alias
+   }
+
+   tag.type<-tolower(gsub("-", "_", tag.type))
+   light.scale<-tolower(light.scale)
+   if (light.scale=="real") light.scale<-"raw"
+   if (!light.scale %in% c("auto", "raw", "log")) stop("light.scale should be one of 'auto', 'raw', or 'log'\n")
+
+   tag.map<-c(
+      auto="auto",
+      mk="mk",
+      intigeo="Intigeo_Mode_1",
+      intigeo_mode_1="Intigeo_Mode_1",
+      intigeo_mode_4="Intigeo_Mode_4",
+      intigeo_mode_6="Intigeo_Mode_6_clipped",
+      intigeo_mode_6_clipped="Intigeo_Mode_6_clipped",
+      gdl2v2_gdlpam="GDL2v2_GDLpam",
+      gdlpam="GDL2v2_GDLpam",
+      gdl1="GDL1",
+      gdl2v1="GDL2v1",
+      lat2000="Lat_2000",
+      lat_2000="Lat_2000",
+      tags="tags"
+   )
+   if (!tag.type %in% names(tag.map)) stop("Unknown tag.type '", tag.type, "'. Use 'auto', 'mk', 'intigeo', 'intigeo_mode_1', 'intigeo_mode_4', 'gdl1', 'gdl2v1', 'gdl2v2_gdlpam', 'lat2000', or 'tags'.\n")
+
+   detection<-detect.tag.type(TAGS.twilights)
+   if (tag.type=="auto" & light.scale=="auto" & !explicit.mode) return(resolve.auto.detection(detection))
+   if (tag.type=="auto" & light.scale!="auto") {
+      detection<-filter.detection.candidates(detection, light.scale=light.scale)
+      detected<-resolve.auto.detection(detection)
+      detected$log_transformed<-light.scale=="log"
+      detected$light.scale<-light.scale
+      message("Using detected ", detected$tagtype, " tag with user-specified light.scale=", light.scale, "\n")
+      return(detected)
+   }
+   if (tag.type!="auto" & light.scale=="auto") {
+      detection<-filter.detection.candidates(detection, tagtype=unname(tag.map[tag.type]))
+      detected<-resolve.auto.detection(detection)
+      detected$tagtype<-unname(tag.map[tag.type])
+      message("Using user-specified ", detected$tagtype, " tag with detected light.scale=", detected$light.scale, "\n")
+      return(detected)
+   }
+
+   tagtype<-unname(tag.map[tag.type])
+   Max_light<-max(TAGS.twilights$light, na.rm=TRUE)
+   Min_light<-min(TAGS.twilights$light, na.rm=TRUE)
+   consistency<-check.explicit.light.consistency(Max_light, Min_light, light.scale)
+   if (!is.null(consistency)) warning(consistency, call.=FALSE)
+   message("Using user-specified ", tagtype, " tag\n")
+   message("Using user-specified light.scale=", light.scale, "; observed light range: ", signif(Min_light, 6), " to ", signif(Max_light, 6), "\n")
+   if (light.scale=="log") message("Input light values are treated as log-transformed and converted internally before processing\n")
+   detection<-make.detection.result(
+      status="confident",
+      reason="tag.type and light.scale were supplied by the user; automatic detection was not used",
+      observed.min=Min_light,
+      observed.max=Max_light,
+      candidates=data.frame(tagtype=tagtype, light.scale=light.scale, log_transformed=light.scale=="log", score=Inf, reason="user-specified", stringsAsFactors=FALSE)
+   )
+   return(list(tagtype=tagtype, light.scale=light.scale, log_transformed=light.scale=="log", detection=detection))
+}
+
+
+resolve.auto.detection<-function(detection) {
+   if (detection$status=="confident") {
+      cand<-detection$candidates[1,]
+      message("Detected", cand$tagtype, "tag\n")
+      if (cand$log_transformed) message("Data found to be logtransformed\n")
+      return(list(tagtype=cand$tagtype, light.scale=cand$light.scale, log_transformed=cand$log_transformed, detection=detection))
+   }
+   stop(format_detection_failure(detection), call.=FALSE)
+}
+
+
+filter.detection.candidates<-function(detection, tagtype=NULL, light.scale=NULL) {
+   candidates<-detection$candidates
+   if (!is.null(tagtype) && nrow(candidates)>0) candidates<-candidates[candidates$tagtype==tagtype,,drop=FALSE]
+   if (!is.null(light.scale) && nrow(candidates)>0) candidates<-candidates[candidates$light.scale==light.scale,,drop=FALSE]
+   if (nrow(candidates)==0) {
+      return(make.detection.result(
+         status="failed",
+         reason="automatic detection found no candidates matching the user-specified partial settings",
+         observed.min=detection$observed.min,
+         observed.max=detection$observed.max,
+         candidates=candidates
+      ))
+   }
+   make.detection.result(
+      status=if (length(unique(candidates$score))>0 && sum(candidates$score==max(candidates$score))==1) "confident" else "ambiguous",
+      reason=if (sum(candidates$score==max(candidates$score))==1) "unique best candidate after applying user-specified partial settings" else "multiple candidate modes match the observed light range after applying user-specified partial settings",
+      observed.min=detection$observed.min,
+      observed.max=detection$observed.max,
+      candidates=candidates
+   )
+}
+
+
+check.explicit.light.consistency<-function(Max_light, Min_light, light.scale) {
+   if (light.scale=="log" && Max_light>20) return(paste0("Explicit light.scale='log' was supplied, but observed max light is ", signif(Max_light, 6), "; check whether the file may contain raw light values."))
+   if (light.scale=="raw" && Max_light<20 && Min_light>=0) return(paste0("Explicit light.scale='raw' was supplied, but observed light range is ", signif(Min_light, 6), " to ", signif(Max_light, 6), "; check whether the file may already contain log-light values."))
+   NULL
+}
+
+
+get.tag.type.defaults<-function(tagtype) {
+   if(tagtype=="Intigeo_Mode_1") return(list(log.light.borders=c(1.5, 9), log.irrad.borders=c(-3,3), saves="max"))
+   if(tagtype=="Intigeo_Mode_4") return(list(log.light.borders=c(1.5, 7), log.irrad.borders=c(-3,3), saves="max"))
+   if(tagtype=="Intigeo_Mode_6_clipped") return(list(log.light.borders=c(1.5, 7), log.irrad.borders=c(-3,3), saves="max"))
+   if(tagtype=="mk") return(list(log.light.borders=log(c(4, 61)), log.irrad.borders=c(-6.5,4), saves="max"))
+   if(tagtype=="GDL2v2_GDLpam") return(list(log.light.borders=c(2.5, 8), log.irrad.borders=c(-6.5,1.5), saves="mean"))
+   if(tagtype=="GDL1") return(list(log.light.borders=c(3, 7), log.irrad.borders=c(-4,1), saves="mean"))
+   if(tagtype=="GDL2v1") return(list(log.light.borders=c(2.2,7), log.irrad.borders=c(-2.7,0), saves="mean"))
+   if(tagtype=="Lat_2000") return(list(log.light.borders=c(100,360), log.irrad.borders=c(-8,2), saves="max"))
+   stop("No default import settings are known for tag type '", tagtype, "'. Please supply log.light.borders, log.irrad.borders, and saves explicitly.\n")
+}
+
+
 get.tag.type<-function(TAGS.twilights) {
+   detection<-detect.tag.type(TAGS.twilights)
+   if (detection$status!="confident") {
+      warning(format_detection_failure(detection), call.=FALSE)
+      return(NULL)
+   }
+   cand<-detection$candidates[1,]
+   message("Detected", cand$tagtype, "tag\n")
+   if (cand$log_transformed) message("Data found to be logtransformed\n")
+   list(tagtype=cand$tagtype, light.scale=cand$light.scale, log_transformed=cand$log_transformed, detection=detection)
+}
 
-   Max_light<-max(TAGS.twilights$light)
-   Min_light<-min(TAGS.twilights$light)
-   recognized<-FALSE
-   
-   if(Max_light == 1146.681 &  Min_light == 0.32 ) {
-      tagtype<-"Intigeo_Mode_6_clipped"
-      log_transformed<-FALSE
-	  recognized<-TRUE
-   }
-   
-      
-   if(Max_light == log(1146.681) &  Min_light == log(0.32) ) {
-      tagtype<-"Intigeo_Mode_6_clipped"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   
-   if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=12.50)) {
-      tagtype<-"Intigeo_Mode_1"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   
-   if(round(Max_light,2) >= 10.05 &  (round(Max_light,2) <= 11.22 | round(Max_light,2) >= 11.22 & round(Max_light,2) <=12.50)) {
-      tagtype<-"Intigeo_Mode_1"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   
-  #if (round(Max_light/10) >= 2000 & round(Max_light/10)<= 7000) {
-   if(round(Max_light,2) >= exp(10.05) &  (round(Max_light,2) <= exp(11.22) | round(Max_light,2) >= exp(11.22) & round(Max_light,2) <= exp(12.50))) {
-     tagtype<-"Intigeo_Mode_1"
-	 log_transformed<-FALSE
-     recognized<-TRUE
+
+detect.tag.type<-function(TAGS.twilights) {
+   Max_light<-max(TAGS.twilights$light, na.rm=TRUE)
+   Min_light<-min(TAGS.twilights$light, na.rm=TRUE)
+   candidates<-data.frame(
+      tagtype=character(0),
+      light.scale=character(0),
+      log_transformed=logical(0),
+      score=numeric(0),
+      reason=character(0),
+      stringsAsFactors=FALSE
+   )
+   add_candidate<-function(tagtype, light.scale, score, reason) {
+      candidates<<-rbind(candidates, data.frame(
+         tagtype=tagtype,
+         light.scale=light.scale,
+         log_transformed=light.scale=="log",
+         score=score,
+         reason=reason,
+         stringsAsFactors=FALSE
+      ))
    }
 
-   if(round(Max_light,2)==7.06) {
-      tagtype<-"Intigeo_Mode_4"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   if (round(Max_light/10)==116) {
-     tagtype<-"Intigeo_Mode_4"
-	 log_transformed<-FALSE
-     recognized<-TRUE
-   }
-   
-   if (Max_light == 64) {
-      tagtype<-"mk"
-	  log_transformed<-FALSE
-	  recognized<-TRUE
-   }
+   if(Max_light == 1146.681 &  Min_light == 0.32) add_candidate("Intigeo_Mode_6_clipped", "raw", 1, "exact raw Intigeo Mode 6 clipped min/max")
+   if(Max_light == log(1146.681) &  Min_light == log(0.32)) add_candidate("Intigeo_Mode_6_clipped", "log", 1, "exact log Intigeo Mode 6 clipped min/max")
+   if(round(Max_light,2) >= 10.05 & round(Max_light,2) <= 12.50) add_candidate("Intigeo_Mode_1", "log", 0.8, "max light within historical log Intigeo Mode 1 range")
+   if(round(Max_light,2) >= exp(10.05) & round(Max_light,2) <= exp(12.50)) add_candidate("Intigeo_Mode_1", "raw", 0.8, "max light within historical raw Intigeo Mode 1 range")
+   if(round(Max_light,2)==7.06) add_candidate("Intigeo_Mode_4", "log", 1, "exact log Intigeo Mode 4 maximum")
+   if(round(Max_light/10)==116) add_candidate("Intigeo_Mode_4", "raw", 0.9, "rounded raw Intigeo Mode 4 maximum")
+   if(Max_light == 64) add_candidate("mk", "raw", 1, "exact mk raw maximum")
+   if(Max_light == log(64)) add_candidate("mk", "log", 1, "exact mk log maximum")
+   if(round(Max_light,1)==9.2) add_candidate("GDL2v2_GDLpam", "log", 1, "rounded GDL2v2/GDLpam log maximum")
+   if(round(Max_light/10)==998) add_candidate("GDL2v2_GDLpam", "raw", 0.9, "rounded GDL2v2/GDLpam raw maximum")
+   if(round(Max_light,2)==11.32) add_candidate("GDL1", "log", 1, "rounded GDL1 log maximum")
+   if(round(Max_light)==82863) add_candidate("GDL1", "raw", 0.9, "rounded GDL1 raw maximum")
+   if(round(Max_light,2)==log(63)) add_candidate("GDL2v1", "log", 1, "exact GDL2v1 log maximum")
+   if(Max_light==63) add_candidate("GDL2v1", "raw", 1, "exact GDL2v1 raw maximum")
+   if(log(Max_light) %in% c(4095, 357)) add_candidate("Lat_2000", "raw", 1, "historical Lat_2000 raw check")
+   if(Max_light %in% c(4095, 357)) add_candidate("Lat_2000", "log", 1, "historical Lat_2000 log check")
 
-   if (Max_light == log(64)) {
-      tagtype<-"mk"
-	  log_transformed<-TRUE
-	  recognized<-TRUE
+   if (nrow(candidates)==0) {
+      return(make.detection.result(
+         status="failed",
+         reason="no known tag/light-scale rule matched the observed light range",
+         observed.min=Min_light,
+         observed.max=Max_light,
+         candidates=candidates
+      ))
    }
-   if(round(Max_light,1)==9.2) {
-      tagtype<-"GDL2v2_GDLpam"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   if (round(Max_light/10)==998) {
-     tagtype<-"GDL2v2_GDLpam"
-	 log_transformed<-FALSE
-     recognized<-TRUE
-   }
-   if(round(Max_light,2)==11.32) {
-      tagtype<-"GDL1"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   if (round(Max_light)==82863) {
-     tagtype<-"GDL1"
-	 log_transformed<-FALSE
-     recognized<-TRUE
-   }
-   if(round(Max_light,2)==log(63)) {
-      tagtype<-"GDL2v1"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   if (Max_light==63) {
-     tagtype<-"GDL2v1"
-	 log_transformed<-FALSE
-     recognized<-TRUE
-   }
-   if(log(Max_light) %in% c(4095, 357)) {
-      tagtype<-"Lat_2000"
-      log_transformed<-FALSE
-	  recognized<-TRUE
-   }
+   make.detection.result(
+      status=if (nrow(candidates)==1) "confident" else "ambiguous",
+      reason=if (nrow(candidates)==1) candidates$reason[1] else "multiple candidate modes match the observed light range",
+      observed.min=Min_light,
+      observed.max=Max_light,
+      candidates=candidates
+   )
+}
 
-   if(Max_light %in% c(4095, 357)) {
-      tagtype<-"Lat_2000"
-      log_transformed<-TRUE
-	  recognized<-TRUE
-   }
-   if (recognized==FALSE) { 
-    warning("tag type was not recognised!\nmail me details of your tag and I will add them to the list!\n")
-    return(NULL)
-   } else {
-   message("Detected", tagtype, "tag\n")
-   if (log_transformed) message("Data found to be logtransformed\n")
-   Res<-list(tagtype=tagtype, log_transformed=log_transformed)
-   return(Res)
-  }
+
+make.detection.result<-function(status, reason, observed.min, observed.max, candidates) {
+   candidate.modes<-if (nrow(candidates)==0) character(0) else paste(candidates$tagtype, candidates$light.scale, sep="-")
+   list(
+      tag.type=if (status=="confident" && nrow(candidates)>0) candidates$tagtype[1] else NA_character_,
+      light.scale=if (status=="confident" && nrow(candidates)>0) candidates$light.scale[1] else NA_character_,
+      status=status,
+      reason=reason,
+      message=reason,
+      observed.min=observed.min,
+      observed.max=observed.max,
+      candidate.modes=candidate.modes,
+      candidates=candidates
+   )
+}
+
+
+format_detection_failure<-function(detection) {
+   candidates<-if (length(detection$candidate.modes)==0) "none" else paste(detection$candidate.modes, collapse=", ")
+   paste0(
+      "Automatic tag/light-scale detection was ", detection$status, ": ", detection$reason, ".\n",
+      "Observed light range: ", signif(detection$observed.min, 6), " to ", signif(detection$observed.max, 6), ".\n",
+      "Candidate modes: ", candidates, ".\n",
+      "Please specify settings explicitly, for example:\n",
+      "  get.tags.data(file, tag.type='mk', light.scale='raw')\n",
+      "  get.tags.data(file, tag.type='mk', light.scale='log')\n",
+      "  get.tags.data(file, tag.type='tags', light.scale='raw', log.light.borders=log(c(5, 500)), log.irrad.borders=c(-6, 4), saves='max')\n"
+   )
 }
 
 
